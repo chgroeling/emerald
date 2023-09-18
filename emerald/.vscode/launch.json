@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "(Windows) Launch",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/target/debug/emeraldrs.exe",
+      "args": ["..\\test_vault"],
+      "stopAtEntry": false,
+      "cwd": "${workspaceRoot}",
+      "environment": [
+        {"name": "RUST_LOG", "value": "trace" }
+      ],
+      "console": "externalTerminal"
+    },
+    {
+      "name": "(OSX) Launch",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceRoot}/target/debug/emeraldrs",
+      "args": ["${env:HOME}/vault"],
+      "cwd": "${workspaceRoot}",
+    }
+  ]
+}

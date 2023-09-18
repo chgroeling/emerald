@@ -1,0 +1,10 @@
+[package]
+name = "emrs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.3.23", features = ["derive"] }
+env_logger = "0.10.0"
+log = { version = "0.4.20", features = ["max_level_trace", "release_max_level_info"] }
+emerald = { path = "../emerald" }
