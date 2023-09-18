@@ -51,19 +51,19 @@ impl<'a> ContentStorage {
 }
 
 impl ContentQueryable for ContentStorage {
-    fn get(&self, resource_id: &ResourceId) -> Option<&Content> {
+    fn get(&self, resource_id: &ResourceId) -> Option<Content> {
         let content_idx = self.resource_to_content_idx.get(resource_id)?;
-        let ret: &Content;
+        let ret: Content;
         unsafe {
-            ret = &self.ep_content_list.get_unchecked(*content_idx).1;
+            ret = self.ep_content_list.get_unchecked(*content_idx).1.clone();
         }
         Some(ret)
     }
 }
 
-impl<'a> ContentIterSource<'a> for ContentStorage {
-    type Iter = std::slice::Iter<'a, (ResourceId, Content)>;
-    fn iter(&'a self) -> Self::Iter {
-        self.ep_content_list.iter()
+impl ContentIterSource for ContentStorage {
+    type Iter = std::vec::IntoIter<(ResourceId, Content)>;
+    fn iter(&self) -> Self::Iter {
+        self.ep_content_list.clone().into_iter()
     }
 }
