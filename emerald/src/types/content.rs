@@ -1,5 +1,7 @@
 use std::rc::Rc;
 
+#[derive(Debug, Clone)]
+
 /// This struct holds a reference counted string
 /// to hold content from markdown files.
 pub struct Content(pub Rc<String>);
