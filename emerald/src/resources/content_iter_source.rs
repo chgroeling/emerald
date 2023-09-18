@@ -1,7 +1,6 @@
-use crate::types::ResourceId;
+use crate::types::{Content, ResourceId};
 
 pub trait ContentIterSource<'a> {
-    // TODO: Should this be (&ResourceId, &String)?
-    type Iter: Iterator<Item = &'a (ResourceId, String)>;
+    type Iter: Iterator<Item = &'a (ResourceId, Content)>;
     fn iter(&'a self) -> Self::Iter;
 }

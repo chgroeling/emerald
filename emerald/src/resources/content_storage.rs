@@ -7,9 +7,12 @@ use super::{
     content_iter_source::ContentIterSource, content_loader::ContentLoader,
     content_queryable::ContentQueryable,
 };
-use crate::{indexes::MdResourceIdsIterSource, types::ResourceId};
+use crate::{
+    indexes::MdResourceIdsIterSource,
+    types::{Content, ResourceId},
+};
 
-type EndPointContentList = Vec<(ResourceId, String)>;
+type EndPointContentList = Vec<(ResourceId, Content)>;
 type EndPointLinkToContentIdx = HashMap<ResourceId, usize>;
 
 pub struct ContentStorage {
@@ -48,9 +51,9 @@ impl<'a> ContentStorage {
 }
 
 impl ContentQueryable for ContentStorage {
-    fn get(&self, resource_id: &ResourceId) -> Option<&str> {
+    fn get(&self, resource_id: &ResourceId) -> Option<&Content> {
         let content_idx = self.resource_to_content_idx.get(resource_id)?;
-        let ret: &str;
+        let ret: &Content;
         unsafe {
             ret = &self.ep_content_list.get_unchecked(*content_idx).1;
         }
@@ -59,7 +62,7 @@ impl ContentQueryable for ContentStorage {
 }
 
 impl<'a> ContentIterSource<'a> for ContentStorage {
-    type Iter = std::slice::Iter<'a, (ResourceId, String)>;
+    type Iter = std::slice::Iter<'a, (ResourceId, Content)>;
     fn iter(&'a self) -> Self::Iter {
         self.ep_content_list.iter()
     }
