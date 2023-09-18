@@ -60,7 +60,6 @@ pub struct LinkDecomposer {
 
 impl LinkDecomposer {
     pub fn new() -> LinkDecomposer {
-        // TODO: INSTEAD OF USING REGEX WRITE OWN WIKI LINK PARSER. SHOULD BE FASTER
         let link_regex = r"^\[{2}(?:([^\]#|]*)[\/])?(.*?)([#|][^\]#|]*)?([#|][^\]#|]*)?\]{2}$";
         let re = Regex::new(link_regex).unwrap();
 

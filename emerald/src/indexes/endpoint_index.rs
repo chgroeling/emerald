@@ -18,8 +18,6 @@ pub struct EndpointIndex {
     endpoint_list: EndPointList,
 }
 
-// TODO:Allow Registration. This enables the possibility to register directories
-// All over the filesystem.
 impl EndpointIndex {
     pub fn new(vault_path: &Path) -> Result<EndpointIndex> {
         let file_list_of_vault = EndpointIndex::_get_file_list_recursive(vault_path)?;
@@ -28,7 +26,6 @@ impl EndpointIndex {
 
     pub fn new_from_file_list(file_list: Vec<PathBuf>) -> Result<Self> {
         let mut endpoint_list = EndPointList::new();
-        // TODO: add a further list for markdown content. This should speed up things a bit
         for file_path in file_list {
             let endpoint = if file_path
                 .extension()

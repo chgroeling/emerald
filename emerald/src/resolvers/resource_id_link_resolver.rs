@@ -110,8 +110,6 @@ impl LinkResolver for ResourceIdLinkResolver {
                     warn!("The link {} is not unique.", dec_link);
                 }
 
-                // TODO: Add heuristic ...
-                // TODO: Include relative path matching
                 let match_link = match_list[0].clone();
                 return Ok(match_link);
             }

@@ -49,7 +49,6 @@ pub struct MarkdownExtractorIter {
 
 impl MarkdownExtractorIter {
     fn new(content: String) -> Self {
-        // TODO: Realisation as unsafe self referencing struct
         let content_list = BorrowedMarkdownIterator::new(&content).collect::<Vec<_>>();
         Self {
             content_iter: content_list.into_iter(),
