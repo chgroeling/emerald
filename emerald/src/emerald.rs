@@ -105,4 +105,3 @@ impl Emerald {
         self.backlink_index.get_invalid_backlink_cnt()
     }
 }
-
