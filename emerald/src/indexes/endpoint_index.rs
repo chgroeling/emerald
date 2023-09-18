@@ -18,8 +18,6 @@ pub struct EndpointIndex {
     endpoint_list: EndPointList,
 }
 
-// TODO:Allow Registration. This enables the possibility to register directories
-// All over the filesystem.
 impl EndpointIndex {
     pub fn new(vault_path: &Path) -> Result<EndpointIndex> {
         let file_list_of_vault = EndpointIndex::_get_file_list_recursive(vault_path)?;
