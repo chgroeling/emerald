@@ -1,6 +1,7 @@
 use std::{collections::HashMap, fs, path::Path};
 
 use crate::indexes::AllEndpointsIterSource;
+use crate::types::Content;
 use crate::types::EndPoint;
 use crate::types::ResourceId;
 use crate::utils::endpoint_translation::convert_endpoint_to_resource_id;
@@ -50,13 +51,13 @@ impl FileContentLoader {
 }
 
 impl ContentLoader for FileContentLoader {
-    fn load(&self, resource_id: &ResourceId) -> Result<String> {
+    fn load(&self, resource_id: &ResourceId) -> Result<Content> {
         let endpoint = self.get(resource_id)?;
 
         let EndPoint::FileMarkdown(md_path) = endpoint else {
             return Err(NotAMarkdownFile);
         };
-        Ok(fs::read_to_string(md_path)?)
+        Ok(fs::read_to_string(md_path)?.into())
     }
 }
 

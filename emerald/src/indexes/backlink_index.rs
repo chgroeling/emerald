@@ -35,7 +35,7 @@ impl<'a> BacklinkIndex {
 
             let mut resource_id_backlinks: Vec<LinkAndResourceId> = Vec::new();
 
-            for link_and_resource_id in link_extractor.create_iter(content.clone()) {
+            for link_and_resource_id in link_extractor.create_iter(content.0.as_ref().clone()) {
                 match &link_and_resource_id {
                     (link, None) => {
                         invalid_backlink_cnt += 1;

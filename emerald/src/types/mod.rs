@@ -1,12 +1,12 @@
+mod content;
 mod endpoint;
 pub mod link;
 pub mod link_decomposer;
 mod res_and_err;
-mod content;
 pub mod resource_id;
 
-pub use self::res_and_err::EmeraldError;
 pub use self::content::Content;
+pub use self::res_and_err::EmeraldError;
 
 pub type Link = self::link::Link;
 pub type ResourceId = self::resource_id::ResourceId;
