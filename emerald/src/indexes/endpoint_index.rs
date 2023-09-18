@@ -28,7 +28,6 @@ impl EndpointIndex {
 
     pub fn new_from_file_list(file_list: Vec<PathBuf>) -> Result<Self> {
         let mut endpoint_list = EndPointList::new();
-        // TODO: add a further list for markdown content. This should speed up things a bit
         for file_path in file_list {
             let endpoint = if file_path
                 .extension()
