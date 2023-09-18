@@ -28,7 +28,6 @@ impl FileContentLoader {
         for endpoint in endpoint_iter_src.all_iter() {
             let opt_resource_id = convert_endpoint_to_resource_id(endpoint.clone(), common_path);
 
-            // TODO: ONLY INCLUDE MARKDOWN FILES
             if let Some(resource_id) = opt_resource_id {
                 resource_id_to_endpoint.insert(resource_id, endpoint);
             } else {
