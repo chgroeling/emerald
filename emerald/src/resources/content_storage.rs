@@ -51,11 +51,11 @@ impl<'a> ContentStorage {
 }
 
 impl ContentQueryable for ContentStorage {
-    fn get(&self, resource_id: &ResourceId) -> Option<&Content> {
+    fn get(&self, resource_id: &ResourceId) -> Option<Content> {
         let content_idx = self.resource_to_content_idx.get(resource_id)?;
-        let ret: &Content;
+        let ret: Content;
         unsafe {
-            ret = &self.ep_content_list.get_unchecked(*content_idx).1;
+            ret = self.ep_content_list.get_unchecked(*content_idx).1.clone();
         }
         Some(ret)
     }
