@@ -30,9 +30,7 @@ pub struct Emerald {
 
 impl Emerald {
     pub fn new(vault_path: &Path) -> Result<Emerald> {
-        // TODO: ONLY INTEGRATE TIME MEASUREMENT WHEN DEBUG IS ENABLED
         // Build dependency root
-
         let start = Instant::now();
         let endpoint_index = Rc::new(EndpointIndex::new(vault_path)?);
         let dur = start.elapsed();
