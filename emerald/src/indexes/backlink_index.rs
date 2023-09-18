@@ -9,8 +9,6 @@ use crate::{
     types::{LinkAndResourceId, ResourceId},
 };
 
-//TODO: Include iterator traits
-
 pub type ResourceIdToBacklinks = HashMap<ResourceId, Vec<LinkAndResourceId>>;
 
 pub struct BacklinkIndex {
