@@ -61,9 +61,9 @@ impl ContentQueryable for ContentStorage {
     }
 }
 
-impl<'a> ContentIterSource<'a> for ContentStorage {
-    type Iter = std::slice::Iter<'a, (ResourceId, Content)>;
-    fn iter(&'a self) -> Self::Iter {
-        self.ep_content_list.iter()
+impl ContentIterSource for ContentStorage {
+    type Iter = std::vec::IntoIter<(ResourceId, Content)>;
+    fn iter(&self) -> Self::Iter {
+        self.ep_content_list.clone().into_iter()
     }
 }

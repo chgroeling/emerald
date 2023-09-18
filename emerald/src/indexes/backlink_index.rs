@@ -21,10 +21,10 @@ pub struct BacklinkIndex {
     resource_id_to_backlinks: ResourceIdToBacklinks,
 }
 
-impl<'a> BacklinkIndex {
+impl BacklinkIndex {
     pub fn new(
-        content_iter_src: &'a impl ContentIterSource<'a>,
-        link_extractor: &'a impl MdLinkAnalyzerIterSource,
+        content_iter_src: &impl ContentIterSource,
+        link_extractor: &impl MdLinkAnalyzerIterSource,
     ) -> Self {
         let mut valid_backlink_cnt: usize = 0;
         let mut invalid_backlink_cnt: usize = 0;
