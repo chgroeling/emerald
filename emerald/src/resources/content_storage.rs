@@ -12,12 +12,12 @@ use crate::{
     types::{Content, ResourceId},
 };
 
-type EndPointContentList = Vec<(ResourceId, Content)>;
-type EndPointLinkToContentIdx = HashMap<ResourceId, usize>;
+type ResourceIdContentList = Vec<(ResourceId, Content)>;
+type ResourceIdToContentIdx = HashMap<ResourceId, usize>;
 
 pub struct ContentStorage {
-    resource_to_content_idx: EndPointLinkToContentIdx,
-    ep_content_list: EndPointContentList,
+    resource_to_content_idx: ResourceIdToContentIdx,
+    ep_content_list: ResourceIdContentList,
 }
 
 impl<'a> ContentStorage {
@@ -25,8 +25,8 @@ impl<'a> ContentStorage {
         ep_md_iter_src: &impl MdResourceIdsIterSource,
         content_loader: &'a impl ContentLoader,
     ) -> ContentStorage {
-        let mut ep_content_list = EndPointContentList::new();
-        let mut resource_id_to_content_idx = EndPointLinkToContentIdx::new();
+        let mut ep_content_list = ResourceIdContentList::new();
+        let mut resource_id_to_content_idx = ResourceIdToContentIdx::new();
 
         for ep_md_link in ep_md_iter_src.md_iter() {
             let read_note = content_loader.load(ep_md_link.clone());
