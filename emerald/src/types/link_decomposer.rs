@@ -3,8 +3,8 @@ use std::{collections::HashMap, fmt::Display};
 
 #[derive(Debug)]
 pub struct DecomposedLink {
-    pub path: Option<String>,
     pub name: String,
+    pub path: Option<String>,
 }
 
 impl Display for DecomposedLink {
@@ -57,45 +57,49 @@ fn extract_wiki_link(s: &str) -> Option<HashMap<String, String>> {
     let start = s.find("[[")?;
     let end = s.find("]]")?;
 
+    // check if "[[" is at the start of the string
     if start != 0 {
         return None;
     }
 
+    // check if "]]" is at the end of the string
     if end != s.len() - 2 {
         return None;
     }
-    if start < end {
-        let link_text = &s[(start + 2)..end];
-        let parts: Vec<&str> = link_text
-            .split(|c| c == '|' || c == '#' || c == '^')
-            .collect();
-        let mut map: HashMap<String, String> = HashMap::new();
 
-        // Get the full link and path if exists
-        let full_link = parts[0];
-        let link_parts: Vec<&str> = full_link.split('/').collect();
-        map.insert("link".to_owned(), link_parts.last().unwrap().to_string());
-        if link_parts.len() > 1 {
-            map.insert(
-                "path".to_owned(),
-                full_link[0..(full_link.len() - link_parts.last().unwrap().len() - 1)].to_owned(),
-            );
-        }
-
-        if parts.len() > 1 {
-            map.insert("label".to_owned(), parts[1].to_owned());
-        }
-        if parts.len() > 2 {
-            map.insert("section".to_owned(), parts[2].to_owned());
-        }
-        if parts.len() > 3 {
-            map.insert("anchor".to_owned(), parts[3].to_owned());
-        }
-
-        Some(map)
-    } else {
-        None
+    // sanity check
+    if start >= end {
+        return None;
     }
+
+    let link_text = &s[(start + 2)..end];
+    let parts: Vec<&str> = link_text
+        .split(|c| c == '|' || c == '#' || c == '^')
+        .collect();
+    let mut map: HashMap<String, String> = HashMap::new();
+
+    // Get the full link and path if exists
+    let full_link = parts[0];
+    let link_parts: Vec<&str> = full_link.split('/').collect();
+    map.insert("link".to_owned(), link_parts.last().unwrap().to_string());
+    if link_parts.len() > 1 {
+        map.insert(
+            "path".to_owned(),
+            full_link[0..(full_link.len() - link_parts.last().unwrap().len() - 1)].to_owned(),
+        );
+    }
+
+    if parts.len() > 1 {
+        map.insert("label".to_owned(), parts[1].to_owned());
+    }
+    if parts.len() > 2 {
+        map.insert("section".to_owned(), parts[2].to_owned());
+    }
+    if parts.len() > 3 {
+        map.insert("anchor".to_owned(), parts[3].to_owned());
+    }
+
+    Some(map)
 }
 
 impl LinkDecomposer {
