@@ -13,10 +13,10 @@ use crate::{
 };
 
 type ResourceIdContentList = Vec<(ResourceId, Content)>;
-type ResourceIdToContentIdx = HashMap<ResourceId, usize>;
+type ResourceIdToContentIdx = HashMap<ResourceId, Content>;
 
 pub struct ContentStorage {
-    resource_to_content_idx: ResourceIdToContentIdx,
+    resource_id_to_content_idx: ResourceIdToContentIdx,
     ep_content_list: ResourceIdContentList,
 }
 
@@ -36,7 +36,7 @@ impl<'a> ContentStorage {
                 trace!("Loaded {:?} into string", &md_res_id);
 
                 // insert actual index into hashmap
-                resource_id_to_content_idx.insert(md_res_id.clone(), ep_content_list.len());
+                resource_id_to_content_idx.insert(md_res_id.clone(), content.clone());
                 ep_content_list.push((md_res_id, content));
             } else {
                 warn!("File {:?} could not be loaded", &md_res_id)
@@ -45,19 +45,14 @@ impl<'a> ContentStorage {
 
         Self {
             ep_content_list,
-            resource_to_content_idx: resource_id_to_content_idx,
+            resource_id_to_content_idx,
         }
     }
 }
 
 impl ContentQueryable for ContentStorage {
     fn get(&self, resource_id: &ResourceId) -> Option<Content> {
-        let content_idx = self.resource_to_content_idx.get(resource_id)?;
-        let ret: Content;
-        unsafe {
-            ret = self.ep_content_list.get_unchecked(*content_idx).1.clone();
-        }
-        Some(ret)
+        Some(self.resource_id_to_content_idx.get(resource_id)?.clone())
     }
 }
 
