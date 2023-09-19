@@ -71,6 +71,19 @@ impl From<&'static str> for DecomposedLink {
 
 pub struct LinkDecomposer {}
 
+fn extract_part(s: &str) -> (&str, Option<&str>) {
+    let end_idx = s.find(|c| c == '|' || c == '#' || c == '^');
+    if end_idx.is_none() {
+        return (s, None);
+    }
+
+    let end_idx = end_idx.map_or_else(|| s.len(), |x| x);
+
+    let front = &s[..end_idx];
+    let back = &s[end_idx + 1..];
+
+    (front, Some(back))
+}
 fn extract_wiki_link(s: &str) -> Option<DecomposedLink> {
     let start = s.find("[[")?;
     let end = s.find("]]")?;
@@ -92,11 +105,9 @@ fn extract_wiki_link(s: &str) -> Option<DecomposedLink> {
 
     let link_text = &s[(start + 2)..end];
 
-    let full_link_idx = link_text.find(|c| c == '|' || c == '#' || c == '^');
-    let full_link_end_idx = full_link_idx.map_or_else(|| link_text.len(), |x| x);
-
+    let (front, back) = extract_part(link_text);
     // Get the full link and path if exists
-    let full_link = &link_text[0..full_link_end_idx];
+    let full_link = front;
     let link_parts: Vec<&str> = full_link.split('/').collect();
     let link = link_parts.last().unwrap().to_string();
 
@@ -106,28 +117,30 @@ fn extract_wiki_link(s: &str) -> Option<DecomposedLink> {
         None
     };
 
-    //    let link_text = &link_text[full_link_end_idx ];
-    let parts: Vec<&str> = link_text
-        .split(|c| c == '|' || c == '#' || c == '^')
-        .collect();
-    let label: Option<String> = if parts.len() > 1 {
-        Some(parts[1].to_owned())
-    } else {
-        None
-    };
-    let section: Option<String> = if parts.len() > 2 {
-        Some(parts[2].to_owned())
-    } else {
-        None
-    };
+    if let Some(link_text) = back {
+        let parts: Vec<&str> = link_text
+            .split(|c| c == '|' || c == '#' || c == '^')
+            .collect();
+        let label: Option<String> = if parts.len() > 0 {
+            Some(parts[0].to_owned())
+        } else {
+            None
+        };
+        let section: Option<String> = if parts.len() > 1 {
+            Some(parts[1].to_owned())
+        } else {
+            None
+        };
 
-    let anchor: Option<String> = if parts.len() > 3 {
-        Some(parts[3].to_owned())
-    } else {
-        None
-    };
+        let anchor: Option<String> = if parts.len() > 2 {
+            Some(parts[2].to_owned())
+        } else {
+            None
+        };
+        return Some(DecomposedLink::new(link, path, label, section, anchor));
+    }
 
-    Some(DecomposedLink::new(link, path, label, section, anchor))
+    return Some(DecomposedLink::new(link, path, None, None, None));
 }
 
 impl LinkDecomposer {
