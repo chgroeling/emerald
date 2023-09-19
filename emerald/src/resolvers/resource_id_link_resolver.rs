@@ -90,7 +90,7 @@ impl LinkResolver for ResourceIdLinkResolver {
 
             // Check if the given link has a path
             if let Some(link_path) = &dec_link.path {
-                let link_path_norm = normalize_str(&link_path);
+                let link_path_norm = normalize_str(link_path);
 
                 // if it has one ... try to match it with the result list.
                 for potential_link in match_list {

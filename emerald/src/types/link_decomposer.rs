@@ -148,7 +148,7 @@ impl LinkDecomposer {
             }
         }
 
-        return Ok(DecomposedLink::new(link, path, label, section, anchor));
+        Ok(DecomposedLink::new(link, path, label, section, anchor))
     }
 }
 
