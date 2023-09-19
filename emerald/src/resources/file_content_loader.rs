@@ -50,8 +50,8 @@ impl FileContentLoader {
 }
 
 impl ContentLoader for FileContentLoader {
-    fn load(&self, resource_id: &ResourceId) -> Result<Content> {
-        let endpoint = self.get(resource_id)?;
+    fn load(&self, resource_id: ResourceId) -> Result<Content> {
+        let endpoint = self.get(&resource_id)?;
 
         let EndPoint::FileMarkdown(md_path) = endpoint else {
             return Err(NotAMarkdownFile);

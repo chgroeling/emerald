@@ -29,7 +29,7 @@ impl<'a> ContentStorage {
         let mut resource_id_to_content_idx = EndPointLinkToContentIdx::new();
 
         for ep_md_link in ep_md_iter_src.md_iter() {
-            let read_note = content_loader.load(&ep_md_link);
+            let read_note = content_loader.load(ep_md_link.clone());
 
             // ignore files that cannot be read
             if let Ok(content) = read_note {
