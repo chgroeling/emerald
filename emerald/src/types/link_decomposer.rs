@@ -161,7 +161,7 @@ mod link_decomposer_tests {
     }
 
     #[test]
-    fn check_no_path_from_simple_link() {
+    fn test_no_path_from_simple_link() {
         let test_str = "[[test_link]]";
         let ldec = LinkDecomposer::new();
 
@@ -171,7 +171,7 @@ mod link_decomposer_tests {
     }
 
     #[test]
-    fn link_out_off_simple_link_with_name() {
+    fn test_link_out_off_simple_link_with_name() {
         let test_str = "[[test_link|link_name]]";
         let ldec = LinkDecomposer::new();
 
@@ -181,7 +181,7 @@ mod link_decomposer_tests {
     }
 
     #[test]
-    fn link_out_off_link_with_path() {
+    fn test_link_out_off_link_with_path() {
         let test_str = "[[a/b/c/test_link]]";
         let ldec = LinkDecomposer::new();
 
@@ -191,7 +191,7 @@ mod link_decomposer_tests {
     }
 
     #[test]
-    fn link_out_off_link_with_path_and_section_link() {
+    fn test_link_out_off_link_with_path_and_section_link() {
         let test_str = "[[a/b/c/test_link#section_link]]";
         let ldec = LinkDecomposer::new();
 
@@ -201,7 +201,7 @@ mod link_decomposer_tests {
     }
 
     #[test]
-    fn link_out_off_link_with_path_and_section_link_and_name() {
+    fn test_link_out_off_link_with_path_and_section_link_and_name() {
         let test_str = "[[a/b/c/test_link#section_link|link_name]]";
         let ldec = LinkDecomposer::new();
 
@@ -211,7 +211,7 @@ mod link_decomposer_tests {
     }
 
     #[test]
-    fn path_out_off_link_with_short_path_and_section_link_and_name() {
+    fn test_path_out_off_link_with_short_path_and_section_link_and_name() {
         let test_str = "[[abc/test_link#section_link|link_name]]";
         let ldec = LinkDecomposer::new();
 
@@ -221,7 +221,7 @@ mod link_decomposer_tests {
     }
 
     #[test]
-    fn path_out_off_link_with_long_path_and_section_link_and_name() {
+    fn test_path_out_off_link_with_long_path_and_section_link_and_name() {
         let test_str = "[[a/b/c/test_link#section_link|link_name]]";
         let ldec = LinkDecomposer::new();
 
@@ -231,7 +231,7 @@ mod link_decomposer_tests {
     }
 
     #[test]
-    fn path_out_off_link_with_long_absolute_path_and_section_link_and_name() {
+    fn test_path_out_off_link_with_long_absolute_path_and_section_link_and_name() {
         let test_str = "[[/a/b/c/test_link#section_link|link_name]]";
         let ldec = LinkDecomposer::new();
 
@@ -241,7 +241,7 @@ mod link_decomposer_tests {
     }
 
     #[test]
-    fn illegal_link_handling_front_space() {
+    fn test_illegal_link_handling_front_space() {
         let test_str = " [[test_link]]";
         let ldec = LinkDecomposer::new();
 
@@ -251,7 +251,7 @@ mod link_decomposer_tests {
     }
 
     #[test]
-    fn illegal_link_handling_tail_space() {
+    fn test_illegal_link_handling_tail_space() {
         let test_str = "[[test_link]] ";
         let ldec = LinkDecomposer::new();
 
