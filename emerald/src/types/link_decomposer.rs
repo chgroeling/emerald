@@ -259,4 +259,15 @@ mod link_decomposer_tests {
 
         assert!(res.is_err());
     }
+
+    #[test]
+    fn test_anchor_first_than_label() {
+        let test_str = "[[test_link#anchor|label]]";
+        let ldec = LinkDecomposer::new();
+
+        let res = ldec.decompose(test_str);
+        let decomposed_link = res.unwrap();
+        let label = decomposed_link.label.unwrap();
+        assert_eq!(label, "label");
+    }
 }
