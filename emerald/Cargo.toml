@@ -7,7 +7,6 @@ edition = "2021"
 
 [dependencies]
 log = { version = "0.4.20", features = ["max_level_trace", "release_max_level_warn"] }
-regex = "1.9.3"
 thiserror = "1.0.47"
 unicode-normalization = "0.1.22"
 
