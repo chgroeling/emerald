@@ -1,16 +1,13 @@
-use std::fmt::Display;
-
-use regex::Regex;
-
 use super::res_and_err::{EmeraldError, Result};
+use std::{collections::HashMap, fmt::Display};
 
 #[derive(Debug)]
-pub struct DecomposedLink<'a> {
-    pub path: Option<&'a str>,
-    pub name: &'a str,
+pub struct DecomposedLink {
+    pub path: Option<String>,
+    pub name: String,
 }
 
-impl<'a> Display for DecomposedLink<'a> {
+impl Display for DecomposedLink {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if let Some(path_uw) = &self.path {
             write!(f, "[[{}/{}]]", path_uw, self.name)
@@ -19,8 +16,8 @@ impl<'a> Display for DecomposedLink<'a> {
         }
     }
 }
-impl<'a> DecomposedLink<'a> {
-    pub fn new(link_name: &'a str, link_path: Option<&'a str>) -> Self {
+impl DecomposedLink {
+    pub fn new(link_name: String, link_path: Option<String>) -> Self {
         DecomposedLink {
             path: link_path,
             name: link_name,
@@ -32,7 +29,7 @@ impl<'a> DecomposedLink<'a> {
         self.path.is_some()
     }
 
-    pub fn new_link(link: &'a str) -> Self {
+    pub fn new_link(link: String) -> Self {
         DecomposedLink {
             path: None,
             name: link,
@@ -40,7 +37,7 @@ impl<'a> DecomposedLink<'a> {
     }
 
     #[allow(dead_code)]
-    pub fn new_link_with_path(name: &'a str, path: &'a str) -> Self {
+    pub fn new_link_with_path(name: String, path: String) -> Self {
         DecomposedLink {
             path: Some(path),
             name,
@@ -48,49 +45,102 @@ impl<'a> DecomposedLink<'a> {
     }
 }
 
-impl<'a> From<&'static str> for DecomposedLink<'a> {
+impl From<&'static str> for DecomposedLink {
     fn from(value: &'static str) -> Self {
-        Self::new_link(value)
+        Self::new_link(value.to_owned())
     }
 }
 
-pub struct LinkDecomposer {
-    regex: Regex,
+pub struct LinkDecomposer {}
+
+fn extract_wiki_link(s: &str) -> Option<HashMap<String, String>> {
+    let start = s.find("[[")?;
+    let end = s.find("]]")?;
+
+    if start != 0 {
+        return None;
+    }
+
+    if end != s.len() - 2 {
+        return None;
+    }
+    if start < end {
+        let link_text = &s[(start + 2)..end];
+        let parts: Vec<&str> = link_text
+            .split(|c| c == '|' || c == '#' || c == '^')
+            .collect();
+        let mut map: HashMap<String, String> = HashMap::new();
+
+        // Get the full link and path if exists
+        let full_link = parts[0];
+        let link_parts: Vec<&str> = full_link.split('/').collect();
+        map.insert("link".to_owned(), link_parts.last().unwrap().to_string());
+        if link_parts.len() > 1 {
+            map.insert(
+                "path".to_owned(),
+                full_link[0..(full_link.len() - link_parts.last().unwrap().len() - 1)].to_owned(),
+            );
+        }
+
+        if parts.len() > 1 {
+            map.insert("label".to_owned(), parts[1].to_owned());
+        }
+        if parts.len() > 2 {
+            map.insert("section".to_owned(), parts[2].to_owned());
+        }
+        if parts.len() > 3 {
+            map.insert("anchor".to_owned(), parts[3].to_owned());
+        }
+
+        Some(map)
+    } else {
+        None
+    }
 }
 
 impl LinkDecomposer {
     pub fn new() -> LinkDecomposer {
-        let link_regex = r"^\[{2}(?:([^\]#|]*)[\/])?(.*?)([#|][^\]#|]*)?([#|][^\]#|]*)?\]{2}$";
-        let re = Regex::new(link_regex).unwrap();
-
-        LinkDecomposer { regex: re }
+        LinkDecomposer {}
     }
 
-    pub fn decompose<'a>(&self, link: &'a str) -> Result<DecomposedLink<'a>> {
-        let res = self
-            .regex
-            .captures(link)
-            .ok_or(EmeraldError::NotAWikiLink)?;
+    pub fn decompose(&self, link: &str) -> Result<DecomposedLink> {
+        let hashmap = extract_wiki_link(link).ok_or(EmeraldError::NotAWikiLink)?;
 
-        let extracted_link = res.get(2).ok_or(EmeraldError::NotAWikiLink)?;
-        let extracted_path = res.get(1).map(|path_match| path_match.as_str());
+        let extracted_link = hashmap
+            .get("link")
+            .ok_or(EmeraldError::NotAWikiLink)?
+            .to_owned();
+        let extracted_path = hashmap.get("path").map(|f| f.to_owned());
 
-        Ok(DecomposedLink::new(extracted_link.as_str(), extracted_path))
+        Ok(DecomposedLink::new(
+            extracted_link,
+            extracted_path.to_owned(),
+        ))
     }
 }
 
 #[cfg(test)]
-mod wiki_link_decomposer_tests {
+mod link_decomposer_tests {
     use super::LinkDecomposer;
 
     #[test]
-    fn link_out_off_simple_link() {
+    fn test_simple_link() {
         let test_str = "[[test_link]]";
         let ldec = LinkDecomposer::new();
 
         let res = ldec.decompose(test_str);
 
         assert!(res.is_ok_and(|link| link.name == "test_link"));
+    }
+
+    #[test]
+    fn test_simple_link_with_ext() {
+        let test_str = "[[test_link.md]]";
+        let ldec = LinkDecomposer::new();
+
+        let res = ldec.decompose(test_str);
+
+        assert!(res.is_ok_and(|link| link.name == "test_link.md"));
     }
 
     #[test]

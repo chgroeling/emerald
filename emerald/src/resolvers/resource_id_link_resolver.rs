@@ -89,8 +89,8 @@ impl LinkResolver for ResourceIdLinkResolver {
             );
 
             // Check if the given link has a path
-            if let Some(link_path) = dec_link.path {
-                let link_path_norm = normalize_str(link_path);
+            if let Some(link_path) = &dec_link.path {
+                let link_path_norm = normalize_str(&link_path);
 
                 // if it has one ... try to match it with the result list.
                 for potential_link in match_list {
@@ -107,7 +107,7 @@ impl LinkResolver for ResourceIdLinkResolver {
             } else {
                 // not path was specified
                 if match_list.len() > 1 {
-                    warn!("The link {} is not unique.", dec_link);
+                    warn!("The link {} is not unique.", &dec_link);
                 }
 
                 let match_link = match_list[0].clone();
