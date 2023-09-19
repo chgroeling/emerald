@@ -93,6 +93,7 @@ impl LinkDecomposer {
         (front, Some(back))
     }
 
+    /// Splits a Wikilink stored in `s` into its parts and return as a DecomposedLink struct.
     pub fn decompose(&self, s: &str) -> Result<DecomposedLink> {
         let start = s.find("[[").ok_or(NotAWikiLink)?;
         let end = s.find("]]").ok_or(NotAWikiLink)?;
