@@ -80,7 +80,7 @@ fn extract_part(s: &str) -> (&str, Option<&str>) {
     let end_idx = end_idx.map_or_else(|| s.len(), |x| x);
 
     let front = &s[..end_idx];
-    let back = &s[end_idx + 1..];
+    let back = &s[end_idx..];
 
     (front, Some(back))
 }
@@ -105,7 +105,8 @@ fn extract_wiki_link(s: &str) -> Option<DecomposedLink> {
 
     let link_text = &s[(start + 2)..end];
 
-    let (front, back) = extract_part(link_text);
+    let (mut front, mut back) = extract_part(link_text);
+
     // Get the full link and path if exists
     let full_link = front;
     let link_parts: Vec<&str> = full_link.split('/').collect();
@@ -117,30 +118,22 @@ fn extract_wiki_link(s: &str) -> Option<DecomposedLink> {
         None
     };
 
-    if let Some(link_text) = back {
-        let parts: Vec<&str> = link_text
-            .split(|c| c == '|' || c == '#' || c == '^')
-            .collect();
-        let label: Option<String> = if parts.len() > 0 {
-            Some(parts[0].to_owned())
-        } else {
-            None
-        };
-        let section: Option<String> = if parts.len() > 1 {
-            Some(parts[1].to_owned())
-        } else {
-            None
-        };
+    let mut label: Option<String> = None;
+    let mut section: Option<String> = None;
+    let mut anchor: Option<String> = None;
 
-        let anchor: Option<String> = if parts.len() > 2 {
-            Some(parts[2].to_owned())
-        } else {
-            None
-        };
-        return Some(DecomposedLink::new(link, path, label, section, anchor));
+    while let Some(rest) = back {
+        let first_char = &rest[0..1];
+        (front, back) = extract_part(&rest[1..]);
+
+        match first_char {
+            "|" => label = Some(front.to_owned()),
+            "#" => section = Some(front.to_owned()),
+            "^" => anchor = Some(front.to_owned()),
+            _ => (),
+        }
     }
-
-    return Some(DecomposedLink::new(link, path, None, None, None));
+    return Some(DecomposedLink::new(link, path, label, section, anchor));
 }
 
 impl LinkDecomposer {
@@ -278,13 +271,24 @@ mod link_decomposer_tests {
     }
 
     #[test]
-    fn test_anchor_first_than_label() {
-        let test_str = "[[test_link#anchor|label]]";
+    fn test_section_first_than_label_check_label() {
+        let test_str = "[[test_link#section|label]]";
         let ldec = LinkDecomposer::new();
 
         let res = ldec.decompose(test_str);
         let decomposed_link = res.unwrap();
         let label = decomposed_link.label.unwrap();
         assert_eq!(label, "label");
+    }
+
+    #[test]
+    fn test_anchor_first_than_section_than_label_check_section() {
+        let test_str = "[[test_link^anchor#section|label]]";
+        let ldec = LinkDecomposer::new();
+
+        let res = ldec.decompose(test_str);
+        let decomposed_link = res.unwrap();
+        let section = decomposed_link.section.unwrap();
+        assert_eq!(section, "section");
     }
 }
