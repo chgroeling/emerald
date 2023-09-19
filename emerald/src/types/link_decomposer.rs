@@ -103,8 +103,10 @@ fn extract_wiki_link(s: &str) -> Option<DecomposedLink> {
         return None;
     }
 
+    // the link text is inbetween the braces
     let link_text = &s[(start + 2)..end];
 
+    // split string in half at the position of the first occurence of #^|
     let (mut front, mut back) = extract_part(link_text);
 
     // Get the full link and path if exists
@@ -122,6 +124,7 @@ fn extract_wiki_link(s: &str) -> Option<DecomposedLink> {
     let mut section: Option<String> = None;
     let mut anchor: Option<String> = None;
 
+    // Extract the rest
     while let Some(rest) = back {
         let first_char = &rest[0..1];
         (front, back) = extract_part(&rest[1..]);
@@ -290,5 +293,16 @@ mod link_decomposer_tests {
         let decomposed_link = res.unwrap();
         let section = decomposed_link.section.unwrap();
         assert_eq!(section, "section");
+    }
+
+    #[test]
+    fn test_label_with_length0() {
+        let test_str = "[[test_link|]]";
+        let ldec = LinkDecomposer::new();
+
+        let res = ldec.decompose(test_str);
+        let decomposed_link = res.unwrap();
+        let section = decomposed_link.label.unwrap();
+        assert_eq!(section, "");
     }
 }
