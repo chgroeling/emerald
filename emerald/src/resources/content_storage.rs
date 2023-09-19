@@ -51,8 +51,8 @@ impl<'a> ContentStorage {
 }
 
 impl ContentQueryable for ContentStorage {
-    fn get(&self, resource_id: &ResourceId) -> Option<Content> {
-        Some(self.resource_id_to_content_idx.get(resource_id)?.clone())
+    fn get(&self, resource_id: ResourceId) -> Option<Content> {
+        Some(self.resource_id_to_content_idx.get(&resource_id)?.clone())
     }
 }
 
