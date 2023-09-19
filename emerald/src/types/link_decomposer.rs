@@ -91,12 +91,12 @@ fn extract_wiki_link(s: &str) -> Option<DecomposedLink> {
     }
 
     let link_text = &s[(start + 2)..end];
-    let parts: Vec<&str> = link_text
-        .split(|c| c == '|' || c == '#' || c == '^')
-        .collect();
+
+    let full_link_idx = link_text.find(|c| c == '|' || c == '#' || c == '^');
+    let full_link_end_idx = full_link_idx.map_or_else(|| link_text.len(), |x| x);
 
     // Get the full link and path if exists
-    let full_link = parts[0];
+    let full_link = &link_text[0..full_link_end_idx];
     let link_parts: Vec<&str> = full_link.split('/').collect();
     let link = link_parts.last().unwrap().to_string();
 
@@ -106,6 +106,10 @@ fn extract_wiki_link(s: &str) -> Option<DecomposedLink> {
         None
     };
 
+    //    let link_text = &link_text[full_link_end_idx ];
+    let parts: Vec<&str> = link_text
+        .split(|c| c == '|' || c == '#' || c == '^')
+        .collect();
     let label: Option<String> = if parts.len() > 1 {
         Some(parts[1].to_owned())
     } else {
