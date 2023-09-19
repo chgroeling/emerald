@@ -1,5 +1,5 @@
 use super::res_and_err::{EmeraldError, Result};
-use std::{collections::HashMap, fmt::Display};
+use std::fmt::Display;
 
 #[derive(Debug)]
 pub struct DecomposedLink {
@@ -71,7 +71,7 @@ impl From<&'static str> for DecomposedLink {
 
 pub struct LinkDecomposer {}
 
-fn extract_wiki_link(s: &str) -> Option<HashMap<String, String>> {
+fn extract_wiki_link(s: &str) -> Option<DecomposedLink> {
     let start = s.find("[[")?;
     let end = s.find("]]")?;
 
@@ -94,30 +94,36 @@ fn extract_wiki_link(s: &str) -> Option<HashMap<String, String>> {
     let parts: Vec<&str> = link_text
         .split(|c| c == '|' || c == '#' || c == '^')
         .collect();
-    let mut map: HashMap<String, String> = HashMap::new();
 
     // Get the full link and path if exists
     let full_link = parts[0];
     let link_parts: Vec<&str> = full_link.split('/').collect();
-    map.insert("link".to_owned(), link_parts.last().unwrap().to_string());
-    if link_parts.len() > 1 {
-        map.insert(
-            "path".to_owned(),
-            full_link[0..(full_link.len() - link_parts.last().unwrap().len() - 1)].to_owned(),
-        );
-    }
+    let link = link_parts.last().unwrap().to_string();
 
-    if parts.len() > 1 {
-        map.insert("label".to_owned(), parts[1].to_owned());
-    }
-    if parts.len() > 2 {
-        map.insert("section".to_owned(), parts[2].to_owned());
-    }
-    if parts.len() > 3 {
-        map.insert("anchor".to_owned(), parts[3].to_owned());
-    }
+    let path: Option<String> = if link_parts.len() > 1 {
+        Some(full_link[0..(full_link.len() - link_parts.last().unwrap().len() - 1)].to_owned())
+    } else {
+        None
+    };
 
-    Some(map)
+    let label: Option<String> = if parts.len() > 1 {
+        Some(parts[1].to_owned())
+    } else {
+        None
+    };
+    let section: Option<String> = if parts.len() > 2 {
+        Some(parts[2].to_owned())
+    } else {
+        None
+    };
+
+    let anchor: Option<String> = if parts.len() > 3 {
+        Some(parts[3].to_owned())
+    } else {
+        None
+    };
+
+    Some(DecomposedLink::new(link, path, label, section, anchor))
 }
 
 impl LinkDecomposer {
@@ -126,21 +132,7 @@ impl LinkDecomposer {
     }
 
     pub fn decompose(&self, link: &str) -> Result<DecomposedLink> {
-        let hashmap = extract_wiki_link(link).ok_or(EmeraldError::NotAWikiLink)?;
-
-        let extracted_link = hashmap
-            .get("link")
-            .ok_or(EmeraldError::NotAWikiLink)?
-            .to_owned();
-        let extracted_path = hashmap.get("path").map(|f| f.to_owned());
-
-        Ok(DecomposedLink::new(
-            extracted_link,
-            extracted_path.to_owned(),
-            None,
-            None,
-            None,
-        ))
+        Ok(extract_wiki_link(link).ok_or(EmeraldError::NotAWikiLink)?)
     }
 }
 
