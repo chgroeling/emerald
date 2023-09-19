@@ -34,7 +34,7 @@ impl ResourceIdLinkResolver {
         // Iterator yields (normalized_link, link_to_file)
         let link_name_iter = ep_iter_src.all_iter().map(|resource_id| {
             let dc_link = link_decomposer.decompose(&resource_id.0).unwrap();
-            let normalized_link = dc_link.name.to_lowercase();
+            let normalized_link = dc_link.link.to_lowercase();
 
             (normalized_link, resource_id)
         });
@@ -64,7 +64,7 @@ impl LinkResolver for ResourceIdLinkResolver {
     fn get_with_hint(&self, link: &Link, _hint: Hint) -> Result<ResourceId> {
         // convert string to internal link format
         let dec_link = self.link_decomposer.decompose(&link.0)?;
-        let link_name_lc = normalize_str(&dec_link.name.trim().to_lowercase());
+        let link_name_lc = normalize_str(&dec_link.link.trim().to_lowercase());
 
         // check if md files in our hashmap are matching the given link
         let matches_of_exact_name = self.name_to_resource_id_list.get(&link_name_lc);

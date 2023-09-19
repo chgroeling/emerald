@@ -3,24 +3,36 @@ use std::{collections::HashMap, fmt::Display};
 
 #[derive(Debug)]
 pub struct DecomposedLink {
-    pub name: String,
     pub path: Option<String>,
+    pub link: String,
+    pub label: Option<String>,
+    pub section: Option<String>,
+    pub anchor: Option<String>,
 }
 
 impl Display for DecomposedLink {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if let Some(path_uw) = &self.path {
-            write!(f, "[[{}/{}]]", path_uw, self.name)
+            write!(f, "[[{}/{}]]", path_uw, self.link)
         } else {
-            write!(f, "[[{}]]", self.name)
+            write!(f, "[[{}]]", self.link)
         }
     }
 }
 impl DecomposedLink {
-    pub fn new(link_name: String, link_path: Option<String>) -> Self {
+    pub fn new(
+        link: String,
+        path: Option<String>,
+        label: Option<String>,
+        section: Option<String>,
+        anchor: Option<String>,
+    ) -> Self {
         DecomposedLink {
-            path: link_path,
-            name: link_name,
+            path,
+            link,
+            label,
+            section,
+            anchor,
         }
     }
 
@@ -32,7 +44,10 @@ impl DecomposedLink {
     pub fn new_link(link: String) -> Self {
         DecomposedLink {
             path: None,
-            name: link,
+            link,
+            label: None,
+            section: None,
+            anchor: None,
         }
     }
 
@@ -40,7 +55,10 @@ impl DecomposedLink {
     pub fn new_link_with_path(name: String, path: String) -> Self {
         DecomposedLink {
             path: Some(path),
-            name,
+            link: name,
+            label: None,
+            section: None,
+            anchor: None,
         }
     }
 }
@@ -119,6 +137,9 @@ impl LinkDecomposer {
         Ok(DecomposedLink::new(
             extracted_link,
             extracted_path.to_owned(),
+            None,
+            None,
+            None,
         ))
     }
 }
@@ -134,7 +155,7 @@ mod link_decomposer_tests {
 
         let res = ldec.decompose(test_str);
 
-        assert!(res.is_ok_and(|link| link.name == "test_link"));
+        assert!(res.is_ok_and(|link| link.link == "test_link"));
     }
 
     #[test]
@@ -144,7 +165,7 @@ mod link_decomposer_tests {
 
         let res = ldec.decompose(test_str);
 
-        assert!(res.is_ok_and(|link| link.name == "test_link.md"));
+        assert!(res.is_ok_and(|link| link.link == "test_link.md"));
     }
 
     #[test]
@@ -164,7 +185,7 @@ mod link_decomposer_tests {
 
         let res = ldec.decompose(test_str);
 
-        assert!(res.is_ok_and(|link| link.name == "test_link"));
+        assert!(res.is_ok_and(|link| link.link == "test_link"));
     }
 
     #[test]
@@ -174,7 +195,7 @@ mod link_decomposer_tests {
 
         let res = ldec.decompose(test_str);
 
-        assert!(res.is_ok_and(|link| link.name == "test_link"));
+        assert!(res.is_ok_and(|link| link.link == "test_link"));
     }
 
     #[test]
@@ -184,7 +205,7 @@ mod link_decomposer_tests {
 
         let res = ldec.decompose(test_str);
 
-        assert!(res.is_ok_and(|link| link.name == "test_link"));
+        assert!(res.is_ok_and(|link| link.link == "test_link"));
     }
 
     #[test]
@@ -194,7 +215,7 @@ mod link_decomposer_tests {
 
         let res = ldec.decompose(test_str);
 
-        assert!(res.is_ok_and(|link| link.name == "test_link"));
+        assert!(res.is_ok_and(|link| link.link == "test_link"));
     }
 
     #[test]
