@@ -1,4 +1,5 @@
 mod all_endpoints_iter_source;
+mod all_note_links_iter_source;
 mod all_resource_ids_iter_source;
 mod md_resource_ids_iter_source;
 
