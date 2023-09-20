@@ -7,11 +7,13 @@ use crate::{
     types::{Link, ResourceId},
 };
 
+/// This struct holds the origin of a link. The link itself and the
+/// destination (dest) were it points to.
 #[allow(dead_code)]
 pub struct BacklinkRef {
     origin: ResourceId,
     link: Link,
-    resource_id: Option<ResourceId>,
+    dest: Option<ResourceId>,
 }
 
 #[allow(dead_code)]
@@ -34,8 +36,8 @@ impl BacklinkIndex {
         let mut invalid_backlink_cnt: usize = 0;
         let mut resource_id_to_backlinks = ResourceIdToBacklinks::new();
 
-        for (resource_id, content) in content_iter_src.iter() {
-            trace!("Link extraction from {:?} starts", &resource_id);
+        for (dest, content) in content_iter_src.iter() {
+            trace!("Link extraction from {:?} starts", &dest);
 
             let mut note_valid_backlink_cnt: usize = 0;
             let mut note_invalid_backlink_cnt: usize = 0;
@@ -43,19 +45,19 @@ impl BacklinkIndex {
                 match &link_and_resource_id {
                     (link, None) => {
                         note_invalid_backlink_cnt += 1;
-                        warn!("Parsing {:?} -> Link not found: {:?}", &resource_id, &link);
+                        warn!("Parsing {:?} -> Link not found: {:?}", &dest, &link);
                     }
                     _ => note_valid_backlink_cnt += 1,
                 }
                 let bindex = BacklinkRef {
-                    origin: resource_id.clone(),
+                    origin: dest.clone(),
                     link: link_and_resource_id.0,
-                    resource_id: link_and_resource_id.1,
+                    dest: link_and_resource_id.1,
                 };
                 resource_id_to_backlinks.push(bindex);
             }
             if note_valid_backlink_cnt == 0 {
-                trace!("No valid links found in  {:?}", &resource_id);
+                trace!("No valid links found in  {:?}", &dest);
             }
 
             valid_backlink_cnt += note_valid_backlink_cnt;
