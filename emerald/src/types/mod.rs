@@ -2,7 +2,7 @@ mod content;
 mod endpoint;
 pub mod link;
 pub mod link_decomposer;
-mod note_link;
+mod link_origin_destination;
 mod res_and_err;
 pub mod resource_id;
 
@@ -14,4 +14,4 @@ pub type ResourceId = self::resource_id::ResourceId;
 pub type Result<T> = self::res_and_err::Result<T>;
 pub type LinkAndResourceId = (Link, Option<ResourceId>);
 pub use self::endpoint::EndPoint;
-pub use self::note_link::NoteLink;
+pub use self::link_origin_destination::LinkOriginDestination;

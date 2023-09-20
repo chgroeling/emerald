@@ -2,20 +2,21 @@
 use log::{debug, error, info, trace, warn};
 
 use crate::{
-    content_analyzers::MdLinkAnalyzerIterSource, resources::ContentIterSource, types::NoteLink,
+    content_analyzers::MdLinkAnalyzerIterSource, resources::ContentIterSource,
+    types::LinkOriginDestination,
 };
 
 use super::all_note_links_iter_source::AllNoteLinksIterSource;
 
 #[allow(dead_code)]
-pub type NoteLinkList = Vec<NoteLink>;
+pub type LinkOriginDestinationList = Vec<LinkOriginDestination>;
 
 pub struct NoteLinkIndex {
     valid_backlink_cnt: usize,
     invalid_backlink_cnt: usize,
 
     #[allow(dead_code)]
-    note_link_list: NoteLinkList,
+    link_origin_dest_list: LinkOriginDestinationList,
 }
 
 impl NoteLinkIndex {
@@ -25,7 +26,7 @@ impl NoteLinkIndex {
     ) -> Self {
         let mut valid_backlink_cnt: usize = 0;
         let mut invalid_backlink_cnt: usize = 0;
-        let mut note_link_list = NoteLinkList::new();
+        let mut link_origin_dest_list = LinkOriginDestinationList::new();
 
         for (dest, content) in content_iter_src.iter() {
             trace!("Link extraction from {:?} starts", &dest);
@@ -40,13 +41,14 @@ impl NoteLinkIndex {
                     }
                     _ => note_valid_backlink_cnt += 1,
                 }
-                let note_link = NoteLink {
+                let note_link = LinkOriginDestination {
                     origin: dest.clone(),
                     link: link_and_resource_id.0,
-                    dest: link_and_resource_id.1,
+                    destination: link_and_resource_id.1,
                 };
-                note_link_list.push(note_link);
+                link_origin_dest_list.push(note_link);
             }
+
             if note_valid_backlink_cnt == 0 {
                 trace!("No valid links found in  {:?}", &dest);
             }
@@ -58,7 +60,7 @@ impl NoteLinkIndex {
         Self {
             valid_backlink_cnt,
             invalid_backlink_cnt,
-            note_link_list,
+            link_origin_dest_list,
         }
     }
 
@@ -72,8 +74,8 @@ impl NoteLinkIndex {
 }
 
 impl AllNoteLinksIterSource for NoteLinkIndex {
-    type Iter = std::vec::IntoIter<NoteLink>;
+    type Iter = std::vec::IntoIter<LinkOriginDestination>;
     fn all_iter(&self) -> Self::Iter {
-        self.note_link_list.clone().into_iter()
+        self.link_origin_dest_list.clone().into_iter()
     }
 }
