@@ -1,15 +1,21 @@
-use std::collections::HashMap;
-
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
 use crate::{
     content_analyzers::MdLinkAnalyzerIterSource,
     resources::ContentIterSource,
-    types::{LinkAndResourceId, ResourceId},
+    types::{Link, ResourceId},
 };
 
-pub type ResourceIdToBacklinks = HashMap<ResourceId, Vec<LinkAndResourceId>>;
+#[allow(dead_code)]
+pub struct BacklinkRef {
+    origin: ResourceId,
+    link: Link,
+    resource_id: Option<ResourceId>,
+}
+
+#[allow(dead_code)]
+pub type ResourceIdToBacklinks = Vec<BacklinkRef>;
 
 pub struct BacklinkIndex {
     valid_backlink_cnt: usize,
@@ -31,23 +37,29 @@ impl BacklinkIndex {
         for (resource_id, content) in content_iter_src.iter() {
             trace!("Link extraction from {:?} starts", &resource_id);
 
-            let mut resource_id_backlinks: Vec<LinkAndResourceId> = Vec::new();
-
+            let mut note_valid_backlink_cnt: usize = 0;
+            let mut note_invalid_backlink_cnt: usize = 0;
             for link_and_resource_id in link_extractor.create_iter(content.0.as_ref().clone()) {
                 match &link_and_resource_id {
                     (link, None) => {
-                        invalid_backlink_cnt += 1;
+                        note_invalid_backlink_cnt += 1;
                         warn!("Parsing {:?} -> Link not found: {:?}", &resource_id, &link);
                     }
-                    _ => valid_backlink_cnt += 1,
+                    _ => note_valid_backlink_cnt += 1,
                 }
-                resource_id_backlinks.push(link_and_resource_id);
+                let bindex = BacklinkRef {
+                    origin: resource_id.clone(),
+                    link: link_and_resource_id.0,
+                    resource_id: link_and_resource_id.1,
+                };
+                resource_id_to_backlinks.push(bindex);
             }
-            if resource_id_backlinks.is_empty() {
+            if note_valid_backlink_cnt == 0 {
                 trace!("No valid links found in  {:?}", &resource_id);
             }
 
-            resource_id_to_backlinks.insert(resource_id.clone(), resource_id_backlinks);
+            valid_backlink_cnt += note_valid_backlink_cnt;
+            invalid_backlink_cnt += note_invalid_backlink_cnt;
         }
 
         Self {
