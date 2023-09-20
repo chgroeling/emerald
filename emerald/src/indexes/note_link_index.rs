@@ -10,7 +10,7 @@ use super::all_note_links_iter_source::AllNoteLinksIterSource;
 #[allow(dead_code)]
 pub type NoteLinkList = Vec<NoteLink>;
 
-pub struct BacklinkIndex {
+pub struct NoteLinkIndex {
     valid_backlink_cnt: usize,
     invalid_backlink_cnt: usize,
 
@@ -18,7 +18,7 @@ pub struct BacklinkIndex {
     note_link_list: NoteLinkList,
 }
 
-impl BacklinkIndex {
+impl NoteLinkIndex {
     pub fn new(
         content_iter_src: &impl ContentIterSource,
         md_link_analyzer: &impl MdLinkAnalyzerIterSource,
@@ -71,7 +71,7 @@ impl BacklinkIndex {
     }
 }
 
-impl AllNoteLinksIterSource for BacklinkIndex {
+impl AllNoteLinksIterSource for NoteLinkIndex {
     type Iter = std::vec::IntoIter<NoteLink>;
     fn all_iter(&self) -> Self::Iter {
         self.note_link_list.clone().into_iter()
