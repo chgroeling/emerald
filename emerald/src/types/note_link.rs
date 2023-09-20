@@ -1,5 +1,6 @@
 use super::{Link, ResourceId};
 
+#[derive(Debug, Clone)]
 /// This struct holds the origin of a link. The link itself and the
 /// destination (dest) were it points to.
 #[allow(dead_code)]
