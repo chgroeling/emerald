@@ -2,19 +2,8 @@
 use log::{debug, error, info, trace, warn};
 
 use crate::{
-    content_analyzers::MdLinkAnalyzerIterSource,
-    resources::ContentIterSource,
-    types::{Link, ResourceId},
+    content_analyzers::MdLinkAnalyzerIterSource, resources::ContentIterSource, types::BacklinkRef,
 };
-
-/// This struct holds the origin of a link. The link itself and the
-/// destination (dest) were it points to.
-#[allow(dead_code)]
-pub struct BacklinkRef {
-    origin: ResourceId,
-    link: Link,
-    dest: Option<ResourceId>,
-}
 
 #[allow(dead_code)]
 pub type ResourceIdToBacklinks = Vec<BacklinkRef>;
