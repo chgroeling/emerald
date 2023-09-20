@@ -2,11 +2,11 @@
 use log::{debug, error, info, trace, warn};
 
 use crate::{
-    content_analyzers::MdLinkAnalyzerIterSource, resources::ContentIterSource, types::BacklinkRef,
+    content_analyzers::MdLinkAnalyzerIterSource, resources::ContentIterSource, types::NoteLink,
 };
 
 #[allow(dead_code)]
-pub type ResourceIdToBacklinks = Vec<BacklinkRef>;
+pub type ResourceIdToBacklinks = Vec<NoteLink>;
 
 pub struct BacklinkIndex {
     valid_backlink_cnt: usize,
@@ -38,7 +38,7 @@ impl BacklinkIndex {
                     }
                     _ => note_valid_backlink_cnt += 1,
                 }
-                let bindex = BacklinkRef {
+                let bindex = NoteLink {
                     origin: dest.clone(),
                     link: link_and_resource_id.0,
                     dest: link_and_resource_id.1,
