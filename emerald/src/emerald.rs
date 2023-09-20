@@ -1,4 +1,4 @@
-use crate::indexes::backlink_index::BacklinkIndex;
+use crate::indexes::note_link_index::NoteLinkIndex;
 
 use crate::content_analyzers::MdLinkAnalyzer;
 use crate::indexes::endpoint_index::EndpointIndex;
@@ -23,7 +23,7 @@ pub struct Emerald {
     pub endpoint_index: Rc<EndpointIndex>,
     pub resource_id_index: Rc<ResourceIdIndex>,
     pub link_resolver: Rc<dyn LinkResolver>,
-    pub backlink_index: Rc<BacklinkIndex>,
+    pub note_link_index: Rc<NoteLinkIndex>,
     pub content_loader: Rc<FileContentLoader>,
     pub content_storage: Rc<ContentStorage>,
 }
@@ -65,12 +65,12 @@ impl Emerald {
         debug!("Creation of ContentStorage took: {:?}", dur);
 
         let start = Instant::now();
-        let backlink_index = Rc::new(BacklinkIndex::new(
+        let note_link_index = Rc::new(NoteLinkIndex::new(
             content_storage.as_ref(),
             md_link_analyzer.as_ref(),
         ));
         let dur = start.elapsed();
-        debug!("Creation of BacklinkIndex took: {:?}", dur);
+        debug!("Creation of NoteLinkIndex took: {:?}", dur);
 
         Ok(Emerald {
             md_link_analyzer,
@@ -79,7 +79,7 @@ impl Emerald {
             resource_id_index,
             content_loader,
             content_storage,
-            backlink_index,
+            note_link_index,
         })
     }
 }
@@ -96,10 +96,10 @@ impl Emerald {
     }
 
     pub fn valid_backlink_count(&self) -> usize {
-        self.backlink_index.get_valid_backlink_cnt()
+        self.note_link_index.get_valid_backlink_cnt()
     }
 
     pub fn invalid_backlink_count(&self) -> usize {
-        self.backlink_index.get_invalid_backlink_cnt()
+        self.note_link_index.get_invalid_backlink_cnt()
     }
 }
