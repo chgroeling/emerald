@@ -43,8 +43,7 @@ impl NoteLinkIndex {
                 }
                 let note_link = LinkOriginDestination {
                     origin: dest.clone(),
-                    link: link_and_resource_id.0,
-                    destination: link_and_resource_id.1,
+                    link_and_destination: link_and_resource_id,
                 };
                 link_origin_dest_list.push(note_link);
             }
