@@ -5,7 +5,7 @@ pub enum Hint {
     #[allow(dead_code)]
     NoHint,
 }
-pub trait LinkResolver {
+pub trait LinkQueryable {
     fn get(&self, link: &Link) -> Result<ResourceId> {
         self.get_with_hint(link, Hint::NoHint)
     }

@@ -14,8 +14,8 @@ use EmeraldError::*;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-use super::link_resolver::Hint;
-use super::link_resolver::LinkResolver;
+use super::link_queryable::Hint;
+use super::link_queryable::LinkQueryable;
 
 pub type ResourceIdList = Vec<ResourceId>;
 pub type NameToResourceIdList = HashMap<String, ResourceIdList>;
@@ -27,12 +27,12 @@ pub struct ResourceIdLinkResolver {
 
 impl ResourceIdLinkResolver {
     // Assumption: All EndPoints are coded utf8 nfc
-    pub fn new(ep_iter_src: &impl AllResourceIdsIterSource) -> Self {
+    pub fn new(all_resource_ids_iter_source: &impl AllResourceIdsIterSource) -> Self {
         let mut name_to_resource_id_list: NameToResourceIdList = NameToResourceIdList::new();
         let link_decomposer = LinkDecomposer::new();
 
         // Iterator yields (normalized_link, link_to_file)
-        let link_name_iter = ep_iter_src.all_iter().map(|resource_id| {
+        let link_name_iter = all_resource_ids_iter_source.all_iter().map(|resource_id| {
             let dc_link = link_decomposer.decompose(&resource_id.0).unwrap();
             let normalized_link = dc_link.link.to_lowercase();
 
@@ -60,7 +60,7 @@ impl ResourceIdLinkResolver {
     }
 }
 
-impl LinkResolver for ResourceIdLinkResolver {
+impl LinkQueryable for ResourceIdLinkResolver {
     fn get_with_hint(&self, link: &Link, _hint: Hint) -> Result<ResourceId> {
         // convert string to internal link format
         let dec_link = self.link_decomposer.decompose(&link.0)?;
@@ -124,7 +124,7 @@ impl LinkResolver for ResourceIdLinkResolver {
 mod link_mapper_tests {
     use super::AllResourceIdsIterSource;
     use super::EmeraldError::*;
-    use super::LinkResolver;
+    use super::LinkQueryable;
     use super::ResourceId;
     use super::ResourceIdLinkResolver;
 

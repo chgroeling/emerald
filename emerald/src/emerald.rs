@@ -9,9 +9,9 @@ use crate::indexes::note_link_index::NoteLinkIndex;
 use crate::indexes::resource_id_index::ResourceIdIndex;
 use crate::indexes::AllEndpointsIterSource;
 use crate::maps::create_destination_list_resolver;
-use crate::maps::create_link_resolver;
+use crate::maps::create_link_queryable;
 use crate::maps::DestinationListResolver;
-use crate::maps::LinkResolver;
+use crate::maps::LinkQueryable;
 use crate::resources::content_storage::ContentStorage;
 use crate::resources::file_content_loader::FileContentLoader;
 use crate::types::EndPoint;
@@ -22,7 +22,7 @@ pub struct Emerald {
     pub md_link_analyzer: Rc<MdLinkAnalyzer>,
     pub endpoint_index: Rc<EndpointIndex>,
     pub resource_id_index: Rc<ResourceIdIndex>,
-    pub link_resolver: Rc<dyn LinkResolver>,
+    pub link_queryable: Rc<dyn LinkQueryable>,
     pub destination_list_resolver: Rc<dyn DestinationListResolver>,
     pub note_link_index: Rc<NoteLinkIndex>,
     pub content_loader: Rc<FileContentLoader>,
@@ -43,7 +43,7 @@ impl Emerald {
         debug!("Creation of ResourceIdIndex took: {:?}", dur);
 
         let start = Instant::now();
-        let link_resolver = create_link_resolver(resource_id_index.as_ref());
+        let link_resolver = create_link_queryable(resource_id_index.as_ref());
         let dur = start.elapsed();
         debug!("Creation of LinkQueryableImpl took: {:?}", dur);
 
@@ -80,7 +80,7 @@ impl Emerald {
 
         Ok(Emerald {
             md_link_analyzer,
-            link_resolver,
+            link_queryable: link_resolver,
             endpoint_index,
             resource_id_index,
             content_loader,
