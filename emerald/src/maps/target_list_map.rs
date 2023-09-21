@@ -5,22 +5,22 @@ use crate::{
     types::{LinkToTarget, ResourceId},
 };
 
-use super::destination_iterator_queryable::DestinationIteratorQueryable;
+use super::target_iterator_queryable::TargetIteratorQueryable;
 
 type OriginToDestinationListMap = HashMap<ResourceId, ListOfLinksWithDestination>;
 
 pub type ListOfLinksWithDestination = Vec<LinkToTarget>;
 
-pub struct DestinationListMap {
+pub struct TargetListMap {
     origin_to_destination: OriginToDestinationListMap,
 }
 
-impl DestinationListMap {
+impl TargetListMap {
     pub fn new(all_note_links_iter_source: &impl AllNoteLinksIterSource) -> Self {
         let mut origin_to_destination = OriginToDestinationListMap::new();
-        for link_to_dest in all_note_links_iter_source.all_iter() {
-            let source = link_to_dest.source;
-            let link_to_target = link_to_dest.link_to_target;
+        for link_to_target in all_note_links_iter_source.all_iter() {
+            let source = link_to_target.source;
+            let link_to_target = link_to_target.link_to_target;
 
             match origin_to_destination.entry(source) {
                 Entry::Occupied(mut e) => {
@@ -37,13 +37,10 @@ impl DestinationListMap {
     }
 }
 
-impl DestinationIteratorQueryable for DestinationListMap {
-    fn query_destination_iter(
-        &self,
-        resource_id: ResourceId,
-    ) -> Option<std::vec::IntoIter<LinkToTarget>> {
+impl TargetIteratorQueryable for TargetListMap {
+    fn query(&self, source: ResourceId) -> Option<std::vec::IntoIter<LinkToTarget>> {
         self.origin_to_destination
-            .get(&resource_id)
+            .get(&source)
             .map(|f| f.clone().into_iter())
     }
 }
@@ -51,8 +48,8 @@ impl DestinationIteratorQueryable for DestinationListMap {
 #[cfg(test)]
 mod tests {
     use super::AllNoteLinksIterSource;
-    use super::DestinationIteratorQueryable;
-    use super::DestinationListMap;
+    use super::TargetIteratorQueryable;
+    use super::TargetListMap;
     use crate::types::LinkToTarget;
     use crate::types::SourceAndLinkToTarget;
 
@@ -76,8 +73,8 @@ mod tests {
     fn test_one_match() {
         let data = NotesIterSource(vec![sample_otd("o1", "o1->d1", "d1")]);
 
-        let dut = DestinationListMap::new(&data);
-        let res: Vec<LinkToTarget> = dut.query_destination_iter("o1".into()).unwrap().collect();
+        let dut = TargetListMap::new(&data);
+        let res: Vec<LinkToTarget> = dut.query("o1".into()).unwrap().collect();
 
         assert_eq!(
             res,
@@ -92,8 +89,8 @@ mod tests {
             sample_otd("o1", "o1->d2", "d2"),
         ]);
 
-        let dut = DestinationListMap::new(&data);
-        let res: Vec<LinkToTarget> = dut.query_destination_iter("o1".into()).unwrap().collect();
+        let dut = TargetListMap::new(&data);
+        let res: Vec<LinkToTarget> = dut.query("o1".into()).unwrap().collect();
 
         assert_eq!(
             res,
@@ -114,8 +111,8 @@ mod tests {
             sample_otd("doesn't matter 3", "abc", "def"),
         ]);
 
-        let dut = DestinationListMap::new(&data);
-        let res: Vec<LinkToTarget> = dut.query_destination_iter("o1".into()).unwrap().collect();
+        let dut = TargetListMap::new(&data);
+        let res: Vec<LinkToTarget> = dut.query("o1".into()).unwrap().collect();
 
         assert_eq!(
             res,

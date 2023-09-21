@@ -1,14 +1,14 @@
 use std::rc::Rc;
 
-mod destination_iterator_queryable;
-mod destination_list_map;
 mod link_queryable;
 mod resource_id_link_map;
+mod target_iterator_queryable;
+mod target_list_map;
 
-pub use self::destination_iterator_queryable::DestinationIteratorQueryable;
 pub use self::link_queryable::LinkQueryable;
+pub use self::target_iterator_queryable::TargetIteratorQueryable;
 
-use self::{destination_list_map::DestinationListMap, resource_id_link_map::ResourceIdLinkMap};
+use self::{resource_id_link_map::ResourceIdLinkMap, target_list_map::TargetListMap};
 use crate::indexes::{AllNoteLinksIterSource, AllResourceIdsIterSource};
 
 pub fn create_link_queryable(
@@ -17,8 +17,8 @@ pub fn create_link_queryable(
     Rc::new(ResourceIdLinkMap::new(all_resource_ids_iter_source))
 }
 
-pub fn create_destination_list_resolver(
+pub fn create_target_iterator_queryable(
     all_note_links_iter_source: &impl AllNoteLinksIterSource,
-) -> Rc<dyn DestinationIteratorQueryable> {
-    Rc::new(DestinationListMap::new(all_note_links_iter_source))
+) -> Rc<dyn TargetIteratorQueryable> {
+    Rc::new(TargetListMap::new(all_note_links_iter_source))
 }
