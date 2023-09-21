@@ -1,5 +1,6 @@
 use std::rc::Rc;
 
+mod destination_list_resolver;
 mod link_resolver;
 mod resource_id_link_resolver;
 
