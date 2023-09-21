@@ -1,9 +1,9 @@
-use crate::types::{OriginToDestination, ResourceId};
+use crate::types::{LinkAndResourceId, ResourceId};
 
-pub type LinkOriginDestinationList = Vec<OriginToDestination>;
+pub type LinkWithDestinationList = Vec<LinkAndResourceId>;
 
-/// This trait is used to resolve all links which are orignating from the note
+/// This trait is used to resolve all links which are orignating from a note
 /// given by `resource_id`
 pub trait DestinationListResolver {
-    fn resolve(&self, resource_id: ResourceId) -> LinkOriginDestinationList;
+    fn resolve(&self, resource_id: ResourceId) -> LinkWithDestinationList;
 }
