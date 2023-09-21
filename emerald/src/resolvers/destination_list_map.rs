@@ -2,9 +2,9 @@ use std::collections::{hash_map::Entry, HashMap};
 
 use crate::{indexes::AllNoteLinksIterSource, types::ResourceId};
 
-use super::destination_list_resolver::LinkWithDestinationList;
+use super::destination_list_resolver::ListOfLinksWithDestination;
 
-type OriginToDestinationListMap = HashMap<ResourceId, LinkWithDestinationList>;
+type OriginToDestinationListMap = HashMap<ResourceId, ListOfLinksWithDestination>;
 struct DestinationListMap {
     origin_to_destination: OriginToDestinationListMap,
 }
