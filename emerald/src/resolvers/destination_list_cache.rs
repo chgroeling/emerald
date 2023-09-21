@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{
     indexes::AllNoteLinksIterSource,
-    types::{Link, LinkAndResourceId, ResourceId},
+    types::{LinkAndResourceId, ResourceId},
 };
 
 struct DestinationListCache {
