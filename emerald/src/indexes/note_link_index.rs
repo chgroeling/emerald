@@ -4,20 +4,20 @@ use log::{debug, error, info, trace, warn};
 use crate::{
     content_analyzers::MdLinkAnalyzerIterSource,
     resources::ContentIterSource,
-    types::{LinkAndDestination, OriginToDestination},
+    types::{LinkFromSourceToTarget, LinkToTarget},
 };
 
 use super::all_note_links_iter_source::AllNoteLinksIterSource;
 
 #[allow(dead_code)]
-pub type LinkOriginDestinationList = Vec<OriginToDestination>;
+pub type SourceAndLinkToTargetList = Vec<LinkFromSourceToTarget>;
 
 pub struct NoteLinkIndex {
     valid_backlink_cnt: usize,
     invalid_backlink_cnt: usize,
 
     #[allow(dead_code)]
-    link_origin_dest_list: LinkOriginDestinationList,
+    source_and_link_to_target_list: SourceAndLinkToTargetList,
 }
 
 impl NoteLinkIndex {
@@ -27,30 +27,27 @@ impl NoteLinkIndex {
     ) -> Self {
         let mut valid_backlink_cnt: usize = 0;
         let mut invalid_backlink_cnt: usize = 0;
-        let mut link_origin_dest_list = LinkOriginDestinationList::new();
+        let mut source_and_link_to_target_list = SourceAndLinkToTargetList::new();
 
-        for (dest, content) in content_iter_src.iter() {
-            trace!("Link extraction from {:?} starts", &dest);
+        for (source, content) in content_iter_src.iter() {
+            trace!("Link extraction from {:?} starts", &source);
 
             let mut note_valid_backlink_cnt: usize = 0;
             let mut note_invalid_backlink_cnt: usize = 0;
-            for link_and_resource_id in md_link_analyzer.create_iter(content.0.as_ref().clone()) {
-                match &link_and_resource_id {
-                    LinkAndDestination {
-                        link,
-                        destination: None,
-                    } => {
+            for link_to_target in md_link_analyzer.create_iter(content.0.as_ref().clone()) {
+                match &link_to_target {
+                    LinkToTarget { link, target: None } => {
                         note_invalid_backlink_cnt += 1;
-                        warn!("Parsing {:?} -> Link not found: {:?}", &dest, &link);
+                        warn!("Parsing {:?} -> Link not found: {:?}", &source, &link);
                     }
                     _ => note_valid_backlink_cnt += 1,
                 }
-                let note_link = OriginToDestination::new(dest.clone(), link_and_resource_id);
-                link_origin_dest_list.push(note_link);
+                let note_link = LinkFromSourceToTarget::new(source.clone(), link_to_target);
+                source_and_link_to_target_list.push(note_link);
             }
 
             if note_valid_backlink_cnt == 0 {
-                trace!("No valid links found in  {:?}", &dest);
+                trace!("No valid links found in  {:?}", &source);
             }
 
             valid_backlink_cnt += note_valid_backlink_cnt;
@@ -60,7 +57,7 @@ impl NoteLinkIndex {
         Self {
             valid_backlink_cnt,
             invalid_backlink_cnt,
-            link_origin_dest_list,
+            source_and_link_to_target_list,
         }
     }
 
@@ -74,8 +71,8 @@ impl NoteLinkIndex {
 }
 
 impl AllNoteLinksIterSource for NoteLinkIndex {
-    type Iter = std::vec::IntoIter<OriginToDestination>;
+    type Iter = std::vec::IntoIter<LinkFromSourceToTarget>;
     fn all_iter(&self) -> Self::Iter {
-        self.link_origin_dest_list.clone().into_iter()
+        self.source_and_link_to_target_list.clone().into_iter()
     }
 }
