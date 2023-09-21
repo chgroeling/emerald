@@ -1,7 +1,7 @@
 use std::rc::Rc;
 
 use crate::{
-    resolvers::LinkResolver,
+    maps::LinkResolver,
     types::{Link, LinkAndDestination},
 };
 

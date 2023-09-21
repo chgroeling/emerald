@@ -1,6 +1,6 @@
 mod content_analyzers;
 mod indexes;
-mod resolvers;
+mod maps;
 mod resources;
 mod types;
 mod utils;

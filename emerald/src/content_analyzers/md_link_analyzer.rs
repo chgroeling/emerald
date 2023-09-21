@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use crate::resolvers::LinkResolver;
+use crate::maps::LinkResolver;
 
 use super::{
     link_extractor::LinkExtractor,
