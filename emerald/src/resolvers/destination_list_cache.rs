@@ -1,12 +1,11 @@
 use std::collections::HashMap;
 
-use crate::{
-    indexes::AllNoteLinksIterSource,
-    types::{LinkAndResourceId, ResourceId},
-};
+use crate::{indexes::AllNoteLinksIterSource, types::ResourceId};
+
+use super::destination_list_resolver::LinkWithDestinationList;
 
 struct DestinationListCache {
-    origin_to_destination: HashMap<ResourceId, Vec<LinkAndResourceId>>,
+    origin_to_destination: HashMap<ResourceId, LinkWithDestinationList>,
 }
 
 impl DestinationListCache {
