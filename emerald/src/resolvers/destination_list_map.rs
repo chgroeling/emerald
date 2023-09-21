@@ -1,10 +1,16 @@
 use std::collections::{hash_map::Entry, HashMap};
 
-use crate::{indexes::AllNoteLinksIterSource, types::ResourceId};
+use crate::{
+    indexes::AllNoteLinksIterSource,
+    types::{LinkAndResourceId, ResourceId},
+};
 
-use super::destination_list_resolver::{DestinationListResolver, ListOfLinksWithDestination};
+use super::destination_list_resolver::DestinationListResolver;
 
 type OriginToDestinationListMap = HashMap<ResourceId, ListOfLinksWithDestination>;
+
+pub type ListOfLinksWithDestination = Vec<LinkAndResourceId>;
+
 struct DestinationListMap {
     origin_to_destination: OriginToDestinationListMap,
 }
@@ -32,7 +38,9 @@ impl DestinationListMap {
 }
 
 impl DestinationListResolver for DestinationListMap {
-    fn resolve(&self, resource_id: ResourceId) -> std::vec::IntoIter<ListOfLinksWithDestination> {
-        todo!()
+    fn resolve(&self, resource_id: ResourceId) -> Option<std::vec::IntoIter<LinkAndResourceId>> {
+        self.origin_to_destination
+            .get(&resource_id)
+            .map(|f| f.to_owned().into_iter())
     }
 }

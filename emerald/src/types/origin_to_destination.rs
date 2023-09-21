@@ -1,4 +1,4 @@
-use super::{Link, LinkAndResourceId, ResourceId};
+use super::{LinkAndResourceId, ResourceId};
 
 #[derive(Debug, Clone)]
 /// This struct holds a links with is destination (the place where it points to) and the
