@@ -50,6 +50,7 @@ mod tests {
     use crate::types::Link;
     use crate::types::LinkAndDestination;
     use crate::types::OriginToDestination;
+    use crate::types::OriginToDestination as OtD;
     use crate::types::ResourceId;
 
     use super::AllNoteLinksIterSource;
@@ -64,12 +65,17 @@ mod tests {
             self.0.clone().into_iter()
         }
     }
+
+    /// Create a OriginToDestination struct for test purposes
+    fn sample_otd(src: &str, link: &str, dest: &str) -> OriginToDestination {
+        OriginToDestination::new(
+            src.into(),
+            LinkAndDestination::new(link.into(), Some(dest.into())),
+        )
+    }
     #[test]
     fn test_one_match() {
-        let data = NotesIterSource(vec![OriginToDestination::new(
-            "o1".into(),
-            LinkAndDestination::new("o1->d1".into(), Some("d1".into())),
-        )]);
+        let data = NotesIterSource(vec![sample_otd("o1", "o1->d1", "d1")]);
 
         let dut = DestinationListMap::new(&data);
         let res: Vec<LinkAndDestination> = dut.resolve("o1".into()).unwrap().collect();
@@ -83,14 +89,8 @@ mod tests {
     #[test]
     fn test_two_matches() {
         let data = NotesIterSource(vec![
-            OriginToDestination::new(
-                "o1".into(),
-                LinkAndDestination::new("o1->d1".into(), Some("d1".into())),
-            ),
-            OriginToDestination::new(
-                "o1".into(),
-                LinkAndDestination::new("o1->d2".into(), Some("d2".into())),
-            ),
+            sample_otd("o1", "o1->d1", "d1"),
+            sample_otd("o1", "o1->d2", "d2"),
         ]);
 
         let dut = DestinationListMap::new(&data);
@@ -108,26 +108,11 @@ mod tests {
     #[test]
     fn test_two_matches_elements_inbetween() {
         let data = NotesIterSource(vec![
-            OriginToDestination::new(
-                "doesn't matter 1".into(),
-                LinkAndDestination::new("abc".into(), Some("def".into())),
-            ),
-            OriginToDestination::new(
-                "o1".into(),
-                LinkAndDestination::new("o1->d1".into(), Some("d1".into())),
-            ),
-            OriginToDestination::new(
-                "doesn't matter 2".into(),
-                LinkAndDestination::new("abc".into(), Some("def".into())),
-            ),
-            OriginToDestination::new(
-                "o1".into(),
-                LinkAndDestination::new("o1->d2".into(), Some("d2".into())),
-            ),
-            OriginToDestination::new(
-                "doesn't matter 3".into(),
-                LinkAndDestination::new("abc".into(), Some("def".into())),
-            ),
+            sample_otd("doesn't matter 1", "abc", "def"),
+            sample_otd("o1", "o1->d1", "d1"),
+            sample_otd("doesn't matter 2", "abc", "def"),
+            sample_otd("o1", "o1->d2", "d2"),
+            sample_otd("doesn't matter 3", "abc", "def"),
         ]);
 
         let dut = DestinationListMap::new(&data);
