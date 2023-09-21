@@ -14,25 +14,25 @@ use EmeraldError::*;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-use super::link_resolver::Hint;
-use super::link_resolver::LinkResolver;
+use super::link_queryable::Hint;
+use super::link_queryable::LinkQueryable;
 
 pub type ResourceIdList = Vec<ResourceId>;
 pub type NameToResourceIdList = HashMap<String, ResourceIdList>;
 
-pub struct ResourceIdLinkResolver {
+pub struct ResourceIdLinkMap {
     link_decomposer: LinkDecomposer,
     name_to_resource_id_list: NameToResourceIdList,
 }
 
-impl ResourceIdLinkResolver {
-    // Assumption: All EndPoints are coded utf8 nfc
-    pub fn new(ep_iter_src: &impl AllResourceIdsIterSource) -> Self {
+impl ResourceIdLinkMap {
+    pub fn new(all_resource_ids_iter_source: &impl AllResourceIdsIterSource) -> Self {
+        // Assumption: All resource ids are encoded in utf8 nfc
         let mut name_to_resource_id_list: NameToResourceIdList = NameToResourceIdList::new();
         let link_decomposer = LinkDecomposer::new();
 
         // Iterator yields (normalized_link, link_to_file)
-        let link_name_iter = ep_iter_src.all_iter().map(|resource_id| {
+        let link_name_iter = all_resource_ids_iter_source.all_iter().map(|resource_id| {
             let dc_link = link_decomposer.decompose(&resource_id.0).unwrap();
             let normalized_link = dc_link.link.to_lowercase();
 
@@ -53,14 +53,14 @@ impl ResourceIdLinkResolver {
             }
         }
 
-        ResourceIdLinkResolver {
+        ResourceIdLinkMap {
             name_to_resource_id_list,
             link_decomposer,
         }
     }
 }
 
-impl LinkResolver for ResourceIdLinkResolver {
+impl LinkQueryable for ResourceIdLinkMap {
     fn get_with_hint(&self, link: &Link, _hint: Hint) -> Result<ResourceId> {
         // convert string to internal link format
         let dec_link = self.link_decomposer.decompose(&link.0)?;
@@ -124,9 +124,9 @@ impl LinkResolver for ResourceIdLinkResolver {
 mod link_mapper_tests {
     use super::AllResourceIdsIterSource;
     use super::EmeraldError::*;
-    use super::LinkResolver;
+    use super::LinkQueryable;
     use super::ResourceId;
-    use super::ResourceIdLinkResolver;
+    use super::ResourceIdLinkMap;
 
     struct MockFileIndex {
         links: Vec<ResourceId>,
@@ -147,7 +147,7 @@ mod link_mapper_tests {
     #[test]
     fn check_malformed_link_causes_error() {
         let file_index = prepare_mock_file_index(vec!["[[note1.md]]".into()]);
-        let dut = ResourceIdLinkResolver::new(&file_index);
+        let dut = ResourceIdLinkMap::new(&file_index);
 
         let result = dut.get(&"[note1]]".into());
 
@@ -157,7 +157,7 @@ mod link_mapper_tests {
     #[test]
     fn check_link_match_without_extension() {
         let file_index = prepare_mock_file_index(vec!["[[note1.md]]".into()]);
-        let dut = ResourceIdLinkResolver::new(&file_index);
+        let dut = ResourceIdLinkMap::new(&file_index);
 
         let result = dut.get(&"[[note1]]".into());
 
@@ -167,7 +167,7 @@ mod link_mapper_tests {
     #[test]
     fn check_link_match_without_extension_with_spaces() {
         let file_index = prepare_mock_file_index(vec!["[[note1.md]]".into()]);
-        let dut = ResourceIdLinkResolver::new(&file_index);
+        let dut = ResourceIdLinkMap::new(&file_index);
 
         let result = dut.get(&"[[note1  ]]".into());
 
@@ -177,7 +177,7 @@ mod link_mapper_tests {
     #[test]
     fn check_link_match_without_extension_and_double_dot() {
         let file_index = prepare_mock_file_index(vec!["[[note1..md]]".into()]);
-        let dut = ResourceIdLinkResolver::new(&file_index);
+        let dut = ResourceIdLinkMap::new(&file_index);
 
         let result = dut.get(&"[[note1.]]".into());
 
@@ -187,7 +187,7 @@ mod link_mapper_tests {
     #[test]
     fn check_link_miss_without_extension_and_double_dot() {
         let file_index = prepare_mock_file_index(vec!["[[note1..md]]".into()]);
-        let dut = ResourceIdLinkResolver::new(&file_index);
+        let dut = ResourceIdLinkMap::new(&file_index);
 
         let result = dut.get(&"[[note1]]".into());
 
@@ -197,7 +197,7 @@ mod link_mapper_tests {
     #[test]
     fn check_link_match_with_extension() {
         let file_index = prepare_mock_file_index(vec!["[[note1.md]]".into()]);
-        let dut = ResourceIdLinkResolver::new(&file_index);
+        let dut = ResourceIdLinkMap::new(&file_index);
 
         let result = dut.get(&"[[note1.md]]".into());
 
@@ -207,7 +207,7 @@ mod link_mapper_tests {
     #[test]
     fn check_link_miss_without_extension() {
         let file_index = prepare_mock_file_index(vec!["[[note1.md]]".into()]);
-        let dut = ResourceIdLinkResolver::new(&file_index);
+        let dut = ResourceIdLinkMap::new(&file_index);
 
         let result = dut.get(&"[[missing]]".into());
 
@@ -219,7 +219,7 @@ mod link_mapper_tests {
     #[test]
     fn check_link_miss_with_extension() {
         let file_index = prepare_mock_file_index(vec!["[[note1.md]]".into()]);
-        let dut = ResourceIdLinkResolver::new(&file_index);
+        let dut = ResourceIdLinkMap::new(&file_index);
 
         let result = dut.get(&"[[missing.md]]".into());
 
@@ -234,7 +234,7 @@ mod link_mapper_tests {
             "[[path1/note1.md]]".into(),
             "[[path2/note1.md]]".into(),
         ]);
-        let dut = ResourceIdLinkResolver::new(&file_index);
+        let dut = ResourceIdLinkMap::new(&file_index);
 
         let result = dut.get(&"[[note1]]".into());
 
@@ -245,7 +245,7 @@ mod link_mapper_tests {
     fn check_link_match_two_files_same_name_different_ext() {
         let file_index =
             prepare_mock_file_index(vec!["[[path1/note1]]".into(), "[[path2/note1.md]]".into()]);
-        let dut = ResourceIdLinkResolver::new(&file_index);
+        let dut = ResourceIdLinkMap::new(&file_index);
 
         let result = dut.get(&"[[note1]]".into());
 
@@ -259,7 +259,7 @@ mod link_mapper_tests {
             "[[path1/note1.md]]".into(),
             "[[path2/note1.md]]".into(),
         ]);
-        let dut = ResourceIdLinkResolver::new(&file_index);
+        let dut = ResourceIdLinkMap::new(&file_index);
 
         let result = dut.get(&"[[path2/note1]]".into());
 
@@ -273,7 +273,7 @@ mod link_mapper_tests {
             "[[path1/note1.md]]".into(),
             "[[path2/note1.md]]".into(),
         ]);
-        let dut = ResourceIdLinkResolver::new(&file_index);
+        let dut = ResourceIdLinkMap::new(&file_index);
 
         let result = dut.get(&"[[path2/note1.md]]".into());
 
@@ -288,7 +288,7 @@ mod link_mapper_tests {
             "[[päth2/note1.md]]".into(),
         ]);
 
-        let dut = ResourceIdLinkResolver::new(&file_index);
+        let dut = ResourceIdLinkMap::new(&file_index);
 
         // Attention: The "ä" from above is coded differently than the following ä
         let result = dut.get(&"[[päth2/note1.md]]".into());
@@ -304,7 +304,7 @@ mod link_mapper_tests {
             "[[path2/nöte1.md]]".into(),
         ]);
 
-        let dut = ResourceIdLinkResolver::new(&file_index);
+        let dut = ResourceIdLinkMap::new(&file_index);
 
         // Attention: The "ö" from above is coded differently than the following ö
         let result = dut.get(&"[[path2/nöte1.md]]".into());
