@@ -1,21 +1,21 @@
-use crate::indexes::note_link_index::NoteLinkIndex;
-
-use crate::content_analyzers::MdLinkAnalyzer;
-use crate::indexes::endpoint_index::EndpointIndex;
-use crate::indexes::resource_id_index::ResourceIdIndex;
-use crate::indexes::AllEndpointsIterSource;
-use crate::types::EndPoint;
-
-use crate::resolvers::create_link_resolver;
-use crate::resolvers::LinkResolver;
-use crate::resources::content_storage::ContentStorage;
-use crate::resources::file_content_loader::FileContentLoader;
-use crate::Result;
-
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 use std::rc::Rc;
 use std::{path::Path, time::Instant};
+
+use crate::content_analyzers::MdLinkAnalyzer;
+use crate::indexes::endpoint_index::EndpointIndex;
+use crate::indexes::note_link_index::NoteLinkIndex;
+use crate::indexes::resource_id_index::ResourceIdIndex;
+use crate::indexes::AllEndpointsIterSource;
+use crate::resolvers::create_destination_list_resolver;
+use crate::resolvers::create_link_resolver;
+use crate::resolvers::DestinationListResolver;
+use crate::resolvers::LinkResolver;
+use crate::resources::content_storage::ContentStorage;
+use crate::resources::file_content_loader::FileContentLoader;
+use crate::types::EndPoint;
+use crate::Result;
 
 #[allow(dead_code)]
 pub struct Emerald {
@@ -23,6 +23,7 @@ pub struct Emerald {
     pub endpoint_index: Rc<EndpointIndex>,
     pub resource_id_index: Rc<ResourceIdIndex>,
     pub link_resolver: Rc<dyn LinkResolver>,
+    pub destination_list_resolver: Rc<dyn DestinationListResolver>,
     pub note_link_index: Rc<NoteLinkIndex>,
     pub content_loader: Rc<FileContentLoader>,
     pub content_storage: Rc<ContentStorage>,
@@ -72,6 +73,11 @@ impl Emerald {
         let dur = start.elapsed();
         debug!("Creation of NoteLinkIndex took: {:?}", dur);
 
+        let start = Instant::now();
+        let destination_list_resolver = create_destination_list_resolver(note_link_index.as_ref());
+        let dur = start.elapsed();
+        debug!("Creation of NoteLinkIndex took: {:?}", dur);
+
         Ok(Emerald {
             md_link_analyzer,
             link_resolver,
@@ -80,6 +86,7 @@ impl Emerald {
             content_loader,
             content_storage,
             note_link_index,
+            destination_list_resolver,
         })
     }
 }
