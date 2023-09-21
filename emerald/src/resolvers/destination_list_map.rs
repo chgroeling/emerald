@@ -2,14 +2,14 @@ use std::collections::{hash_map::Entry, HashMap};
 
 use crate::{
     indexes::AllNoteLinksIterSource,
-    types::{LinkAndResourceId, ResourceId},
+    types::{LinkAndDestination, ResourceId},
 };
 
 use super::destination_list_resolver::DestinationListResolver;
 
 type OriginToDestinationListMap = HashMap<ResourceId, ListOfLinksWithDestination>;
 
-pub type ListOfLinksWithDestination = Vec<LinkAndResourceId>;
+pub type ListOfLinksWithDestination = Vec<LinkAndDestination>;
 
 struct DestinationListMap {
     origin_to_destination: OriginToDestinationListMap,
@@ -38,7 +38,7 @@ impl DestinationListMap {
 }
 
 impl DestinationListResolver for DestinationListMap {
-    fn resolve(&self, resource_id: ResourceId) -> Option<std::vec::IntoIter<LinkAndResourceId>> {
+    fn resolve(&self, resource_id: ResourceId) -> Option<std::vec::IntoIter<LinkAndDestination>> {
         self.origin_to_destination
             .get(&resource_id)
             .map(|f| f.to_owned().into_iter())
@@ -48,6 +48,7 @@ impl DestinationListResolver for DestinationListMap {
 #[cfg(test)]
 mod tests {
     use crate::types::Link;
+    use crate::types::LinkAndDestination;
     use crate::types::OriginToDestination;
     use crate::types::ResourceId;
 
@@ -67,12 +68,15 @@ mod tests {
     fn test_simple_link() {
         let data = NotesIterSource(vec![OriginToDestination::new(
             "o1".into(),
-            ("o1->d1".into(), Some("d1".into())),
+            LinkAndDestination::new("o1->d1".into(), Some("d1".into())),
         )]);
 
         let dut = DestinationListMap::new(&data);
-        let res: Vec<(Link, Option<ResourceId>)> = dut.resolve("o1".into()).unwrap().collect();
+        let res: Vec<LinkAndDestination> = dut.resolve("o1".into()).unwrap().collect();
 
-        assert_eq!(res, vec![("o1->d1".into(), Some("d1".into()))]);
+        assert_eq!(
+            res,
+            vec![LinkAndDestination::new("o1->d1".into(), Some("d1".into()))]
+        );
     }
 }

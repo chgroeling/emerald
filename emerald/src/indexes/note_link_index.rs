@@ -2,8 +2,9 @@
 use log::{debug, error, info, trace, warn};
 
 use crate::{
-    content_analyzers::MdLinkAnalyzerIterSource, resources::ContentIterSource,
-    types::OriginToDestination,
+    content_analyzers::MdLinkAnalyzerIterSource,
+    resources::ContentIterSource,
+    types::{LinkAndDestination, OriginToDestination},
 };
 
 use super::all_note_links_iter_source::AllNoteLinksIterSource;
@@ -35,7 +36,10 @@ impl NoteLinkIndex {
             let mut note_invalid_backlink_cnt: usize = 0;
             for link_and_resource_id in md_link_analyzer.create_iter(content.0.as_ref().clone()) {
                 match &link_and_resource_id {
-                    (link, None) => {
+                    LinkAndDestination {
+                        link,
+                        destination: None,
+                    } => {
                         note_invalid_backlink_cnt += 1;
                         warn!("Parsing {:?} -> Link not found: {:?}", &dest, &link);
                     }
