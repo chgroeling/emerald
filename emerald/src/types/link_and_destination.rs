@@ -1,4 +1,4 @@
-use super::{resource_id, Link, ResourceId};
+use super::{Link, ResourceId};
 
 #[derive(Debug, Clone, PartialEq)]
 // Structs holds a Link and its destination Resource Id if existant.

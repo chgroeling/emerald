@@ -45,10 +45,7 @@ impl NoteLinkIndex {
                     }
                     _ => note_valid_backlink_cnt += 1,
                 }
-                let note_link = OriginToDestination {
-                    origin: dest.clone(),
-                    link_and_destination: link_and_resource_id,
-                };
+                let note_link = OriginToDestination::new(dest.clone(), link_and_resource_id);
                 link_origin_dest_list.push(note_link);
             }
 

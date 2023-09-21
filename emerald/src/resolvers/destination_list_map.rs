@@ -11,7 +11,7 @@ type OriginToDestinationListMap = HashMap<ResourceId, ListOfLinksWithDestination
 
 pub type ListOfLinksWithDestination = Vec<LinkAndDestination>;
 
-struct DestinationListMap {
+pub struct DestinationListMap {
     origin_to_destination: OriginToDestinationListMap,
 }
 
@@ -41,21 +41,17 @@ impl DestinationListResolver for DestinationListMap {
     fn resolve(&self, resource_id: ResourceId) -> Option<std::vec::IntoIter<LinkAndDestination>> {
         self.origin_to_destination
             .get(&resource_id)
-            .map(|f| f.to_owned().into_iter())
+            .map(|f| f.clone().into_iter())
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::types::Link;
-    use crate::types::LinkAndDestination;
-    use crate::types::OriginToDestination;
-    use crate::types::OriginToDestination as OtD;
-    use crate::types::ResourceId;
-
     use super::AllNoteLinksIterSource;
     use super::DestinationListMap;
     use super::DestinationListResolver;
+    use crate::types::LinkAndDestination;
+    use crate::types::OriginToDestination;
 
     struct NotesIterSource(Vec<OriginToDestination>);
     impl AllNoteLinksIterSource for NotesIterSource {
