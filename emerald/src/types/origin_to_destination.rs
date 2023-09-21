@@ -8,3 +8,12 @@ pub struct OriginToDestination {
     pub origin: ResourceId,
     pub link_and_destination: LinkAndResourceId,
 }
+
+impl OriginToDestination {
+    pub fn new(origin: ResourceId, link_and_destination: LinkAndResourceId) -> Self {
+        Self {
+            origin,
+            link_and_destination,
+        }
+    }
+}

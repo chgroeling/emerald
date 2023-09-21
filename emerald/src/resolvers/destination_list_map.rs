@@ -44,3 +44,35 @@ impl DestinationListResolver for DestinationListMap {
             .map(|f| f.to_owned().into_iter())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::types::Link;
+    use crate::types::OriginToDestination;
+    use crate::types::ResourceId;
+
+    use super::AllNoteLinksIterSource;
+    use super::DestinationListMap;
+    use super::DestinationListResolver;
+
+    struct NotesIterSource(Vec<OriginToDestination>);
+    impl AllNoteLinksIterSource for NotesIterSource {
+        type Iter = std::vec::IntoIter<OriginToDestination>;
+
+        fn all_iter(&self) -> Self::Iter {
+            self.0.clone().into_iter()
+        }
+    }
+    #[test]
+    fn test_simple_link() {
+        let data = NotesIterSource(vec![OriginToDestination::new(
+            "o1".into(),
+            ("o1->d1".into(), Some("d1".into())),
+        )]);
+
+        let dut = DestinationListMap::new(&data);
+        let res: Vec<(Link, Option<ResourceId>)> = dut.resolve("o1".into()).unwrap().collect();
+
+        assert_eq!(res, vec![("o1->d1".into(), Some("d1".into()))]);
+    }
+}
