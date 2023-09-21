@@ -1,4 +1,4 @@
-use super::{LinkAndDestination, ResourceId};
+use super::{LinkToTarget, ResourceId};
 
 #[derive(Debug, Clone)]
 /// This struct holds a links with is destination (the place where it points to) and the
@@ -6,11 +6,11 @@ use super::{LinkAndDestination, ResourceId};
 #[allow(dead_code)]
 pub struct OriginToDestination {
     pub origin: ResourceId,
-    pub link_and_destination: LinkAndDestination,
+    pub link_and_destination: LinkToTarget,
 }
 
 impl OriginToDestination {
-    pub fn new(origin: ResourceId, link_and_destination: LinkAndDestination) -> Self {
+    pub fn new(origin: ResourceId, link_and_destination: LinkToTarget) -> Self {
         Self {
             origin,
             link_and_destination,

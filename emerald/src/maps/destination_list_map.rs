@@ -2,14 +2,14 @@ use std::collections::{hash_map::Entry, HashMap};
 
 use crate::{
     indexes::AllNoteLinksIterSource,
-    types::{LinkAndDestination, ResourceId},
+    types::{LinkToTarget, ResourceId},
 };
 
 use super::destination_iterator_queryable::DestinationIteratorQueryable;
 
 type OriginToDestinationListMap = HashMap<ResourceId, ListOfLinksWithDestination>;
 
-pub type ListOfLinksWithDestination = Vec<LinkAndDestination>;
+pub type ListOfLinksWithDestination = Vec<LinkToTarget>;
 
 pub struct DestinationListMap {
     origin_to_destination: OriginToDestinationListMap,
@@ -41,7 +41,7 @@ impl DestinationIteratorQueryable for DestinationListMap {
     fn query_destination_iter(
         &self,
         resource_id: ResourceId,
-    ) -> Option<std::vec::IntoIter<LinkAndDestination>> {
+    ) -> Option<std::vec::IntoIter<LinkToTarget>> {
         self.origin_to_destination
             .get(&resource_id)
             .map(|f| f.clone().into_iter())
@@ -53,7 +53,7 @@ mod tests {
     use super::AllNoteLinksIterSource;
     use super::DestinationIteratorQueryable;
     use super::DestinationListMap;
-    use crate::types::LinkAndDestination;
+    use crate::types::LinkToTarget;
     use crate::types::OriginToDestination;
 
     struct NotesIterSource(Vec<OriginToDestination>);
@@ -69,7 +69,7 @@ mod tests {
     fn sample_otd(src: &str, link: &str, dest: &str) -> OriginToDestination {
         OriginToDestination::new(
             src.into(),
-            LinkAndDestination::new(link.into(), Some(dest.into())),
+            LinkToTarget::new(link.into(), Some(dest.into())),
         )
     }
     #[test]
@@ -77,12 +77,11 @@ mod tests {
         let data = NotesIterSource(vec![sample_otd("o1", "o1->d1", "d1")]);
 
         let dut = DestinationListMap::new(&data);
-        let res: Vec<LinkAndDestination> =
-            dut.query_destination_iter("o1".into()).unwrap().collect();
+        let res: Vec<LinkToTarget> = dut.query_destination_iter("o1".into()).unwrap().collect();
 
         assert_eq!(
             res,
-            vec![LinkAndDestination::new("o1->d1".into(), Some("d1".into()))]
+            vec![LinkToTarget::new("o1->d1".into(), Some("d1".into()))]
         );
     }
 
@@ -94,14 +93,13 @@ mod tests {
         ]);
 
         let dut = DestinationListMap::new(&data);
-        let res: Vec<LinkAndDestination> =
-            dut.query_destination_iter("o1".into()).unwrap().collect();
+        let res: Vec<LinkToTarget> = dut.query_destination_iter("o1".into()).unwrap().collect();
 
         assert_eq!(
             res,
             vec![
-                LinkAndDestination::new("o1->d1".into(), Some("d1".into())),
-                LinkAndDestination::new("o1->d2".into(), Some("d2".into()))
+                LinkToTarget::new("o1->d1".into(), Some("d1".into())),
+                LinkToTarget::new("o1->d2".into(), Some("d2".into()))
             ]
         );
     }
@@ -117,14 +115,13 @@ mod tests {
         ]);
 
         let dut = DestinationListMap::new(&data);
-        let res: Vec<LinkAndDestination> =
-            dut.query_destination_iter("o1".into()).unwrap().collect();
+        let res: Vec<LinkToTarget> = dut.query_destination_iter("o1".into()).unwrap().collect();
 
         assert_eq!(
             res,
             vec![
-                LinkAndDestination::new("o1->d1".into(), Some("d1".into())),
-                LinkAndDestination::new("o1->d2".into(), Some("d2".into()))
+                LinkToTarget::new("o1->d1".into(), Some("d1".into())),
+                LinkToTarget::new("o1->d2".into(), Some("d2".into()))
             ]
         );
     }
