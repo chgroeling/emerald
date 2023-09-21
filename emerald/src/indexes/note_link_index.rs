@@ -15,8 +15,6 @@ pub type SourceAndLinkToTargetList = Vec<LinkFromSourceToTarget>;
 pub struct NoteLinkIndex {
     valid_backlink_cnt: usize,
     invalid_backlink_cnt: usize,
-
-    #[allow(dead_code)]
     source_and_link_to_target_list: SourceAndLinkToTargetList,
 }
 
@@ -29,8 +27,8 @@ impl NoteLinkIndex {
         let mut invalid_backlink_cnt: usize = 0;
         let mut source_and_link_to_target_list = SourceAndLinkToTargetList::new();
 
-        for (source, content) in content_iter_src.iter() {
-            trace!("Link extraction from {:?} starts", &source);
+        for (src, content) in content_iter_src.iter() {
+            trace!("Link extraction from {:?} starts", &src);
 
             let mut note_valid_backlink_cnt: usize = 0;
             let mut note_invalid_backlink_cnt: usize = 0;
@@ -38,16 +36,16 @@ impl NoteLinkIndex {
                 match &link_to_target {
                     LinkToTarget { link, target: None } => {
                         note_invalid_backlink_cnt += 1;
-                        warn!("Parsing {:?} -> Link not found: {:?}", &source, &link);
+                        warn!("Parsing {:?} -> Link not found: {:?}", &src, &link);
                     }
                     _ => note_valid_backlink_cnt += 1,
                 }
-                let note_link = LinkFromSourceToTarget::new(source.clone(), link_to_target);
-                source_and_link_to_target_list.push(note_link);
+                let s2t = LinkFromSourceToTarget::from_link_to_target(src.clone(), link_to_target);
+                source_and_link_to_target_list.push(s2t);
             }
 
             if note_valid_backlink_cnt == 0 {
-                trace!("No valid links found in  {:?}", &source);
+                trace!("No valid links found in  {:?}", &src);
             }
 
             valid_backlink_cnt += note_valid_backlink_cnt;
