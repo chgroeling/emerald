@@ -65,7 +65,7 @@ mod tests {
         }
     }
     #[test]
-    fn test_simple_link() {
+    fn test_one_match() {
         let data = NotesIterSource(vec![OriginToDestination::new(
             "o1".into(),
             LinkAndDestination::new("o1->d1".into(), Some("d1".into())),
@@ -77,6 +77,68 @@ mod tests {
         assert_eq!(
             res,
             vec![LinkAndDestination::new("o1->d1".into(), Some("d1".into()))]
+        );
+    }
+
+    #[test]
+    fn test_two_matches() {
+        let data = NotesIterSource(vec![
+            OriginToDestination::new(
+                "o1".into(),
+                LinkAndDestination::new("o1->d1".into(), Some("d1".into())),
+            ),
+            OriginToDestination::new(
+                "o1".into(),
+                LinkAndDestination::new("o1->d2".into(), Some("d2".into())),
+            ),
+        ]);
+
+        let dut = DestinationListMap::new(&data);
+        let res: Vec<LinkAndDestination> = dut.resolve("o1".into()).unwrap().collect();
+
+        assert_eq!(
+            res,
+            vec![
+                LinkAndDestination::new("o1->d1".into(), Some("d1".into())),
+                LinkAndDestination::new("o1->d2".into(), Some("d2".into()))
+            ]
+        );
+    }
+
+    #[test]
+    fn test_two_matches_elements_inbetween() {
+        let data = NotesIterSource(vec![
+            OriginToDestination::new(
+                "doesn't matter 1".into(),
+                LinkAndDestination::new("abc".into(), Some("def".into())),
+            ),
+            OriginToDestination::new(
+                "o1".into(),
+                LinkAndDestination::new("o1->d1".into(), Some("d1".into())),
+            ),
+            OriginToDestination::new(
+                "doesn't matter 2".into(),
+                LinkAndDestination::new("abc".into(), Some("def".into())),
+            ),
+            OriginToDestination::new(
+                "o1".into(),
+                LinkAndDestination::new("o1->d2".into(), Some("d2".into())),
+            ),
+            OriginToDestination::new(
+                "doesn't matter 3".into(),
+                LinkAndDestination::new("abc".into(), Some("def".into())),
+            ),
+        ]);
+
+        let dut = DestinationListMap::new(&data);
+        let res: Vec<LinkAndDestination> = dut.resolve("o1".into()).unwrap().collect();
+
+        assert_eq!(
+            res,
+            vec![
+                LinkAndDestination::new("o1->d1".into(), Some("d1".into())),
+                LinkAndDestination::new("o1->d2".into(), Some("d2".into()))
+            ]
         );
     }
 }
