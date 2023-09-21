@@ -1,4 +1,4 @@
-use super::{LinkToTarget, ResourceId};
+use super::{Link, LinkToTarget, ResourceId};
 
 #[derive(Debug, Clone)]
 /// This struct holds the source of a link and its target (the place where it points to).
@@ -6,14 +6,24 @@ use super::{LinkToTarget, ResourceId};
 #[allow(dead_code)]
 pub struct LinkFromSourceToTarget {
     pub source: ResourceId,
-    pub link_to_target: LinkToTarget,
+    pub link: Link,
+    pub target: Option<ResourceId>,
 }
 
 impl LinkFromSourceToTarget {
-    pub fn new(source: ResourceId, link_to_target: LinkToTarget) -> Self {
+    pub fn new(source: ResourceId, link: Link, target: Option<ResourceId>) -> Self {
         Self {
             source,
-            link_to_target,
+            link,
+            target,
         }
+    }
+
+    pub fn from_link_to_target(source: ResourceId, link_to_target: LinkToTarget) -> Self {
+        Self::new(source, link_to_target.link, link_to_target.target)
+    }
+
+    pub fn get_link_to_target(&self) -> LinkToTarget {
+        LinkToTarget::new(self.link.clone(), self.target.clone())
     }
 }
