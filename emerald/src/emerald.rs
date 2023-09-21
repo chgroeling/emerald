@@ -23,7 +23,7 @@ pub struct Emerald {
     pub endpoint_index: Rc<EndpointIndex>,
     pub resource_id_index: Rc<ResourceIdIndex>,
     pub link_queryable: Rc<dyn LinkQueryable>,
-    pub destination_list_resolver: Rc<dyn TargetIteratorQueryable>,
+    pub target_iterator_queryable: Rc<dyn TargetIteratorQueryable>,
     pub note_link_index: Rc<NoteLinkIndex>,
     pub content_loader: Rc<FileContentLoader>,
     pub content_storage: Rc<ContentStorage>,
@@ -74,7 +74,7 @@ impl Emerald {
         debug!("Creation of NoteLinkIndex took: {:?}", dur);
 
         let start = Instant::now();
-        let destination_list_resolver = create_target_iterator_queryable(note_link_index.as_ref());
+        let target_iterator_queryable = create_target_iterator_queryable(note_link_index.as_ref());
         let dur = start.elapsed();
         debug!("Creation of NoteLinkIndex took: {:?}", dur);
 
@@ -86,7 +86,7 @@ impl Emerald {
             content_loader,
             content_storage,
             note_link_index,
-            destination_list_resolver,
+            target_iterator_queryable,
         })
     }
 }

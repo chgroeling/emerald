@@ -1,7 +1,7 @@
 use super::{Link, ResourceId};
 
 #[derive(Debug, Clone, PartialEq)]
-// Structs holds a Link and its destination Resource Id if existant.
+// Structs holds a link and the resource id of the links target if existant.
 pub struct LinkToTarget {
     pub link: Link,
     pub target: Option<ResourceId>,

@@ -62,10 +62,10 @@ mod tests {
     }
 
     /// Create a SourceAndLinkToTarget struct for test purposes
-    fn sample_slt(src: &str, link: &str, dest: &str) -> SourceAndLinkToTarget {
+    fn sample_slt(src: &str, link: &str, target: &str) -> SourceAndLinkToTarget {
         SourceAndLinkToTarget::new(
             src.into(),
-            LinkToTarget::new(link.into(), Some(dest.into())),
+            LinkToTarget::new(link.into(), Some(target.into())),
         )
     }
     #[test]
