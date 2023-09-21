@@ -1,8 +1,8 @@
 use super::{LinkToTarget, ResourceId};
 
 #[derive(Debug, Clone)]
-/// This struct holds the source of links and its target (the place where it points to) and the
-/// Resource Id of the source, the place where it stems from
+/// This struct holds the source of a link and its target (the place where it points to).
+/// Source and target are concrete ResourceIds which are pointing to files.
 #[allow(dead_code)]
 pub struct LinkFromSourceToTarget {
     pub source: ResourceId,
