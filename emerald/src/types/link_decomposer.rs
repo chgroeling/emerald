@@ -1,18 +1,12 @@
-use super::res_and_err::{EmeraldError, Result};
+use super::{
+    link_components::LinkComponents,
+    res_and_err::{EmeraldError, Result},
+};
 use std::fmt::Display;
 
 use EmeraldError::*;
 
-#[derive(Debug)]
-pub struct DecomposedLink {
-    pub path: Option<String>,
-    pub link: String,
-    pub label: Option<String>,
-    pub section: Option<String>,
-    pub anchor: Option<String>,
-}
-
-impl Display for DecomposedLink {
+impl Display for LinkComponents {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if let Some(path_uw) = &self.path {
             write!(f, "[[{}/{}]]", path_uw, self.link)
@@ -21,51 +15,8 @@ impl Display for DecomposedLink {
         }
     }
 }
-impl DecomposedLink {
-    pub fn new(
-        link: String,
-        path: Option<String>,
-        label: Option<String>,
-        section: Option<String>,
-        anchor: Option<String>,
-    ) -> Self {
-        DecomposedLink {
-            path,
-            link,
-            label,
-            section,
-            anchor,
-        }
-    }
 
-    #[allow(dead_code)]
-    pub fn has_path(&self) -> bool {
-        self.path.is_some()
-    }
-
-    pub fn new_link(link: String) -> Self {
-        DecomposedLink {
-            path: None,
-            link,
-            label: None,
-            section: None,
-            anchor: None,
-        }
-    }
-
-    #[allow(dead_code)]
-    pub fn new_link_with_path(name: String, path: String) -> Self {
-        DecomposedLink {
-            path: Some(path),
-            link: name,
-            label: None,
-            section: None,
-            anchor: None,
-        }
-    }
-}
-
-impl From<&'static str> for DecomposedLink {
+impl From<&'static str> for LinkComponents {
     fn from(value: &'static str) -> Self {
         Self::new_link(value.to_owned())
     }
@@ -94,7 +45,7 @@ impl LinkDecomposer {
     }
 
     /// Splits a Wikilink stored in `s` into its parts and return as a DecomposedLink struct.
-    pub fn decompose(&self, s: &str) -> Result<DecomposedLink> {
+    pub fn decompose(&self, s: &str) -> Result<LinkComponents> {
         let start = s.find("[[").ok_or(NotAWikiLink)?;
         let end = s.find("]]").ok_or(NotAWikiLink)?;
 
@@ -149,7 +100,7 @@ impl LinkDecomposer {
             }
         }
 
-        Ok(DecomposedLink::new(link, path, label, section, anchor))
+        Ok(LinkComponents::new(link, path, label, section, anchor))
     }
 }
 
