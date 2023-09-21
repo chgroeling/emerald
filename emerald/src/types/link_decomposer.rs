@@ -1,16 +1,10 @@
-use super::res_and_err::{EmeraldError, Result};
+use super::{
+    link_components::DecomposedLink,
+    res_and_err::{EmeraldError, Result},
+};
 use std::fmt::Display;
 
 use EmeraldError::*;
-
-#[derive(Debug)]
-pub struct DecomposedLink {
-    pub path: Option<String>,
-    pub link: String,
-    pub label: Option<String>,
-    pub section: Option<String>,
-    pub anchor: Option<String>,
-}
 
 impl Display for DecomposedLink {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

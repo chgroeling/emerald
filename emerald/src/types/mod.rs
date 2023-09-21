@@ -1,6 +1,7 @@
 mod content;
 mod endpoint;
 pub mod link;
+mod link_components;
 pub mod link_decomposer;
 mod link_origin_destination;
 mod res_and_err;
