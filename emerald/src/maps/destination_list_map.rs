@@ -5,7 +5,7 @@ use crate::{
     types::{LinkAndDestination, ResourceId},
 };
 
-use super::destination_list_resolver::DestinationListResolver;
+use super::destination_iterator_queryable::DestinationIteratorQueryable;
 
 type OriginToDestinationListMap = HashMap<ResourceId, ListOfLinksWithDestination>;
 
@@ -37,8 +37,11 @@ impl DestinationListMap {
     }
 }
 
-impl DestinationListResolver for DestinationListMap {
-    fn resolve(&self, resource_id: ResourceId) -> Option<std::vec::IntoIter<LinkAndDestination>> {
+impl DestinationIteratorQueryable for DestinationListMap {
+    fn query_destination_iter(
+        &self,
+        resource_id: ResourceId,
+    ) -> Option<std::vec::IntoIter<LinkAndDestination>> {
         self.origin_to_destination
             .get(&resource_id)
             .map(|f| f.clone().into_iter())
@@ -48,8 +51,8 @@ impl DestinationListResolver for DestinationListMap {
 #[cfg(test)]
 mod tests {
     use super::AllNoteLinksIterSource;
+    use super::DestinationIteratorQueryable;
     use super::DestinationListMap;
-    use super::DestinationListResolver;
     use crate::types::LinkAndDestination;
     use crate::types::OriginToDestination;
 
@@ -74,7 +77,8 @@ mod tests {
         let data = NotesIterSource(vec![sample_otd("o1", "o1->d1", "d1")]);
 
         let dut = DestinationListMap::new(&data);
-        let res: Vec<LinkAndDestination> = dut.resolve("o1".into()).unwrap().collect();
+        let res: Vec<LinkAndDestination> =
+            dut.query_destination_iter("o1".into()).unwrap().collect();
 
         assert_eq!(
             res,
@@ -90,7 +94,8 @@ mod tests {
         ]);
 
         let dut = DestinationListMap::new(&data);
-        let res: Vec<LinkAndDestination> = dut.resolve("o1".into()).unwrap().collect();
+        let res: Vec<LinkAndDestination> =
+            dut.query_destination_iter("o1".into()).unwrap().collect();
 
         assert_eq!(
             res,
@@ -112,7 +117,8 @@ mod tests {
         ]);
 
         let dut = DestinationListMap::new(&data);
-        let res: Vec<LinkAndDestination> = dut.resolve("o1".into()).unwrap().collect();
+        let res: Vec<LinkAndDestination> =
+            dut.query_destination_iter("o1".into()).unwrap().collect();
 
         assert_eq!(
             res,

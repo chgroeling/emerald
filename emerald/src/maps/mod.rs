@@ -1,11 +1,11 @@
 use std::rc::Rc;
 
+mod destination_iterator_queryable;
 mod destination_list_map;
-mod destination_list_resolver;
 mod link_queryable;
 mod resource_id_link_map;
 
-pub use self::destination_list_resolver::DestinationListResolver;
+pub use self::destination_iterator_queryable::DestinationIteratorQueryable;
 pub use self::link_queryable::LinkQueryable;
 
 use self::{destination_list_map::DestinationListMap, resource_id_link_map::ResourceIdLinkMap};
@@ -19,6 +19,6 @@ pub fn create_link_queryable(
 
 pub fn create_destination_list_resolver(
     all_note_links_iter_source: &impl AllNoteLinksIterSource,
-) -> Rc<dyn DestinationListResolver> {
+) -> Rc<dyn DestinationIteratorQueryable> {
     Rc::new(DestinationListMap::new(all_note_links_iter_source))
 }

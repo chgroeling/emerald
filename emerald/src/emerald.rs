@@ -10,7 +10,7 @@ use crate::indexes::resource_id_index::ResourceIdIndex;
 use crate::indexes::AllEndpointsIterSource;
 use crate::maps::create_destination_list_resolver;
 use crate::maps::create_link_queryable;
-use crate::maps::DestinationListResolver;
+use crate::maps::DestinationIteratorQueryable;
 use crate::maps::LinkQueryable;
 use crate::resources::content_storage::ContentStorage;
 use crate::resources::file_content_loader::FileContentLoader;
@@ -23,7 +23,7 @@ pub struct Emerald {
     pub endpoint_index: Rc<EndpointIndex>,
     pub resource_id_index: Rc<ResourceIdIndex>,
     pub link_queryable: Rc<dyn LinkQueryable>,
-    pub destination_list_resolver: Rc<dyn DestinationListResolver>,
+    pub destination_list_resolver: Rc<dyn DestinationIteratorQueryable>,
     pub note_link_index: Rc<NoteLinkIndex>,
     pub content_loader: Rc<FileContentLoader>,
     pub content_storage: Rc<ContentStorage>,
