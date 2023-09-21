@@ -49,12 +49,12 @@ mod tests {
     use super::AllNoteLinksIterSource;
     use super::TargetIteratorQueryable;
     use super::TargetListMap;
+    use crate::types::LinkFromSourceToTarget;
     use crate::types::LinkToTarget;
-    use crate::types::SourceAndLinkToTarget;
 
-    struct NotesIterSource(Vec<SourceAndLinkToTarget>);
+    struct NotesIterSource(Vec<LinkFromSourceToTarget>);
     impl AllNoteLinksIterSource for NotesIterSource {
-        type Iter = std::vec::IntoIter<SourceAndLinkToTarget>;
+        type Iter = std::vec::IntoIter<LinkFromSourceToTarget>;
 
         fn all_iter(&self) -> Self::Iter {
             self.0.clone().into_iter()
@@ -62,8 +62,8 @@ mod tests {
     }
 
     /// Create a SourceAndLinkToTarget struct for test purposes
-    fn sample_slt(src: &str, link: &str, target: &str) -> SourceAndLinkToTarget {
-        SourceAndLinkToTarget::new(
+    fn sample_slt(src: &str, link: &str, target: &str) -> LinkFromSourceToTarget {
+        LinkFromSourceToTarget::new(
             src.into(),
             LinkToTarget::new(link.into(), Some(target.into())),
         )
