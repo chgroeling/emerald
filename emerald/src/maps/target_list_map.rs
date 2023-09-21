@@ -17,11 +17,10 @@ pub struct TargetListMap {
 impl TargetListMap {
     pub fn new(all_note_links_iter_source: &impl AllNoteLinksIterSource) -> Self {
         let mut source_to_target_map = SourceToLinkToTargetList::new();
-        for link_to_target in all_note_links_iter_source.all_iter() {
-            let source = link_to_target.source;
-            let link_to_target = link_to_target.link_to_target;
+        for s2t in all_note_links_iter_source.all_iter() {
+            let link_to_target = s2t.get_link_to_target();
 
-            match source_to_target_map.entry(source) {
+            match source_to_target_map.entry(s2t.source) {
                 Entry::Occupied(mut e) => {
                     e.get_mut().push(link_to_target);
                 }
@@ -63,10 +62,7 @@ mod tests {
 
     /// Create a SourceAndLinkToTarget struct for test purposes
     fn sample_slt(src: &str, link: &str, target: &str) -> LinkFromSourceToTarget {
-        LinkFromSourceToTarget::new(
-            src.into(),
-            LinkToTarget::new(link.into(), Some(target.into())),
-        )
+        LinkFromSourceToTarget::new(src.into(), link.into(), Some(target.into()))
     }
     #[test]
     fn test_one_match() {
