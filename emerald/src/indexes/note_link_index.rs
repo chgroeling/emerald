@@ -3,13 +3,13 @@ use log::{debug, error, info, trace, warn};
 
 use crate::{
     content_analyzers::MdLinkAnalyzerIterSource, resources::ContentIterSource,
-    types::LinkOriginDestination,
+    types::OriginToDestination,
 };
 
 use super::all_note_links_iter_source::AllNoteLinksIterSource;
 
 #[allow(dead_code)]
-pub type LinkOriginDestinationList = Vec<LinkOriginDestination>;
+pub type LinkOriginDestinationList = Vec<OriginToDestination>;
 
 pub struct NoteLinkIndex {
     valid_backlink_cnt: usize,
@@ -41,7 +41,7 @@ impl NoteLinkIndex {
                     }
                     _ => note_valid_backlink_cnt += 1,
                 }
-                let note_link = LinkOriginDestination {
+                let note_link = OriginToDestination {
                     origin: dest.clone(),
                     link_and_destination: link_and_resource_id,
                 };
@@ -73,7 +73,7 @@ impl NoteLinkIndex {
 }
 
 impl AllNoteLinksIterSource for NoteLinkIndex {
-    type Iter = std::vec::IntoIter<LinkOriginDestination>;
+    type Iter = std::vec::IntoIter<OriginToDestination>;
     fn all_iter(&self) -> Self::Iter {
         self.link_origin_dest_list.clone().into_iter()
     }

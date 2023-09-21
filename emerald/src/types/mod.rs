@@ -4,7 +4,7 @@ pub mod link;
 mod link_and_resource_id;
 mod link_components;
 pub mod link_decomposer;
-mod link_origin_destination;
+mod origin_to_destination;
 mod res_and_err;
 pub mod resource_id;
 
@@ -16,4 +16,4 @@ pub type ResourceId = self::resource_id::ResourceId;
 pub type Result<T> = self::res_and_err::Result<T>;
 pub type LinkAndResourceId = self::link_and_resource_id::LinkAndResourceId;
 pub use self::endpoint::EndPoint;
-pub use self::link_origin_destination::LinkOriginDestination;
+pub use self::origin_to_destination::OriginToDestination;

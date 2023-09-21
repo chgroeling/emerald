@@ -1,6 +1,6 @@
-use crate::types::{LinkOriginDestination, ResourceId};
+use crate::types::{OriginToDestination, ResourceId};
 
-pub type LinkOriginDestinationList = Vec<LinkOriginDestination>;
+pub type LinkOriginDestinationList = Vec<OriginToDestination>;
 
 /// This trait is used to resolve all links which are orignating from the note
 /// given by `resource_id`
