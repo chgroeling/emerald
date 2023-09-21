@@ -10,9 +10,9 @@ pub struct SourceAndLinkToTarget {
 }
 
 impl SourceAndLinkToTarget {
-    pub fn new(origin: ResourceId, link_to_target: LinkToTarget) -> Self {
+    pub fn new(source: ResourceId, link_to_target: LinkToTarget) -> Self {
         Self {
-            source: origin,
+            source,
             link_to_target,
         }
     }

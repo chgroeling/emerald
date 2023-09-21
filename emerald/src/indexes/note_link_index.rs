@@ -10,14 +10,14 @@ use crate::{
 use super::all_note_links_iter_source::AllNoteLinksIterSource;
 
 #[allow(dead_code)]
-pub type LinkOriginDestinationList = Vec<SourceAndLinkToTarget>;
+pub type SourceAndLinkToTargetList = Vec<SourceAndLinkToTarget>;
 
 pub struct NoteLinkIndex {
     valid_backlink_cnt: usize,
     invalid_backlink_cnt: usize,
 
     #[allow(dead_code)]
-    link_origin_dest_list: LinkOriginDestinationList,
+    source_and_link_to_target_list: SourceAndLinkToTargetList,
 }
 
 impl NoteLinkIndex {
@@ -27,7 +27,7 @@ impl NoteLinkIndex {
     ) -> Self {
         let mut valid_backlink_cnt: usize = 0;
         let mut invalid_backlink_cnt: usize = 0;
-        let mut link_origin_dest_list = LinkOriginDestinationList::new();
+        let mut source_and_link_to_target_list = SourceAndLinkToTargetList::new();
 
         for (source, content) in content_iter_src.iter() {
             trace!("Link extraction from {:?} starts", &source);
@@ -43,7 +43,7 @@ impl NoteLinkIndex {
                     _ => note_valid_backlink_cnt += 1,
                 }
                 let note_link = SourceAndLinkToTarget::new(source.clone(), link_to_target);
-                link_origin_dest_list.push(note_link);
+                source_and_link_to_target_list.push(note_link);
             }
 
             if note_valid_backlink_cnt == 0 {
@@ -57,7 +57,7 @@ impl NoteLinkIndex {
         Self {
             valid_backlink_cnt,
             invalid_backlink_cnt,
-            link_origin_dest_list,
+            source_and_link_to_target_list,
         }
     }
 
@@ -73,6 +73,6 @@ impl NoteLinkIndex {
 impl AllNoteLinksIterSource for NoteLinkIndex {
     type Iter = std::vec::IntoIter<SourceAndLinkToTarget>;
     fn all_iter(&self) -> Self::Iter {
-        self.link_origin_dest_list.clone().into_iter()
+        self.source_and_link_to_target_list.clone().into_iter()
     }
 }

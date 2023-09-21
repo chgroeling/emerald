@@ -7,22 +7,21 @@ use crate::{
 
 use super::target_iterator_queryable::TargetIteratorQueryable;
 
-type OriginToDestinationListMap = HashMap<ResourceId, ListOfLinksWithDestination>;
-
-pub type ListOfLinksWithDestination = Vec<LinkToTarget>;
+pub type LinkToTargetList = Vec<LinkToTarget>;
+type SourceToLinkToTargetList = HashMap<ResourceId, LinkToTargetList>;
 
 pub struct TargetListMap {
-    origin_to_destination: OriginToDestinationListMap,
+    source_to_target_map: SourceToLinkToTargetList,
 }
 
 impl TargetListMap {
     pub fn new(all_note_links_iter_source: &impl AllNoteLinksIterSource) -> Self {
-        let mut origin_to_destination = OriginToDestinationListMap::new();
+        let mut source_to_target_map = SourceToLinkToTargetList::new();
         for link_to_target in all_note_links_iter_source.all_iter() {
             let source = link_to_target.source;
             let link_to_target = link_to_target.link_to_target;
 
-            match origin_to_destination.entry(source) {
+            match source_to_target_map.entry(source) {
                 Entry::Occupied(mut e) => {
                     e.get_mut().push(link_to_target);
                 }
@@ -32,14 +31,14 @@ impl TargetListMap {
             }
         }
         Self {
-            origin_to_destination,
+            source_to_target_map,
         }
     }
 }
 
 impl TargetIteratorQueryable for TargetListMap {
     fn query(&self, source: ResourceId) -> Option<std::vec::IntoIter<LinkToTarget>> {
-        self.origin_to_destination
+        self.source_to_target_map
             .get(&source)
             .map(|f| f.clone().into_iter())
     }
@@ -62,8 +61,8 @@ mod tests {
         }
     }
 
-    /// Create a OriginToDestination struct for test purposes
-    fn sample_otd(src: &str, link: &str, dest: &str) -> SourceAndLinkToTarget {
+    /// Create a SourceAndLinkToTarget struct for test purposes
+    fn sample_slt(src: &str, link: &str, dest: &str) -> SourceAndLinkToTarget {
         SourceAndLinkToTarget::new(
             src.into(),
             LinkToTarget::new(link.into(), Some(dest.into())),
@@ -71,7 +70,7 @@ mod tests {
     }
     #[test]
     fn test_one_match() {
-        let data = NotesIterSource(vec![sample_otd("o1", "o1->d1", "d1")]);
+        let data = NotesIterSource(vec![sample_slt("o1", "o1->d1", "d1")]);
 
         let dut = TargetListMap::new(&data);
         let res: Vec<LinkToTarget> = dut.query("o1".into()).unwrap().collect();
@@ -85,8 +84,8 @@ mod tests {
     #[test]
     fn test_two_matches() {
         let data = NotesIterSource(vec![
-            sample_otd("o1", "o1->d1", "d1"),
-            sample_otd("o1", "o1->d2", "d2"),
+            sample_slt("o1", "o1->d1", "d1"),
+            sample_slt("o1", "o1->d2", "d2"),
         ]);
 
         let dut = TargetListMap::new(&data);
@@ -104,11 +103,11 @@ mod tests {
     #[test]
     fn test_two_matches_elements_inbetween() {
         let data = NotesIterSource(vec![
-            sample_otd("doesn't matter 1", "abc", "def"),
-            sample_otd("o1", "o1->d1", "d1"),
-            sample_otd("doesn't matter 2", "abc", "def"),
-            sample_otd("o1", "o1->d2", "d2"),
-            sample_otd("doesn't matter 3", "abc", "def"),
+            sample_slt("doesn't matter 1", "abc", "def"),
+            sample_slt("o1", "o1->d1", "d1"),
+            sample_slt("doesn't matter 2", "abc", "def"),
+            sample_slt("o1", "o1->d2", "d2"),
+            sample_slt("doesn't matter 3", "abc", "def"),
         ]);
 
         let dut = TargetListMap::new(&data);
