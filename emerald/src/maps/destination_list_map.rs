@@ -19,15 +19,15 @@ impl DestinationListMap {
     pub fn new(all_note_links_iter_source: &impl AllNoteLinksIterSource) -> Self {
         let mut origin_to_destination = OriginToDestinationListMap::new();
         for link_to_dest in all_note_links_iter_source.all_iter() {
-            let origin = link_to_dest.origin;
-            let link_and_dest = link_to_dest.link_and_destination;
+            let source = link_to_dest.source;
+            let link_to_target = link_to_dest.link_to_target;
 
-            match origin_to_destination.entry(origin) {
+            match origin_to_destination.entry(source) {
                 Entry::Occupied(mut e) => {
-                    e.get_mut().push(link_and_dest);
+                    e.get_mut().push(link_to_target);
                 }
                 Entry::Vacant(e) => {
-                    e.insert(vec![link_and_dest]);
+                    e.insert(vec![link_to_target]);
                 }
             }
         }
@@ -54,11 +54,11 @@ mod tests {
     use super::DestinationIteratorQueryable;
     use super::DestinationListMap;
     use crate::types::LinkToTarget;
-    use crate::types::OriginToDestination;
+    use crate::types::SourceAndLinkToTarget;
 
-    struct NotesIterSource(Vec<OriginToDestination>);
+    struct NotesIterSource(Vec<SourceAndLinkToTarget>);
     impl AllNoteLinksIterSource for NotesIterSource {
-        type Iter = std::vec::IntoIter<OriginToDestination>;
+        type Iter = std::vec::IntoIter<SourceAndLinkToTarget>;
 
         fn all_iter(&self) -> Self::Iter {
             self.0.clone().into_iter()
@@ -66,8 +66,8 @@ mod tests {
     }
 
     /// Create a OriginToDestination struct for test purposes
-    fn sample_otd(src: &str, link: &str, dest: &str) -> OriginToDestination {
-        OriginToDestination::new(
+    fn sample_otd(src: &str, link: &str, dest: &str) -> SourceAndLinkToTarget {
+        SourceAndLinkToTarget::new(
             src.into(),
             LinkToTarget::new(link.into(), Some(dest.into())),
         )

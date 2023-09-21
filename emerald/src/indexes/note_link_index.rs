@@ -4,13 +4,13 @@ use log::{debug, error, info, trace, warn};
 use crate::{
     content_analyzers::MdLinkAnalyzerIterSource,
     resources::ContentIterSource,
-    types::{LinkToTarget, OriginToDestination},
+    types::{LinkToTarget, SourceAndLinkToTarget},
 };
 
 use super::all_note_links_iter_source::AllNoteLinksIterSource;
 
 #[allow(dead_code)]
-pub type LinkOriginDestinationList = Vec<OriginToDestination>;
+pub type LinkOriginDestinationList = Vec<SourceAndLinkToTarget>;
 
 pub struct NoteLinkIndex {
     valid_backlink_cnt: usize,
@@ -29,25 +29,25 @@ impl NoteLinkIndex {
         let mut invalid_backlink_cnt: usize = 0;
         let mut link_origin_dest_list = LinkOriginDestinationList::new();
 
-        for (dest, content) in content_iter_src.iter() {
-            trace!("Link extraction from {:?} starts", &dest);
+        for (source, content) in content_iter_src.iter() {
+            trace!("Link extraction from {:?} starts", &source);
 
             let mut note_valid_backlink_cnt: usize = 0;
             let mut note_invalid_backlink_cnt: usize = 0;
-            for link_and_resource_id in md_link_analyzer.create_iter(content.0.as_ref().clone()) {
-                match &link_and_resource_id {
+            for link_to_target in md_link_analyzer.create_iter(content.0.as_ref().clone()) {
+                match &link_to_target {
                     LinkToTarget { link, target: None } => {
                         note_invalid_backlink_cnt += 1;
-                        warn!("Parsing {:?} -> Link not found: {:?}", &dest, &link);
+                        warn!("Parsing {:?} -> Link not found: {:?}", &source, &link);
                     }
                     _ => note_valid_backlink_cnt += 1,
                 }
-                let note_link = OriginToDestination::new(dest.clone(), link_and_resource_id);
+                let note_link = SourceAndLinkToTarget::new(source.clone(), link_to_target);
                 link_origin_dest_list.push(note_link);
             }
 
             if note_valid_backlink_cnt == 0 {
-                trace!("No valid links found in  {:?}", &dest);
+                trace!("No valid links found in  {:?}", &source);
             }
 
             valid_backlink_cnt += note_valid_backlink_cnt;
@@ -71,7 +71,7 @@ impl NoteLinkIndex {
 }
 
 impl AllNoteLinksIterSource for NoteLinkIndex {
-    type Iter = std::vec::IntoIter<OriginToDestination>;
+    type Iter = std::vec::IntoIter<SourceAndLinkToTarget>;
     fn all_iter(&self) -> Self::Iter {
         self.link_origin_dest_list.clone().into_iter()
     }
