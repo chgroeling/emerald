@@ -9,12 +9,12 @@ pub use self::link_queryable::LinkQueryable;
 pub use self::target_iterator_queryable::TargetIteratorQueryable;
 
 use self::{resource_id_link_map::ResourceIdLinkMap, target_list_map::TargetListMap};
-use crate::indexes::{AllNoteLinksIterable, AllResourceIdsIterSource};
+use crate::indexes::{AllNoteLinksIterable, AllResourceIdsIterable};
 
 pub fn create_link_queryable(
-    all_resource_ids_iter_source: &impl AllResourceIdsIterSource,
+    resource_ids_iterable: &impl AllResourceIdsIterable,
 ) -> Rc<dyn LinkQueryable> {
-    Rc::new(ResourceIdLinkMap::new(all_resource_ids_iter_source))
+    Rc::new(ResourceIdLinkMap::new(resource_ids_iterable))
 }
 
 pub fn create_target_iterator_queryable(

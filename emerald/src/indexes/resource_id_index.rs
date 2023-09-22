@@ -9,7 +9,7 @@ use crate::types::EndPoint;
 
 use super::{
     all_endpoints_iterable::AllEndpointsIterable,
-    all_resource_ids_iter_source::AllResourceIdsIterSource,
+    all_resource_ids_iterable::AllResourceIdsIterable,
     md_resource_ids_iter_source::MdResourceIdsIterSource,
 };
 
@@ -48,7 +48,7 @@ impl ResourceIdIndex {
     }
 }
 
-impl AllResourceIdsIterSource for ResourceIdIndex {
+impl AllResourceIdsIterable for ResourceIdIndex {
     type Iter = std::vec::IntoIter<ResourceId>;
     fn all_iter(&self) -> Self::Iter {
         self.all_resource_ids_list.clone().into_iter()
@@ -69,7 +69,7 @@ mod tests {
     use super::ResourceId;
     use super::ResourceIdIndex;
 
-    use crate::indexes::resource_id_index::{AllResourceIdsIterSource, MdResourceIdsIterSource};
+    use crate::indexes::resource_id_index::{AllResourceIdsIterable, MdResourceIdsIterSource};
     use std::path::PathBuf;
 
     use EndPoint::*;
