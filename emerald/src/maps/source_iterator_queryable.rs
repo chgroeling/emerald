@@ -1,4 +1,4 @@
-use crate::types::{LinkToTarget, ResourceId};
+use crate::types::{LinkFromSource, ResourceId};
 
 /// This trait is used to query an source note and and return all contained links with their target.
 pub trait SourceIteratorQueryable {

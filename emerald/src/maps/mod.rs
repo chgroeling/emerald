@@ -2,6 +2,8 @@ use std::rc::Rc;
 
 mod link_queryable;
 mod resource_id_link_map;
+mod source_iterator_queryable;
+mod source_list_map;
 mod target_iterator_queryable;
 mod target_list_map;
 
