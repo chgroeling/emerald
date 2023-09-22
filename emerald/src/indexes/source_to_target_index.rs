@@ -7,18 +7,18 @@ use crate::{
     types::{LinkFromSourceToTarget, LinkToTarget},
 };
 
-use super::all_note_links_iterable::AllNoteLinksIterable;
+use super::link_from_source_to_target_iterable::LinkFromSourceToTargetIterable;
 
 #[allow(dead_code)]
 pub type SourceAndLinkToTargetList = Vec<LinkFromSourceToTarget>;
 
-pub struct NoteLinkIndex {
+pub struct LinkFromSourceToTargetIndex {
     valid_backlink_cnt: usize,
     invalid_backlink_cnt: usize,
     source_and_link_to_target_list: SourceAndLinkToTargetList,
 }
 
-impl NoteLinkIndex {
+impl LinkFromSourceToTargetIndex {
     pub fn new(
         content_iterable: &impl ContentIterable,
         md_link_analyer_iterable: &impl MdLinkAnalyzerIterable,
@@ -68,9 +68,9 @@ impl NoteLinkIndex {
     }
 }
 
-impl AllNoteLinksIterable for NoteLinkIndex {
+impl LinkFromSourceToTargetIterable for LinkFromSourceToTargetIndex {
     type Iter = std::vec::IntoIter<LinkFromSourceToTarget>;
-    fn all_iter(&self) -> Self::Iter {
+    fn iter(&self) -> Self::Iter {
         self.source_and_link_to_target_list.clone().into_iter()
     }
 }

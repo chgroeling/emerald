@@ -1,7 +1,7 @@
 use std::collections::{hash_map::Entry, HashMap};
 
 use crate::{
-    indexes::AllNoteLinksIterable,
+    indexes::LinkFromSourceToTargetIterable,
     types::{LinkToTarget, ResourceId},
 };
 
@@ -15,9 +15,9 @@ pub struct TargetListMap {
 }
 
 impl TargetListMap {
-    pub fn new(note_links_iterable: &impl AllNoteLinksIterable) -> Self {
+    pub fn new(link_s2t_iterable: &impl LinkFromSourceToTargetIterable) -> Self {
         let mut source_to_target_map = SourceToLinkToTargetList::new();
-        for s2t in note_links_iterable.all_iter() {
+        for s2t in link_s2t_iterable.iter() {
             let link_to_target = s2t.get_link_to_target();
 
             match source_to_target_map.entry(s2t.source) {
@@ -45,17 +45,17 @@ impl TargetIteratorQueryable for TargetListMap {
 
 #[cfg(test)]
 mod tests {
-    use super::AllNoteLinksIterable;
+    use super::LinkFromSourceToTargetIterable;
     use super::TargetIteratorQueryable;
     use super::TargetListMap;
     use crate::types::LinkFromSourceToTarget;
     use crate::types::LinkToTarget;
 
     struct NotesIterSource(Vec<LinkFromSourceToTarget>);
-    impl AllNoteLinksIterable for NotesIterSource {
+    impl LinkFromSourceToTargetIterable for NotesIterSource {
         type Iter = std::vec::IntoIter<LinkFromSourceToTarget>;
 
-        fn all_iter(&self) -> Self::Iter {
+        fn iter(&self) -> Self::Iter {
             self.0.clone().into_iter()
         }
     }
