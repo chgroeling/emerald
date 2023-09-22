@@ -2,7 +2,7 @@
 use log::{debug, error, info, trace, warn};
 
 use crate::{
-    content_analyzers::MdLinkAnalyzerIterSource,
+    content_analyzers::MdLinkAnalyzerIterable,
     resources::ContentIterSource,
     types::{LinkFromSourceToTarget, LinkToTarget},
 };
@@ -21,7 +21,7 @@ pub struct NoteLinkIndex {
 impl NoteLinkIndex {
     pub fn new(
         content_iter_src: &impl ContentIterSource,
-        md_link_analyzer: &impl MdLinkAnalyzerIterSource,
+        md_link_analyer_iterable: &impl MdLinkAnalyzerIterable,
     ) -> Self {
         let mut valid_backlink_cnt: usize = 0;
         let mut invalid_backlink_cnt: usize = 0;
@@ -32,7 +32,7 @@ impl NoteLinkIndex {
 
             let mut note_valid_backlink_cnt: usize = 0;
             let mut note_invalid_backlink_cnt: usize = 0;
-            for link_to_target in md_link_analyzer.create_iter(content.0.as_ref().clone()) {
+            for link_to_target in md_link_analyer_iterable.create_iter(content.0.as_ref().clone()) {
                 match &link_to_target {
                     LinkToTarget { link, target: None } => {
                         note_invalid_backlink_cnt += 1;
