@@ -18,7 +18,7 @@ pub fn create_link_queryable(
 }
 
 pub fn create_target_iterator_queryable(
-    all_note_links_iter_source: &impl AllNoteLinksIterable,
+    all_note_links_iterable: &impl AllNoteLinksIterable,
 ) -> Rc<dyn TargetIteratorQueryable> {
-    Rc::new(TargetListMap::new(all_note_links_iter_source))
+    Rc::new(TargetListMap::new(all_note_links_iterable))
 }
