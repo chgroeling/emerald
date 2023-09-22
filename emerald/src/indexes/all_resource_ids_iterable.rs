@@ -1,6 +1,6 @@
 use crate::types::ResourceId;
 
-pub trait MdResourceIdsIterSource {
+pub trait AllResourceIdsIterable {
     type Iter: Iterator<Item = ResourceId>;
-    fn md_iter(&self) -> Self::Iter;
+    fn all_iter(&self) -> Self::Iter;
 }

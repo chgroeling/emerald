@@ -2,12 +2,12 @@
 use log::{debug, error, info, trace, warn};
 
 use crate::{
-    content_analyzers::MdLinkAnalyzerIterSource,
-    resources::ContentIterSource,
+    content_analyzers::MdLinkAnalyzerIterable,
+    resources::ContentIterable,
     types::{LinkFromSourceToTarget, LinkToTarget},
 };
 
-use super::all_note_links_iter_source::AllNoteLinksIterSource;
+use super::all_note_links_iterable::AllNoteLinksIterable;
 
 #[allow(dead_code)]
 pub type SourceAndLinkToTargetList = Vec<LinkFromSourceToTarget>;
@@ -20,19 +20,19 @@ pub struct NoteLinkIndex {
 
 impl NoteLinkIndex {
     pub fn new(
-        content_iter_src: &impl ContentIterSource,
-        md_link_analyzer: &impl MdLinkAnalyzerIterSource,
+        content_iterable: &impl ContentIterable,
+        md_link_analyer_iterable: &impl MdLinkAnalyzerIterable,
     ) -> Self {
         let mut valid_backlink_cnt: usize = 0;
         let mut invalid_backlink_cnt: usize = 0;
         let mut source_and_link_to_target_list = SourceAndLinkToTargetList::new();
 
-        for (src, content) in content_iter_src.iter() {
+        for (src, content) in content_iterable.iter() {
             trace!("Link extraction from {:?} starts", &src);
 
             let mut note_valid_backlink_cnt: usize = 0;
             let mut note_invalid_backlink_cnt: usize = 0;
-            for link_to_target in md_link_analyzer.create_iter(content.0.as_ref().clone()) {
+            for link_to_target in md_link_analyer_iterable.create_iter(content.0.as_ref().clone()) {
                 match &link_to_target {
                     LinkToTarget { link, target: None } => {
                         note_invalid_backlink_cnt += 1;
@@ -68,7 +68,7 @@ impl NoteLinkIndex {
     }
 }
 
-impl AllNoteLinksIterSource for NoteLinkIndex {
+impl AllNoteLinksIterable for NoteLinkIndex {
     type Iter = std::vec::IntoIter<LinkFromSourceToTarget>;
     fn all_iter(&self) -> Self::Iter {
         self.source_and_link_to_target_list.clone().into_iter()

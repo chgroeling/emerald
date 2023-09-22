@@ -1,4 +1,4 @@
-use crate::indexes::AllResourceIdsIterSource;
+use crate::indexes::AllResourceIdsIterable;
 use crate::types::link::Link;
 use crate::types::link_decomposer::LinkDecomposer;
 use crate::types::ResourceId;
@@ -26,13 +26,13 @@ pub struct ResourceIdLinkMap {
 }
 
 impl ResourceIdLinkMap {
-    pub fn new(all_resource_ids_iter_source: &impl AllResourceIdsIterSource) -> Self {
+    pub fn new(resource_ids_iterable: &impl AllResourceIdsIterable) -> Self {
         // Assumption: All resource ids are encoded in utf8 nfc
         let mut name_to_resource_id_list: NameToResourceIdList = NameToResourceIdList::new();
         let link_decomposer = LinkDecomposer::new();
 
         // Iterator yields (normalized_link, link_to_file)
-        let link_name_iter = all_resource_ids_iter_source.all_iter().map(|resource_id| {
+        let link_name_iter = resource_ids_iterable.all_iter().map(|resource_id| {
             let dc_link = link_decomposer.decompose(&resource_id.0).unwrap();
             let normalized_link = dc_link.link.to_lowercase();
 
@@ -122,7 +122,7 @@ impl LinkQueryable for ResourceIdLinkMap {
 
 #[cfg(test)]
 mod link_mapper_tests {
-    use super::AllResourceIdsIterSource;
+    use super::AllResourceIdsIterable;
     use super::EmeraldError::*;
     use super::LinkQueryable;
     use super::ResourceId;
@@ -132,7 +132,7 @@ mod link_mapper_tests {
         links: Vec<ResourceId>,
     }
 
-    impl AllResourceIdsIterSource for MockFileIndex {
+    impl AllResourceIdsIterable for MockFileIndex {
         type Iter = std::vec::IntoIter<ResourceId>;
 
         fn all_iter(&self) -> Self::Iter {

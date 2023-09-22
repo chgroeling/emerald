@@ -17,14 +17,12 @@ pub trait LinkExtractorIterSource {
 }
 
 pub struct LinkExtractor<I: MarkdownExtractorIterSource> {
-    content_iter_source: Rc<I>,
+    content_iterable: Rc<I>,
 }
 
 impl<I: MarkdownExtractorIterSource> LinkExtractor<I> {
-    pub fn new(content_iter_source: Rc<I>) -> Self {
-        Self {
-            content_iter_source,
-        }
+    pub fn new(content_iterable: Rc<I>) -> Self {
+        Self { content_iterable }
     }
 }
 
@@ -44,7 +42,7 @@ impl<I: MarkdownExtractorIterSource> LinkExtractorIterSource for LinkExtractor<I
                 _ => panic!(),
             }
         }
-        self.content_iter_source
+        self.content_iterable
             .create_iter(content)
             .filter(filter_func as _) //  as fn(&ContentType) -> bool also works
             .map(map_func as _)
