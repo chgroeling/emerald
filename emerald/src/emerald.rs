@@ -5,8 +5,8 @@ use std::{path::Path, time::Instant};
 
 use crate::content_analyzers::MdLinkAnalyzer;
 use crate::indexes::endpoint_index::EndpointIndex;
-use crate::indexes::note_link_index::NoteLinkIndex;
 use crate::indexes::resource_id_index::ResourceIdIndex;
+use crate::indexes::source_to_target_index::LinkFromSourceToTargetIndex;
 use crate::indexes::AllEndpointsIterable;
 use crate::maps::LinkQueryable;
 use crate::maps::TargetIteratorQueryable;
@@ -25,7 +25,7 @@ pub struct Emerald {
     pub link_queryable: Rc<dyn LinkQueryable>,
     pub target_iterator_queryable: Rc<dyn TargetIteratorQueryable>,
     pub source_iterator_queryable: Rc<dyn SourceIteratorQueryable>,
-    pub note_link_index: Rc<NoteLinkIndex>,
+    pub note_link_index: Rc<LinkFromSourceToTargetIndex>,
     pub content_loader: Rc<FileContentLoader>,
     pub content_storage: Rc<ContentStorage>,
 }
@@ -67,7 +67,7 @@ impl Emerald {
         debug!("Creation of ContentStorage took: {:?}", dur);
 
         let start = Instant::now();
-        let note_link_index = Rc::new(NoteLinkIndex::new(
+        let note_link_index = Rc::new(LinkFromSourceToTargetIndex::new(
             content_storage.as_ref(),
             md_link_analyzer.as_ref(),
         ));

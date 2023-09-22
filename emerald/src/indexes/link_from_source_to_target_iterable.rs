@@ -3,7 +3,7 @@ use log::{debug, error, info, trace, warn};
 
 use crate::types::LinkFromSourceToTarget;
 
-pub trait AllNoteLinksIterable {
+pub trait LinkFromSourceToTargetIterable {
     type Iter: Iterator<Item = LinkFromSourceToTarget>;
-    fn all_iter(&self) -> Self::Iter;
+    fn iter(&self) -> Self::Iter;
 }
