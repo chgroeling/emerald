@@ -8,7 +8,7 @@ use log::{debug, error, info, trace, warn};
 use crate::types::EndPoint;
 
 use super::{
-    all_endpoints_iter_source::AllEndpointsIterSource,
+    all_endpoints_iterable::AllEndpointsIterable,
     all_resource_ids_iter_source::AllResourceIdsIterSource,
     md_resource_ids_iter_source::MdResourceIdsIterSource,
 };
@@ -22,13 +22,13 @@ pub struct ResourceIdIndex {
 
 impl ResourceIdIndex {
     pub fn new(
-        endpoint_iter_src: &impl AllEndpointsIterSource,
+        endpoints_iterable: &impl AllEndpointsIterable,
         common_path: &Path,
     ) -> ResourceIdIndex {
         let mut all_resource_ids_list = ResourceIdList::new();
         let mut md_resource_ids_list = ResourceIdList::new();
 
-        for endpoint in endpoint_iter_src.all_iter() {
+        for endpoint in endpoints_iterable.all_iter() {
             let opt_resource_id = convert_endpoint_to_resource_id(endpoint.clone(), common_path);
 
             if let Some(resource_id) = opt_resource_id {
@@ -64,7 +64,7 @@ impl MdResourceIdsIterSource for ResourceIdIndex {
 
 #[cfg(test)]
 mod tests {
-    use super::AllEndpointsIterSource;
+    use super::AllEndpointsIterable;
     use super::EndPoint;
     use super::ResourceId;
     use super::ResourceIdIndex;
@@ -78,7 +78,7 @@ mod tests {
         endpoints: Vec<EndPoint>,
     }
 
-    impl AllEndpointsIterSource for MockEndPointIndex {
+    impl AllEndpointsIterable for MockEndPointIndex {
         type Iter = std::vec::IntoIter<EndPoint>;
         fn all_iter(&self) -> Self::Iter {
             self.endpoints.clone().into_iter()

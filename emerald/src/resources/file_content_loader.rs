@@ -1,6 +1,6 @@
 use std::{collections::HashMap, fs, path::Path};
 
-use crate::indexes::AllEndpointsIterSource;
+use crate::indexes::AllEndpointsIterable;
 use crate::types::Content;
 use crate::types::EndPoint;
 use crate::types::ResourceId;
@@ -22,10 +22,10 @@ pub struct FileContentLoader {
 }
 
 impl FileContentLoader {
-    pub fn new(endpoint_iter_src: &impl AllEndpointsIterSource, common_path: &Path) -> Self {
+    pub fn new(endpoints_iterable: &impl AllEndpointsIterable, common_path: &Path) -> Self {
         let mut resource_id_to_endpoint: ResourceIdToEndpoint = ResourceIdToEndpoint::new();
 
-        for endpoint in endpoint_iter_src.all_iter() {
+        for endpoint in endpoints_iterable.all_iter() {
             let opt_resource_id = convert_endpoint_to_resource_id(endpoint.clone(), common_path);
 
             if let Some(resource_id) = opt_resource_id {
@@ -62,7 +62,7 @@ impl ContentLoader for FileContentLoader {
 
 #[cfg(test)]
 mod tests {
-    use super::{AllEndpointsIterSource, EmeraldError, EndPoint, FileContentLoader};
+    use super::{AllEndpointsIterable, EmeraldError, EndPoint, FileContentLoader};
     use std::path::PathBuf;
     use EmeraldError::*;
     use EndPoint::*;
@@ -71,7 +71,7 @@ mod tests {
         endpoints: Vec<EndPoint>,
     }
 
-    impl AllEndpointsIterSource for MockEndPointIndex {
+    impl AllEndpointsIterable for MockEndPointIndex {
         type Iter = std::vec::IntoIter<EndPoint>;
         fn all_iter(&self) -> Self::Iter {
             self.endpoints.clone().into_iter()

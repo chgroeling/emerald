@@ -7,7 +7,7 @@ use crate::content_analyzers::MdLinkAnalyzer;
 use crate::indexes::endpoint_index::EndpointIndex;
 use crate::indexes::note_link_index::NoteLinkIndex;
 use crate::indexes::resource_id_index::ResourceIdIndex;
-use crate::indexes::AllEndpointsIterSource;
+use crate::indexes::AllEndpointsIterable;
 use crate::maps::create_link_queryable;
 use crate::maps::create_target_iterator_queryable;
 use crate::maps::LinkQueryable;
