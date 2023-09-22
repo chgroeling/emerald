@@ -49,12 +49,12 @@ impl SourceIteratorQueryable for SourceListMap {
 
 #[cfg(test)]
 mod tests {
+    use crate::types::LinkFromSourceToTarget;
+
     use super::AllNoteLinksIterable;
+    use super::LinkFromSource;
     use super::SourceIteratorQueryable;
     use super::SourceListMap;
-    use crate::types::LinkFromSource;
-    use crate::types::LinkFromSourceToTarget;
-    use crate::types::LinkToTarget;
 
     struct NotesIterSource(Vec<LinkFromSourceToTarget>);
     impl AllNoteLinksIterable for NotesIterSource {
