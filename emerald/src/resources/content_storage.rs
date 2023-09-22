@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use log::{debug, error, info, trace, warn};
 
 use super::{
-    content_iter_source::ContentIterSource, content_loader::ContentLoader,
+    content_iterable::ContentIterable, content_loader::ContentLoader,
     content_queryable::ContentQueryable,
 };
 use crate::{
@@ -56,7 +56,7 @@ impl ContentQueryable for ContentStorage {
     }
 }
 
-impl ContentIterSource for ContentStorage {
+impl ContentIterable for ContentStorage {
     type Iter = std::vec::IntoIter<(ResourceId, Content)>;
     fn iter(&self) -> Self::Iter {
         self.res_id_to_content_list.clone().into_iter()

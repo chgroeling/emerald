@@ -3,7 +3,7 @@ use log::{debug, error, info, trace, warn};
 
 use crate::{
     content_analyzers::MdLinkAnalyzerIterable,
-    resources::ContentIterSource,
+    resources::ContentIterable,
     types::{LinkFromSourceToTarget, LinkToTarget},
 };
 
@@ -20,14 +20,14 @@ pub struct NoteLinkIndex {
 
 impl NoteLinkIndex {
     pub fn new(
-        content_iter_src: &impl ContentIterSource,
+        content_iterable: &impl ContentIterable,
         md_link_analyer_iterable: &impl MdLinkAnalyzerIterable,
     ) -> Self {
         let mut valid_backlink_cnt: usize = 0;
         let mut invalid_backlink_cnt: usize = 0;
         let mut source_and_link_to_target_list = SourceAndLinkToTargetList::new();
 
-        for (src, content) in content_iter_src.iter() {
+        for (src, content) in content_iterable.iter() {
             trace!("Link extraction from {:?} starts", &src);
 
             let mut note_valid_backlink_cnt: usize = 0;
