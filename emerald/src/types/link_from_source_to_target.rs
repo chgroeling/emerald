@@ -28,6 +28,6 @@ impl LinkFromSourceToTarget {
     }
 
     pub fn get_link_from_source(&self) -> LinkFromSource {
-        LinkFromSource::new(self.source.clone(), self.link.clone())
+        LinkFromSource::new(self.link.clone(), self.source.clone())
     }
 }

@@ -76,7 +76,7 @@ mod tests {
         let dut = SourceListMap::new(&data);
         let res: Vec<LinkFromSource> = dut.query("d1".into()).unwrap().collect();
 
-        assert_eq!(res, vec![LinkFromSource::new("o1".into(), "o1->d1".into())]);
+        assert_eq!(res, vec![LinkFromSource::new("o1->d1".into(), "o1".into())]);
     }
 
     #[test]
@@ -89,7 +89,7 @@ mod tests {
         let dut = SourceListMap::new(&data);
         let res: Vec<LinkFromSource> = dut.query("d1".into()).unwrap().collect();
 
-        assert_eq!(res, vec![LinkFromSource::new("o1".into(), "o1->d1".into())]);
+        assert_eq!(res, vec![LinkFromSource::new("o1->d1".into(), "o1".into())]);
     }
 
     #[test]
@@ -105,6 +105,9 @@ mod tests {
         let dut = SourceListMap::new(&data);
         let res: Vec<LinkFromSource> = dut.query("d1".into()).unwrap().collect();
 
-        assert_eq!(res, vec![LinkFromSource::new("o1".into(), "o1->d1".into())]);
+        assert_eq!(
+            res,
+            vec![LinkFromSource::new("o1->d1".into(), "o1".into(),)]
+        );
     }
 }
