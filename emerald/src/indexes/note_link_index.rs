@@ -7,7 +7,7 @@ use crate::{
     types::{LinkFromSourceToTarget, LinkToTarget},
 };
 
-use super::all_note_links_iter_source::AllNoteLinksIterSource;
+use super::all_note_links_iterable::AllNoteLinksIterable;
 
 #[allow(dead_code)]
 pub type SourceAndLinkToTargetList = Vec<LinkFromSourceToTarget>;
@@ -68,7 +68,7 @@ impl NoteLinkIndex {
     }
 }
 
-impl AllNoteLinksIterSource for NoteLinkIndex {
+impl AllNoteLinksIterable for NoteLinkIndex {
     type Iter = std::vec::IntoIter<LinkFromSourceToTarget>;
     fn all_iter(&self) -> Self::Iter {
         self.source_and_link_to_target_list.clone().into_iter()
