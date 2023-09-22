@@ -8,10 +8,10 @@ use crate::indexes::endpoint_index::EndpointIndex;
 use crate::indexes::note_link_index::NoteLinkIndex;
 use crate::indexes::resource_id_index::ResourceIdIndex;
 use crate::indexes::AllEndpointsIterable;
-use crate::maps::create_link_queryable;
-use crate::maps::create_target_iterator_queryable;
 use crate::maps::LinkQueryable;
 use crate::maps::TargetIteratorQueryable;
+use crate::maps::{create_link_queryable, SourceIteratorQueryable};
+use crate::maps::{create_source_iterator_queryable, create_target_iterator_queryable};
 use crate::resources::content_storage::ContentStorage;
 use crate::resources::file_content_loader::FileContentLoader;
 use crate::types::EndPoint;
@@ -24,6 +24,7 @@ pub struct Emerald {
     pub resource_id_index: Rc<ResourceIdIndex>,
     pub link_queryable: Rc<dyn LinkQueryable>,
     pub target_iterator_queryable: Rc<dyn TargetIteratorQueryable>,
+    pub source_iterator_queryable: Rc<dyn SourceIteratorQueryable>,
     pub note_link_index: Rc<NoteLinkIndex>,
     pub content_loader: Rc<FileContentLoader>,
     pub content_storage: Rc<ContentStorage>,
@@ -76,7 +77,12 @@ impl Emerald {
         let start = Instant::now();
         let target_iterator_queryable = create_target_iterator_queryable(note_link_index.as_ref());
         let dur = start.elapsed();
-        debug!("Creation of NoteLinkIndex took: {:?}", dur);
+        debug!("Creation of TargetIteratorQueryable took: {:?}", dur);
+
+        let start = Instant::now();
+        let source_iterator_queryable = create_source_iterator_queryable(note_link_index.as_ref());
+        let dur = start.elapsed();
+        debug!("Creation of SourceIteratorQueryable took: {:?}", dur);
 
         Ok(Emerald {
             md_link_analyzer,
@@ -87,6 +93,7 @@ impl Emerald {
             content_storage,
             note_link_index,
             target_iterator_queryable,
+            source_iterator_queryable,
         })
     }
 }

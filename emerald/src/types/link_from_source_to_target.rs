@@ -1,4 +1,4 @@
-use super::{Link, LinkToTarget, ResourceId};
+use super::{Link, LinkFromSource, LinkToTarget, ResourceId};
 
 #[derive(Debug, Clone)]
 /// This struct holds the source of a link and its target (the place where it points to).
@@ -25,5 +25,9 @@ impl LinkFromSourceToTarget {
 
     pub fn get_link_to_target(&self) -> LinkToTarget {
         LinkToTarget::new(self.link.clone(), self.target.clone())
+    }
+
+    pub fn get_link_from_source(&self) -> LinkFromSource {
+        LinkFromSource::new(self.link.clone(), self.source.clone())
     }
 }
