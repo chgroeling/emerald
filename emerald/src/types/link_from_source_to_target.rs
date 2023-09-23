@@ -32,7 +32,7 @@ impl LinkFromSourceToTarget {
     }
 }
 
-/// Allows to generate LinkFromSourceToTarget from Tuple for testing purposes
+/// Allows to generate LinkFromSourceToTarget from string tuple
 /// (source, link, target)
 impl From<(&str, &str, &str)> for LinkFromSourceToTarget {
     fn from(value: (&str, &str, &str)) -> Self {

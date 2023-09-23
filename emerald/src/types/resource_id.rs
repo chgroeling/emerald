@@ -11,6 +11,7 @@ impl ResourceId {
     }
 }
 
+// Allows to use a string as a ResourceId
 impl From<&str> for ResourceId {
     fn from(value: &str) -> Self {
         Self(value.to_string())
