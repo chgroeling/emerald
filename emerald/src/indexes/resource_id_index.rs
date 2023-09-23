@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{path::Path, rc::Rc};
 
 use crate::{types::ResourceId, utils::endpoint_translation::convert_endpoint_to_resource_id};
 
@@ -8,9 +8,7 @@ use log::{debug, error, info, trace, warn};
 use crate::types::EndPoint;
 
 use super::{
-    all_endpoints_iterable::AllEndpointsIterable,
-    all_resource_ids_iterable::AllResourceIdsIterable,
-    md_resource_ids_iterable::MdResourceIdsIterable,
+    all_endpoints_iterable::AllEndpointsIterable, resource_ids_iterable::ResourceIdsIterable,
 };
 
 pub type ResourceIdList = Vec<ResourceId>;
@@ -48,17 +46,38 @@ impl ResourceIdIndex {
     }
 }
 
-impl AllResourceIdsIterable for ResourceIdIndex {
+// --------------------------------------------
+// Implement trait for all resource ids.
+// --------------------------------------------
+pub struct AllResourceIds<'a>(&'a ResourceIdIndex);
+
+impl<'a> From<&'a ResourceIdIndex> for AllResourceIds<'a> {
+    fn from(value: &'a ResourceIdIndex) -> Self {
+        AllResourceIds(value)
+    }
+}
+impl<'a> ResourceIdsIterable for AllResourceIds<'a> {
     type Iter = std::vec::IntoIter<ResourceId>;
-    fn all_iter(&self) -> Self::Iter {
-        self.all_resource_ids_list.clone().into_iter()
+    fn md_iter(&self) -> Self::Iter {
+        self.0.all_resource_ids_list.clone().into_iter()
     }
 }
 
-impl MdResourceIdsIterable for ResourceIdIndex {
+// --------------------------------------------
+// Implement trait for all resource ids.
+// --------------------------------------------
+pub struct MdResourceIds<'a>(&'a ResourceIdIndex);
+
+impl<'a> From<&'a ResourceIdIndex> for MdResourceIds<'a> {
+    fn from(value: &'a ResourceIdIndex) -> Self {
+        MdResourceIds(value)
+    }
+}
+
+impl<'a> ResourceIdsIterable for MdResourceIds<'a> {
     type Iter = std::vec::IntoIter<ResourceId>;
     fn md_iter(&self) -> Self::Iter {
-        self.md_resource_ids_list.clone().into_iter()
+        self.0.md_resource_ids_list.clone().into_iter()
     }
 }
 
@@ -69,7 +88,7 @@ mod tests {
     use super::ResourceId;
     use super::ResourceIdIndex;
 
-    use crate::indexes::resource_id_index::{AllResourceIdsIterable, MdResourceIdsIterable};
+    use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdsIterable};
     use std::path::PathBuf;
 
     use EndPoint::*;
@@ -86,13 +105,12 @@ mod tests {
     }
 
     #[test]
-    fn test_all_iter_empty() {
+    fn test_md_iter_empty() {
         let common_path = PathBuf::from("");
         let mock = MockEndPointIndex { endpoints: vec![] };
 
         let dut = ResourceIdIndex::new(&mock, &common_path);
-
-        let result: Vec<ResourceId> = dut.all_iter().collect();
+        let result: Vec<ResourceId> = AllResourceIds::from(&dut).md_iter().collect();
         let expected: Vec<ResourceId> = vec![];
         assert_eq!(result, expected);
     }
@@ -107,7 +125,7 @@ mod tests {
 
         let dut = ResourceIdIndex::new(&mock, &common_path);
 
-        let result: Vec<ResourceId> = dut.all_iter().collect();
+        let result: Vec<ResourceId> = AllResourceIds::from(&dut).md_iter().collect();
         let expected: Vec<ResourceId> = vec!["[[testpath]]".into()];
 
         assert_eq!(result, expected);
@@ -123,7 +141,7 @@ mod tests {
 
         let dut = ResourceIdIndex::new(&mock, &common_path);
 
-        let result: Vec<ResourceId> = dut.all_iter().collect();
+        let result: Vec<ResourceId> = AllResourceIds::from(&dut).md_iter().collect();
         let expected: Vec<ResourceId> = vec!["[[test_file1]]".into(), "[[test_file2]]".into()];
 
         assert_eq!(result, expected);
@@ -141,7 +159,7 @@ mod tests {
 
         let dut = ResourceIdIndex::new(&mock, &common_path);
 
-        let result: Vec<ResourceId> = dut.md_iter().collect();
+        let result: Vec<ResourceId> = MdResourceIds::from(&dut).md_iter().collect();
         let expected: Vec<ResourceId> = vec!["[[test_file2.md]]".into()];
 
         assert_eq!(result, expected);

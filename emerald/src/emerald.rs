@@ -5,7 +5,7 @@ use std::{path::Path, time::Instant};
 
 use crate::content_analyzers::MdLinkAnalyzer;
 use crate::indexes::endpoint_index::EndpointIndex;
-use crate::indexes::resource_id_index::ResourceIdIndex;
+use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdIndex};
 use crate::indexes::source_to_target_index::LinkFromSourceToTargetIndex;
 use crate::indexes::AllEndpointsIterable;
 use crate::maps::LinkQueryable;
@@ -44,7 +44,8 @@ impl Emerald {
         debug!("Creation of ResourceIdIndex took: {:?}", dur);
 
         let start = Instant::now();
-        let link_resolver = create_link_queryable(resource_id_index.as_ref());
+        let link_resolver =
+            create_link_queryable(&AllResourceIds::from(resource_id_index.as_ref()));
         let dur = start.elapsed();
         debug!("Creation of LinkQueryableImpl took: {:?}", dur);
 
@@ -60,7 +61,7 @@ impl Emerald {
 
         let start = Instant::now();
         let content_storage = Rc::new(ContentStorage::new(
-            resource_id_index.as_ref(),
+            &MdResourceIds::from(resource_id_index.as_ref()),
             content_loader.as_ref(),
         ));
         let dur = start.elapsed();

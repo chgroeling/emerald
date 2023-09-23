@@ -15,10 +15,10 @@ use self::{
     resource_id_link_map::ResourceIdLinkMap, source_list_map::SourceListMap,
     target_list_map::TargetListMap,
 };
-use crate::indexes::{AllResourceIdsIterable, LinkFromSourceToTargetIterable};
+use crate::indexes::{LinkFromSourceToTargetIterable, ResourceIdsIterable};
 
 pub fn create_link_queryable(
-    resource_ids_iterable: &impl AllResourceIdsIterable,
+    resource_ids_iterable: &impl ResourceIdsIterable,
 ) -> Rc<dyn LinkQueryable> {
     Rc::new(ResourceIdLinkMap::new(resource_ids_iterable))
 }

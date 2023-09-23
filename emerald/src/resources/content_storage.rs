@@ -8,7 +8,7 @@ use super::{
     content_queryable::ContentQueryable,
 };
 use crate::{
-    indexes::MdResourceIdsIterable,
+    indexes::ResourceIdsIterable,
     types::{Content, ResourceId},
 };
 
@@ -22,7 +22,7 @@ pub struct ContentStorage {
 
 impl<'a> ContentStorage {
     pub fn new(
-        md_resource_ids_iterable: &impl MdResourceIdsIterable,
+        md_resource_ids_iterable: &impl ResourceIdsIterable,
         content_loader: &'a impl ContentLoader,
     ) -> ContentStorage {
         let mut res_id_to_content_list = ResourceIdContentList::new();
