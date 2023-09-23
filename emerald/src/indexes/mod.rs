@@ -1,6 +1,6 @@
 mod all_endpoints_iterable;
 mod all_resource_ids_iterable;
-mod link_from_source_to_target_iterable;
+pub mod link_from_source_to_target_iterable;
 mod md_resource_ids_iterable;
 
 pub mod endpoint_index;
