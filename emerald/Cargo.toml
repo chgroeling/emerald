@@ -3,13 +3,10 @@ name = "emerald"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 log = { version = "0.4.20", features = ["max_level_trace", "release_max_level_warn"] }
 thiserror = "1.0.47"
 unicode-normalization = "0.1.22"
-
 
 [dev-dependencies]
 criterion = "0.3"
