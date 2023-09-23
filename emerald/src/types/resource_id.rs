@@ -1,7 +1,7 @@
 use super::link::Link;
 
 #[derive(Debug, Clone, PartialEq, Hash)]
-/// Endpoint Link
+/// A ResourceId points to a unique Resource
 pub struct ResourceId(pub String);
 
 impl ResourceId {
