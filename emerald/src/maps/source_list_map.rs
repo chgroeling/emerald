@@ -49,31 +49,19 @@ impl SourceIteratorQueryable for SourceListMap {
 
 #[cfg(test)]
 mod tests {
-    use crate::types::LinkFromSourceToTarget;
-
     use super::LinkFromSource;
-    use super::LinkFromSourceToTargetIterable;
     use super::SourceIteratorQueryable;
     use super::SourceListMap;
+    use crate::indexes::link_from_source_to_target_iterable::MockLinkFromSourceToTargetIterable;
 
-    struct NotesIterSource(Vec<LinkFromSourceToTarget>);
-    impl LinkFromSourceToTargetIterable for NotesIterSource {
-        type Iter = std::vec::IntoIter<LinkFromSourceToTarget>;
-
-        fn iter(&self) -> Self::Iter {
-            self.0.clone().into_iter()
-        }
-    }
-
-    /// Create a SourceAndLinkToTarget struct for test purposes
-    fn sample_slt(src: &str, link: &str, target: &str) -> LinkFromSourceToTarget {
-        LinkFromSourceToTarget::new(src.into(), link.into(), Some(target.into()))
-    }
     #[test]
     fn test_one_match() {
-        let data = NotesIterSource(vec![sample_slt("o1", "o1->d1", "d1")]);
+        let test_data = vec![("o1", "o1->d1", "d1").into()];
 
-        let dut = SourceListMap::new(&data);
+        let mut mock = MockLinkFromSourceToTargetIterable::new();
+        mock.expect_iter().return_const(test_data.into_iter());
+
+        let dut = SourceListMap::new(&mock);
         let res: Vec<LinkFromSource> = dut.query("d1".into()).unwrap().collect();
 
         assert_eq!(res, vec![LinkFromSource::new("o1->d1".into(), "o1".into())]);
@@ -81,12 +69,12 @@ mod tests {
 
     #[test]
     fn test_two_matches() {
-        let data = NotesIterSource(vec![
-            sample_slt("o1", "o1->d1", "d1"),
-            sample_slt("o1", "o1->d2", "d2"),
-        ]);
+        let test_data = vec![("o1", "o1->d1", "d1").into(), ("o1", "o1->d2", "d2").into()];
 
-        let dut = SourceListMap::new(&data);
+        let mut mock = MockLinkFromSourceToTargetIterable::new();
+        mock.expect_iter().return_const(test_data.into_iter());
+
+        let dut = SourceListMap::new(&mock);
         let res: Vec<LinkFromSource> = dut.query("d1".into()).unwrap().collect();
 
         assert_eq!(res, vec![LinkFromSource::new("o1->d1".into(), "o1".into())]);
@@ -94,15 +82,17 @@ mod tests {
 
     #[test]
     fn test_two_matches_elements_inbetween() {
-        let data = NotesIterSource(vec![
-            sample_slt("doesn't matter 1", "abc", "def"),
-            sample_slt("o1", "o1->d1", "d1"),
-            sample_slt("doesn't matter 2", "abc", "def"),
-            sample_slt("o1", "o1->d2", "d2"),
-            sample_slt("doesn't matter 3", "abc", "def"),
-        ]);
+        let test_data = vec![
+            ("doesn't matter 1", "abc", "def").into(),
+            ("o1", "o1->d1", "d1").into(),
+            ("doesn't matter 2", "abc", "def").into(),
+            ("o1", "o1->d2", "d2").into(),
+            ("doesn't matter 3", "abc", "def").into(),
+        ];
 
-        let dut = SourceListMap::new(&data);
+        let mut mock = MockLinkFromSourceToTargetIterable::new();
+        mock.expect_iter().return_const(test_data.into_iter());
+        let dut = SourceListMap::new(&mock);
         let res: Vec<LinkFromSource> = dut.query("d1".into()).unwrap().collect();
 
         assert_eq!(

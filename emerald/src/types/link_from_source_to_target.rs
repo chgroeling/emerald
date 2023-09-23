@@ -31,3 +31,11 @@ impl LinkFromSourceToTarget {
         LinkFromSource::new(self.link.clone(), self.source.clone())
     }
 }
+
+/// Allows to generate LinkFromSourceToTarget from string tuple
+/// (source, link, target)
+impl From<(&str, &str, &str)> for LinkFromSourceToTarget {
+    fn from(value: (&str, &str, &str)) -> Self {
+        LinkFromSourceToTarget::new(value.0.into(), value.1.into(), Some(value.2.into()))
+    }
+}

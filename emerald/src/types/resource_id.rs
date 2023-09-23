@@ -1,7 +1,7 @@
 use super::link::Link;
 
 #[derive(Debug, Clone, PartialEq, Hash)]
-/// Endpoint Link
+/// A ResourceId points to a unique Resource
 pub struct ResourceId(pub String);
 
 impl ResourceId {
@@ -11,6 +11,7 @@ impl ResourceId {
     }
 }
 
+// Allows to use a string as a ResourceId
 impl From<&str> for ResourceId {
     fn from(value: &str) -> Self {
         Self(value.to_string())
