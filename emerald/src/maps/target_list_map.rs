@@ -48,16 +48,7 @@ mod tests {
     use super::TargetIteratorQueryable;
     use super::TargetListMap;
     use crate::indexes::link_from_source_to_target_iterable::MockLinkFromSourceToTargetIterable;
-    use crate::types::LinkFromSourceToTarget;
     use crate::types::LinkToTarget;
-
-    /// Allows to generate LinkFromSourceToTarget from Tuple for testing purposes
-    /// (source, link, target)
-    impl From<(&str, &str, &str)> for LinkFromSourceToTarget {
-        fn from(value: (&str, &str, &str)) -> Self {
-            LinkFromSourceToTarget::new(value.0.into(), value.1.into(), Some(value.2.into()))
-        }
-    }
 
     #[test]
     fn test_one_match() {
