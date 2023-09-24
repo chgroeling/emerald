@@ -46,9 +46,7 @@ impl ResourceIdIndex {
     }
 }
 
-// --------------------------------------------
-// Implement trait for all resource ids.
-// --------------------------------------------
+// === Implement trait for all resource ids. =================
 pub struct AllResourceIds(Rc<ResourceIdIndex>);
 impl AllResourceIds {
     #[allow(dead_code)]
@@ -66,9 +64,7 @@ impl ResourceIdsIterable for AllResourceIds {
     }
 }
 
-// --------------------------------------------
-// Implement trait for md resource ids.
-// --------------------------------------------
+// === Implement trait for md resource ids. =================
 pub struct MdResourceIds(Rc<ResourceIdIndex>);
 
 impl MdResourceIds {
@@ -93,11 +89,7 @@ mod tests {
     use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdsIterable};
     use std::path::PathBuf;
 
-    use super::AllEndpointsIterable;
-    use super::EndPoint;
-    use super::ResourceId;
-    use super::ResourceIdIndex;
-
+    use super::{AllEndpointsIterable, EndPoint, ResourceId, ResourceIdIndex};
     use EndPoint::*;
 
     struct MockEndPointIndex {
@@ -116,8 +108,8 @@ mod tests {
         let common_path = PathBuf::from("");
         let mock = MockEndPointIndex { endpoints: vec![] };
 
-        let dut = ResourceIdIndex::new(&mock, &common_path);
-        let result: Vec<ResourceId> = AllResourceIds::new(dut).iter().collect();
+        let dut = AllResourceIds::new(ResourceIdIndex::new(&mock, &common_path));
+        let result: Vec<ResourceId> = dut.iter().collect();
         let expected: Vec<ResourceId> = vec![];
         assert_eq!(result, expected);
     }
@@ -130,9 +122,9 @@ mod tests {
             endpoints: vec![File("testpath".into())],
         };
 
-        let dut = ResourceIdIndex::new(&mock, &common_path);
+        let dut = AllResourceIds::new(ResourceIdIndex::new(&mock, &common_path));
 
-        let result: Vec<ResourceId> = AllResourceIds::new(dut).iter().collect();
+        let result: Vec<ResourceId> = dut.iter().collect();
         let expected: Vec<ResourceId> = vec!["[[testpath]]".into()];
 
         assert_eq!(result, expected);
@@ -146,9 +138,9 @@ mod tests {
             endpoints: vec![File("test_file1".into()), File("test_file2".into())],
         };
 
-        let dut = ResourceIdIndex::new(&mock, &common_path);
+        let dut = AllResourceIds::new(ResourceIdIndex::new(&mock, &common_path));
 
-        let result: Vec<ResourceId> = AllResourceIds::new(dut).iter().collect();
+        let result: Vec<ResourceId> = dut.iter().collect();
         let expected: Vec<ResourceId> = vec!["[[test_file1]]".into(), "[[test_file2]]".into()];
 
         assert_eq!(result, expected);
@@ -164,9 +156,9 @@ mod tests {
             ],
         };
 
-        let dut = ResourceIdIndex::new(&mock, &common_path);
+        let dut = MdResourceIds::new(ResourceIdIndex::new(&mock, &common_path));
 
-        let result: Vec<ResourceId> = MdResourceIds::new(dut).iter().collect();
+        let result: Vec<ResourceId> = dut.iter().collect();
         let expected: Vec<ResourceId> = vec!["[[test_file2.md]]".into()];
 
         assert_eq!(result, expected);
