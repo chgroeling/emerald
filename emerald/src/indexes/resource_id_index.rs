@@ -50,10 +50,9 @@ impl ResourceIdIndex {
 // Implement trait for all resource ids.
 // --------------------------------------------
 pub struct AllResourceIds(Rc<ResourceIdIndex>);
-
-impl From<Rc<ResourceIdIndex>> for AllResourceIds {
-    fn from(value: Rc<ResourceIdIndex>) -> Self {
-        AllResourceIds(value)
+impl AllResourceIds {
+    pub fn new(value: Rc<ResourceIdIndex>) -> Self {
+        Self(value)
     }
 }
 impl ResourceIdsIterable for AllResourceIds {
@@ -111,7 +110,7 @@ mod tests {
         let mock = MockEndPointIndex { endpoints: vec![] };
 
         let dut = Rc::new(ResourceIdIndex::new(&mock, &common_path));
-        let result: Vec<ResourceId> = AllResourceIds::from(dut).md_iter().collect();
+        let result: Vec<ResourceId> = AllResourceIds::new(dut).md_iter().collect();
         let expected: Vec<ResourceId> = vec![];
         assert_eq!(result, expected);
     }
@@ -126,7 +125,7 @@ mod tests {
 
         let dut = Rc::new(ResourceIdIndex::new(&mock, &common_path));
 
-        let result: Vec<ResourceId> = AllResourceIds::from(dut).md_iter().collect();
+        let result: Vec<ResourceId> = AllResourceIds::new(dut).md_iter().collect();
         let expected: Vec<ResourceId> = vec!["[[testpath]]".into()];
 
         assert_eq!(result, expected);
@@ -142,7 +141,7 @@ mod tests {
 
         let dut = Rc::new(ResourceIdIndex::new(&mock, &common_path));
 
-        let result: Vec<ResourceId> = AllResourceIds::from(dut).md_iter().collect();
+        let result: Vec<ResourceId> = AllResourceIds::new(dut).md_iter().collect();
         let expected: Vec<ResourceId> = vec!["[[test_file1]]".into(), "[[test_file2]]".into()];
 
         assert_eq!(result, expected);
