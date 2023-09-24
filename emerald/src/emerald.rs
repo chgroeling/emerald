@@ -40,11 +40,13 @@ impl Emerald {
 
         let start = Instant::now();
         let resource_id_index = Rc::new(ResourceIdIndex::new(endpoint_index.as_ref(), vault_path));
+        let all_res_ids_iterable = AllResourceIds::new_rc(&resource_id_index);
+        let md_res_ids_iterable = MdResourceIds::new_rc(&resource_id_index);
         let dur = start.elapsed();
         debug!("Creation of ResourceIdIndex took: {:?}", dur);
 
         let start = Instant::now();
-        let link_resolver = create_link_queryable(&AllResourceIds::new(resource_id_index.clone()));
+        let link_resolver = create_link_queryable(all_res_ids_iterable.as_ref());
         let dur = start.elapsed();
         debug!("Creation of LinkQueryableImpl took: {:?}", dur);
 
@@ -60,7 +62,7 @@ impl Emerald {
 
         let start = Instant::now();
         let content_storage = Rc::new(ContentStorage::new(
-            &MdResourceIds::from(resource_id_index.as_ref()),
+            md_res_ids_iterable.as_ref(),
             content_loader.as_ref(),
         ));
         let dur = start.elapsed();
