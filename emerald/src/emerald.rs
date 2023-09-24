@@ -35,56 +35,56 @@ impl Emerald {
         // Build dependency root
         let start = Instant::now();
         let endpoint_index = Rc::new(EndpointIndex::new(vault_path)?);
-        let dur = start.elapsed();
-        debug!("Creation of EndpointIndex took: {:?}", dur);
+        debug!("Creation of EndpointIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
         let resource_id_index = Rc::new(ResourceIdIndex::new(endpoint_index.as_ref(), vault_path));
         let all_res_ids_iterable = Rc::new(AllResourceIds::new_from_rc(&resource_id_index));
         let md_res_ids_iterable = Rc::new(MdResourceIds::new_from_rc(&resource_id_index));
-        let dur = start.elapsed();
-        debug!("Creation of ResourceIdIndex took: {:?}", dur);
+        debug!("Creation of ResourceIdIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
         let link_resolver = create_link_queryable(all_res_ids_iterable.as_ref());
-        let dur = start.elapsed();
-        debug!("Creation of LinkQueryableImpl took: {:?}", dur);
+        debug!("Creation of LinkQueryableImpl took: {:?}", start.elapsed());
 
         let start = Instant::now();
         let md_link_analyzer = Rc::new(MdLinkAnalyzer::new(link_resolver.clone()));
-        let dur = start.elapsed();
-        debug!("Creation of MdLinkAnalyzer took: {:?}", dur);
+        debug!("Creation of MdLinkAnalyzer took: {:?}", start.elapsed());
 
         let start = Instant::now();
         let content_loader = Rc::new(FileContentLoader::new(endpoint_index.as_ref(), vault_path));
-        let dur = start.elapsed();
-        debug!("Creation of ContentLoaderImpl took: {:?}", dur);
+        debug!("Creation of FileContentLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
         let content_storage = Rc::new(ContentStorage::new(
             md_res_ids_iterable.as_ref(),
             content_loader.as_ref(),
         ));
-        let dur = start.elapsed();
-        debug!("Creation of ContentStorage took: {:?}", dur);
+        debug!("Creation of ContentStorage took: {:?}", start.elapsed());
 
         let start = Instant::now();
         let note_link_index = Rc::new(LinkFromSourceToTargetIndex::new(
             content_storage.as_ref(),
             md_link_analyzer.as_ref(),
         ));
-        let dur = start.elapsed();
-        debug!("Creation of NoteLinkIndex took: {:?}", dur);
+        debug!(
+            "Creation of LinkFromSourceToTargetIndex took: {:?}",
+            start.elapsed()
+        );
 
         let start = Instant::now();
         let target_iterator_queryable = create_target_iterator_queryable(note_link_index.as_ref());
-        let dur = start.elapsed();
-        debug!("Creation of TargetIteratorQueryable took: {:?}", dur);
+        debug!(
+            "Creation of TargetIteratorQueryable took: {:?}",
+            start.elapsed()
+        );
 
         let start = Instant::now();
         let source_iterator_queryable = create_source_iterator_queryable(note_link_index.as_ref());
-        let dur = start.elapsed();
-        debug!("Creation of SourceIteratorQueryable took: {:?}", dur);
+        debug!(
+            "Creation of SourceIteratorQueryable took: {:?}",
+            start.elapsed()
+        );
 
         Ok(Emerald {
             md_link_analyzer,
