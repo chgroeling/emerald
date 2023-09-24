@@ -44,8 +44,7 @@ impl Emerald {
         debug!("Creation of ResourceIdIndex took: {:?}", dur);
 
         let start = Instant::now();
-        let link_resolver =
-            create_link_queryable(&AllResourceIds::from(resource_id_index.as_ref()));
+        let link_resolver = create_link_queryable(&AllResourceIds::from(resource_id_index.clone()));
         let dur = start.elapsed();
         debug!("Creation of LinkQueryableImpl took: {:?}", dur);
 
