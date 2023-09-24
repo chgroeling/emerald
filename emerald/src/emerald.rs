@@ -40,8 +40,8 @@ impl Emerald {
 
         let start = Instant::now();
         let resource_id_index = Rc::new(ResourceIdIndex::new(endpoint_index.as_ref(), vault_path));
-        let all_res_ids_iterable = AllResourceIds::new_rc(&resource_id_index);
-        let md_res_ids_iterable = MdResourceIds::new_rc(&resource_id_index);
+        let all_res_ids_iterable = Rc::new(AllResourceIds::new_from_rc(&resource_id_index));
+        let md_res_ids_iterable = Rc::new(MdResourceIds::new_from_rc(&resource_id_index));
         let dur = start.elapsed();
         debug!("Creation of ResourceIdIndex took: {:?}", dur);
 

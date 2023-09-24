@@ -51,11 +51,12 @@ impl ResourceIdIndex {
 // --------------------------------------------
 pub struct AllResourceIds(Rc<ResourceIdIndex>);
 impl AllResourceIds {
+    #[allow(dead_code)]
     pub fn new(value: ResourceIdIndex) -> Self {
         Self(Rc::new(value))
     }
-    pub fn new_rc(value: &Rc<ResourceIdIndex>) -> Rc<Self> {
-        Rc::new(Self(value.clone()))
+    pub fn new_from_rc(value: &Rc<ResourceIdIndex>) -> Self {
+        Self(value.clone())
     }
 }
 impl ResourceIdsIterable for AllResourceIds {
@@ -66,16 +67,17 @@ impl ResourceIdsIterable for AllResourceIds {
 }
 
 // --------------------------------------------
-// Implement trait for all resource ids.
+// Implement trait for md resource ids.
 // --------------------------------------------
 pub struct MdResourceIds(Rc<ResourceIdIndex>);
 
 impl MdResourceIds {
+    #[allow(dead_code)]
     pub fn new(value: ResourceIdIndex) -> Self {
         Self(Rc::new(value))
     }
-    pub fn new_rc(value: &Rc<ResourceIdIndex>) -> Rc<Self> {
-        Rc::new(Self(value.clone()))
+    pub fn new_from_rc(value: &Rc<ResourceIdIndex>) -> Self {
+        Self(value.clone())
     }
 }
 
@@ -88,14 +90,13 @@ impl ResourceIdsIterable for MdResourceIds {
 
 #[cfg(test)]
 mod tests {
+    use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdsIterable};
+    use std::path::PathBuf;
+
     use super::AllEndpointsIterable;
     use super::EndPoint;
     use super::ResourceId;
     use super::ResourceIdIndex;
-
-    use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdsIterable};
-    use std::path::PathBuf;
-    use std::rc::Rc;
 
     use EndPoint::*;
 
