@@ -61,7 +61,7 @@ impl AllResourceIds {
 }
 impl ResourceIdsIterable for AllResourceIds {
     type Iter = std::vec::IntoIter<ResourceId>;
-    fn md_iter(&self) -> Self::Iter {
+    fn iter(&self) -> Self::Iter {
         self.0.all_resource_ids_list.clone().into_iter()
     }
 }
@@ -83,7 +83,7 @@ impl MdResourceIds {
 
 impl ResourceIdsIterable for MdResourceIds {
     type Iter = std::vec::IntoIter<ResourceId>;
-    fn md_iter(&self) -> Self::Iter {
+    fn iter(&self) -> Self::Iter {
         self.0.md_resource_ids_list.clone().into_iter()
     }
 }
@@ -117,7 +117,7 @@ mod tests {
         let mock = MockEndPointIndex { endpoints: vec![] };
 
         let dut = ResourceIdIndex::new(&mock, &common_path);
-        let result: Vec<ResourceId> = AllResourceIds::new(dut).md_iter().collect();
+        let result: Vec<ResourceId> = AllResourceIds::new(dut).iter().collect();
         let expected: Vec<ResourceId> = vec![];
         assert_eq!(result, expected);
     }
@@ -132,7 +132,7 @@ mod tests {
 
         let dut = ResourceIdIndex::new(&mock, &common_path);
 
-        let result: Vec<ResourceId> = AllResourceIds::new(dut).md_iter().collect();
+        let result: Vec<ResourceId> = AllResourceIds::new(dut).iter().collect();
         let expected: Vec<ResourceId> = vec!["[[testpath]]".into()];
 
         assert_eq!(result, expected);
@@ -148,7 +148,7 @@ mod tests {
 
         let dut = ResourceIdIndex::new(&mock, &common_path);
 
-        let result: Vec<ResourceId> = AllResourceIds::new(dut).md_iter().collect();
+        let result: Vec<ResourceId> = AllResourceIds::new(dut).iter().collect();
         let expected: Vec<ResourceId> = vec!["[[test_file1]]".into(), "[[test_file2]]".into()];
 
         assert_eq!(result, expected);
@@ -166,7 +166,7 @@ mod tests {
 
         let dut = ResourceIdIndex::new(&mock, &common_path);
 
-        let result: Vec<ResourceId> = MdResourceIds::new(dut).md_iter().collect();
+        let result: Vec<ResourceId> = MdResourceIds::new(dut).iter().collect();
         let expected: Vec<ResourceId> = vec!["[[test_file2.md]]".into()];
 
         assert_eq!(result, expected);

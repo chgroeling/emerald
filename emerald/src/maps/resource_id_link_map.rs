@@ -32,7 +32,7 @@ impl ResourceIdLinkMap {
         let link_decomposer = LinkDecomposer::new();
 
         // Iterator yields (normalized_link, link_to_file)
-        let link_name_iter = resource_ids_iterable.md_iter().map(|resource_id| {
+        let link_name_iter = resource_ids_iterable.iter().map(|resource_id| {
             let dc_link = link_decomposer.decompose(&resource_id.0).unwrap();
             let normalized_link = dc_link.link.to_lowercase();
 
@@ -135,7 +135,7 @@ mod link_mapper_tests {
     impl ResourceIdsIterable for MockFileIndex {
         type Iter = std::vec::IntoIter<ResourceId>;
 
-        fn md_iter(&self) -> Self::Iter {
+        fn iter(&self) -> Self::Iter {
             self.links.clone().into_iter()
         }
     }
