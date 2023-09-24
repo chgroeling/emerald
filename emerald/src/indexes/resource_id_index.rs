@@ -11,11 +11,9 @@ use super::{
     all_endpoints_iterable::AllEndpointsIterable, resource_ids_iterable::ResourceIdsIterable,
 };
 
-pub type ResourceIdList = Vec<ResourceId>;
-
 pub struct ResourceIdIndex {
-    all_resource_ids_list: ResourceIdList,
-    md_resource_ids_list: ResourceIdList,
+    all_resource_ids_list: Vec<ResourceId>,
+    md_resource_ids_list: Vec<ResourceId>,
 }
 
 impl ResourceIdIndex {
@@ -23,8 +21,8 @@ impl ResourceIdIndex {
         endpoints_iterable: &impl AllEndpointsIterable,
         common_path: &Path,
     ) -> ResourceIdIndex {
-        let mut all_resource_ids_list = ResourceIdList::new();
-        let mut md_resource_ids_list = ResourceIdList::new();
+        let mut all_resource_ids_list = Vec::<ResourceId>::new();
+        let mut md_resource_ids_list = Vec::<ResourceId>::new();
 
         for endpoint in endpoints_iterable.all_iter() {
             let opt_resource_id = convert_endpoint_to_resource_id(endpoint.clone(), common_path);
