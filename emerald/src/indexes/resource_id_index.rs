@@ -7,9 +7,7 @@ use log::{debug, error, info, trace, warn};
 
 use crate::types::EndPoint;
 
-use super::{
-    all_endpoints_iterable::AllEndpointsIterable, resource_ids_iterable::ResourceIdsIterable,
-};
+use super::{endpoints_iterable::EndpointsIterable, resource_ids_iterable::ResourceIdsIterable};
 
 pub struct ResourceIdIndex {
     all_resource_ids_list: Vec<ResourceId>,
@@ -17,14 +15,11 @@ pub struct ResourceIdIndex {
 }
 
 impl ResourceIdIndex {
-    pub fn new(
-        endpoints_iterable: &impl AllEndpointsIterable,
-        common_path: &Path,
-    ) -> ResourceIdIndex {
+    pub fn new(ep_iterable: &impl EndpointsIterable, common_path: &Path) -> ResourceIdIndex {
         let mut all_resource_ids_list = Vec::<ResourceId>::new();
         let mut md_resource_ids_list = Vec::<ResourceId>::new();
 
-        for endpoint in endpoints_iterable.all_iter() {
+        for endpoint in ep_iterable.iter() {
             let opt_resource_id = convert_endpoint_to_resource_id(endpoint.clone(), common_path);
 
             if let Some(resource_id) = opt_resource_id {
@@ -84,27 +79,22 @@ impl ResourceIdsIterable for MdResourceIds {
 
 #[cfg(test)]
 mod tests {
+    use super::{EndPoint, ResourceId, ResourceIdIndex};
+    use crate::indexes::endpoints_iterable::MockEndpointsIterable;
     use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdsIterable};
     use std::path::PathBuf;
-
-    use super::{AllEndpointsIterable, EndPoint, ResourceId, ResourceIdIndex};
     use EndPoint::*;
 
-    struct MockEndPointIndex {
-        endpoints: Vec<EndPoint>,
-    }
-
-    impl AllEndpointsIterable for MockEndPointIndex {
-        type Iter = std::vec::IntoIter<EndPoint>;
-        fn all_iter(&self) -> Self::Iter {
-            self.endpoints.clone().into_iter()
-        }
+    fn setup_endpoints_iterable(test_data: Vec<EndPoint>) -> MockEndpointsIterable {
+        let mut mock = MockEndpointsIterable::new();
+        mock.expect_iter().return_const(test_data.into_iter());
+        mock
     }
 
     #[test]
     fn test_md_iter_empty() {
         let common_path = PathBuf::from("");
-        let mock = MockEndPointIndex { endpoints: vec![] };
+        let mock = setup_endpoints_iterable(vec![]);
 
         let dut = AllResourceIds::new(ResourceIdIndex::new(&mock, &common_path));
         let result: Vec<ResourceId> = dut.iter().collect();
@@ -115,13 +105,9 @@ mod tests {
     #[test]
     fn test_one() {
         let common_path = PathBuf::from("");
-
-        let mock = MockEndPointIndex {
-            endpoints: vec![File("testpath".into())],
-        };
+        let mock = setup_endpoints_iterable(vec![File("testpath".into())]);
 
         let dut = AllResourceIds::new(ResourceIdIndex::new(&mock, &common_path));
-
         let result: Vec<ResourceId> = dut.iter().collect();
         let expected: Vec<ResourceId> = vec!["[[testpath]]".into()];
 
@@ -131,13 +117,10 @@ mod tests {
     #[test]
     fn test_two() {
         let common_path = PathBuf::from("");
-
-        let mock = MockEndPointIndex {
-            endpoints: vec![File("test_file1".into()), File("test_file2".into())],
-        };
+        let mock =
+            setup_endpoints_iterable(vec![File("test_file1".into()), File("test_file2".into())]);
 
         let dut = AllResourceIds::new(ResourceIdIndex::new(&mock, &common_path));
-
         let result: Vec<ResourceId> = dut.iter().collect();
         let expected: Vec<ResourceId> = vec!["[[test_file1]]".into(), "[[test_file2]]".into()];
 
@@ -147,15 +130,12 @@ mod tests {
     #[test]
     fn test_filter_two_but_one_remains() {
         let common_path = PathBuf::from("");
-        let mock = MockEndPointIndex {
-            endpoints: vec![
-                File("test_file1.png".into()),
-                FileMarkdown("test_file2.md".into()),
-            ],
-        };
+        let mock = setup_endpoints_iterable(vec![
+            File("test_file1.png".into()),
+            FileMarkdown("test_file2.md".into()),
+        ]);
 
         let dut = MdResourceIds::new(ResourceIdIndex::new(&mock, &common_path));
-
         let result: Vec<ResourceId> = dut.iter().collect();
         let expected: Vec<ResourceId> = vec!["[[test_file2.md]]".into()];
 

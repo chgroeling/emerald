@@ -7,7 +7,7 @@ use crate::content_analyzers::MdLinkAnalyzer;
 use crate::indexes::endpoint_index::EndpointIndex;
 use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdIndex};
 use crate::indexes::source_to_target_index::LinkFromSourceToTargetIndex;
-use crate::indexes::AllEndpointsIterable;
+use crate::indexes::EndpointsIterable;
 use crate::maps::LinkQueryable;
 use crate::maps::TargetIteratorQueryable;
 use crate::maps::{create_link_queryable, SourceIteratorQueryable};
@@ -101,12 +101,12 @@ impl Emerald {
 }
 impl Emerald {
     pub fn file_count(&self) -> usize {
-        self.endpoint_index.all_iter().count()
+        self.endpoint_index.iter().count()
     }
 
     pub fn md_file_count(&self) -> usize {
         self.endpoint_index
-            .all_iter()
+            .iter()
             .filter(|pred| matches!(pred, EndPoint::FileMarkdown(_)))
             .count()
     }
