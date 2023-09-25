@@ -7,9 +7,7 @@ use log::{debug, error, info, trace, warn};
 
 use crate::types::EndPoint;
 
-use super::{
-    all_endpoints_iterable::AllEndpointsIterable, resource_ids_iterable::ResourceIdsIterable,
-};
+use super::{endpoints_iterable::EndpointsIterable, resource_ids_iterable::ResourceIdsIterable};
 
 pub struct ResourceIdIndex {
     all_resource_ids_list: Vec<ResourceId>,
@@ -17,14 +15,11 @@ pub struct ResourceIdIndex {
 }
 
 impl ResourceIdIndex {
-    pub fn new(
-        endpoints_iterable: &impl AllEndpointsIterable,
-        common_path: &Path,
-    ) -> ResourceIdIndex {
+    pub fn new(ep_iterable: &impl EndpointsIterable, common_path: &Path) -> ResourceIdIndex {
         let mut all_resource_ids_list = Vec::<ResourceId>::new();
         let mut md_resource_ids_list = Vec::<ResourceId>::new();
 
-        for endpoint in endpoints_iterable.all_iter() {
+        for endpoint in ep_iterable.all_iter() {
             let opt_resource_id = convert_endpoint_to_resource_id(endpoint.clone(), common_path);
 
             if let Some(resource_id) = opt_resource_id {
@@ -87,14 +82,14 @@ mod tests {
     use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdsIterable};
     use std::path::PathBuf;
 
-    use super::{AllEndpointsIterable, EndPoint, ResourceId, ResourceIdIndex};
+    use super::{EndPoint, EndpointsIterable, ResourceId, ResourceIdIndex};
     use EndPoint::*;
 
     struct MockEndPointIndex {
         endpoints: Vec<EndPoint>,
     }
 
-    impl AllEndpointsIterable for MockEndPointIndex {
+    impl EndpointsIterable for MockEndPointIndex {
         type Iter = std::vec::IntoIter<EndPoint>;
         fn all_iter(&self) -> Self::Iter {
             self.endpoints.clone().into_iter()
