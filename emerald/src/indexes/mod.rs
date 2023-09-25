@@ -1,4 +1,4 @@
-mod endpoints_iterable;
+pub mod endpoints_iterable;
 pub mod link_from_source_to_target_iterable;
 mod resource_ids_iterable;
 

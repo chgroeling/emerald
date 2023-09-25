@@ -79,27 +79,18 @@ impl ResourceIdsIterable for MdResourceIds {
 
 #[cfg(test)]
 mod tests {
+    use super::{EndPoint, ResourceId, ResourceIdIndex};
+    use crate::indexes::endpoints_iterable::MockEndpointsIterable;
     use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdsIterable};
     use std::path::PathBuf;
-
-    use super::{EndPoint, EndpointsIterable, ResourceId, ResourceIdIndex};
     use EndPoint::*;
-
-    struct MockEndPointIndex {
-        endpoints: Vec<EndPoint>,
-    }
-
-    impl EndpointsIterable for MockEndPointIndex {
-        type Iter = std::vec::IntoIter<EndPoint>;
-        fn all_iter(&self) -> Self::Iter {
-            self.endpoints.clone().into_iter()
-        }
-    }
 
     #[test]
     fn test_md_iter_empty() {
         let common_path = PathBuf::from("");
-        let mock = MockEndPointIndex { endpoints: vec![] };
+        let test_data = vec![];
+        let mut mock = MockEndpointsIterable::new();
+        mock.expect_all_iter().return_const(test_data.into_iter());
 
         let dut = AllResourceIds::new(ResourceIdIndex::new(&mock, &common_path));
         let result: Vec<ResourceId> = dut.iter().collect();
@@ -110,10 +101,9 @@ mod tests {
     #[test]
     fn test_one() {
         let common_path = PathBuf::from("");
-
-        let mock = MockEndPointIndex {
-            endpoints: vec![File("testpath".into())],
-        };
+        let test_data = vec![File("testpath".into())];
+        let mut mock = MockEndpointsIterable::new();
+        mock.expect_all_iter().return_const(test_data.into_iter());
 
         let dut = AllResourceIds::new(ResourceIdIndex::new(&mock, &common_path));
 
@@ -126,10 +116,9 @@ mod tests {
     #[test]
     fn test_two() {
         let common_path = PathBuf::from("");
-
-        let mock = MockEndPointIndex {
-            endpoints: vec![File("test_file1".into()), File("test_file2".into())],
-        };
+        let test_data = vec![File("test_file1".into()), File("test_file2".into())];
+        let mut mock = MockEndpointsIterable::new();
+        mock.expect_all_iter().return_const(test_data.into_iter());
 
         let dut = AllResourceIds::new(ResourceIdIndex::new(&mock, &common_path));
 
@@ -142,12 +131,12 @@ mod tests {
     #[test]
     fn test_filter_two_but_one_remains() {
         let common_path = PathBuf::from("");
-        let mock = MockEndPointIndex {
-            endpoints: vec![
-                File("test_file1.png".into()),
-                FileMarkdown("test_file2.md".into()),
-            ],
-        };
+        let test_data = vec![
+            File("test_file1.png".into()),
+            FileMarkdown("test_file2.md".into()),
+        ];
+        let mut mock = MockEndpointsIterable::new();
+        mock.expect_all_iter().return_const(test_data.into_iter());
 
         let dut = MdResourceIds::new(ResourceIdIndex::new(&mock, &common_path));
 
