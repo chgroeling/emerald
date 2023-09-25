@@ -19,7 +19,7 @@ impl ResourceIdIndex {
         let mut all_resource_ids_list = Vec::<ResourceId>::new();
         let mut md_resource_ids_list = Vec::<ResourceId>::new();
 
-        for endpoint in ep_iterable.all_iter() {
+        for endpoint in ep_iterable.iter() {
             let opt_resource_id = convert_endpoint_to_resource_id(endpoint.clone(), common_path);
 
             if let Some(resource_id) = opt_resource_id {
@@ -87,7 +87,7 @@ mod tests {
 
     fn setup_endpoints_iterable(test_data: Vec<EndPoint>) -> MockEndpointsIterable {
         let mut mock = MockEndpointsIterable::new();
-        mock.expect_all_iter().return_const(test_data.into_iter());
+        mock.expect_iter().return_const(test_data.into_iter());
         mock
     }
 

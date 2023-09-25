@@ -25,7 +25,7 @@ impl FileContentLoader {
     pub fn new(ep_iterable: &impl EndpointsIterable, common_path: &Path) -> Self {
         let mut resource_id_to_endpoint: ResourceIdToEndpoint = ResourceIdToEndpoint::new();
 
-        for endpoint in ep_iterable.all_iter() {
+        for endpoint in ep_iterable.iter() {
             let opt_resource_id = convert_endpoint_to_resource_id(endpoint.clone(), common_path);
 
             if let Some(resource_id) = opt_resource_id {
@@ -73,7 +73,7 @@ mod tests {
 
     impl EndpointsIterable for MockEndPointIndex {
         type Iter = std::vec::IntoIter<EndPoint>;
-        fn all_iter(&self) -> Self::Iter {
+        fn iter(&self) -> Self::Iter {
             self.endpoints.clone().into_iter()
         }
     }

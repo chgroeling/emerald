@@ -68,7 +68,7 @@ impl EndpointIndex {
 
 impl EndpointsIterable for EndpointIndex {
     type Iter = std::vec::IntoIter<EndPoint>;
-    fn all_iter(&self) -> Self::Iter {
+    fn iter(&self) -> Self::Iter {
         self.endpoint_list.clone().into_iter()
     }
 }

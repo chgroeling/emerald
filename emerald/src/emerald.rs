@@ -101,12 +101,12 @@ impl Emerald {
 }
 impl Emerald {
     pub fn file_count(&self) -> usize {
-        self.endpoint_index.all_iter().count()
+        self.endpoint_index.iter().count()
     }
 
     pub fn md_file_count(&self) -> usize {
         self.endpoint_index
-            .all_iter()
+            .iter()
             .filter(|pred| matches!(pred, EndPoint::FileMarkdown(_)))
             .count()
     }
