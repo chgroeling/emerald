@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use crate::{
     maps::LinkQueryable,
-    types::{Link, LinkToTarget},
+    types::{Link, Link2Tgt},
 };
 
 #[allow(unused_imports)]
@@ -11,7 +11,7 @@ use log::{debug, error, info, trace, warn};
 use super::link_extractor::LinkExtractorIterSource;
 
 pub trait ResourceIdExtractorIterSource {
-    type Iter: Iterator<Item = LinkToTarget>;
+    type Iter: Iterator<Item = Link2Tgt>;
     fn create_iter(&self, content: String) -> Self::Iter;
 }
 
@@ -23,14 +23,14 @@ pub struct ResourceIdExtractorIterator<Iter> {
 }
 
 impl<Iter: Iterator<Item = Link>> Iterator for ResourceIdExtractorIterator<Iter> {
-    type Item = LinkToTarget;
+    type Item = Link2Tgt;
 
     fn next(&mut self) -> Option<Self::Item> {
         let link_candidate = self.input_iter.next()?;
         if let Ok(resource_id) = self.link_queryable.get(&link_candidate) {
-            Some(LinkToTarget::new(link_candidate, Some(resource_id)))
+            Some(Link2Tgt::new(link_candidate, Some(resource_id)))
         } else {
-            Some(LinkToTarget::new(link_candidate, None))
+            Some(Link2Tgt::new(link_candidate, None))
         }
     }
 }

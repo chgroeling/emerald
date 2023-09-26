@@ -2,21 +2,21 @@ use std::collections::{hash_map::Entry, HashMap};
 
 use crate::{
     indexes::Src2TgtIterable,
-    types::{LinkToTarget, ResourceId},
+    types::{Link2Tgt, ResourceId},
 };
 
 use super::tgt_iter_queryable::TgtIterQueryable;
 
-pub type LinkToTargetList = Vec<LinkToTarget>;
-type SourceToLinkToTargetList = HashMap<ResourceId, LinkToTargetList>;
+pub type Link2TgtList = Vec<Link2Tgt>;
+type SourceToLink2TgtList = HashMap<ResourceId, Link2TgtList>;
 
 pub struct TgtLinksMap {
-    source_to_target_map: SourceToLinkToTargetList,
+    source_to_target_map: SourceToLink2TgtList,
 }
 
 impl TgtLinksMap {
     pub fn new(link_s2t_iterable: &impl Src2TgtIterable) -> Self {
-        let mut source_to_target_map = SourceToLinkToTargetList::new();
+        let mut source_to_target_map = SourceToLink2TgtList::new();
         for s2t in link_s2t_iterable.iter() {
             let link_to_target = s2t.get_link_to_target();
 
@@ -36,7 +36,7 @@ impl TgtLinksMap {
 }
 
 impl TgtIterQueryable for TgtLinksMap {
-    fn query(&self, source: ResourceId) -> Option<std::vec::IntoIter<LinkToTarget>> {
+    fn query(&self, source: ResourceId) -> Option<std::vec::IntoIter<Link2Tgt>> {
         self.source_to_target_map
             .get(&source)
             .map(|f| f.clone().into_iter())
@@ -48,7 +48,7 @@ mod tests {
     use super::TgtIterQueryable;
     use super::TgtLinksMap;
     use crate::indexes::src_2_tgt_iterable::MockSrc2TgtIterable;
-    use crate::types::LinkToTarget;
+    use crate::types::Link2Tgt;
 
     #[test]
     fn test_one_match() {
@@ -57,12 +57,9 @@ mod tests {
         mock.expect_iter().return_const(test_data.into_iter());
 
         let dut = TgtLinksMap::new(&mock);
-        let res: Vec<LinkToTarget> = dut.query("o1".into()).unwrap().collect();
+        let res: Vec<Link2Tgt> = dut.query("o1".into()).unwrap().collect();
 
-        assert_eq!(
-            res,
-            vec![LinkToTarget::new("o1->d1".into(), Some("d1".into()))]
-        );
+        assert_eq!(res, vec![Link2Tgt::new("o1->d1".into(), Some("d1".into()))]);
     }
 
     #[test]
@@ -72,13 +69,13 @@ mod tests {
         mock.expect_iter().return_const(test_data.into_iter());
 
         let dut = TgtLinksMap::new(&mock);
-        let res: Vec<LinkToTarget> = dut.query("o1".into()).unwrap().collect();
+        let res: Vec<Link2Tgt> = dut.query("o1".into()).unwrap().collect();
 
         assert_eq!(
             res,
             vec![
-                LinkToTarget::new("o1->d1".into(), Some("d1".into())),
-                LinkToTarget::new("o1->d2".into(), Some("d2".into()))
+                Link2Tgt::new("o1->d1".into(), Some("d1".into())),
+                Link2Tgt::new("o1->d2".into(), Some("d2".into()))
             ]
         );
     }
@@ -96,13 +93,13 @@ mod tests {
         mock.expect_iter().return_const(test_data.into_iter());
 
         let dut = TgtLinksMap::new(&mock);
-        let res: Vec<LinkToTarget> = dut.query("o1".into()).unwrap().collect();
+        let res: Vec<Link2Tgt> = dut.query("o1".into()).unwrap().collect();
 
         assert_eq!(
             res,
             vec![
-                LinkToTarget::new("o1->d1".into(), Some("d1".into())),
-                LinkToTarget::new("o1->d2".into(), Some("d2".into()))
+                Link2Tgt::new("o1->d1".into(), Some("d1".into())),
+                Link2Tgt::new("o1->d2".into(), Some("d2".into()))
             ]
         );
     }

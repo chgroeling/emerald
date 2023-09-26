@@ -68,7 +68,7 @@ impl Emerald {
             md_link_analyzer.as_ref(),
         ));
         debug!(
-            "Creation of LinkFromSourceToTargetIndex took: {:?}",
+            "Creation of LinkFrmSrcToTargetIndex took: {:?}",
             start.elapsed()
         );
 

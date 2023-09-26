@@ -1,4 +1,4 @@
-use super::{Link, LinkFromSource, LinkToTarget, ResourceId};
+use super::{Link, Link2Tgt, LinkFrmSrc, ResourceId};
 
 #[derive(Debug, Clone)]
 /// This struct holds the source of a link and its target (the place where it points to).
@@ -19,20 +19,20 @@ impl LinkSrc2Tgt {
         }
     }
 
-    pub fn from_link_to_target(source: ResourceId, link_to_target: LinkToTarget) -> Self {
+    pub fn from_link_to_target(source: ResourceId, link_to_target: Link2Tgt) -> Self {
         Self::new(source, link_to_target.link, link_to_target.tgt)
     }
 
-    pub fn get_link_to_target(&self) -> LinkToTarget {
-        LinkToTarget::new(self.link.clone(), self.target.clone())
+    pub fn get_link_to_target(&self) -> Link2Tgt {
+        Link2Tgt::new(self.link.clone(), self.target.clone())
     }
 
-    pub fn get_link_from_source(&self) -> LinkFromSource {
-        LinkFromSource::new(self.link.clone(), self.source.clone())
+    pub fn get_link_from_source(&self) -> LinkFrmSrc {
+        LinkFrmSrc::new(self.link.clone(), self.source.clone())
     }
 }
 
-/// Allows to generate LinkFromSourceToTarget from string tuple
+/// Allows to generate LinkFrmSrcToTarget from string tuple
 /// (source, link, target)
 impl From<(&str, &str, &str)> for LinkSrc2Tgt {
     fn from(value: (&str, &str, &str)) -> Self {

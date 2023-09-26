@@ -4,11 +4,11 @@ use super::{Link, ResourceId};
 // Structs holds a link and the resource id from which the links stems.
 pub struct LinkFrmSrc {
     pub link: Link,
-    pub source: ResourceId,
+    pub src: ResourceId,
 }
 
 impl LinkFrmSrc {
-    pub fn new(link: Link, source: ResourceId) -> Self {
-        Self { source, link }
+    pub fn new(link: Link, src: ResourceId) -> Self {
+        Self { src, link }
     }
 }

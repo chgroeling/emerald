@@ -4,7 +4,7 @@ use log::{debug, error, info, trace, warn};
 use crate::{
     content_analyzers::MdLinkAnalyzerIterable,
     resources::ContentIterable,
-    types::{LinkSrc2Tgt, LinkToTarget},
+    types::{Link2Tgt, LinkSrc2Tgt},
 };
 
 use super::src_2_tgt_iterable::Src2TgtIterable;
@@ -31,7 +31,7 @@ impl Src2TargetIndex {
             let mut note_invalid_backlink_cnt: usize = 0;
             for link_to_target in md_link_analyer_iterable.create_iter(content.0.as_ref().clone()) {
                 match &link_to_target {
-                    LinkToTarget { link, tgt: None } => {
+                    Link2Tgt { link, tgt: None } => {
                         note_invalid_backlink_cnt += 1;
                         warn!("Parsing {:?} -> Link not found: {:?}", &src, &link);
                     }
