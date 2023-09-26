@@ -2,12 +2,12 @@ use super::{Link, ResourceId};
 
 #[derive(Debug, Clone, PartialEq)]
 // Structs holds a link and the resource id of the links target if existant.
-pub struct LinkToTarget {
+pub struct Link2Tgt {
     pub link: Link,
     pub target: Option<ResourceId>,
 }
 
-impl LinkToTarget {
+impl Link2Tgt {
     pub fn new(link: Link, target: Option<ResourceId>) -> Self {
         Self { link, target }
     }
