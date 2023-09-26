@@ -19,12 +19,12 @@ impl SrcListMap {
         let mut target_to_source_map = TargetToLinkFromSourceList::new();
         for s2t in link_s2t_iterable.iter() {
             let link_from_source = s2t.get_link_from_source();
-            let target = if let Some(target) = s2t.target {
+            let tgt = if let Some(target) = s2t.target {
                 target
             } else {
                 continue;
             };
-            match target_to_source_map.entry(target) {
+            match target_to_source_map.entry(tgt) {
                 Entry::Occupied(mut e) => {
                     e.get_mut().push(link_from_source);
                 }
