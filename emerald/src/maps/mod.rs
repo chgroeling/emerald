@@ -14,7 +14,7 @@ pub use self::tgt_iter_queryable::TgtIterQueryable;
 use self::{
     resource_id_link_map::ResourceIdLinkMap, src_list_map::SrcListMap, tgt_list_map::TgtListMap,
 };
-use crate::indexes::{ResourceIdsIterable, SrcTgtIterable};
+use crate::indexes::{ResourceIdsIterable, Src2TgtIterable};
 
 pub fn create_link_queryable(
     resource_ids_iterable: &impl ResourceIdsIterable,
@@ -23,13 +23,13 @@ pub fn create_link_queryable(
 }
 
 pub fn create_tgt_iter_queryable(
-    src_tgt_iterable: &impl SrcTgtIterable,
+    src_tgt_iterable: &impl Src2TgtIterable,
 ) -> Rc<dyn TgtIterQueryable> {
     Rc::new(TgtListMap::new(src_tgt_iterable))
 }
 
 pub fn create_src_iter_queryable(
-    src_tgt_iterable: &impl SrcTgtIterable,
+    src_tgt_iterable: &impl Src2TgtIterable,
 ) -> Rc<dyn SrcIterQueryable> {
     Rc::new(SrcListMap::new(src_tgt_iterable))
 }
