@@ -4,13 +4,13 @@ use super::{Link, LinkFromSource, LinkToTarget, ResourceId};
 /// This struct holds the source of a link and its target (the place where it points to).
 /// Source and target are concrete ResourceIds which are pointing to files.
 #[allow(dead_code)]
-pub struct LinkFromSourceToTarget {
+pub struct LinkSrc2Tgt {
     pub source: ResourceId,
     pub link: Link,
     pub target: Option<ResourceId>,
 }
 
-impl LinkFromSourceToTarget {
+impl LinkSrc2Tgt {
     pub fn new(source: ResourceId, link: Link, target: Option<ResourceId>) -> Self {
         Self {
             source,
@@ -34,8 +34,8 @@ impl LinkFromSourceToTarget {
 
 /// Allows to generate LinkFromSourceToTarget from string tuple
 /// (source, link, target)
-impl From<(&str, &str, &str)> for LinkFromSourceToTarget {
+impl From<(&str, &str, &str)> for LinkSrc2Tgt {
     fn from(value: (&str, &str, &str)) -> Self {
-        LinkFromSourceToTarget::new(value.0.into(), value.1.into(), Some(value.2.into()))
+        LinkSrc2Tgt::new(value.0.into(), value.1.into(), Some(value.2.into()))
     }
 }

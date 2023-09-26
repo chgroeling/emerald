@@ -1,11 +1,11 @@
-use crate::types::LinkFromSourceToTarget;
+use crate::types::LinkSrc2Tgt;
 
 #[cfg(test)]
 use mockall::{automock, predicate::*};
 
 /// Get an Iterator on on a list of `LinkFromSourceToTarget`objects.
-#[cfg_attr(test, automock(type Iter=std::vec::IntoIter<LinkFromSourceToTarget>;))]
+#[cfg_attr(test, automock(type Iter=std::vec::IntoIter<LinkSrc2Tgt>;))]
 pub trait SrcTgtIterable {
-    type Iter: Iterator<Item = LinkFromSourceToTarget>;
+    type Iter: Iterator<Item = LinkSrc2Tgt>;
     fn iter(&self) -> Self::Iter;
 }

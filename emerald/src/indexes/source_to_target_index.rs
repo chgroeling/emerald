@@ -4,13 +4,13 @@ use log::{debug, error, info, trace, warn};
 use crate::{
     content_analyzers::MdLinkAnalyzerIterable,
     resources::ContentIterable,
-    types::{LinkFromSourceToTarget, LinkToTarget},
+    types::{LinkSrc2Tgt, LinkToTarget},
 };
 
 use super::src_tgt_iterable::SrcTgtIterable;
 
 #[allow(dead_code)]
-pub type SourceAndLinkToTargetList = Vec<LinkFromSourceToTarget>;
+pub type SourceAndLinkToTargetList = Vec<LinkSrc2Tgt>;
 
 pub struct LinkFromSourceToTargetIndex {
     valid_backlink_cnt: usize,
@@ -40,7 +40,7 @@ impl LinkFromSourceToTargetIndex {
                     }
                     _ => note_valid_backlink_cnt += 1,
                 }
-                let s2t = LinkFromSourceToTarget::from_link_to_target(src.clone(), link_to_target);
+                let s2t = LinkSrc2Tgt::from_link_to_target(src.clone(), link_to_target);
                 source_and_link_to_target_list.push(s2t);
             }
 
@@ -69,7 +69,7 @@ impl LinkFromSourceToTargetIndex {
 }
 
 impl SrcTgtIterable for LinkFromSourceToTargetIndex {
-    type Iter = std::vec::IntoIter<LinkFromSourceToTarget>;
+    type Iter = std::vec::IntoIter<LinkSrc2Tgt>;
     fn iter(&self) -> Self::Iter {
         self.source_and_link_to_target_list.clone().into_iter()
     }
