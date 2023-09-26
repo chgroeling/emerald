@@ -10,11 +10,11 @@ use super::tgt_iter_queryable::TgtIterQueryable;
 pub type LinkToTargetList = Vec<LinkToTarget>;
 type SourceToLinkToTargetList = HashMap<ResourceId, LinkToTargetList>;
 
-pub struct TgtListMap {
+pub struct TgtLinksMap {
     source_to_target_map: SourceToLinkToTargetList,
 }
 
-impl TgtListMap {
+impl TgtLinksMap {
     pub fn new(link_s2t_iterable: &impl Src2TgtIterable) -> Self {
         let mut source_to_target_map = SourceToLinkToTargetList::new();
         for s2t in link_s2t_iterable.iter() {
@@ -35,7 +35,7 @@ impl TgtListMap {
     }
 }
 
-impl TgtIterQueryable for TgtListMap {
+impl TgtIterQueryable for TgtLinksMap {
     fn query(&self, source: ResourceId) -> Option<std::vec::IntoIter<LinkToTarget>> {
         self.source_to_target_map
             .get(&source)
@@ -46,7 +46,7 @@ impl TgtIterQueryable for TgtListMap {
 #[cfg(test)]
 mod tests {
     use super::TgtIterQueryable;
-    use super::TgtListMap;
+    use super::TgtLinksMap;
     use crate::indexes::src_2_tgt_iterable::MockSrc2TgtIterable;
     use crate::types::LinkToTarget;
 
@@ -56,7 +56,7 @@ mod tests {
         let mut mock = MockSrc2TgtIterable::new();
         mock.expect_iter().return_const(test_data.into_iter());
 
-        let dut = TgtListMap::new(&mock);
+        let dut = TgtLinksMap::new(&mock);
         let res: Vec<LinkToTarget> = dut.query("o1".into()).unwrap().collect();
 
         assert_eq!(
@@ -71,7 +71,7 @@ mod tests {
         let mut mock = MockSrc2TgtIterable::new();
         mock.expect_iter().return_const(test_data.into_iter());
 
-        let dut = TgtListMap::new(&mock);
+        let dut = TgtLinksMap::new(&mock);
         let res: Vec<LinkToTarget> = dut.query("o1".into()).unwrap().collect();
 
         assert_eq!(
@@ -95,7 +95,7 @@ mod tests {
         let mut mock = MockSrc2TgtIterable::new();
         mock.expect_iter().return_const(test_data.into_iter());
 
-        let dut = TgtListMap::new(&mock);
+        let dut = TgtLinksMap::new(&mock);
         let res: Vec<LinkToTarget> = dut.query("o1".into()).unwrap().collect();
 
         assert_eq!(
