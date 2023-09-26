@@ -33,10 +33,8 @@ impl TgtLinksMap {
 }
 
 impl TgtIterQueryable for TgtLinksMap {
-    fn query(&self, source: ResourceId) -> Option<std::vec::IntoIter<Link2Tgt>> {
-        self.link_2_tgt_map
-            .get(&source)
-            .map(|f| f.clone().into_iter())
+    fn query(&self, src: ResourceId) -> Option<std::vec::IntoIter<Link2Tgt>> {
+        self.link_2_tgt_map.get(&src).map(|f| f.clone().into_iter())
     }
 }
 

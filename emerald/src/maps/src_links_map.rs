@@ -18,8 +18,8 @@ impl SrcLinksMap {
         let mut src_2_tgt_map = Tgt2LinkFrmSrcMap::new();
         for s2t in link_s2t_iterable.iter() {
             let link_from_source = s2t.get_link_from_source();
-            let tgt = if let Some(target) = s2t.tgt {
-                target
+            let tgt = if let Some(tgt) = s2t.tgt {
+                tgt
             } else {
                 continue;
             };
@@ -37,10 +37,8 @@ impl SrcLinksMap {
 }
 
 impl SrcIterQueryable for SrcLinksMap {
-    fn query(&self, source: ResourceId) -> Option<std::vec::IntoIter<LinkFrmSrc>> {
-        self.src_2_tgt_map
-            .get(&source)
-            .map(|f| f.clone().into_iter())
+    fn query(&self, tgt: ResourceId) -> Option<std::vec::IntoIter<LinkFrmSrc>> {
+        self.src_2_tgt_map.get(&tgt).map(|f| f.clone().into_iter())
     }
 }
 
