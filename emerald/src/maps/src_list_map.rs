@@ -52,7 +52,7 @@ mod tests {
     use super::LinkFromSource;
     use super::SrcIterQueryable;
     use super::SrcListMap;
-    use crate::indexes::src_tgt_iterable::MockSrc2TgtIterable;
+    use crate::indexes::src_2_tgt_iterable::MockSrc2TgtIterable;
 
     #[test]
     fn test_one_match() {

@@ -47,7 +47,7 @@ impl TgtIterQueryable for TgtListMap {
 mod tests {
     use super::TgtIterQueryable;
     use super::TgtListMap;
-    use crate::indexes::src_tgt_iterable::MockSrc2TgtIterable;
+    use crate::indexes::src_2_tgt_iterable::MockSrc2TgtIterable;
     use crate::types::LinkToTarget;
 
     #[test]

@@ -7,7 +7,7 @@ use crate::{
     types::{LinkSrc2Tgt, LinkToTarget},
 };
 
-use super::src_tgt_iterable::Src2TgtIterable;
+use super::src_2_tgt_iterable::Src2TgtIterable;
 
 pub struct Src2TargetIndex {
     valid_backlink_cnt: usize,
