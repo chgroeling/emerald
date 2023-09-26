@@ -7,7 +7,7 @@ use crate::{
     types::{LinkFromSourceToTarget, LinkToTarget},
 };
 
-use super::link_from_source_to_target_iterable::LinkFromSourceToTargetIterable;
+use super::src_tgt_iterable::SrcTgtIterable;
 
 #[allow(dead_code)]
 pub type SourceAndLinkToTargetList = Vec<LinkFromSourceToTarget>;
@@ -68,7 +68,7 @@ impl LinkFromSourceToTargetIndex {
     }
 }
 
-impl LinkFromSourceToTargetIterable for LinkFromSourceToTargetIndex {
+impl SrcTgtIterable for LinkFromSourceToTargetIndex {
     type Iter = std::vec::IntoIter<LinkFromSourceToTarget>;
     fn iter(&self) -> Self::Iter {
         self.source_and_link_to_target_list.clone().into_iter()

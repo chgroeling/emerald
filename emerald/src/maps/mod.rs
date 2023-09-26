@@ -15,7 +15,7 @@ use self::{
     resource_id_link_map::ResourceIdLinkMap, source_list_map::SourceListMap,
     target_list_map::TargetListMap,
 };
-use crate::indexes::{LinkFromSourceToTargetIterable, ResourceIdsIterable};
+use crate::indexes::{ResourceIdsIterable, SrcTgtIterable};
 
 pub fn create_link_queryable(
     resource_ids_iterable: &impl ResourceIdsIterable,
@@ -24,13 +24,13 @@ pub fn create_link_queryable(
 }
 
 pub fn create_target_iterator_queryable(
-    link_s2t_iterable: &impl LinkFromSourceToTargetIterable,
+    link_s2t_iterable: &impl SrcTgtIterable,
 ) -> Rc<dyn TargetIteratorQueryable> {
     Rc::new(TargetListMap::new(link_s2t_iterable))
 }
 
 pub fn create_source_iterator_queryable(
-    link_s2t_iterable: &impl LinkFromSourceToTargetIterable,
+    link_s2t_iterable: &impl SrcTgtIterable,
 ) -> Rc<dyn SourceIteratorQueryable> {
     Rc::new(SourceListMap::new(link_s2t_iterable))
 }
