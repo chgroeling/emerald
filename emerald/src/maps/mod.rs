@@ -4,12 +4,12 @@ mod link_queryable;
 mod resource_id_link_map;
 mod src_iter_queryable;
 mod src_list_map;
-mod target_iterator_queryable;
 mod target_list_map;
+mod tgt_iter_queryable;
 
 pub use self::link_queryable::LinkQueryable;
 pub use self::src_iter_queryable::SrcIterQueryable;
-pub use self::target_iterator_queryable::TargetIteratorQueryable;
+pub use self::tgt_iter_queryable::TgtIterQueryable;
 
 use self::{
     resource_id_link_map::ResourceIdLinkMap, src_list_map::SrcListMap,
@@ -25,7 +25,7 @@ pub fn create_link_queryable(
 
 pub fn create_target_iterator_queryable(
     link_s2t_iterable: &impl SrcTgtIterable,
-) -> Rc<dyn TargetIteratorQueryable> {
+) -> Rc<dyn TgtIterQueryable> {
     Rc::new(TargetListMap::new(link_s2t_iterable))
 }
 

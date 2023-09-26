@@ -9,7 +9,7 @@ use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceI
 use crate::indexes::source_to_target_index::LinkFromSourceToTargetIndex;
 use crate::indexes::EndpointsIterable;
 use crate::maps::LinkQueryable;
-use crate::maps::TargetIteratorQueryable;
+use crate::maps::TgtIterQueryable;
 use crate::maps::{create_link_queryable, SrcIterQueryable};
 use crate::maps::{create_source_iterator_queryable, create_target_iterator_queryable};
 use crate::resources::content_storage::ContentStorage;
@@ -23,7 +23,7 @@ pub struct Emerald {
     pub endpoint_index: Rc<EndpointIndex>,
     pub resource_id_index: Rc<ResourceIdIndex>,
     pub link_queryable: Rc<dyn LinkQueryable>,
-    pub target_iterator_queryable: Rc<dyn TargetIteratorQueryable>,
+    pub target_iterator_queryable: Rc<dyn TgtIterQueryable>,
     pub source_iterator_queryable: Rc<dyn SrcIterQueryable>,
     pub note_link_index: Rc<LinkFromSourceToTargetIndex>,
     pub content_loader: Rc<FileContentLoader>,
