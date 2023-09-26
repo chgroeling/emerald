@@ -22,14 +22,14 @@ pub fn create_link_queryable(
     Rc::new(ResourceIdLinkMap::new(resource_ids_iterable))
 }
 
-pub fn create_target_iterator_queryable(
-    link_s2t_iterable: &impl SrcTgtIterable,
+pub fn create_tgt_iter_queryable(
+    src_tgt_iterable: &impl SrcTgtIterable,
 ) -> Rc<dyn TgtIterQueryable> {
-    Rc::new(TgtListMap::new(link_s2t_iterable))
+    Rc::new(TgtListMap::new(src_tgt_iterable))
 }
 
-pub fn create_source_iterator_queryable(
-    link_s2t_iterable: &impl SrcTgtIterable,
+pub fn create_src_iter_queryable(
+    src_tgt_iterable: &impl SrcTgtIterable,
 ) -> Rc<dyn SrcIterQueryable> {
-    Rc::new(SrcListMap::new(link_s2t_iterable))
+    Rc::new(SrcListMap::new(src_tgt_iterable))
 }

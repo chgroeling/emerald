@@ -11,7 +11,7 @@ use crate::indexes::EndpointsIterable;
 use crate::maps::LinkQueryable;
 use crate::maps::TgtIterQueryable;
 use crate::maps::{create_link_queryable, SrcIterQueryable};
-use crate::maps::{create_source_iterator_queryable, create_target_iterator_queryable};
+use crate::maps::{create_src_iter_queryable, create_tgt_iter_queryable};
 use crate::resources::content_storage::ContentStorage;
 use crate::resources::file_content_loader::FileContentLoader;
 use crate::types::EndPoint;
@@ -73,14 +73,14 @@ impl Emerald {
         );
 
         let start = Instant::now();
-        let target_iterator_queryable = create_target_iterator_queryable(note_link_index.as_ref());
+        let target_iterator_queryable = create_tgt_iter_queryable(note_link_index.as_ref());
         debug!(
             "Creation of TargetIteratorQueryable took: {:?}",
             start.elapsed()
         );
 
         let start = Instant::now();
-        let source_iterator_queryable = create_source_iterator_queryable(note_link_index.as_ref());
+        let source_iterator_queryable = create_src_iter_queryable(note_link_index.as_ref());
         debug!(
             "Creation of SourceIteratorQueryable took: {:?}",
             start.elapsed()
