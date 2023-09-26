@@ -6,12 +6,12 @@ use std::{path::Path, time::Instant};
 use crate::content_analyzers::MdLinkAnalyzer;
 use crate::indexes::endpoint_index::EndpointIndex;
 use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdIndex};
-use crate::indexes::source_to_target_index::LinkFromSourceToTargetIndex;
+use crate::indexes::src_2_tgt_index::Src2TargetIndex;
 use crate::indexes::EndpointsIterable;
 use crate::maps::LinkQueryable;
-use crate::maps::TargetIteratorQueryable;
-use crate::maps::{create_link_queryable, SourceIteratorQueryable};
-use crate::maps::{create_source_iterator_queryable, create_target_iterator_queryable};
+use crate::maps::TgtIterQueryable;
+use crate::maps::{create_link_queryable, SrcIterQueryable};
+use crate::maps::{create_src_iter_queryable, create_tgt_iter_queryable};
 use crate::resources::content_storage::ContentStorage;
 use crate::resources::file_content_loader::FileContentLoader;
 use crate::types::EndPoint;
@@ -23,9 +23,9 @@ pub struct Emerald {
     pub endpoint_index: Rc<EndpointIndex>,
     pub resource_id_index: Rc<ResourceIdIndex>,
     pub link_queryable: Rc<dyn LinkQueryable>,
-    pub target_iterator_queryable: Rc<dyn TargetIteratorQueryable>,
-    pub source_iterator_queryable: Rc<dyn SourceIteratorQueryable>,
-    pub note_link_index: Rc<LinkFromSourceToTargetIndex>,
+    pub target_iterator_queryable: Rc<dyn TgtIterQueryable>,
+    pub source_iterator_queryable: Rc<dyn SrcIterQueryable>,
+    pub note_link_index: Rc<Src2TargetIndex>,
     pub content_loader: Rc<FileContentLoader>,
     pub content_storage: Rc<ContentStorage>,
 }
@@ -63,24 +63,24 @@ impl Emerald {
         debug!("Creation of ContentStorage took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let note_link_index = Rc::new(LinkFromSourceToTargetIndex::new(
+        let note_link_index = Rc::new(Src2TargetIndex::new(
             content_storage.as_ref(),
             md_link_analyzer.as_ref(),
         ));
         debug!(
-            "Creation of LinkFromSourceToTargetIndex took: {:?}",
+            "Creation of LinkFrmSrcToTargetIndex took: {:?}",
             start.elapsed()
         );
 
         let start = Instant::now();
-        let target_iterator_queryable = create_target_iterator_queryable(note_link_index.as_ref());
+        let target_iterator_queryable = create_tgt_iter_queryable(note_link_index.as_ref());
         debug!(
             "Creation of TargetIteratorQueryable took: {:?}",
             start.elapsed()
         );
 
         let start = Instant::now();
-        let source_iterator_queryable = create_source_iterator_queryable(note_link_index.as_ref());
+        let source_iterator_queryable = create_src_iter_queryable(note_link_index.as_ref());
         debug!(
             "Creation of SourceIteratorQueryable took: {:?}",
             start.elapsed()

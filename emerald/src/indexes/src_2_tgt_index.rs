@@ -4,28 +4,25 @@ use log::{debug, error, info, trace, warn};
 use crate::{
     content_analyzers::MdLinkAnalyzerIterable,
     resources::ContentIterable,
-    types::{LinkFromSourceToTarget, LinkToTarget},
+    types::{Link2Tgt, LinkSrc2Tgt},
 };
 
-use super::link_from_source_to_target_iterable::LinkFromSourceToTargetIterable;
+use super::src_2_tgt_iterable::Src2TgtIterable;
 
-#[allow(dead_code)]
-pub type SourceAndLinkToTargetList = Vec<LinkFromSourceToTarget>;
-
-pub struct LinkFromSourceToTargetIndex {
+pub struct Src2TargetIndex {
     valid_backlink_cnt: usize,
     invalid_backlink_cnt: usize,
-    source_and_link_to_target_list: SourceAndLinkToTargetList,
+    src_2_tgt_list: Vec<LinkSrc2Tgt>,
 }
 
-impl LinkFromSourceToTargetIndex {
+impl Src2TargetIndex {
     pub fn new(
         content_iterable: &impl ContentIterable,
         md_link_analyer_iterable: &impl MdLinkAnalyzerIterable,
     ) -> Self {
         let mut valid_backlink_cnt: usize = 0;
         let mut invalid_backlink_cnt: usize = 0;
-        let mut source_and_link_to_target_list = SourceAndLinkToTargetList::new();
+        let mut src_2_tgt_list = Vec::<LinkSrc2Tgt>::new();
 
         for (src, content) in content_iterable.iter() {
             trace!("Link extraction from {:?} starts", &src);
@@ -34,14 +31,14 @@ impl LinkFromSourceToTargetIndex {
             let mut note_invalid_backlink_cnt: usize = 0;
             for link_to_target in md_link_analyer_iterable.create_iter(content.0.as_ref().clone()) {
                 match &link_to_target {
-                    LinkToTarget { link, target: None } => {
+                    Link2Tgt { link, tgt: None } => {
                         note_invalid_backlink_cnt += 1;
                         warn!("Parsing {:?} -> Link not found: {:?}", &src, &link);
                     }
                     _ => note_valid_backlink_cnt += 1,
                 }
-                let s2t = LinkFromSourceToTarget::from_link_to_target(src.clone(), link_to_target);
-                source_and_link_to_target_list.push(s2t);
+                let s2t = LinkSrc2Tgt::from_link_to_target(src.clone(), link_to_target);
+                src_2_tgt_list.push(s2t);
             }
 
             if note_valid_backlink_cnt == 0 {
@@ -55,7 +52,7 @@ impl LinkFromSourceToTargetIndex {
         Self {
             valid_backlink_cnt,
             invalid_backlink_cnt,
-            source_and_link_to_target_list,
+            src_2_tgt_list,
         }
     }
 
@@ -68,9 +65,9 @@ impl LinkFromSourceToTargetIndex {
     }
 }
 
-impl LinkFromSourceToTargetIterable for LinkFromSourceToTargetIndex {
-    type Iter = std::vec::IntoIter<LinkFromSourceToTarget>;
+impl Src2TgtIterable for Src2TargetIndex {
+    type Iter = std::vec::IntoIter<LinkSrc2Tgt>;
     fn iter(&self) -> Self::Iter {
-        self.source_and_link_to_target_list.clone().into_iter()
+        self.src_2_tgt_list.clone().into_iter()
     }
 }
