@@ -10,11 +10,11 @@ use super::src_iter_queryable::SrcIterQueryable;
 pub type LinkFromSourceList = Vec<LinkFromSource>;
 type TargetToLinkFromSourceList = HashMap<ResourceId, LinkFromSourceList>;
 
-pub struct SourceListMap {
+pub struct SrcListMap {
     source_to_target_map: TargetToLinkFromSourceList,
 }
 
-impl SourceListMap {
+impl SrcListMap {
     pub fn new(link_s2t_iterable: &impl SrcTgtIterable) -> Self {
         let mut target_to_source_map = TargetToLinkFromSourceList::new();
         for s2t in link_s2t_iterable.iter() {
@@ -39,7 +39,7 @@ impl SourceListMap {
     }
 }
 
-impl SrcIterQueryable for SourceListMap {
+impl SrcIterQueryable for SrcListMap {
     fn query(&self, source: ResourceId) -> Option<std::vec::IntoIter<LinkFromSource>> {
         self.source_to_target_map
             .get(&source)
@@ -50,8 +50,8 @@ impl SrcIterQueryable for SourceListMap {
 #[cfg(test)]
 mod tests {
     use super::LinkFromSource;
-    use super::SourceListMap;
     use super::SrcIterQueryable;
+    use super::SrcListMap;
     use crate::indexes::src_tgt_iterable::MockSrcTgtIterable;
 
     #[test]
@@ -61,7 +61,7 @@ mod tests {
         let mut mock = MockSrcTgtIterable::new();
         mock.expect_iter().return_const(test_data.into_iter());
 
-        let dut = SourceListMap::new(&mock);
+        let dut = SrcListMap::new(&mock);
         let res: Vec<LinkFromSource> = dut.query("d1".into()).unwrap().collect();
 
         assert_eq!(res, vec![LinkFromSource::new("o1->d1".into(), "o1".into())]);
@@ -74,7 +74,7 @@ mod tests {
         let mut mock = MockSrcTgtIterable::new();
         mock.expect_iter().return_const(test_data.into_iter());
 
-        let dut = SourceListMap::new(&mock);
+        let dut = SrcListMap::new(&mock);
         let res: Vec<LinkFromSource> = dut.query("d1".into()).unwrap().collect();
 
         assert_eq!(res, vec![LinkFromSource::new("o1->d1".into(), "o1".into())]);
@@ -92,7 +92,7 @@ mod tests {
 
         let mut mock = MockSrcTgtIterable::new();
         mock.expect_iter().return_const(test_data.into_iter());
-        let dut = SourceListMap::new(&mock);
+        let dut = SrcListMap::new(&mock);
         let res: Vec<LinkFromSource> = dut.query("d1".into()).unwrap().collect();
 
         assert_eq!(
