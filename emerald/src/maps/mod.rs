@@ -2,13 +2,13 @@ use std::rc::Rc;
 
 mod link_queryable;
 mod resource_id_link_map;
-mod source_iterator_queryable;
 mod source_list_map;
+mod src_iter_queryable;
 mod target_iterator_queryable;
 mod target_list_map;
 
 pub use self::link_queryable::LinkQueryable;
-pub use self::source_iterator_queryable::SourceIteratorQueryable;
+pub use self::src_iter_queryable::SrcIterQueryable;
 pub use self::target_iterator_queryable::TargetIteratorQueryable;
 
 use self::{
@@ -31,6 +31,6 @@ pub fn create_target_iterator_queryable(
 
 pub fn create_source_iterator_queryable(
     link_s2t_iterable: &impl SrcTgtIterable,
-) -> Rc<dyn SourceIteratorQueryable> {
+) -> Rc<dyn SrcIterQueryable> {
     Rc::new(SourceListMap::new(link_s2t_iterable))
 }

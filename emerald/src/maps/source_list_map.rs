@@ -5,7 +5,7 @@ use crate::{
     types::{LinkFromSource, ResourceId},
 };
 
-use super::source_iterator_queryable::SourceIteratorQueryable;
+use super::src_iter_queryable::SrcIterQueryable;
 
 pub type LinkFromSourceList = Vec<LinkFromSource>;
 type TargetToLinkFromSourceList = HashMap<ResourceId, LinkFromSourceList>;
@@ -39,7 +39,7 @@ impl SourceListMap {
     }
 }
 
-impl SourceIteratorQueryable for SourceListMap {
+impl SrcIterQueryable for SourceListMap {
     fn query(&self, source: ResourceId) -> Option<std::vec::IntoIter<LinkFromSource>> {
         self.source_to_target_map
             .get(&source)
@@ -50,8 +50,8 @@ impl SourceIteratorQueryable for SourceListMap {
 #[cfg(test)]
 mod tests {
     use super::LinkFromSource;
-    use super::SourceIteratorQueryable;
     use super::SourceListMap;
+    use super::SrcIterQueryable;
     use crate::indexes::src_tgt_iterable::MockSrcTgtIterable;
 
     #[test]
