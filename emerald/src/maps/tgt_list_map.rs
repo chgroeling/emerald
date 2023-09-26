@@ -10,11 +10,11 @@ use super::tgt_iter_queryable::TgtIterQueryable;
 pub type LinkToTargetList = Vec<LinkToTarget>;
 type SourceToLinkToTargetList = HashMap<ResourceId, LinkToTargetList>;
 
-pub struct TargetListMap {
+pub struct TgtListMap {
     source_to_target_map: SourceToLinkToTargetList,
 }
 
-impl TargetListMap {
+impl TgtListMap {
     pub fn new(link_s2t_iterable: &impl SrcTgtIterable) -> Self {
         let mut source_to_target_map = SourceToLinkToTargetList::new();
         for s2t in link_s2t_iterable.iter() {
@@ -35,7 +35,7 @@ impl TargetListMap {
     }
 }
 
-impl TgtIterQueryable for TargetListMap {
+impl TgtIterQueryable for TgtListMap {
     fn query(&self, source: ResourceId) -> Option<std::vec::IntoIter<LinkToTarget>> {
         self.source_to_target_map
             .get(&source)
@@ -45,8 +45,8 @@ impl TgtIterQueryable for TargetListMap {
 
 #[cfg(test)]
 mod tests {
-    use super::TargetListMap;
     use super::TgtIterQueryable;
+    use super::TgtListMap;
     use crate::indexes::src_tgt_iterable::MockSrcTgtIterable;
     use crate::types::LinkToTarget;
 
@@ -56,7 +56,7 @@ mod tests {
         let mut mock = MockSrcTgtIterable::new();
         mock.expect_iter().return_const(test_data.into_iter());
 
-        let dut = TargetListMap::new(&mock);
+        let dut = TgtListMap::new(&mock);
         let res: Vec<LinkToTarget> = dut.query("o1".into()).unwrap().collect();
 
         assert_eq!(
@@ -71,7 +71,7 @@ mod tests {
         let mut mock = MockSrcTgtIterable::new();
         mock.expect_iter().return_const(test_data.into_iter());
 
-        let dut = TargetListMap::new(&mock);
+        let dut = TgtListMap::new(&mock);
         let res: Vec<LinkToTarget> = dut.query("o1".into()).unwrap().collect();
 
         assert_eq!(
@@ -95,7 +95,7 @@ mod tests {
         let mut mock = MockSrcTgtIterable::new();
         mock.expect_iter().return_const(test_data.into_iter());
 
-        let dut = TargetListMap::new(&mock);
+        let dut = TgtListMap::new(&mock);
         let res: Vec<LinkToTarget> = dut.query("o1".into()).unwrap().collect();
 
         assert_eq!(
