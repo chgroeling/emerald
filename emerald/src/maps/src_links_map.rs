@@ -7,16 +7,15 @@ use crate::{
 
 use super::src_iter_queryable::SrcIterQueryable;
 
-pub type LinkFrmSrcList = Vec<LinkFrmSrc>;
-type TargetToLinkFrmSrcList = HashMap<ResourceId, LinkFrmSrcList>;
+type Tgt2LinkFrmSrcMap = HashMap<ResourceId, Vec<LinkFrmSrc>>;
 
 pub struct SrcLinksMap {
-    source_to_target_map: TargetToLinkFrmSrcList,
+    src_2_tgt_map: Tgt2LinkFrmSrcMap,
 }
 
 impl SrcLinksMap {
     pub fn new(link_s2t_iterable: &impl Src2TgtIterable) -> Self {
-        let mut target_to_source_map = TargetToLinkFrmSrcList::new();
+        let mut src_2_tgt_map = Tgt2LinkFrmSrcMap::new();
         for s2t in link_s2t_iterable.iter() {
             let link_from_source = s2t.get_link_from_source();
             let tgt = if let Some(target) = s2t.target {
@@ -24,7 +23,7 @@ impl SrcLinksMap {
             } else {
                 continue;
             };
-            match target_to_source_map.entry(tgt) {
+            match src_2_tgt_map.entry(tgt) {
                 Entry::Occupied(mut e) => {
                     e.get_mut().push(link_from_source);
                 }
@@ -33,15 +32,13 @@ impl SrcLinksMap {
                 }
             }
         }
-        Self {
-            source_to_target_map: target_to_source_map,
-        }
+        Self { src_2_tgt_map }
     }
 }
 
 impl SrcIterQueryable for SrcLinksMap {
     fn query(&self, source: ResourceId) -> Option<std::vec::IntoIter<LinkFrmSrc>> {
-        self.source_to_target_map
+        self.src_2_tgt_map
             .get(&source)
             .map(|f| f.clone().into_iter())
     }

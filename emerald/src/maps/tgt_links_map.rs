@@ -7,20 +7,19 @@ use crate::{
 
 use super::tgt_iter_queryable::TgtIterQueryable;
 
-pub type Link2TgtList = Vec<Link2Tgt>;
-type SourceToLink2TgtList = HashMap<ResourceId, Link2TgtList>;
+type Src2Link2TgtMap = HashMap<ResourceId, Vec<Link2Tgt>>;
 
 pub struct TgtLinksMap {
-    source_to_target_map: SourceToLink2TgtList,
+    link_2_tgt_map: Src2Link2TgtMap,
 }
 
 impl TgtLinksMap {
     pub fn new(link_s2t_iterable: &impl Src2TgtIterable) -> Self {
-        let mut source_to_target_map = SourceToLink2TgtList::new();
+        let mut link_2_tgt_map = Src2Link2TgtMap::new();
         for s2t in link_s2t_iterable.iter() {
             let link_to_target = s2t.get_link_to_target();
 
-            match source_to_target_map.entry(s2t.source) {
+            match link_2_tgt_map.entry(s2t.source) {
                 Entry::Occupied(mut e) => {
                     e.get_mut().push(link_to_target);
                 }
@@ -29,15 +28,13 @@ impl TgtLinksMap {
                 }
             }
         }
-        Self {
-            source_to_target_map,
-        }
+        Self { link_2_tgt_map }
     }
 }
 
 impl TgtIterQueryable for TgtLinksMap {
     fn query(&self, source: ResourceId) -> Option<std::vec::IntoIter<Link2Tgt>> {
-        self.source_to_target_map
+        self.link_2_tgt_map
             .get(&source)
             .map(|f| f.clone().into_iter())
     }
