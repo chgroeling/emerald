@@ -19,7 +19,7 @@ impl TgtLinksMap {
         for s2t in link_s2t_iterable.iter() {
             let link_to_target = s2t.get_link_to_target();
 
-            match link_2_tgt_map.entry(s2t.source) {
+            match link_2_tgt_map.entry(s2t.src) {
                 Entry::Occupied(mut e) => {
                     e.get_mut().push(link_to_target);
                 }

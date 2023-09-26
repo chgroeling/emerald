@@ -5,30 +5,26 @@ use super::{Link, Link2Tgt, LinkFrmSrc, ResourceId};
 /// Source and target are concrete ResourceIds which are pointing to files.
 #[allow(dead_code)]
 pub struct LinkSrc2Tgt {
-    pub source: ResourceId,
+    pub src: ResourceId,
     pub link: Link,
-    pub target: Option<ResourceId>,
+    pub tgt: Option<ResourceId>,
 }
 
 impl LinkSrc2Tgt {
-    pub fn new(source: ResourceId, link: Link, target: Option<ResourceId>) -> Self {
-        Self {
-            source,
-            link,
-            target,
-        }
+    pub fn new(src: ResourceId, link: Link, tgt: Option<ResourceId>) -> Self {
+        Self { src, link, tgt }
     }
 
-    pub fn from_link_to_target(source: ResourceId, link_to_target: Link2Tgt) -> Self {
-        Self::new(source, link_to_target.link, link_to_target.tgt)
+    pub fn from_link_to_target(src: ResourceId, link_2_tgt: Link2Tgt) -> Self {
+        Self::new(src, link_2_tgt.link, link_2_tgt.tgt)
     }
 
     pub fn get_link_to_target(&self) -> Link2Tgt {
-        Link2Tgt::new(self.link.clone(), self.target.clone())
+        Link2Tgt::new(self.link.clone(), self.tgt.clone())
     }
 
     pub fn get_link_from_source(&self) -> LinkFrmSrc {
-        LinkFrmSrc::new(self.link.clone(), self.source.clone())
+        LinkFrmSrc::new(self.link.clone(), self.src.clone())
     }
 }
 
