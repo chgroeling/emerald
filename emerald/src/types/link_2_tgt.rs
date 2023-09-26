@@ -4,20 +4,20 @@ use super::{Link, ResourceId};
 // Structs holds a link and the resource id of the links target if existant.
 pub struct Link2Tgt {
     pub link: Link,
-    pub target: Option<ResourceId>,
+    pub tgt: Option<ResourceId>,
 }
 
 impl Link2Tgt {
-    pub fn new(link: Link, target: Option<ResourceId>) -> Self {
-        Self { link, target }
+    pub fn new(link: Link, tgt: Option<ResourceId>) -> Self {
+        Self { link, tgt }
     }
     pub fn new_without_target(link: Link) -> Self {
-        Self { link, target: None }
+        Self { link, tgt: None }
     }
-    pub fn new_with_target(link: Link, target_resource_id: ResourceId) -> Self {
+    pub fn new_with_target(link: Link, tgt_resource_id: ResourceId) -> Self {
         Self {
             link,
-            target: Some(target_resource_id),
+            tgt: Some(tgt_resource_id),
         }
     }
 }

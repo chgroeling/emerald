@@ -34,7 +34,7 @@ impl LinkFromSourceToTargetIndex {
             let mut note_invalid_backlink_cnt: usize = 0;
             for link_to_target in md_link_analyer_iterable.create_iter(content.0.as_ref().clone()) {
                 match &link_to_target {
-                    LinkToTarget { link, target: None } => {
+                    LinkToTarget { link, tgt: None } => {
                         note_invalid_backlink_cnt += 1;
                         warn!("Parsing {:?} -> Link not found: {:?}", &src, &link);
                     }

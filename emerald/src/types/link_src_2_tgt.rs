@@ -20,7 +20,7 @@ impl LinkSrc2Tgt {
     }
 
     pub fn from_link_to_target(source: ResourceId, link_to_target: LinkToTarget) -> Self {
-        Self::new(source, link_to_target.link, link_to_target.target)
+        Self::new(source, link_to_target.link, link_to_target.tgt)
     }
 
     pub fn get_link_to_target(&self) -> LinkToTarget {
