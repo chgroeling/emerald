@@ -203,9 +203,9 @@ mod link_decomposer_tests {
         let test_str = "[[/a/b/c/test_link#section_link|link_name]]";
         let ldec = LinkDecomposer::new();
 
-        let res = ldec.decompose(test_str);
-
-        assert!(res.is_ok_and(|link| link.path.is_some_and(|path| path == "/a/b/c")));
+        let res = ldec.decompose(test_str).unwrap();
+        let path = res.path.unwrap();
+        assert_eq!(path, "/a/b/c");
     }
 
     #[test]
@@ -214,7 +214,6 @@ mod link_decomposer_tests {
         let ldec = LinkDecomposer::new();
 
         let res = ldec.decompose(test_str);
-
         assert!(res.is_err());
     }
 
@@ -224,7 +223,6 @@ mod link_decomposer_tests {
         let ldec = LinkDecomposer::new();
 
         let res = ldec.decompose(test_str);
-
         assert!(res.is_err());
     }
 
@@ -259,5 +257,15 @@ mod link_decomposer_tests {
         let decomposed_link = res.unwrap();
         let section = decomposed_link.label.unwrap();
         assert_eq!(section, "");
+    }
+
+    #[test]
+    fn test_link_with_leading_undescore() {
+        let test_str = "[[_test_link]]";
+        let ldec = LinkDecomposer::new();
+
+        let res = ldec.decompose(test_str);
+        let decomposed_link = res.unwrap();
+        assert!(decomposed_link.link == "_test_link");
     }
 }
