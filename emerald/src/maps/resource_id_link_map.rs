@@ -1,5 +1,6 @@
 use crate::indexes::ResourceIdsIterable;
 use crate::types::link::Link;
+use crate::types::split_resoure_id::SplitResourceId;
 use crate::types::split_wiki_link::SplitWikiLink;
 use crate::types::ResourceId;
 use crate::utils::normalize_string::normalize_str;
@@ -29,7 +30,7 @@ impl ResourceIdLinkMap {
         // Assumption: All resource ids are encoded in utf8 nfc
         let mut name_to_resource_id_list: NameToResourceIdList = NameToResourceIdList::new();
         let split_link = SplitWikiLink::new();
-        let split_resource_id = SplitWikiLink::new();
+        let split_resource_id = SplitResourceId::new();
 
         // Iterator yields (normalized_link, link_to_file)
         let link_name_iter = resource_ids_iterable.iter().map(|resource_id| {

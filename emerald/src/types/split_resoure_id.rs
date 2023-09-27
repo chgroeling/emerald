@@ -1,5 +1,4 @@
 use super::{
-    link,
     res_and_err::{EmeraldError, Result},
     resource_id_components::ResourceIdComponents,
 };
