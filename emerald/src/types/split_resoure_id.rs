@@ -72,57 +72,48 @@ mod tests {
     use super::SplitResourceId;
 
     #[test]
-    fn test_simple_link() {
-        let test_str = "[[test_link]]";
+    fn test_simple_resource_id() {
+        let test_str = "[[test_res_id]]";
         let dut = SplitResourceId::new();
 
         let res = dut.split(test_str);
 
-        assert!(res.is_ok_and(|link| link.link == "test_link"));
+        assert!(res.is_ok_and(|link| link.link == "test_res_id"));
     }
 
     #[test]
-    fn test_simple_link_with_ext() {
-        let test_str = "[[test_link.md]]";
+    fn test_resource_id_with_ext() {
+        let test_str = "[[test_res_id.md]]";
         let dut = SplitResourceId::new();
 
-        let res = dut.split(test_str);
+        let res = dut.split(test_str).unwrap();
 
-        assert!(res.is_ok_and(|link| link.link == "test_link.md"));
+        assert_eq!(res.link, "test_res_id.md");
     }
 
     #[test]
-    fn test_no_path_from_simple_link() {
-        let test_str = "[[test_link]]";
+    fn test_none_path_from_simple_resource_id() {
+        let test_str = "[[test_res_id]]";
         let dut = SplitResourceId::new();
 
-        let res = dut.split(test_str);
+        let res = dut.split(test_str).unwrap();
 
-        assert!(res.is_ok_and(|link| link.has_path() == false));
+        assert!(res.has_path() == false);
     }
 
     #[test]
-    fn test_link_out_off_link_with_path() {
-        let test_str = "[[a/b/c/test_link]]";
+    fn test_resource_id_out_off_link_with_path() {
+        let test_str = "[[a/b/c/test_res_id]]";
         let dut = SplitResourceId::new();
 
-        let res = dut.split(test_str);
+        let res = dut.split(test_str).unwrap();
 
-        assert!(res.is_ok_and(|link| link.link == "test_link"));
+        assert_eq!(res.link, "test_res_id");
     }
 
     #[test]
-    fn test_illegal_link_handling_front_space() {
-        let test_str = " [[test_link]]";
-        let dut = SplitResourceId::new();
-
-        let res = dut.split(test_str);
-        assert!(res.is_err());
-    }
-
-    #[test]
-    fn test_illegal_link_handling_tail_space() {
-        let test_str = "[[test_link]] ";
+    fn test_illegal_resource_id_front_space() {
+        let test_str = " [[test_res_id]]";
         let dut = SplitResourceId::new();
 
         let res = dut.split(test_str);
@@ -130,12 +121,21 @@ mod tests {
     }
 
     #[test]
-    fn test_link_with_leading_undescore() {
-        let test_str = "[[_test_link]]";
+    fn test_illegal_resource_id_tail_space() {
+        let test_str = "[[test_res_id]] ";
+        let dut = SplitResourceId::new();
+
+        let res = dut.split(test_str);
+        assert!(res.is_err());
+    }
+
+    #[test]
+    fn test_resource_id_with_leading_undescore() {
+        let test_str = "[[_test_res_id]]";
         let dut = SplitResourceId::new();
 
         let res = dut.split(test_str);
         let link_components = res.unwrap();
-        assert!(link_components.link == "_test_link");
+        assert_eq!(link_components.link, "_test_res_id");
     }
 }
