@@ -66,7 +66,7 @@ impl ResourceIdLinkMap {
 impl LinkQueryable for ResourceIdLinkMap {
     fn get_with_hint(&self, link: &Link, _hint: Hint) -> Result<ResourceId> {
         // convert string to internal link format
-        let link_comp = self.split_link.split(&link)?;
+        let link_comp = self.split_link.split(link)?;
         let link_name_lc = normalize_str(&link_comp.link.trim().to_lowercase());
 
         // check if md files in our hashmap are matching the given link
@@ -97,7 +97,7 @@ impl LinkQueryable for ResourceIdLinkMap {
 
                 // if it has one ... try to match it with the result list.
                 for potential_link in match_list {
-                    let de_potential_link = self.split_resource_id.split(&potential_link)?;
+                    let de_potential_link = self.split_resource_id.split(potential_link)?;
 
                     if let Some(plink_path) = de_potential_link.path {
                         // Assumption: plink_path is already utf8 nfc encoded

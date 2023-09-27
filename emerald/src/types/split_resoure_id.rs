@@ -78,9 +78,9 @@ mod tests {
         let test_str = "[[test_res_id]]";
         let dut = SplitResourceId::new();
 
-        let res = dut.split(&test_str.into());
+        let res = dut.split(&test_str.into()).unwrap();
 
-        assert!(res.is_ok_and(|link| link.name == "test_res_id"));
+        assert_eq!(res.name, "test_res_id");
     }
 
     #[test]
