@@ -1,23 +1,25 @@
+use std::fmt::Display;
+
 #[derive(Debug)]
-pub struct LinkComponents {
+pub struct LinkComps {
     pub path: Option<String>,
-    pub link: String,
+    pub name: String,
     pub label: Option<String>,
     pub section: Option<String>,
     pub anchor: Option<String>,
 }
 
-impl LinkComponents {
+impl LinkComps {
     pub fn new(
-        link: String,
+        name: String,
         path: Option<String>,
         label: Option<String>,
         section: Option<String>,
         anchor: Option<String>,
     ) -> Self {
-        LinkComponents {
+        LinkComps {
             path,
-            link,
+            name,
             label,
             section,
             anchor,
@@ -29,10 +31,10 @@ impl LinkComponents {
         self.path.is_some()
     }
 
-    pub fn new_link(link: String) -> Self {
-        LinkComponents {
+    pub fn new_link(name: String) -> Self {
+        LinkComps {
             path: None,
-            link,
+            name,
             label: None,
             section: None,
             anchor: None,
@@ -41,12 +43,28 @@ impl LinkComponents {
 
     #[allow(dead_code)]
     pub fn new_link_with_path(name: String, path: String) -> Self {
-        LinkComponents {
+        LinkComps {
             path: Some(path),
-            link: name,
+            name,
             label: None,
             section: None,
             anchor: None,
         }
+    }
+}
+
+impl Display for LinkComps {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if let Some(path_uw) = &self.path {
+            write!(f, "[[{}/{}]]", path_uw, self.name)
+        } else {
+            write!(f, "[[{}]]", self.name)
+        }
+    }
+}
+
+impl From<&'static str> for LinkComps {
+    fn from(value: &'static str) -> Self {
+        Self::new_link(value.to_owned())
     }
 }

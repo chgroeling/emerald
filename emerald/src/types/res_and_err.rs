@@ -29,6 +29,9 @@ pub enum EmeraldError {
     #[error("Failed interpreting a wiki link.")]
     NotAWikiLink,
 
+    #[error("Failed interpreting a resource id.")]
+    NotAResourceId,
+
     #[error("Tried to load content which is not a markdown file")]
     NotAMarkdownFile,
 

@@ -1,6 +1,7 @@
 use crate::indexes::ResourceIdsIterable;
 use crate::types::link::Link;
-use crate::types::link_decomposer::LinkDecomposer;
+use crate::types::split_link::SplitLink;
+use crate::types::split_resoure_id::SplitResourceId;
 use crate::types::ResourceId;
 use crate::utils::normalize_string::normalize_str;
 use std::collections::hash_map::Entry;
@@ -17,11 +18,11 @@ use log::{debug, error, info, trace, warn};
 use super::link_queryable::Hint;
 use super::link_queryable::LinkQueryable;
 
-pub type ResourceIdList = Vec<ResourceId>;
-pub type NameToResourceIdList = HashMap<String, ResourceIdList>;
+pub type NameToResourceIdList = HashMap<String, Vec<ResourceId>>;
 
 pub struct ResourceIdLinkMap {
-    link_decomposer: LinkDecomposer,
+    split_link: SplitLink,
+    split_resource_id: SplitResourceId,
     name_to_resource_id_list: NameToResourceIdList,
 }
 
@@ -29,12 +30,13 @@ impl ResourceIdLinkMap {
     pub fn new(resource_ids_iterable: &impl ResourceIdsIterable) -> Self {
         // Assumption: All resource ids are encoded in utf8 nfc
         let mut name_to_resource_id_list: NameToResourceIdList = NameToResourceIdList::new();
-        let link_decomposer = LinkDecomposer::new();
+        let split_link = SplitLink::new();
+        let split_resource_id = SplitResourceId::new();
 
         // Iterator yields (normalized_link, link_to_file)
         let link_name_iter = resource_ids_iterable.iter().map(|resource_id| {
-            let dc_link = link_decomposer.decompose(&resource_id.0).unwrap();
-            let normalized_link = dc_link.link.to_lowercase();
+            let res_id_comp = split_resource_id.split(&resource_id).unwrap();
+            let normalized_link = res_id_comp.name.to_lowercase();
 
             (normalized_link, resource_id)
         });
@@ -55,7 +57,8 @@ impl ResourceIdLinkMap {
 
         ResourceIdLinkMap {
             name_to_resource_id_list,
-            link_decomposer,
+            split_link,
+            split_resource_id,
         }
     }
 }
@@ -63,8 +66,8 @@ impl ResourceIdLinkMap {
 impl LinkQueryable for ResourceIdLinkMap {
     fn get_with_hint(&self, link: &Link, _hint: Hint) -> Result<ResourceId> {
         // convert string to internal link format
-        let dec_link = self.link_decomposer.decompose(&link.0)?;
-        let link_name_lc = normalize_str(&dec_link.link.trim().to_lowercase());
+        let link_comp = self.split_link.split(link)?;
+        let link_name_lc = normalize_str(&link_comp.name.trim().to_lowercase());
 
         // check if md files in our hashmap are matching the given link
         let matches_of_exact_name = self.name_to_resource_id_list.get(&link_name_lc);
@@ -84,17 +87,17 @@ impl LinkQueryable for ResourceIdLinkMap {
             assert!(!match_list.is_empty());
             trace!(
                 "Name of link {} found in index. Resulting match_list: {:?}",
-                &dec_link,
+                &link_comp,
                 &match_list
             );
 
             // Check if the given link has a path
-            if let Some(link_path) = &dec_link.path {
+            if let Some(link_path) = &link_comp.path {
                 let link_path_norm = normalize_str(link_path);
 
                 // if it has one ... try to match it with the result list.
                 for potential_link in match_list {
-                    let de_potential_link = self.link_decomposer.decompose(&potential_link.0)?;
+                    let de_potential_link = self.split_resource_id.split(potential_link)?;
 
                     if let Some(plink_path) = de_potential_link.path {
                         // Assumption: plink_path is already utf8 nfc encoded
@@ -107,7 +110,7 @@ impl LinkQueryable for ResourceIdLinkMap {
             } else {
                 // not path was specified
                 if match_list.len() > 1 {
-                    warn!("The link {} is not unique.", &dec_link);
+                    warn!("The link {} is not unique.", &link_comp);
                 }
 
                 let match_link = match_list[0].clone();
@@ -116,7 +119,7 @@ impl LinkQueryable for ResourceIdLinkMap {
         }
 
         trace!("find_link - No link found - \"{}\"", &link_name_lc);
-        Err(LinkNotFound(dec_link.to_string()))
+        Err(LinkNotFound(link_comp.to_string()))
     }
 }
 

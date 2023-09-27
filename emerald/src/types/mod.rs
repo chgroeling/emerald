@@ -2,12 +2,14 @@ mod content;
 mod endpoint;
 pub mod link;
 mod link_2_tgt;
-mod link_components;
-pub mod link_decomposer;
+mod link_comps;
 mod link_frm_src;
 mod link_src_2_tgt;
 mod res_and_err;
 pub mod resource_id;
+mod resource_id_comps;
+pub mod split_link;
+pub mod split_resoure_id;
 
 pub use self::content::Content;
 pub use self::res_and_err::EmeraldError;

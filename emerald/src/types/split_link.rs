@@ -1,32 +1,15 @@
 use super::{
-    link_components::LinkComponents,
+    link_comps::LinkComps,
     res_and_err::{EmeraldError, Result},
+    Link,
 };
-use std::fmt::Display;
-
 use EmeraldError::*;
 
-impl Display for LinkComponents {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if let Some(path_uw) = &self.path {
-            write!(f, "[[{}/{}]]", path_uw, self.link)
-        } else {
-            write!(f, "[[{}]]", self.link)
-        }
-    }
-}
+pub struct SplitLink {}
 
-impl From<&'static str> for LinkComponents {
-    fn from(value: &'static str) -> Self {
-        Self::new_link(value.to_owned())
-    }
-}
-
-pub struct LinkDecomposer {}
-
-impl LinkDecomposer {
-    pub fn new() -> LinkDecomposer {
-        LinkDecomposer {}
+impl SplitLink {
+    pub fn new() -> SplitLink {
+        SplitLink {}
     }
 
     #[inline]
@@ -44,8 +27,9 @@ impl LinkDecomposer {
         (front, Some(back))
     }
 
-    /// Splits a Wikilink stored in `s` into its parts and return as a DecomposedLink struct.
-    pub fn decompose(&self, s: &str) -> Result<LinkComponents> {
+    /// Splits a Wikilink stored in `s` into its parts and return as a LinkComponents struct.
+    pub fn split(&self, link: &Link) -> Result<LinkComps> {
+        let s = &link.0;
         let start = s.find("[[").ok_or(NotAWikiLink)?;
         let end = s.find("]]").ok_or(NotAWikiLink)?;
 
@@ -100,40 +84,40 @@ impl LinkDecomposer {
             }
         }
 
-        Ok(LinkComponents::new(link, path, label, section, anchor))
+        Ok(LinkComps::new(link, path, label, section, anchor))
     }
 }
 
 #[cfg(test)]
-mod link_decomposer_tests {
-    use super::LinkDecomposer;
+mod tests {
+    use super::SplitLink;
 
     #[test]
     fn test_simple_link() {
         let test_str = "[[test_link]]";
-        let ldec = LinkDecomposer::new();
+        let dut = SplitLink::new();
 
-        let res = ldec.decompose(test_str);
+        let res = dut.split(&test_str.into());
 
-        assert!(res.is_ok_and(|link| link.link == "test_link"));
+        assert!(res.is_ok_and(|link| link.name == "test_link"));
     }
 
     #[test]
     fn test_simple_link_with_ext() {
         let test_str = "[[test_link.md]]";
-        let ldec = LinkDecomposer::new();
+        let dut = SplitLink::new();
 
-        let res = ldec.decompose(test_str);
+        let res = dut.split(&test_str.into());
 
-        assert!(res.is_ok_and(|link| link.link == "test_link.md"));
+        assert!(res.is_ok_and(|link| link.name == "test_link.md"));
     }
 
     #[test]
     fn test_no_path_from_simple_link() {
         let test_str = "[[test_link]]";
-        let ldec = LinkDecomposer::new();
+        let dut = SplitLink::new();
 
-        let res = ldec.decompose(test_str);
+        let res = dut.split(&test_str.into());
 
         assert!(res.is_ok_and(|link| link.has_path() == false));
     }
@@ -141,49 +125,49 @@ mod link_decomposer_tests {
     #[test]
     fn test_link_out_off_simple_link_with_name() {
         let test_str = "[[test_link|link_name]]";
-        let ldec = LinkDecomposer::new();
+        let dut = SplitLink::new();
 
-        let res = ldec.decompose(test_str);
+        let res = dut.split(&test_str.into());
 
-        assert!(res.is_ok_and(|link| link.link == "test_link"));
+        assert!(res.is_ok_and(|link| link.name == "test_link"));
     }
 
     #[test]
     fn test_link_out_off_link_with_path() {
         let test_str = "[[a/b/c/test_link]]";
-        let ldec = LinkDecomposer::new();
+        let dut = SplitLink::new();
 
-        let res = ldec.decompose(test_str);
+        let res = dut.split(&test_str.into());
 
-        assert!(res.is_ok_and(|link| link.link == "test_link"));
+        assert!(res.is_ok_and(|link| link.name == "test_link"));
     }
 
     #[test]
     fn test_link_out_off_link_with_path_and_section_link() {
         let test_str = "[[a/b/c/test_link#section_link]]";
-        let ldec = LinkDecomposer::new();
+        let dut = SplitLink::new();
 
-        let res = ldec.decompose(test_str);
+        let res = dut.split(&test_str.into());
 
-        assert!(res.is_ok_and(|link| link.link == "test_link"));
+        assert!(res.is_ok_and(|link| link.name == "test_link"));
     }
 
     #[test]
     fn test_link_out_off_link_with_path_and_section_link_and_name() {
         let test_str = "[[a/b/c/test_link#section_link|link_name]]";
-        let ldec = LinkDecomposer::new();
+        let dut = SplitLink::new();
 
-        let res = ldec.decompose(test_str);
+        let res = dut.split(&test_str.into());
 
-        assert!(res.is_ok_and(|link| link.link == "test_link"));
+        assert!(res.is_ok_and(|link| link.name == "test_link"));
     }
 
     #[test]
     fn test_path_out_off_link_with_short_path_and_section_link_and_name() {
         let test_str = "[[abc/test_link#section_link|link_name]]";
-        let ldec = LinkDecomposer::new();
+        let dut = SplitLink::new();
 
-        let res = ldec.decompose(test_str);
+        let res = dut.split(&test_str.into());
 
         assert!(res.is_ok_and(|link| link.path.is_some_and(|path| path == "abc")));
     }
@@ -191,9 +175,9 @@ mod link_decomposer_tests {
     #[test]
     fn test_path_out_off_link_with_long_path_and_section_link_and_name() {
         let test_str = "[[a/b/c/test_link#section_link|link_name]]";
-        let ldec = LinkDecomposer::new();
+        let dut = SplitLink::new();
 
-        let res = ldec.decompose(test_str);
+        let res = dut.split(&test_str.into());
 
         assert!(res.is_ok_and(|link| link.path.is_some_and(|path| path == "a/b/c")));
     }
@@ -201,9 +185,9 @@ mod link_decomposer_tests {
     #[test]
     fn test_path_out_off_link_with_long_absolute_path_and_section_link_and_name() {
         let test_str = "[[/a/b/c/test_link#section_link|link_name]]";
-        let ldec = LinkDecomposer::new();
+        let dut = SplitLink::new();
 
-        let res = ldec.decompose(test_str).unwrap();
+        let res = dut.split(&test_str.into()).unwrap();
         let path = res.path.unwrap();
         assert_eq!(path, "/a/b/c");
     }
@@ -211,61 +195,61 @@ mod link_decomposer_tests {
     #[test]
     fn test_illegal_link_handling_front_space() {
         let test_str = " [[test_link]]";
-        let ldec = LinkDecomposer::new();
+        let dut = SplitLink::new();
 
-        let res = ldec.decompose(test_str);
+        let res = dut.split(&test_str.into());
         assert!(res.is_err());
     }
 
     #[test]
     fn test_illegal_link_handling_tail_space() {
         let test_str = "[[test_link]] ";
-        let ldec = LinkDecomposer::new();
+        let dut = SplitLink::new();
 
-        let res = ldec.decompose(test_str);
+        let res = dut.split(&test_str.into());
         assert!(res.is_err());
     }
 
     #[test]
     fn test_section_first_than_label_check_label() {
         let test_str = "[[test_link#section|label]]";
-        let ldec = LinkDecomposer::new();
+        let dut = SplitLink::new();
 
-        let res = ldec.decompose(test_str);
-        let decomposed_link = res.unwrap();
-        let label = decomposed_link.label.unwrap();
+        let res = dut.split(&test_str.into());
+        let link_components = res.unwrap();
+        let label = link_components.label.unwrap();
         assert_eq!(label, "label");
     }
 
     #[test]
     fn test_anchor_first_than_section_than_label_check_section() {
         let test_str = "[[test_link^anchor#section|label]]";
-        let ldec = LinkDecomposer::new();
+        let dut = SplitLink::new();
 
-        let res = ldec.decompose(test_str);
-        let decomposed_link = res.unwrap();
-        let section = decomposed_link.section.unwrap();
+        let res = dut.split(&test_str.into());
+        let link_components = res.unwrap();
+        let section = link_components.section.unwrap();
         assert_eq!(section, "section");
     }
 
     #[test]
     fn test_label_with_length0() {
         let test_str = "[[test_link|]]";
-        let ldec = LinkDecomposer::new();
+        let dut = SplitLink::new();
 
-        let res = ldec.decompose(test_str);
-        let decomposed_link = res.unwrap();
-        let section = decomposed_link.label.unwrap();
+        let res = dut.split(&test_str.into());
+        let link_components = res.unwrap();
+        let section = link_components.label.unwrap();
         assert_eq!(section, "");
     }
 
     #[test]
     fn test_link_with_leading_undescore() {
         let test_str = "[[_test_link]]";
-        let ldec = LinkDecomposer::new();
+        let dut = SplitLink::new();
 
-        let res = ldec.decompose(test_str);
-        let decomposed_link = res.unwrap();
-        assert!(decomposed_link.link == "_test_link");
+        let res = dut.split(&test_str.into());
+        let link_components = res.unwrap();
+        assert!(link_components.name == "_test_link");
     }
 }
