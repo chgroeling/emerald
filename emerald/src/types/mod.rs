@@ -3,11 +3,11 @@ mod endpoint;
 pub mod link;
 mod link_2_tgt;
 mod link_components;
-pub mod link_decomposer;
 mod link_frm_src;
 mod link_src_2_tgt;
 mod res_and_err;
 pub mod resource_id;
+pub mod split_wiki_link;
 
 pub use self::content::Content;
 pub use self::res_and_err::EmeraldError;
