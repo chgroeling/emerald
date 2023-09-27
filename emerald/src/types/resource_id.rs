@@ -1,7 +1,11 @@
 use super::link::Link;
 
 #[derive(Debug, Clone, PartialEq, Hash)]
+
 /// A ResourceId points to a unique Resource
+///
+/// Currently a ResourceId is nothing else than a string containing a path
+/// to the filesystem
 pub struct ResourceId(pub String);
 
 impl ResourceId {

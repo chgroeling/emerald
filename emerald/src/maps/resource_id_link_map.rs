@@ -17,8 +17,7 @@ use log::{debug, error, info, trace, warn};
 use super::link_queryable::Hint;
 use super::link_queryable::LinkQueryable;
 
-pub type ResourceIdList = Vec<ResourceId>;
-pub type NameToResourceIdList = HashMap<String, ResourceIdList>;
+pub type NameToResourceIdList = HashMap<String, Vec<ResourceId>>;
 
 pub struct ResourceIdLinkMap {
     split_link: SplitWikiLink,
@@ -30,11 +29,12 @@ impl ResourceIdLinkMap {
         // Assumption: All resource ids are encoded in utf8 nfc
         let mut name_to_resource_id_list: NameToResourceIdList = NameToResourceIdList::new();
         let split_link = SplitWikiLink::new();
+        let split_resource_id = SplitWikiLink::new();
 
         // Iterator yields (normalized_link, link_to_file)
         let link_name_iter = resource_ids_iterable.iter().map(|resource_id| {
-            let dc_link = split_link.split(&resource_id.0).unwrap();
-            let normalized_link = dc_link.link.to_lowercase();
+            let res_id_comp = split_resource_id.split(&resource_id.0).unwrap();
+            let normalized_link = res_id_comp.link.to_lowercase();
 
             (normalized_link, resource_id)
         });
