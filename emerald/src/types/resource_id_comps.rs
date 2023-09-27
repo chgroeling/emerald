@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 #[derive(Debug)]
 pub struct ResourceIdComps {
     pub path: Option<String>,
@@ -24,5 +26,21 @@ impl ResourceIdComps {
             path: Some(path),
             name,
         }
+    }
+}
+
+impl Display for ResourceIdComps {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if let Some(path_uw) = &self.path {
+            write!(f, "[[{}/{}]]", path_uw, self.name)
+        } else {
+            write!(f, "[[{}]]", self.name)
+        }
+    }
+}
+
+impl From<&'static str> for ResourceIdComps {
+    fn from(value: &'static str) -> Self {
+        Self::new_without_path(value.to_owned())
     }
 }

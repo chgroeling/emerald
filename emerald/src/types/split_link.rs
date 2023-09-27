@@ -3,25 +3,7 @@ use super::{
     res_and_err::{EmeraldError, Result},
     Link,
 };
-use std::fmt::Display;
-
 use EmeraldError::*;
-
-impl Display for LinkComps {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if let Some(path_uw) = &self.path {
-            write!(f, "[[{}/{}]]", path_uw, self.link)
-        } else {
-            write!(f, "[[{}]]", self.link)
-        }
-    }
-}
-
-impl From<&'static str> for LinkComps {
-    fn from(value: &'static str) -> Self {
-        Self::new_link(value.to_owned())
-    }
-}
 
 pub struct SplitLink {}
 
@@ -117,7 +99,7 @@ mod tests {
 
         let res = dut.split(&test_str.into());
 
-        assert!(res.is_ok_and(|link| link.link == "test_link"));
+        assert!(res.is_ok_and(|link| link.name == "test_link"));
     }
 
     #[test]
@@ -127,7 +109,7 @@ mod tests {
 
         let res = dut.split(&test_str.into());
 
-        assert!(res.is_ok_and(|link| link.link == "test_link.md"));
+        assert!(res.is_ok_and(|link| link.name == "test_link.md"));
     }
 
     #[test]
@@ -147,7 +129,7 @@ mod tests {
 
         let res = dut.split(&test_str.into());
 
-        assert!(res.is_ok_and(|link| link.link == "test_link"));
+        assert!(res.is_ok_and(|link| link.name == "test_link"));
     }
 
     #[test]
@@ -157,7 +139,7 @@ mod tests {
 
         let res = dut.split(&test_str.into());
 
-        assert!(res.is_ok_and(|link| link.link == "test_link"));
+        assert!(res.is_ok_and(|link| link.name == "test_link"));
     }
 
     #[test]
@@ -167,7 +149,7 @@ mod tests {
 
         let res = dut.split(&test_str.into());
 
-        assert!(res.is_ok_and(|link| link.link == "test_link"));
+        assert!(res.is_ok_and(|link| link.name == "test_link"));
     }
 
     #[test]
@@ -177,7 +159,7 @@ mod tests {
 
         let res = dut.split(&test_str.into());
 
-        assert!(res.is_ok_and(|link| link.link == "test_link"));
+        assert!(res.is_ok_and(|link| link.name == "test_link"));
     }
 
     #[test]
@@ -268,6 +250,6 @@ mod tests {
 
         let res = dut.split(&test_str.into());
         let link_components = res.unwrap();
-        assert!(link_components.link == "_test_link");
+        assert!(link_components.name == "_test_link");
     }
 }

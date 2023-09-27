@@ -67,7 +67,7 @@ impl LinkQueryable for ResourceIdLinkMap {
     fn get_with_hint(&self, link: &Link, _hint: Hint) -> Result<ResourceId> {
         // convert string to internal link format
         let link_comp = self.split_link.split(link)?;
-        let link_name_lc = normalize_str(&link_comp.link.trim().to_lowercase());
+        let link_name_lc = normalize_str(&link_comp.name.trim().to_lowercase());
 
         // check if md files in our hashmap are matching the given link
         let matches_of_exact_name = self.name_to_resource_id_list.get(&link_name_lc);

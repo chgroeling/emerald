@@ -3,25 +3,7 @@ use super::{
     resource_id_comps::ResourceIdComps,
     ResourceId,
 };
-use std::fmt::Display;
-
 use EmeraldError::*;
-
-impl Display for ResourceIdComps {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if let Some(path_uw) = &self.path {
-            write!(f, "[[{}/{}]]", path_uw, self.name)
-        } else {
-            write!(f, "[[{}]]", self.name)
-        }
-    }
-}
-
-impl From<&'static str> for ResourceIdComps {
-    fn from(value: &'static str) -> Self {
-        Self::new_without_path(value.to_owned())
-    }
-}
 
 pub struct SplitResourceId {}
 
