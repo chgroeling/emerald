@@ -1,4 +1,5 @@
 use super::{
+    link,
     res_and_err::{EmeraldError, Result},
     resource_id_components::ResourceIdComponents,
 };
@@ -18,7 +19,7 @@ impl Display for ResourceIdComponents {
 
 impl From<&'static str> for ResourceIdComponents {
     fn from(value: &'static str) -> Self {
-        Self::new_link(value.to_owned())
+        Self::new_without_path(value.to_owned())
     }
 }
 
@@ -27,21 +28,6 @@ pub struct SplitResourceId {}
 impl SplitResourceId {
     pub fn new() -> SplitResourceId {
         SplitResourceId {}
-    }
-
-    #[inline]
-    fn extract_part<'a>(&self, s: &'a str) -> (&'a str, Option<&'a str>) {
-        let end_idx = s.find(|c| c == '|' || c == '#' || c == '^');
-        if end_idx.is_none() {
-            return (s, None);
-        }
-
-        let end_idx = end_idx.map_or_else(|| s.len(), |x| x);
-
-        let front = &s[..end_idx];
-        let back = &s[end_idx..];
-
-        (front, Some(back))
     }
 
     /// Splits a ResourceId stored in `s` into its parts and return as a ResourceIdComponents struct.
@@ -67,11 +53,8 @@ impl SplitResourceId {
         // the link text is inbetween the braces
         let link_text = &s[(start + 2)..end];
 
-        // split string in half at the position of the first occurence of #^|
-        let (mut front, mut back) = self.extract_part(link_text);
-
         // Get the full link and path if exists
-        let full_link = front;
+        let full_link = link_text;
         let link_parts: Vec<&str> = full_link.split('/').collect();
         let link = link_parts.last().unwrap().to_string();
 
@@ -81,28 +64,7 @@ impl SplitResourceId {
             None
         };
 
-        let mut label: Option<String> = None;
-        let mut section: Option<String> = None;
-        let mut anchor: Option<String> = None;
-
-        // Extract the rest
-        while let Some(rest) = back {
-            let first_char = &rest[0..1];
-
-            // do look for the next occurance of #^| if any
-            (front, back) = self.extract_part(&rest[1..]);
-
-            match first_char {
-                "|" => label = Some(front.to_owned()),
-                "#" => section = Some(front.to_owned()),
-                "^" => anchor = Some(front.to_owned()),
-                _ => (),
-            }
-        }
-
-        Ok(ResourceIdComponents::new(
-            link, path, label, section, anchor,
-        ))
+        Ok(ResourceIdComponents::new(link, path))
     }
 }
 
@@ -141,16 +103,6 @@ mod tests {
     }
 
     #[test]
-    fn test_link_out_off_simple_link_with_name() {
-        let test_str = "[[test_link|link_name]]";
-        let dut = SplitResourceId::new();
-
-        let res = dut.split(test_str);
-
-        assert!(res.is_ok_and(|link| link.link == "test_link"));
-    }
-
-    #[test]
     fn test_link_out_off_link_with_path() {
         let test_str = "[[a/b/c/test_link]]";
         let dut = SplitResourceId::new();
@@ -158,56 +110,6 @@ mod tests {
         let res = dut.split(test_str);
 
         assert!(res.is_ok_and(|link| link.link == "test_link"));
-    }
-
-    #[test]
-    fn test_link_out_off_link_with_path_and_section_link() {
-        let test_str = "[[a/b/c/test_link#section_link]]";
-        let dut = SplitResourceId::new();
-
-        let res = dut.split(test_str);
-
-        assert!(res.is_ok_and(|link| link.link == "test_link"));
-    }
-
-    #[test]
-    fn test_link_out_off_link_with_path_and_section_link_and_name() {
-        let test_str = "[[a/b/c/test_link#section_link|link_name]]";
-        let dut = SplitResourceId::new();
-
-        let res = dut.split(test_str);
-
-        assert!(res.is_ok_and(|link| link.link == "test_link"));
-    }
-
-    #[test]
-    fn test_path_out_off_link_with_short_path_and_section_link_and_name() {
-        let test_str = "[[abc/test_link#section_link|link_name]]";
-        let dut = SplitResourceId::new();
-
-        let res = dut.split(test_str);
-
-        assert!(res.is_ok_and(|link| link.path.is_some_and(|path| path == "abc")));
-    }
-
-    #[test]
-    fn test_path_out_off_link_with_long_path_and_section_link_and_name() {
-        let test_str = "[[a/b/c/test_link#section_link|link_name]]";
-        let dut = SplitResourceId::new();
-
-        let res = dut.split(test_str);
-
-        assert!(res.is_ok_and(|link| link.path.is_some_and(|path| path == "a/b/c")));
-    }
-
-    #[test]
-    fn test_path_out_off_link_with_long_absolute_path_and_section_link_and_name() {
-        let test_str = "[[/a/b/c/test_link#section_link|link_name]]";
-        let dut = SplitResourceId::new();
-
-        let res = dut.split(test_str).unwrap();
-        let path = res.path.unwrap();
-        assert_eq!(path, "/a/b/c");
     }
 
     #[test]
@@ -226,39 +128,6 @@ mod tests {
 
         let res = dut.split(test_str);
         assert!(res.is_err());
-    }
-
-    #[test]
-    fn test_section_first_than_label_check_label() {
-        let test_str = "[[test_link#section|label]]";
-        let dut = SplitResourceId::new();
-
-        let res = dut.split(test_str);
-        let link_components = res.unwrap();
-        let label = link_components.label.unwrap();
-        assert_eq!(label, "label");
-    }
-
-    #[test]
-    fn test_anchor_first_than_section_than_label_check_section() {
-        let test_str = "[[test_link^anchor#section|label]]";
-        let dut = SplitResourceId::new();
-
-        let res = dut.split(test_str);
-        let link_components = res.unwrap();
-        let section = link_components.section.unwrap();
-        assert_eq!(section, "section");
-    }
-
-    #[test]
-    fn test_label_with_length0() {
-        let test_str = "[[test_link|]]";
-        let dut = SplitResourceId::new();
-
-        let res = dut.split(test_str);
-        let link_components = res.unwrap();
-        let section = link_components.label.unwrap();
-        assert_eq!(section, "");
     }
 
     #[test]
