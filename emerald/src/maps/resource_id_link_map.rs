@@ -1,7 +1,7 @@
 use crate::indexes::ResourceIdsIterable;
 use crate::types::link::Link;
+use crate::types::split_link::SplitLink;
 use crate::types::split_resoure_id::SplitResourceId;
-use crate::types::split_wiki_link::SplitWikiLink;
 use crate::types::ResourceId;
 use crate::utils::normalize_string::normalize_str;
 use std::collections::hash_map::Entry;
@@ -21,7 +21,7 @@ use super::link_queryable::LinkQueryable;
 pub type NameToResourceIdList = HashMap<String, Vec<ResourceId>>;
 
 pub struct ResourceIdLinkMap {
-    split_link: SplitWikiLink,
+    split_link: SplitLink,
     name_to_resource_id_list: NameToResourceIdList,
 }
 
@@ -29,7 +29,7 @@ impl ResourceIdLinkMap {
     pub fn new(resource_ids_iterable: &impl ResourceIdsIterable) -> Self {
         // Assumption: All resource ids are encoded in utf8 nfc
         let mut name_to_resource_id_list: NameToResourceIdList = NameToResourceIdList::new();
-        let split_link = SplitWikiLink::new();
+        let split_link = SplitLink::new();
         let split_resource_id = SplitResourceId::new();
 
         // Iterator yields (normalized_link, link_to_file)

@@ -22,11 +22,11 @@ impl From<&'static str> for LinkComponents {
     }
 }
 
-pub struct SplitWikiLink {}
+pub struct SplitLink {}
 
-impl SplitWikiLink {
-    pub fn new() -> SplitWikiLink {
-        SplitWikiLink {}
+impl SplitLink {
+    pub fn new() -> SplitLink {
+        SplitLink {}
     }
 
     #[inline]
@@ -106,12 +106,12 @@ impl SplitWikiLink {
 
 #[cfg(test)]
 mod tests {
-    use super::SplitWikiLink;
+    use super::SplitLink;
 
     #[test]
     fn test_simple_link() {
         let test_str = "[[test_link]]";
-        let dut = SplitWikiLink::new();
+        let dut = SplitLink::new();
 
         let res = dut.split(test_str);
 
@@ -121,7 +121,7 @@ mod tests {
     #[test]
     fn test_simple_link_with_ext() {
         let test_str = "[[test_link.md]]";
-        let dut = SplitWikiLink::new();
+        let dut = SplitLink::new();
 
         let res = dut.split(test_str);
 
@@ -131,7 +131,7 @@ mod tests {
     #[test]
     fn test_no_path_from_simple_link() {
         let test_str = "[[test_link]]";
-        let dut = SplitWikiLink::new();
+        let dut = SplitLink::new();
 
         let res = dut.split(test_str);
 
@@ -141,7 +141,7 @@ mod tests {
     #[test]
     fn test_link_out_off_simple_link_with_name() {
         let test_str = "[[test_link|link_name]]";
-        let dut = SplitWikiLink::new();
+        let dut = SplitLink::new();
 
         let res = dut.split(test_str);
 
@@ -151,7 +151,7 @@ mod tests {
     #[test]
     fn test_link_out_off_link_with_path() {
         let test_str = "[[a/b/c/test_link]]";
-        let dut = SplitWikiLink::new();
+        let dut = SplitLink::new();
 
         let res = dut.split(test_str);
 
@@ -161,7 +161,7 @@ mod tests {
     #[test]
     fn test_link_out_off_link_with_path_and_section_link() {
         let test_str = "[[a/b/c/test_link#section_link]]";
-        let dut = SplitWikiLink::new();
+        let dut = SplitLink::new();
 
         let res = dut.split(test_str);
 
@@ -171,7 +171,7 @@ mod tests {
     #[test]
     fn test_link_out_off_link_with_path_and_section_link_and_name() {
         let test_str = "[[a/b/c/test_link#section_link|link_name]]";
-        let dut = SplitWikiLink::new();
+        let dut = SplitLink::new();
 
         let res = dut.split(test_str);
 
@@ -181,7 +181,7 @@ mod tests {
     #[test]
     fn test_path_out_off_link_with_short_path_and_section_link_and_name() {
         let test_str = "[[abc/test_link#section_link|link_name]]";
-        let dut = SplitWikiLink::new();
+        let dut = SplitLink::new();
 
         let res = dut.split(test_str);
 
@@ -191,7 +191,7 @@ mod tests {
     #[test]
     fn test_path_out_off_link_with_long_path_and_section_link_and_name() {
         let test_str = "[[a/b/c/test_link#section_link|link_name]]";
-        let dut = SplitWikiLink::new();
+        let dut = SplitLink::new();
 
         let res = dut.split(test_str);
 
@@ -201,7 +201,7 @@ mod tests {
     #[test]
     fn test_path_out_off_link_with_long_absolute_path_and_section_link_and_name() {
         let test_str = "[[/a/b/c/test_link#section_link|link_name]]";
-        let dut = SplitWikiLink::new();
+        let dut = SplitLink::new();
 
         let res = dut.split(test_str).unwrap();
         let path = res.path.unwrap();
@@ -211,7 +211,7 @@ mod tests {
     #[test]
     fn test_illegal_link_handling_front_space() {
         let test_str = " [[test_link]]";
-        let dut = SplitWikiLink::new();
+        let dut = SplitLink::new();
 
         let res = dut.split(test_str);
         assert!(res.is_err());
@@ -220,7 +220,7 @@ mod tests {
     #[test]
     fn test_illegal_link_handling_tail_space() {
         let test_str = "[[test_link]] ";
-        let dut = SplitWikiLink::new();
+        let dut = SplitLink::new();
 
         let res = dut.split(test_str);
         assert!(res.is_err());
@@ -229,7 +229,7 @@ mod tests {
     #[test]
     fn test_section_first_than_label_check_label() {
         let test_str = "[[test_link#section|label]]";
-        let dut = SplitWikiLink::new();
+        let dut = SplitLink::new();
 
         let res = dut.split(test_str);
         let link_components = res.unwrap();
@@ -240,7 +240,7 @@ mod tests {
     #[test]
     fn test_anchor_first_than_section_than_label_check_section() {
         let test_str = "[[test_link^anchor#section|label]]";
-        let dut = SplitWikiLink::new();
+        let dut = SplitLink::new();
 
         let res = dut.split(test_str);
         let link_components = res.unwrap();
@@ -251,7 +251,7 @@ mod tests {
     #[test]
     fn test_label_with_length0() {
         let test_str = "[[test_link|]]";
-        let dut = SplitWikiLink::new();
+        let dut = SplitLink::new();
 
         let res = dut.split(test_str);
         let link_components = res.unwrap();
@@ -262,7 +262,7 @@ mod tests {
     #[test]
     fn test_link_with_leading_undescore() {
         let test_str = "[[_test_link]]";
-        let dut = SplitWikiLink::new();
+        let dut = SplitLink::new();
 
         let res = dut.split(test_str);
         let link_components = res.unwrap();
