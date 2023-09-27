@@ -1,6 +1,7 @@
 use super::{
     link_components::LinkComponents,
     res_and_err::{EmeraldError, Result},
+    Link,
 };
 use std::fmt::Display;
 
@@ -45,7 +46,8 @@ impl SplitLink {
     }
 
     /// Splits a Wikilink stored in `s` into its parts and return as a LinkComponents struct.
-    pub fn split(&self, s: &str) -> Result<LinkComponents> {
+    pub fn split(&self, link: &Link) -> Result<LinkComponents> {
+        let s = &link.0;
         let start = s.find("[[").ok_or(NotAWikiLink)?;
         let end = s.find("]]").ok_or(NotAWikiLink)?;
 
@@ -113,7 +115,7 @@ mod tests {
         let test_str = "[[test_link]]";
         let dut = SplitLink::new();
 
-        let res = dut.split(test_str);
+        let res = dut.split(&test_str.into());
 
         assert!(res.is_ok_and(|link| link.link == "test_link"));
     }
@@ -123,7 +125,7 @@ mod tests {
         let test_str = "[[test_link.md]]";
         let dut = SplitLink::new();
 
-        let res = dut.split(test_str);
+        let res = dut.split(&test_str.into());
 
         assert!(res.is_ok_and(|link| link.link == "test_link.md"));
     }
@@ -133,7 +135,7 @@ mod tests {
         let test_str = "[[test_link]]";
         let dut = SplitLink::new();
 
-        let res = dut.split(test_str);
+        let res = dut.split(&test_str.into());
 
         assert!(res.is_ok_and(|link| link.has_path() == false));
     }
@@ -143,7 +145,7 @@ mod tests {
         let test_str = "[[test_link|link_name]]";
         let dut = SplitLink::new();
 
-        let res = dut.split(test_str);
+        let res = dut.split(&test_str.into());
 
         assert!(res.is_ok_and(|link| link.link == "test_link"));
     }
@@ -153,7 +155,7 @@ mod tests {
         let test_str = "[[a/b/c/test_link]]";
         let dut = SplitLink::new();
 
-        let res = dut.split(test_str);
+        let res = dut.split(&test_str.into());
 
         assert!(res.is_ok_and(|link| link.link == "test_link"));
     }
@@ -163,7 +165,7 @@ mod tests {
         let test_str = "[[a/b/c/test_link#section_link]]";
         let dut = SplitLink::new();
 
-        let res = dut.split(test_str);
+        let res = dut.split(&test_str.into());
 
         assert!(res.is_ok_and(|link| link.link == "test_link"));
     }
@@ -173,7 +175,7 @@ mod tests {
         let test_str = "[[a/b/c/test_link#section_link|link_name]]";
         let dut = SplitLink::new();
 
-        let res = dut.split(test_str);
+        let res = dut.split(&test_str.into());
 
         assert!(res.is_ok_and(|link| link.link == "test_link"));
     }
@@ -183,7 +185,7 @@ mod tests {
         let test_str = "[[abc/test_link#section_link|link_name]]";
         let dut = SplitLink::new();
 
-        let res = dut.split(test_str);
+        let res = dut.split(&test_str.into());
 
         assert!(res.is_ok_and(|link| link.path.is_some_and(|path| path == "abc")));
     }
@@ -193,7 +195,7 @@ mod tests {
         let test_str = "[[a/b/c/test_link#section_link|link_name]]";
         let dut = SplitLink::new();
 
-        let res = dut.split(test_str);
+        let res = dut.split(&test_str.into());
 
         assert!(res.is_ok_and(|link| link.path.is_some_and(|path| path == "a/b/c")));
     }
@@ -203,7 +205,7 @@ mod tests {
         let test_str = "[[/a/b/c/test_link#section_link|link_name]]";
         let dut = SplitLink::new();
 
-        let res = dut.split(test_str).unwrap();
+        let res = dut.split(&test_str.into()).unwrap();
         let path = res.path.unwrap();
         assert_eq!(path, "/a/b/c");
     }
@@ -213,7 +215,7 @@ mod tests {
         let test_str = " [[test_link]]";
         let dut = SplitLink::new();
 
-        let res = dut.split(test_str);
+        let res = dut.split(&test_str.into());
         assert!(res.is_err());
     }
 
@@ -222,7 +224,7 @@ mod tests {
         let test_str = "[[test_link]] ";
         let dut = SplitLink::new();
 
-        let res = dut.split(test_str);
+        let res = dut.split(&test_str.into());
         assert!(res.is_err());
     }
 
@@ -231,7 +233,7 @@ mod tests {
         let test_str = "[[test_link#section|label]]";
         let dut = SplitLink::new();
 
-        let res = dut.split(test_str);
+        let res = dut.split(&test_str.into());
         let link_components = res.unwrap();
         let label = link_components.label.unwrap();
         assert_eq!(label, "label");
@@ -242,7 +244,7 @@ mod tests {
         let test_str = "[[test_link^anchor#section|label]]";
         let dut = SplitLink::new();
 
-        let res = dut.split(test_str);
+        let res = dut.split(&test_str.into());
         let link_components = res.unwrap();
         let section = link_components.section.unwrap();
         assert_eq!(section, "section");
@@ -253,7 +255,7 @@ mod tests {
         let test_str = "[[test_link|]]";
         let dut = SplitLink::new();
 
-        let res = dut.split(test_str);
+        let res = dut.split(&test_str.into());
         let link_components = res.unwrap();
         let section = link_components.label.unwrap();
         assert_eq!(section, "");
@@ -264,7 +266,7 @@ mod tests {
         let test_str = "[[_test_link]]";
         let dut = SplitLink::new();
 
-        let res = dut.split(test_str);
+        let res = dut.split(&test_str.into());
         let link_components = res.unwrap();
         assert!(link_components.link == "_test_link");
     }
