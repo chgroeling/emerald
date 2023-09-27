@@ -31,22 +31,22 @@ impl SplitResourceId {
 
     /// Splits a ResourceId stored in `s` into its parts and return as a ResourceIdComponents struct.
     pub fn split(&self, s: &str) -> Result<ResourceIdComponents> {
-        let start = s.find("[[").ok_or(NotAWikiLink)?;
-        let end = s.find("]]").ok_or(NotAWikiLink)?;
+        let start = s.find("[[").ok_or(NotAResourceId)?;
+        let end = s.find("]]").ok_or(NotAResourceId)?;
 
         // check if "[[" is at the start of the string
         if start != 0 {
-            return Err(NotAWikiLink);
+            return Err(NotAResourceId);
         }
 
         // check if "]]" is at the end of the string
         if end != s.len() - 2 {
-            return Err(NotAWikiLink);
+            return Err(NotAResourceId);
         }
 
         // sanity check
         if start >= end {
-            return Err(NotAWikiLink);
+            return Err(NotAResourceId);
         }
 
         // the link text is inbetween the braces
