@@ -1,6 +1,7 @@
 use super::{
     res_and_err::{EmeraldError, Result},
     resource_id_components::ResourceIdComponents,
+    ResourceId,
 };
 use std::fmt::Display;
 
@@ -30,7 +31,8 @@ impl SplitResourceId {
     }
 
     /// Splits a ResourceId stored in `s` into its parts and return as a ResourceIdComponents struct.
-    pub fn split(&self, s: &str) -> Result<ResourceIdComponents> {
+    pub fn split(&self, res_id: &ResourceId) -> Result<ResourceIdComponents> {
+        let s = &res_id.0;
         let start = s.find("[[").ok_or(NotAResourceId)?;
         let end = s.find("]]").ok_or(NotAResourceId)?;
 
@@ -76,7 +78,7 @@ mod tests {
         let test_str = "[[test_res_id]]";
         let dut = SplitResourceId::new();
 
-        let res = dut.split(test_str);
+        let res = dut.split(&test_str.into());
 
         assert!(res.is_ok_and(|link| link.name == "test_res_id"));
     }
@@ -86,7 +88,7 @@ mod tests {
         let test_str = "[[test_res_id.md]]";
         let dut = SplitResourceId::new();
 
-        let res = dut.split(test_str).unwrap();
+        let res = dut.split(&test_str.into()).unwrap();
 
         assert_eq!(res.name, "test_res_id.md");
     }
@@ -96,7 +98,7 @@ mod tests {
         let test_str = "[[test_res_id]]";
         let dut = SplitResourceId::new();
 
-        let res = dut.split(test_str).unwrap();
+        let res = dut.split(&test_str.into()).unwrap();
 
         assert!(res.has_path() == false);
     }
@@ -106,7 +108,7 @@ mod tests {
         let test_str = "[[a/b/c/test_res_id]]";
         let dut = SplitResourceId::new();
 
-        let res = dut.split(test_str).unwrap();
+        let res = dut.split(&test_str.into()).unwrap();
 
         assert_eq!(res.name, "test_res_id");
     }
@@ -116,7 +118,7 @@ mod tests {
         let test_str = "[[a/b/c/test_res_id]]";
         let dut = SplitResourceId::new();
 
-        let res = dut.split(test_str).unwrap();
+        let res = dut.split(&test_str.into()).unwrap();
         let path = res.path.unwrap();
         assert_eq!(path, "a/b/c");
     }
@@ -126,7 +128,7 @@ mod tests {
         let test_str = " [[test_res_id]]";
         let dut = SplitResourceId::new();
 
-        let res = dut.split(test_str);
+        let res = dut.split(&test_str.into());
         assert!(res.is_err());
     }
 
@@ -135,7 +137,7 @@ mod tests {
         let test_str = "[[test_res_id]] ";
         let dut = SplitResourceId::new();
 
-        let res = dut.split(test_str);
+        let res = dut.split(&test_str.into());
         assert!(res.is_err());
     }
 
@@ -144,7 +146,7 @@ mod tests {
         let test_str = "[[_test_res_id]]";
         let dut = SplitResourceId::new();
 
-        let res = dut.split(test_str);
+        let res = dut.split(&test_str.into());
         let link_components = res.unwrap();
         assert_eq!(link_components.name, "_test_res_id");
     }

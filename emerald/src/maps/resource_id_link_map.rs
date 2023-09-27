@@ -35,7 +35,7 @@ impl ResourceIdLinkMap {
 
         // Iterator yields (normalized_link, link_to_file)
         let link_name_iter = resource_ids_iterable.iter().map(|resource_id| {
-            let res_id_comp = split_resource_id.split(&resource_id.0).unwrap();
+            let res_id_comp = split_resource_id.split(&resource_id).unwrap();
             let normalized_link = res_id_comp.name.to_lowercase();
 
             (normalized_link, resource_id)
@@ -97,7 +97,7 @@ impl LinkQueryable for ResourceIdLinkMap {
 
                 // if it has one ... try to match it with the result list.
                 for potential_link in match_list {
-                    let de_potential_link = self.split_resource_id.split(&potential_link.0)?;
+                    let de_potential_link = self.split_resource_id.split(&potential_link)?;
 
                     if let Some(plink_path) = de_potential_link.path {
                         // Assumption: plink_path is already utf8 nfc encoded
