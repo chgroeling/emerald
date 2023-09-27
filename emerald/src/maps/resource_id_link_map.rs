@@ -35,7 +35,7 @@ impl ResourceIdLinkMap {
         // Iterator yields (normalized_link, link_to_file)
         let link_name_iter = resource_ids_iterable.iter().map(|resource_id| {
             let res_id_comp = split_resource_id.split(&resource_id.0).unwrap();
-            let normalized_link = res_id_comp.link.to_lowercase();
+            let normalized_link = res_id_comp.name.to_lowercase();
 
             (normalized_link, resource_id)
         });

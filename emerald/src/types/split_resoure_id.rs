@@ -9,9 +9,9 @@ use EmeraldError::*;
 impl Display for ResourceIdComponents {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if let Some(path_uw) = &self.path {
-            write!(f, "[[{}/{}]]", path_uw, self.link)
+            write!(f, "[[{}/{}]]", path_uw, self.name)
         } else {
-            write!(f, "[[{}]]", self.link)
+            write!(f, "[[{}]]", self.name)
         }
     }
 }
@@ -78,7 +78,7 @@ mod tests {
 
         let res = dut.split(test_str);
 
-        assert!(res.is_ok_and(|link| link.link == "test_res_id"));
+        assert!(res.is_ok_and(|link| link.name == "test_res_id"));
     }
 
     #[test]
@@ -88,7 +88,7 @@ mod tests {
 
         let res = dut.split(test_str).unwrap();
 
-        assert_eq!(res.link, "test_res_id.md");
+        assert_eq!(res.name, "test_res_id.md");
     }
 
     #[test]
@@ -102,13 +102,23 @@ mod tests {
     }
 
     #[test]
-    fn test_resource_id_out_off_link_with_path() {
+    fn test_resource_id_with_path_1() {
         let test_str = "[[a/b/c/test_res_id]]";
         let dut = SplitResourceId::new();
 
         let res = dut.split(test_str).unwrap();
 
-        assert_eq!(res.link, "test_res_id");
+        assert_eq!(res.name, "test_res_id");
+    }
+
+    #[test]
+    fn test_resource_id_with_path_2() {
+        let test_str = "[[a/b/c/test_res_id]]";
+        let dut = SplitResourceId::new();
+
+        let res = dut.split(test_str).unwrap();
+        let path = res.path.unwrap();
+        assert_eq!(path, "a/b/c");
     }
 
     #[test]
@@ -136,6 +146,6 @@ mod tests {
 
         let res = dut.split(test_str);
         let link_components = res.unwrap();
-        assert_eq!(link_components.link, "_test_res_id");
+        assert_eq!(link_components.name, "_test_res_id");
     }
 }
