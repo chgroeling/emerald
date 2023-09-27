@@ -1,13 +1,13 @@
 use super::{
     res_and_err::{EmeraldError, Result},
-    resource_id_components::ResourceIdComponents,
+    resource_id_comps::ResourceIdComps,
     ResourceId,
 };
 use std::fmt::Display;
 
 use EmeraldError::*;
 
-impl Display for ResourceIdComponents {
+impl Display for ResourceIdComps {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if let Some(path_uw) = &self.path {
             write!(f, "[[{}/{}]]", path_uw, self.name)
@@ -17,7 +17,7 @@ impl Display for ResourceIdComponents {
     }
 }
 
-impl From<&'static str> for ResourceIdComponents {
+impl From<&'static str> for ResourceIdComps {
     fn from(value: &'static str) -> Self {
         Self::new_without_path(value.to_owned())
     }
@@ -31,7 +31,7 @@ impl SplitResourceId {
     }
 
     /// Splits a ResourceId stored in `s` into its parts and return as a ResourceIdComponents struct.
-    pub fn split(&self, res_id: &ResourceId) -> Result<ResourceIdComponents> {
+    pub fn split(&self, res_id: &ResourceId) -> Result<ResourceIdComps> {
         let s = &res_id.0;
         let start = s.find("[[").ok_or(NotAResourceId)?;
         let end = s.find("]]").ok_or(NotAResourceId)?;
@@ -65,7 +65,7 @@ impl SplitResourceId {
             None
         };
 
-        Ok(ResourceIdComponents::new(link, path))
+        Ok(ResourceIdComps::new(link, path))
     }
 }
 

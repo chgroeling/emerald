@@ -1,5 +1,5 @@
 #[derive(Debug)]
-pub struct LinkComponents {
+pub struct LinkComps {
     pub path: Option<String>,
     pub link: String,
     pub label: Option<String>,
@@ -7,7 +7,7 @@ pub struct LinkComponents {
     pub anchor: Option<String>,
 }
 
-impl LinkComponents {
+impl LinkComps {
     pub fn new(
         link: String,
         path: Option<String>,
@@ -15,7 +15,7 @@ impl LinkComponents {
         section: Option<String>,
         anchor: Option<String>,
     ) -> Self {
-        LinkComponents {
+        LinkComps {
             path,
             link,
             label,
@@ -30,7 +30,7 @@ impl LinkComponents {
     }
 
     pub fn new_link(link: String) -> Self {
-        LinkComponents {
+        LinkComps {
             path: None,
             link,
             label: None,
@@ -41,7 +41,7 @@ impl LinkComponents {
 
     #[allow(dead_code)]
     pub fn new_link_with_path(name: String, path: String) -> Self {
-        LinkComponents {
+        LinkComps {
             path: Some(path),
             link: name,
             label: None,

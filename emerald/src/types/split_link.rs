@@ -1,5 +1,5 @@
 use super::{
-    link_components::LinkComponents,
+    link_comps::LinkComps,
     res_and_err::{EmeraldError, Result},
     Link,
 };
@@ -7,7 +7,7 @@ use std::fmt::Display;
 
 use EmeraldError::*;
 
-impl Display for LinkComponents {
+impl Display for LinkComps {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if let Some(path_uw) = &self.path {
             write!(f, "[[{}/{}]]", path_uw, self.link)
@@ -17,7 +17,7 @@ impl Display for LinkComponents {
     }
 }
 
-impl From<&'static str> for LinkComponents {
+impl From<&'static str> for LinkComps {
     fn from(value: &'static str) -> Self {
         Self::new_link(value.to_owned())
     }
@@ -46,7 +46,7 @@ impl SplitLink {
     }
 
     /// Splits a Wikilink stored in `s` into its parts and return as a LinkComponents struct.
-    pub fn split(&self, link: &Link) -> Result<LinkComponents> {
+    pub fn split(&self, link: &Link) -> Result<LinkComps> {
         let s = &link.0;
         let start = s.find("[[").ok_or(NotAWikiLink)?;
         let end = s.find("]]").ok_or(NotAWikiLink)?;
@@ -102,7 +102,7 @@ impl SplitLink {
             }
         }
 
-        Ok(LinkComponents::new(link, path, label, section, anchor))
+        Ok(LinkComps::new(link, path, label, section, anchor))
     }
 }
 
