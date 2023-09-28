@@ -31,16 +31,42 @@ impl ResourceIdComps {
 
 impl Display for ResourceIdComps {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if let Some(path_uw) = &self.path {
-            write!(f, "[[{}/{}]]", path_uw, self.name)
-        } else {
-            write!(f, "[[{}]]", self.name)
+        write!(f, "[[")?;
+
+        if let Some(path) = &self.path {
+            write!(f, "{}/", path)?;
         }
+        write!(f, "{}", self.name)?;
+
+        write!(f, "]]")
     }
 }
 
 impl From<&'static str> for ResourceIdComps {
     fn from(value: &'static str) -> Self {
         Self::new_without_path(value.to_owned())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::ResourceIdComps;
+
+    #[test]
+    fn test_fmt_bare_resource_id() {
+        let dut = ResourceIdComps::new_without_path("my_resource_id".into());
+
+        let res = dut.to_string();
+
+        assert_eq!(res, "[[my_resource_id]]")
+    }
+
+    #[test]
+    fn test_fmt_full_resource_id() {
+        let dut = ResourceIdComps::new_with_path("my_resource_id".into(), "a/b/c".into());
+
+        let res = dut.to_string();
+
+        assert_eq!(res, "[[a/b/c/my_resource_id]]")
     }
 }
