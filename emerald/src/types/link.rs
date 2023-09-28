@@ -1,3 +1,5 @@
+use super::link_comps::LinkComps;
+
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct Link(pub String);
 
@@ -12,6 +14,12 @@ impl From<&str> for Link {
 impl From<String> for Link {
     fn from(value: String) -> Self {
         Self(value)
+    }
+}
+
+impl From<&LinkComps> for Link {
+    fn from(value: &LinkComps) -> Self {
+        Self(value.to_string())
     }
 }
 

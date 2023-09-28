@@ -2,8 +2,8 @@ use std::fmt::Display;
 
 #[derive(Debug)]
 pub struct LinkComps {
-    pub path: Option<String>,
     pub name: String,
+    pub path: Option<String>,
     pub label: Option<String>,
     pub section: Option<String>,
     pub anchor: Option<String>,
@@ -87,7 +87,7 @@ impl From<&'static str> for LinkComps {
 
 #[cfg(test)]
 mod tests {
-    use crate::types::link_comps::LinkComps;
+    use super::LinkComps;
 
     #[test]
     fn test_fmt_bare_link() {
