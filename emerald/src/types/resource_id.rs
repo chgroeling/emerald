@@ -23,8 +23,8 @@ impl From<String> for ResourceId {
 
 impl Eq for ResourceId {}
 
-impl From<&ResourceIdComps> for ResourceId {
-    fn from(value: &ResourceIdComps) -> Self {
+impl From<ResourceIdComps> for ResourceId {
+    fn from(value: ResourceIdComps) -> Self {
         Self(value.to_string())
     }
 }

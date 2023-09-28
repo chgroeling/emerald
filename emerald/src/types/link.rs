@@ -17,8 +17,8 @@ impl From<String> for Link {
     }
 }
 
-impl From<&LinkComps> for Link {
-    fn from(value: &LinkComps) -> Self {
+impl From<LinkComps> for Link {
+    fn from(value: LinkComps) -> Self {
         Self(value.to_string())
     }
 }
