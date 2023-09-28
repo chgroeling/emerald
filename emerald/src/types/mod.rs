@@ -8,7 +8,6 @@ mod link_src_2_tgt;
 mod res_and_err;
 pub mod resource_id;
 pub mod resource_id_comps;
-pub mod split_resoure_id;
 
 pub use self::content::Content;
 pub use self::res_and_err::EmeraldError;
