@@ -1,4 +1,5 @@
-use super::resource_id_comps::ResourceIdComps;
+use super::res_and_err::Result;
+use super::{resource_id_comps::ResourceIdComps, split_resoure_id::SplitResourceId};
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 
@@ -8,6 +9,14 @@ use super::resource_id_comps::ResourceIdComps;
 /// to the filesystem
 pub struct ResourceId(pub String);
 
+impl ResourceId {
+    pub fn split(&self) -> Result<ResourceIdComps> {
+        let split_rid = SplitResourceId::new();
+
+        // resource id must be valid ... if not panic!
+        split_rid.split(self)
+    }
+}
 // Allows to use a string as a ResourceId
 impl From<&str> for ResourceId {
     fn from(value: &str) -> Self {
