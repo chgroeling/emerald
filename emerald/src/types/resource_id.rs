@@ -10,10 +10,9 @@ use super::{resource_id_comps::ResourceIdComps, split_resoure_id::SplitResourceI
 pub struct ResourceId(pub String);
 
 impl ResourceId {
+    /// Splits a `ResourceId` into its components.
     pub fn split(&self) -> Result<ResourceIdComps> {
         let split_rid = SplitResourceId::new();
-
-        // resource id must be valid ... if not panic!
         split_rid.split(self)
     }
 }

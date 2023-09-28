@@ -5,6 +5,7 @@ use super::{link_comps::LinkComps, split_link::SplitLink};
 pub struct Link(pub String);
 
 impl Link {
+    /// Splits a `Link` into its components.
     pub fn split(&self) -> Result<LinkComps> {
         let split_link = SplitLink::new();
         split_link.split(self)
