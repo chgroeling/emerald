@@ -17,6 +17,9 @@ pub enum EmeraldError {
     #[error("No endpoint was found.")]
     EndPointNotFound,
 
+    #[error("No meta data is available.")]
+    NoMetaData,
+
     #[error("The link {0} was not found.")]
     LinkNotFound(String),
 
@@ -32,8 +35,11 @@ pub enum EmeraldError {
     #[error("Failed interpreting a resource id.")]
     NotAResourceId,
 
-    #[error("Tried to load content which is not a markdown file")]
+    #[error("Tried to handle something as a markdown file which was none")]
     NotAMarkdownFile,
+
+    #[error("Tried to handle something as a file which was none")]
+    NotAFile,
 
     #[error("unknown error")]
     Unknown,

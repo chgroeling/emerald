@@ -1,1 +1,3 @@
-pub struct MetaData {}
+pub struct MetaData {
+    pub filename: String,
+}
