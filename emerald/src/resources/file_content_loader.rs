@@ -1,10 +1,10 @@
-use std::{collections::HashMap, fs, path::Path};
+use std::fs;
+use std::rc::Rc;
 
-use crate::indexes::EndpointsIterable;
+use crate::maps::resource_id_queryable::ResourceIdQueryable;
 use crate::types::Content;
 use crate::types::EndPoint;
 use crate::types::ResourceId;
-use crate::utils::endpoint_translation::convert_endpoint_to_resource_id;
 use crate::EmeraldError;
 use crate::Result;
 
@@ -15,43 +15,21 @@ use log::{debug, error, info, trace, warn};
 
 use super::content_loader::ContentLoader;
 
-pub type ResourceIdToEndpoint = HashMap<ResourceId, EndPoint>;
-
 pub struct FileContentLoader {
-    resource_id_to_endpoint: ResourceIdToEndpoint,
+    resource_id_queryable: Rc<dyn ResourceIdQueryable>,
 }
 
 impl FileContentLoader {
-    pub fn new(ep_iterable: &impl EndpointsIterable, common_path: &Path) -> Self {
-        let mut resource_id_to_endpoint: ResourceIdToEndpoint = ResourceIdToEndpoint::new();
-
-        for endpoint in ep_iterable.iter() {
-            let opt_resource_id = convert_endpoint_to_resource_id(endpoint.clone(), common_path);
-
-            if let Some(resource_id) = opt_resource_id {
-                resource_id_to_endpoint.insert(resource_id, endpoint);
-            } else {
-                warn!("Can't convert Endpoint '{:?}' to ResourceId.", &endpoint);
-            }
-        }
-
+    pub fn new(resource_id_queryable: Rc<dyn ResourceIdQueryable>) -> Self {
         Self {
-            resource_id_to_endpoint,
-        }
-    }
-
-    #[inline]
-    fn get(&self, resource_id: &ResourceId) -> Result<EndPoint> {
-        match self.resource_id_to_endpoint.get(resource_id) {
-            Some(result) => Ok(result.clone()),
-            None => Err(EndPointNotFound),
+            resource_id_queryable,
         }
     }
 }
 
 impl ContentLoader for FileContentLoader {
     fn load(&self, resource_id: ResourceId) -> Result<Content> {
-        let endpoint = self.get(&resource_id)?;
+        let endpoint = self.resource_id_queryable.get(&resource_id)?;
 
         let EndPoint::FileMarkdown(md_path) = endpoint else {
             return Err(NotAMarkdownFile);
@@ -61,57 +39,4 @@ impl ContentLoader for FileContentLoader {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::{EmeraldError, EndPoint, EndpointsIterable, FileContentLoader};
-    use std::path::PathBuf;
-    use EmeraldError::*;
-    use EndPoint::*;
-
-    struct MockEndPointIndex {
-        endpoints: Vec<EndPoint>,
-    }
-
-    impl EndpointsIterable for MockEndPointIndex {
-        type Iter = std::vec::IntoIter<EndPoint>;
-        fn iter(&self) -> Self::Iter {
-            self.endpoints.clone().into_iter()
-        }
-    }
-
-    #[test]
-    fn test_resolve_single() {
-        let common_path = PathBuf::from("");
-        let mock = MockEndPointIndex {
-            endpoints: vec![File("testpath".into())],
-        };
-
-        let dut = FileContentLoader::new(&mock, &common_path);
-        let ep = dut.get(&"[[testpath]]".into()).unwrap();
-
-        assert!(matches!(ep, EndPoint::File(path) if path==PathBuf::from("testpath")));
-    }
-
-    #[test]
-    fn test_resolve_single_with_different_utf8_norm_match() {
-        let common_path = PathBuf::from("");
-        let mock = MockEndPointIndex {
-            endpoints: vec![File("testpäth".into())],
-        };
-        let dut = FileContentLoader::new(&mock, &common_path);
-        let ep = dut.get(&"[[testpäth]]".into()).unwrap();
-
-        assert!(matches!(ep, EndPoint::File(path) if path==PathBuf::from("testpäth")));
-    }
-
-    #[test]
-    fn test_resolve_single_with_different_utf8_norm_fail() {
-        let common_path = PathBuf::from("");
-        let mock = MockEndPointIndex {
-            endpoints: vec![File("testpäth".into())],
-        };
-        let dut = FileContentLoader::new(&mock, &common_path);
-        let ep = dut.get(&"[[testpäth]]".into());
-
-        assert!(matches!(ep, Err(EndPointNotFound)));
-    }
-}
+mod tests {}
