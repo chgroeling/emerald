@@ -1,12 +1,10 @@
+use std::fs;
 use std::rc::Rc;
-use std::{collections::HashMap, fs, path::Path};
 
-use crate::indexes::EndpointsIterable;
 use crate::maps::resource_id_queryable::ResourceIdQueryable;
 use crate::types::Content;
 use crate::types::EndPoint;
 use crate::types::ResourceId;
-use crate::utils::endpoint_translation::convert_endpoint_to_resource_id;
 use crate::EmeraldError;
 use crate::Result;
 
@@ -16,8 +14,6 @@ use EmeraldError::*;
 use log::{debug, error, info, trace, warn};
 
 use super::content_loader::ContentLoader;
-
-pub type ResourceIdToEndpoint = HashMap<ResourceId, EndPoint>;
 
 pub struct FileContentLoader {
     resource_id_queryable: Rc<dyn ResourceIdQueryable>,

@@ -50,14 +50,14 @@ mod tests {
     use crate::maps::resource_id_queryable::ResourceIdQueryable;
     use std::path::PathBuf;
     use EmeraldError::*;
-    use EndPoint::*;
 
     #[test]
-    fn test_resolve_single() {
+    fn test_get_single() {
         let common_path: PathBuf = "".into();
         let test_data: Vec<EndPoint> = vec![EndPoint::File("testpath".into())];
         let mut mock = MockEndpointsIterable::new();
         mock.expect_iter().return_const(test_data.into_iter());
+
         let dut = EndpointResourceIdMap::new(&mock, &common_path);
         let ep = dut.get(&"[[testpath]]".into()).unwrap();
 
@@ -65,7 +65,7 @@ mod tests {
     }
 
     #[test]
-    fn test_resolve_single_with_different_utf8_norm_match() {
+    fn test_get_single_with_different_utf8_norm_match() {
         let common_path: PathBuf = "".into();
         let test_data: Vec<EndPoint> = vec![EndPoint::File("testpäth".into())];
         let mut mock = MockEndpointsIterable::new();
@@ -78,7 +78,7 @@ mod tests {
     }
 
     #[test]
-    fn test_resolve_single_with_different_utf8_norm_fail() {
+    fn test_get_single_with_different_utf8_norm_fail() {
         let common_path: PathBuf = "".into();
         let test_data: Vec<EndPoint> = vec![EndPoint::File("testpäth".into())];
         let mut mock = MockEndpointsIterable::new();
