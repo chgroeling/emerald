@@ -16,6 +16,8 @@ use crate::maps::{create_link_queryable, SrcIterQueryable};
 use crate::maps::{create_src_iter_queryable, create_tgt_iter_queryable};
 use crate::resources::content_storage::ContentStorage;
 use crate::resources::file_content_loader::FileContentLoader;
+use crate::resources::file_meta_data_loader::FileMetaDataLoader;
+use crate::resources::meta_data_loader::MetaDataLoader;
 use crate::types::EndPoint;
 use crate::Result;
 
@@ -24,6 +26,7 @@ pub struct Emerald {
     pub md_link_analyzer: Rc<MdLinkAnalyzer>,
     pub ep_index: Rc<EndpointIndex>,
     pub resource_id_queryable: Rc<dyn ResourceIdQueryable>,
+    pub meta_data_loader: Rc<dyn MetaDataLoader>,
     pub resource_id_index: Rc<ResourceIdIndex>,
     pub link_queryable: Rc<dyn LinkQueryable>,
     pub target_iterator_queryable: Rc<dyn TgtIterQueryable>,
@@ -47,6 +50,10 @@ impl Emerald {
             "Creation of EndpointResourceIdMap took: {:?}",
             start.elapsed()
         );
+
+        let start = Instant::now();
+        let meta_data_loader = Rc::new(FileMetaDataLoader::new(resource_id_queryable.clone()));
+        debug!("Creation of FileMetaDataLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
         let resource_id_index = Rc::new(ResourceIdIndex::new(ep_index.as_ref(), vault_path));
@@ -100,6 +107,7 @@ impl Emerald {
         Ok(Emerald {
             md_link_analyzer,
             resource_id_queryable,
+            meta_data_loader,
             link_queryable,
             ep_index,
             resource_id_index,
