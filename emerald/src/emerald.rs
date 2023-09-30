@@ -7,7 +7,7 @@ use crate::content_analyzers::MdLinkAnalyzer;
 use crate::indexes::endpoint_index::EndpointIndex;
 use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdIndex};
 use crate::indexes::src_2_tgt_index::Src2TargetIndex;
-use crate::indexes::{EndpointsIterable, ResourceIdsIterable};
+use crate::indexes::EndpointsIterable;
 use crate::maps::endpoint_resource_id_map::EndpointResourceIdMap;
 use crate::maps::resource_id_queryable::ResourceIdQueryable;
 use crate::maps::LinkQueryable;
@@ -22,8 +22,6 @@ use crate::resources::meta_data_loader::MetaDataLoader;
 use crate::types::EndPoint;
 use crate::Result;
 
-type RcVault = Rc<Vault<<MdResourceIds as ResourceIdsIterable>::Iter>>;
-
 #[allow(dead_code)]
 pub struct Emerald {
     pub md_link_analyzer: Rc<MdLinkAnalyzer>,
@@ -37,7 +35,7 @@ pub struct Emerald {
     pub note_link_index: Rc<Src2TargetIndex>,
     pub content_loader: Rc<FileContentLoader>,
     pub content_storage: Rc<ContentStorage>,
-    pub vault: RcVault,
+    pub vault: Rc<Vault<MdResourceIds>>,
 }
 
 impl Emerald {
@@ -133,7 +131,7 @@ impl Emerald {
 }
 
 impl Emerald {
-    pub fn get_vault(&self) -> RcVault {
+    pub fn get_vault(&self) -> Rc<Vault<MdResourceIds>> {
         self.vault.clone()
     }
 

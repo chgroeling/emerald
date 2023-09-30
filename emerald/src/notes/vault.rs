@@ -6,16 +6,19 @@ use crate::{
     types::{note::Note, ResourceId},
 };
 
-pub struct Vault<IRes: Iterator<Item = ResourceId>> {
-    md_resource_ids_iter: Rc<dyn ResourceIdsIterable<Iter = IRes>>,
+pub struct Vault<I: ResourceIdsIterable>
+where
+    I::Iter: Iterator<Item = ResourceId>,
+{
+    md_resource_ids_iter: Rc<I>,
     meta_data_loader: Rc<dyn MetaDataLoader>,
 }
 
-impl<IRes: Iterator<Item = ResourceId>> Vault<IRes> {
-    pub fn new(
-        md_resource_ids_iter: Rc<dyn ResourceIdsIterable<Iter = IRes>>,
-        meta_data_loader: Rc<dyn MetaDataLoader>,
-    ) -> Self {
+impl<I: ResourceIdsIterable> Vault<I>
+where
+    I::Iter: Iterator<Item = ResourceId>,
+{
+    pub fn new(md_resource_ids_iter: Rc<I>, meta_data_loader: Rc<dyn MetaDataLoader>) -> Self {
         Self {
             md_resource_ids_iter,
             meta_data_loader,
