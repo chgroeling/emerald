@@ -7,19 +7,22 @@ use crate::content_analyzers::MdLinkAnalyzer;
 use crate::indexes::endpoint_index::EndpointIndex;
 use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdIndex};
 use crate::indexes::src_2_tgt_index::Src2TargetIndex;
-use crate::indexes::EndpointsIterable;
+use crate::indexes::{EndpointsIterable, ResourceIdsIterable};
 use crate::maps::endpoint_resource_id_map::EndpointResourceIdMap;
 use crate::maps::resource_id_queryable::ResourceIdQueryable;
 use crate::maps::LinkQueryable;
 use crate::maps::TgtIterQueryable;
 use crate::maps::{create_link_queryable, SrcIterQueryable};
 use crate::maps::{create_src_iter_queryable, create_tgt_iter_queryable};
+use crate::notes::vault::Vault;
 use crate::resources::content_storage::ContentStorage;
 use crate::resources::file_content_loader::FileContentLoader;
 use crate::resources::file_meta_data_loader::FileMetaDataLoader;
 use crate::resources::meta_data_loader::MetaDataLoader;
 use crate::types::EndPoint;
 use crate::Result;
+
+type RcVault = Rc<Vault<<MdResourceIds as ResourceIdsIterable>::Iter>>;
 
 #[allow(dead_code)]
 pub struct Emerald {
@@ -34,6 +37,7 @@ pub struct Emerald {
     pub note_link_index: Rc<Src2TargetIndex>,
     pub content_loader: Rc<FileContentLoader>,
     pub content_storage: Rc<ContentStorage>,
+    pub vault: RcVault,
 }
 
 impl Emerald {
@@ -104,6 +108,13 @@ impl Emerald {
             start.elapsed()
         );
 
+        let start = Instant::now();
+        let vault = Rc::new(Vault::new(
+            md_res_ids_iterable.clone(),
+            meta_data_loader.clone(),
+        ));
+        debug!("Creation of Vault took: {:?}", start.elapsed());
+
         Ok(Emerald {
             md_link_analyzer,
             resource_id_queryable,
@@ -116,10 +127,16 @@ impl Emerald {
             note_link_index,
             target_iterator_queryable,
             source_iterator_queryable,
+            vault,
         })
     }
 }
+
 impl Emerald {
+    pub fn get_vault(&self) -> RcVault {
+        self.vault.clone()
+    }
+
     pub fn file_count(&self) -> usize {
         self.ep_index.iter().count()
     }

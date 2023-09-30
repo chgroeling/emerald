@@ -27,9 +27,9 @@ impl FileMetaDataLoader {
     }
 
     fn get_file_meta_data(&self, path: &Path) -> Result<MetaData> {
-        let os_filename = path.file_name().ok_or(NotAFile)?;
-        let filename = os_filename.to_str().ok_or(ValueError)?.into();
-        Ok(MetaData { filename })
+        let os_filename = path.file_stem().ok_or(NotAFile)?;
+        let file_stem = os_filename.to_str().ok_or(ValueError)?.into();
+        Ok(MetaData { file_stem })
     }
 }
 

@@ -26,8 +26,8 @@ enum Commands {
     /// Return various statistics
     Stats {},
 
-    /// Oprhaned command
-    Orphaned {},
+    /// Shows all notes
+    All {},
 }
 
 fn uc_stats(_vault_path: &Path, emerald: &Emerald) -> Result<()> {
@@ -45,8 +45,13 @@ fn uc_stats(_vault_path: &Path, emerald: &Emerald) -> Result<()> {
     Ok(())
 }
 
-fn uc_orphaned(_vault_path: &Path, _emerald: &Emerald) -> Result<()> {
-    info!("Execute usecase: Orphaned");
+fn uc_all(_vault_path: &Path, emerald: &Emerald) -> Result<()> {
+    info!("Execute usecase: All");
+    let vault = emerald.get_vault();
+    for i in vault.flat_iter() {
+        println!("{}", i.title());
+    }
+
     Ok(())
 }
 
@@ -69,7 +74,7 @@ fn main() -> Result<()> {
     // execute use-cases
     match &cli.command {
         Commands::Stats {} => uc_stats(&vault_path, &emerald)?,
-        Commands::Orphaned {} => uc_orphaned(&vault_path, &emerald)?,
+        Commands::All {} => uc_all(&vault_path, &emerald)?,
     }
     debug!("User set vault path to {:?}", vault_path);
 
