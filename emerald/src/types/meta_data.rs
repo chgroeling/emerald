@@ -1,3 +1,3 @@
 pub struct MetaData {
-    pub filename: String,
+    pub file_stem: String,
 }

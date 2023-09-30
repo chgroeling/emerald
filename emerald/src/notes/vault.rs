@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use crate::{
     indexes::ResourceIdsIterable,
-    resources::meta_data_loader::{self, MetaDataLoader},
+    resources::meta_data_loader::MetaDataLoader,
     types::{note::Note, ResourceId},
 };
 
