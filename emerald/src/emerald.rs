@@ -109,11 +109,11 @@ impl Emerald {
         );
 
         let start = Instant::now();
-        let vault = Rc::new(Vault::new(md_res_ids_iterable.clone()));
-        debug!(
-            "Creation of SourceIteratorQueryable took: {:?}",
-            start.elapsed()
-        );
+        let vault = Rc::new(Vault::new(
+            md_res_ids_iterable.clone(),
+            meta_data_loader.clone(),
+        ));
+        debug!("Creation of Vault took: {:?}", start.elapsed());
 
         Ok(Emerald {
             md_link_analyzer,
