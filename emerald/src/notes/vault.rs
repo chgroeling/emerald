@@ -2,9 +2,10 @@ use std::rc::Rc;
 
 use crate::{
     indexes::ResourceIdsIterable,
-    providers::provider_factory::ProviderFactory,
     types::{note::Note, ResourceId},
 };
+
+use crate::notes::providers::provider_factory::ProviderFactory;
 
 pub struct Vault<I: ResourceIdsIterable>
 where
