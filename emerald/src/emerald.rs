@@ -15,6 +15,7 @@ use crate::maps::TgtIterQueryable;
 use crate::maps::{create_link_queryable, SrcIterQueryable};
 use crate::maps::{create_src_iter_queryable, create_tgt_iter_queryable};
 use crate::notes::vault::Vault;
+use crate::providers::note_providers::NoteProviders;
 use crate::resources::content_storage::ContentStorage;
 use crate::resources::file_content_loader::FileContentLoader;
 use crate::resources::file_meta_data_loader::FileMetaDataLoader;
@@ -35,6 +36,7 @@ pub struct Emerald {
     pub note_link_index: Rc<Src2TargetIndex>,
     pub content_loader: Rc<FileContentLoader>,
     pub content_storage: Rc<ContentStorage>,
+    pub note_providers: Rc<NoteProviders>,
     pub vault: Rc<Vault<MdResourceIds>>,
 }
 
@@ -107,9 +109,13 @@ impl Emerald {
         );
 
         let start = Instant::now();
+        let note_providers = Rc::new(NoteProviders::new(meta_data_loader.clone()));
+        debug!("Creation of NoteProviders took: {:?}", start.elapsed());
+
+        let start = Instant::now();
         let vault = Rc::new(Vault::new(
             md_res_ids_iterable.clone(),
-            meta_data_loader.clone(),
+            note_providers.clone(),
         ));
         debug!("Creation of Vault took: {:?}", start.elapsed());
 
@@ -125,6 +131,7 @@ impl Emerald {
             note_link_index,
             target_iterator_queryable,
             source_iterator_queryable,
+            note_providers,
             vault,
         })
     }

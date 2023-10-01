@@ -2,8 +2,7 @@ use std::rc::Rc;
 
 use crate::{
     indexes::ResourceIdsIterable,
-    providers::meta_data_title_provider::MetaDataTitleProvider,
-    resources::meta_data_loader::MetaDataLoader,
+    providers::provider_factory::ProviderFactory,
     types::{note::Note, ResourceId},
 };
 
@@ -12,22 +11,22 @@ where
     I::Iter: Iterator<Item = ResourceId>,
 {
     md_resource_ids_iter: Rc<I>,
-    meta_data_loader: Rc<dyn MetaDataLoader>,
+    provider_factory: Rc<dyn ProviderFactory>,
 }
 
 impl<I: ResourceIdsIterable> Vault<I>
 where
     I::Iter: Iterator<Item = ResourceId>,
 {
-    pub fn new(md_resource_ids_iter: Rc<I>, meta_data_loader: Rc<dyn MetaDataLoader>) -> Self {
+    pub fn new(md_resource_ids_iter: Rc<I>, provider_factory: Rc<dyn ProviderFactory>) -> Self {
         Self {
             md_resource_ids_iter,
-            meta_data_loader,
+            provider_factory,
         }
     }
 
     pub fn flat_iter(&self) -> std::vec::IntoIter<Note> {
-        let create_title_p = || Box::new(MetaDataTitleProvider::new(self.meta_data_loader.clone()));
+        let create_title_p = || self.provider_factory.create_title_provider();
         let note_vec: Vec<Note> = self
             .md_resource_ids_iter
             .iter()
