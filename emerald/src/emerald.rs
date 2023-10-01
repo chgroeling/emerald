@@ -14,6 +14,7 @@ use crate::maps::LinkQueryable;
 use crate::maps::TgtIterQueryable;
 use crate::maps::{create_link_queryable, SrcIterQueryable};
 use crate::maps::{create_src_iter_queryable, create_tgt_iter_queryable};
+use crate::notes::providers::std_provider_factory::StdProviderFactory;
 use crate::notes::vault::Vault;
 use crate::resources::content_storage::ContentStorage;
 use crate::resources::file_content_loader::FileContentLoader;
@@ -30,11 +31,12 @@ pub struct Emerald {
     pub meta_data_loader: Rc<dyn MetaDataLoader>,
     pub resource_id_index: Rc<ResourceIdIndex>,
     pub link_queryable: Rc<dyn LinkQueryable>,
-    pub target_iterator_queryable: Rc<dyn TgtIterQueryable>,
-    pub source_iterator_queryable: Rc<dyn SrcIterQueryable>,
+    pub tgt_iter_queryable: Rc<dyn TgtIterQueryable>,
+    pub src_iter_queryable: Rc<dyn SrcIterQueryable>,
     pub note_link_index: Rc<Src2TargetIndex>,
     pub content_loader: Rc<FileContentLoader>,
     pub content_storage: Rc<ContentStorage>,
+    pub std_provider_factory: Rc<StdProviderFactory<FileMetaDataLoader, ContentStorage>>,
     pub vault: Rc<Vault<MdResourceIds>>,
 }
 
@@ -93,23 +95,24 @@ impl Emerald {
         );
 
         let start = Instant::now();
-        let target_iterator_queryable = create_tgt_iter_queryable(note_link_index.as_ref());
-        debug!(
-            "Creation of TargetIteratorQueryable took: {:?}",
-            start.elapsed()
-        );
+        let tgt_iter_queryable = create_tgt_iter_queryable(note_link_index.as_ref());
+        debug!("Creation of TgtIterQueryable took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let source_iterator_queryable = create_src_iter_queryable(note_link_index.as_ref());
-        debug!(
-            "Creation of SourceIteratorQueryable took: {:?}",
-            start.elapsed()
-        );
+        let src_iter_queryable = create_src_iter_queryable(note_link_index.as_ref());
+        debug!("Creation of SrcIterQueryable took: {:?}", start.elapsed());
+
+        let start = Instant::now();
+        let std_provider_factory = Rc::new(StdProviderFactory::new(
+            meta_data_loader.clone(),
+            content_storage.clone(),
+        ));
+        debug!("Creation of StdProviderFactory took: {:?}", start.elapsed());
 
         let start = Instant::now();
         let vault = Rc::new(Vault::new(
             md_res_ids_iterable.clone(),
-            meta_data_loader.clone(),
+            std_provider_factory.clone(),
         ));
         debug!("Creation of Vault took: {:?}", start.elapsed());
 
@@ -123,8 +126,9 @@ impl Emerald {
             content_loader,
             content_storage,
             note_link_index,
-            target_iterator_queryable,
-            source_iterator_queryable,
+            tgt_iter_queryable,
+            src_iter_queryable,
+            std_provider_factory,
             vault,
         })
     }

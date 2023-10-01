@@ -49,9 +49,8 @@ fn uc_all(_vault_path: &Path, emerald: &Emerald) -> Result<()> {
     info!("Execute usecase: All");
     let vault = emerald.get_vault();
     for i in vault.flat_iter() {
-        println!("{}", i.title());
+        println!("{} - {}", i.title(), i.content());
     }
-
     Ok(())
 }
 
