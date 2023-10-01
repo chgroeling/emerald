@@ -103,7 +103,10 @@ impl Emerald {
         debug!("Creation of SrcIterQueryable took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let std_provider_factory = Rc::new(StdProviderFactory::new(meta_data_loader.clone()));
+        let std_provider_factory = Rc::new(StdProviderFactory::new(
+            meta_data_loader.clone(),
+            content_storage.clone(),
+        ));
         debug!("Creation of StdProviderFactory took: {:?}", start.elapsed());
 
         let start = Instant::now();
