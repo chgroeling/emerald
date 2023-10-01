@@ -2,6 +2,7 @@ use std::rc::Rc;
 
 use crate::{
     indexes::ResourceIdsIterable,
+    providers::meta_data_title_provider::MetaDataTitleProvider,
     resources::meta_data_loader::MetaDataLoader,
     types::{note::Note, ResourceId},
 };
@@ -26,12 +27,13 @@ where
     }
 
     pub fn flat_iter(&self) -> std::vec::IntoIter<Note> {
-        let out_vec: Vec<Note> = self
+        let create_title_p = || Box::new(MetaDataTitleProvider::new(self.meta_data_loader.clone()));
+        let note_vec: Vec<Note> = self
             .md_resource_ids_iter
             .iter()
-            .map(|f| Note::new(f, self.meta_data_loader.clone()))
+            .map(move |f| Note::new(f, create_title_p()))
             .collect();
 
-        out_vec.into_iter()
+        note_vec.into_iter()
     }
 }

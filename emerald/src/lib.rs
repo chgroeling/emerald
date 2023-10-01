@@ -2,6 +2,7 @@ mod content_analyzers;
 mod indexes;
 mod maps;
 mod notes;
+mod providers;
 mod resources;
 mod types;
 mod utils;
