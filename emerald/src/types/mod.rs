@@ -6,7 +6,6 @@ pub mod link_comps;
 mod link_frm_src;
 mod link_src_2_tgt;
 pub mod meta_data;
-pub mod note;
 mod res_and_err;
 pub mod resource_id;
 pub mod resource_id_comps;

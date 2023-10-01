@@ -1,6 +1,6 @@
 use crate::notes::providers::{content_provider::ContentProvider, title_provider::TitleProvider};
 
-use super::ResourceId;
+use crate::types::ResourceId;
 
 pub struct Note {
     resource_id: ResourceId,

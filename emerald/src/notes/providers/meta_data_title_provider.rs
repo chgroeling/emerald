@@ -1,8 +1,9 @@
 use std::rc::Rc;
 
-use crate::{resources::meta_data_loader::MetaDataLoader, types::ResourceId};
-
 use super::title_provider::TitleProvider;
+
+use crate::resources::meta_data_loader::MetaDataLoader;
+use crate::types::ResourceId;
 
 pub struct MetaDataTitleProvider {
     meta_data_loader: Rc<dyn MetaDataLoader>,
