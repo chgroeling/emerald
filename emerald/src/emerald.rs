@@ -36,7 +36,7 @@ pub struct Emerald {
     pub note_link_index: Rc<Src2TargetIndex>,
     pub content_loader: Rc<FileContentLoader>,
     pub content_storage: Rc<ContentStorage>,
-    pub std_provider_factory: Rc<StdProviderFactory>,
+    pub std_provider_factory: Rc<StdProviderFactory<FileMetaDataLoader, ContentStorage>>,
     pub vault: Rc<Vault<MdResourceIds>>,
 }
 

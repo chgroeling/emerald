@@ -7,16 +7,21 @@ use super::{
     std_content_provider::StdContentProvider,
 };
 
-pub struct StdProviderFactory {
-    meta_data_loader: Rc<dyn MetaDataLoader>,
-    content_queryable: Rc<dyn ContentQueryable>,
+pub struct StdProviderFactory<I, T>
+where
+    I: MetaDataLoader,
+    T: ContentQueryable,
+{
+    meta_data_loader: Rc<I>,
+    content_queryable: Rc<T>,
 }
 
-impl StdProviderFactory {
-    pub fn new(
-        meta_data_loader: Rc<dyn MetaDataLoader>,
-        content_queryable: Rc<dyn ContentQueryable>,
-    ) -> Self {
+impl<I, T> StdProviderFactory<I, T>
+where
+    I: MetaDataLoader,
+    T: ContentQueryable,
+{
+    pub fn new(meta_data_loader: Rc<I>, content_queryable: Rc<T>) -> Self {
         Self {
             meta_data_loader,
             content_queryable,
@@ -24,7 +29,11 @@ impl StdProviderFactory {
     }
 }
 
-impl ProviderFactory for StdProviderFactory {
+impl<I, T> ProviderFactory for StdProviderFactory<I, T>
+where
+    I: MetaDataLoader + 'static,
+    T: ContentQueryable + 'static,
+{
     fn create_title_provider(&self) -> Box<dyn super::title_provider::TitleProvider> {
         Box::new(MetaDataTitleProvider::new(self.meta_data_loader.clone()))
     }
