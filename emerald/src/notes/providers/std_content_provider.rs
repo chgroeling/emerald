@@ -4,16 +4,25 @@ use crate::{resources::content_queryable::ContentQueryable, types::ResourceId};
 
 use super::content_provider::ContentProvider;
 
-pub struct StdContentProvider {
-    content_queryable: Rc<dyn ContentQueryable>,
+pub struct StdContentProvider<I>
+where
+    I: ContentQueryable,
+{
+    content_queryable: Rc<I>,
 }
 
-impl StdContentProvider {
-    pub fn new(content_queryable: Rc<dyn ContentQueryable>) -> Self {
+impl<I> StdContentProvider<I>
+where
+    I: ContentQueryable,
+{
+    pub fn new(content_queryable: Rc<I>) -> Self {
         Self { content_queryable }
     }
 }
-impl ContentProvider for StdContentProvider {
+impl<I> ContentProvider for StdContentProvider<I>
+where
+    I: ContentQueryable,
+{
     fn get_content(&self, resource_id: &ResourceId) -> String {
         let res = self.content_queryable.get(resource_id.clone()).unwrap();
         (*res.0).clone()
