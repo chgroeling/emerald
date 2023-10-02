@@ -1,7 +1,7 @@
 use std::path::Path;
 use std::rc::Rc;
 
-use crate::maps::resource_id_retriever::ResourceIdRetriever;
+use crate::maps::endpoint_retriever::EndPointRetriever;
 use crate::types::meta_data::MetaData;
 use crate::types::EndPoint;
 use crate::types::ResourceId;
@@ -16,14 +16,12 @@ use log::{debug, error, info, trace, warn};
 use super::meta_data_loader::MetaDataLoader;
 
 pub struct FileMetaDataLoader {
-    resource_id_retriever: Rc<dyn ResourceIdRetriever>,
+    ep_retriever: Rc<dyn EndPointRetriever>,
 }
 
 impl FileMetaDataLoader {
-    pub fn new(resource_id_retriever: Rc<dyn ResourceIdRetriever>) -> Self {
-        Self {
-            resource_id_retriever,
-        }
+    pub fn new(ep_retriever: Rc<dyn EndPointRetriever>) -> Self {
+        Self { ep_retriever }
     }
 
     fn get_file_meta_data(&self, path: &Path) -> Result<MetaData> {
@@ -35,7 +33,7 @@ impl FileMetaDataLoader {
 
 impl MetaDataLoader for FileMetaDataLoader {
     fn load(&self, resource_id: &ResourceId) -> Result<MetaData> {
-        let endpoint = self.resource_id_retriever.retrieve(resource_id)?;
+        let endpoint = self.ep_retriever.retrieve(resource_id)?;
 
         #[allow(unreachable_patterns)]
         match endpoint {

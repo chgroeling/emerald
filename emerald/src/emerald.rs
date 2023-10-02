@@ -9,7 +9,7 @@ use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceI
 use crate::indexes::src_2_tgt_index::Src2TargetIndex;
 use crate::indexes::EndpointsIterSrc;
 use crate::maps::endpoint_resource_id_map::EndpointResourceIdMap;
-use crate::maps::resource_id_retriever::ResourceIdRetriever;
+use crate::maps::endpoint_retriever::EndPointRetriever;
 use crate::maps::LinkRetriever;
 use crate::maps::TgtIterRetriever;
 use crate::maps::{create_link_retriever, SrcIterRetriever};
@@ -27,7 +27,7 @@ use crate::Result;
 pub struct Emerald {
     pub md_link_analyzer: Rc<MdLinkAnalyzer>,
     pub ep_index: Rc<EndpointIndex>,
-    pub resource_id_retriever: Rc<dyn ResourceIdRetriever>,
+    pub ep_retriever: Rc<dyn EndPointRetriever>,
     pub meta_data_loader: Rc<dyn MetaDataLoader>,
     pub resource_id_index: Rc<ResourceIdIndex>,
     pub link_retriever: Rc<dyn LinkRetriever>,
@@ -48,15 +48,14 @@ impl Emerald {
         debug!("Creation of EndpointIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let resource_id_retriever =
-            Rc::new(EndpointResourceIdMap::new(ep_index.as_ref(), vault_path));
+        let ep_retriever = Rc::new(EndpointResourceIdMap::new(ep_index.as_ref(), vault_path));
         debug!(
             "Creation of EndpointResourceIdMap took: {:?}",
             start.elapsed()
         );
 
         let start = Instant::now();
-        let meta_data_loader = Rc::new(FileMetaDataLoader::new(resource_id_retriever.clone()));
+        let meta_data_loader = Rc::new(FileMetaDataLoader::new(ep_retriever.clone()));
         debug!("Creation of FileMetaDataLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
@@ -74,7 +73,7 @@ impl Emerald {
         debug!("Creation of MdLinkAnalyzer took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let content_loader = Rc::new(FileContentLoader::new(resource_id_retriever.clone()));
+        let content_loader = Rc::new(FileContentLoader::new(ep_retriever.clone()));
         debug!("Creation of FileContentLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
@@ -118,7 +117,7 @@ impl Emerald {
 
         Ok(Emerald {
             md_link_analyzer,
-            resource_id_retriever,
+            ep_retriever,
             meta_data_loader,
             link_retriever,
             ep_index,

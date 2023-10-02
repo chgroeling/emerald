@@ -1,9 +1,9 @@
 use std::rc::Rc;
 
 pub mod endpoint_resource_id_map;
+pub mod endpoint_retriever;
 mod link_retriever;
 mod resource_id_link_map;
-pub mod resource_id_retriever;
 mod src_iter_retriever;
 mod src_links_map;
 mod tgt_iter_retriever;
