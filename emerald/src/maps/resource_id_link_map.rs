@@ -23,12 +23,12 @@ pub struct ResourceIdLinkMap {
 }
 
 impl ResourceIdLinkMap {
-    pub fn new(resource_ids_iterable: &impl ResourceIdsIterSrc) -> Self {
+    pub fn new(resource_ids_iter_rc: &impl ResourceIdsIterSrc) -> Self {
         // Assumption: All resource ids are encoded in utf8 nfc
         let mut name_to_resource_id_list: NameToResourceIdList = NameToResourceIdList::new();
 
         // Iterator yields (normalized_link, link_to_file)
-        let link_name_iter = resource_ids_iterable.iter().map(|resource_id| {
+        let link_name_iter = resource_ids_iter_rc.iter().map(|resource_id| {
             let res_id_comp = resource_id.split().unwrap();
             let normalized_link = res_id_comp.name.to_lowercase();
 

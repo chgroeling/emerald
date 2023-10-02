@@ -17,13 +17,13 @@ pub struct ContentFullCache {
 
 impl<'a> ContentFullCache {
     pub fn new(
-        md_resource_ids_iterable: &impl ResourceIdsIterSrc,
+        md_resource_ids_iter_rc: &impl ResourceIdsIterSrc,
         content_loader: &'a impl ContentLoader,
     ) -> ContentFullCache {
         let mut res_id_to_content_list = Vec::<(ResourceId, Content)>::new();
         let mut res_id_to_content_idx = HashMap::<ResourceId, Content>::new();
 
-        for md_res_id in md_resource_ids_iterable.iter() {
+        for md_res_id in md_resource_ids_iter_rc.iter() {
             let read_note = content_loader.load(&md_res_id);
 
             // ignore files that cannot be read

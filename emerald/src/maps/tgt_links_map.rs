@@ -14,9 +14,9 @@ pub struct TgtLinksMap {
 }
 
 impl TgtLinksMap {
-    pub fn new(link_s2t_iterable: &impl Src2TgtIterSrc) -> Self {
+    pub fn new(link_s2t_iter_rc: &impl Src2TgtIterSrc) -> Self {
         let mut link_2_tgt_map = Src2Link2TgtMap::new();
-        for s2t in link_s2t_iterable.iter() {
+        for s2t in link_s2t_iter_rc.iter() {
             let link_to_target = s2t.get_link_to_target();
 
             match link_2_tgt_map.entry(s2t.src) {

@@ -61,12 +61,12 @@ impl Emerald {
 
         let start = Instant::now();
         let resource_id_index = Rc::new(ResourceIdIndex::new(ep_index.as_ref(), vault_path));
-        let all_res_ids_iterable = Rc::new(AllResourceIds::new_from_rc(&resource_id_index));
-        let md_res_ids_iterable = Rc::new(MdResourceIds::new_from_rc(&resource_id_index));
+        let all_res_ids_iter_rc = Rc::new(AllResourceIds::new_from_rc(&resource_id_index));
+        let md_res_ids_iter_rc = Rc::new(MdResourceIds::new_from_rc(&resource_id_index));
         debug!("Creation of ResourceIdIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let link_queryable = create_link_queryable(all_res_ids_iterable.as_ref());
+        let link_queryable = create_link_queryable(all_res_ids_iter_rc.as_ref());
         debug!("Creation of LinkQueryableImpl took: {:?}", start.elapsed());
 
         let start = Instant::now();
@@ -79,7 +79,7 @@ impl Emerald {
 
         let start = Instant::now();
         let content_storage = Rc::new(ContentFullCache::new(
-            md_res_ids_iterable.as_ref(),
+            md_res_ids_iter_rc.as_ref(),
             content_loader.as_ref(),
         ));
         debug!("Creation of ContentStorage took: {:?}", start.elapsed());
@@ -111,7 +111,7 @@ impl Emerald {
 
         let start = Instant::now();
         let vault = Rc::new(Vault::new(
-            md_res_ids_iterable.clone(),
+            md_res_ids_iter_rc.clone(),
             std_provider_factory.clone(),
         ));
         debug!("Creation of Vault took: {:?}", start.elapsed());

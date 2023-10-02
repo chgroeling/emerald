@@ -19,19 +19,19 @@ use self::{
 use crate::indexes::{ResourceIdsIterSrc, Src2TgtIterSrc};
 
 pub fn create_link_queryable(
-    resource_ids_iterable: &impl ResourceIdsIterSrc,
+    resource_ids_iter_rc: &impl ResourceIdsIterSrc,
 ) -> Rc<dyn LinkQueryable> {
-    Rc::new(ResourceIdLinkMap::new(resource_ids_iterable))
+    Rc::new(ResourceIdLinkMap::new(resource_ids_iter_rc))
 }
 
 pub fn create_tgt_iter_queryable(
-    src_tgt_iterable: &impl Src2TgtIterSrc,
+    src_tgt_iter_rc: &impl Src2TgtIterSrc,
 ) -> Rc<dyn TgtIterQueryable> {
-    Rc::new(TgtLinksMap::new(src_tgt_iterable))
+    Rc::new(TgtLinksMap::new(src_tgt_iter_rc))
 }
 
 pub fn create_src_iter_queryable(
-    src_tgt_iterable: &impl Src2TgtIterSrc,
+    src_tgt_iter_rc: &impl Src2TgtIterSrc,
 ) -> Rc<dyn SrcIterQueryable> {
-    Rc::new(SrcLinksMap::new(src_tgt_iterable))
+    Rc::new(SrcLinksMap::new(src_tgt_iter_rc))
 }

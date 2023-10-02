@@ -14,9 +14,9 @@ pub struct SrcLinksMap {
 }
 
 impl SrcLinksMap {
-    pub fn new(link_s2t_iterable: &impl Src2TgtIterSrc) -> Self {
+    pub fn new(link_s2t_iter_rc: &impl Src2TgtIterSrc) -> Self {
         let mut src_2_tgt_map = Tgt2LinkFrmSrcMap::new();
-        for s2t in link_s2t_iterable.iter() {
+        for s2t in link_s2t_iter_rc.iter() {
             let link_from_source = s2t.get_link_from_source();
             let tgt = if let Some(tgt) = s2t.tgt {
                 tgt
