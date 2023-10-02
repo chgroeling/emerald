@@ -5,19 +5,19 @@ use crate::types::ResourceId;
 pub struct Note {
     resource_id: ResourceId,
     title_provider: Box<dyn TitleProvider>,
-    markdown_provider: Box<dyn MdProvider>,
+    md_provider: Box<dyn MdProvider>,
 }
 
 impl Note {
     pub fn new(
         resource_id: ResourceId,
         title_provider: Box<dyn TitleProvider>,
-        markdown_provider: Box<dyn MdProvider>,
+        md_provider: Box<dyn MdProvider>,
     ) -> Self {
         Self {
             resource_id,
             title_provider,
-            markdown_provider,
+            md_provider,
         }
     }
 
@@ -26,6 +26,6 @@ impl Note {
     }
 
     pub fn markdown(&self) -> String {
-        self.markdown_provider.get_markdown(&self.resource_id)
+        self.md_provider.get_markdown(&self.resource_id)
     }
 }

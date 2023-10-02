@@ -10,12 +10,8 @@ use crate::types::EndPoint;
 
 use EndPoint::*;
 
-pub type FilePath = PathBuf;
-pub type FileList = Vec<FilePath>;
-pub type EndPointList = Vec<EndPoint>;
-
 pub struct EndpointIndex {
-    endpoint_list: EndPointList,
+    endpoint_list: Vec<EndPoint>,
 }
 
 impl EndpointIndex {
@@ -25,7 +21,7 @@ impl EndpointIndex {
     }
 
     pub fn new_from_file_list(file_list: Vec<PathBuf>) -> Result<Self> {
-        let mut endpoint_list = EndPointList::new();
+        let mut endpoint_list = Vec::<EndPoint>::new();
         for file_path in file_list {
             let endpoint = if file_path
                 .extension()
@@ -42,12 +38,12 @@ impl EndpointIndex {
         Ok(EndpointIndex { endpoint_list })
     }
 
-    fn _get_file_list_recursive(path: &Path) -> Result<FileList> {
+    fn _get_file_list_recursive(path: &Path) -> Result<Vec<PathBuf>> {
         trace!("get_file_list of path: {:?}", path);
 
         // get iterator for the actual directory
         let iter_dir = fs::read_dir(path)?;
-        let mut file_list: FileList = FileList::new();
+        let mut file_list = Vec::<PathBuf>::new();
 
         for i in iter_dir {
             let iter_path = i?.path();
