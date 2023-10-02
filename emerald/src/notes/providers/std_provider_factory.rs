@@ -3,8 +3,8 @@ use std::rc::Rc;
 use crate::resources::{content_loader::ContentLoader, meta_data_loader::MetaDataLoader};
 
 use super::{
+    content_markdown_provider::ContentMarkdownProvider,
     meta_data_title_provider::MetaDataTitleProvider, provider_factory::ProviderFactory,
-    std_content_provider::StdContentProvider,
 };
 
 pub struct StdProviderFactory<I, T>
@@ -38,7 +38,7 @@ where
         Box::new(MetaDataTitleProvider::new(self.meta_data_loader.clone()))
     }
 
-    fn create_content_provider(&self) -> Box<dyn super::content_provider::ContentProvider> {
-        Box::new(StdContentProvider::new(self.content_queryable.clone()))
+    fn create_markdown_provider(&self) -> Box<dyn super::markdown_provider::MarkdownProvider> {
+        Box::new(ContentMarkdownProvider::new(self.content_queryable.clone()))
     }
 }

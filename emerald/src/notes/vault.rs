@@ -27,7 +27,7 @@ where
 
     pub fn flat_iter(&self) -> std::vec::IntoIter<Note> {
         let create_title_p = || self.provider_factory.create_title_provider();
-        let create_content_p = || self.provider_factory.create_content_provider();
+        let create_content_p = || self.provider_factory.create_markdown_provider();
         let note_vec: Vec<Note> = self
             .md_resource_ids_iter
             .iter()

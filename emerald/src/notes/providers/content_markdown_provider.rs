@@ -2,16 +2,16 @@ use std::rc::Rc;
 
 use crate::{resources::content_loader::ContentLoader, types::ResourceId};
 
-use super::content_provider::ContentProvider;
+use super::markdown_provider::MarkdownProvider;
 
-pub struct StdContentProvider<I>
+pub struct ContentMarkdownProvider<I>
 where
     I: ContentLoader,
 {
     content_queryable: Rc<I>,
 }
 
-impl<I> StdContentProvider<I>
+impl<I> ContentMarkdownProvider<I>
 where
     I: ContentLoader,
 {
@@ -19,11 +19,11 @@ where
         Self { content_queryable }
     }
 }
-impl<I> ContentProvider for StdContentProvider<I>
+impl<I> MarkdownProvider for ContentMarkdownProvider<I>
 where
     I: ContentLoader,
 {
-    fn get_content(&self, resource_id: &ResourceId) -> String {
+    fn get_markdown(&self, resource_id: &ResourceId) -> String {
         let res = self.content_queryable.load(resource_id).unwrap();
         (*res.0).clone()
     }
