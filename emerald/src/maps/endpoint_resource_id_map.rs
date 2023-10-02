@@ -10,7 +10,7 @@ use crate::{
 };
 use EmeraldError::*;
 
-use super::resource_id_querier::ResourceIdQuerier;
+use super::resource_id_querier::ResourceIdRetriever;
 
 pub struct EndpointResourceIdMap {
     resource_id_to_endpoint: HashMap<ResourceId, EndPoint>,
@@ -34,7 +34,7 @@ impl EndpointResourceIdMap {
     }
 }
 
-impl ResourceIdQuerier for EndpointResourceIdMap {
+impl ResourceIdRetriever for EndpointResourceIdMap {
     fn query(&self, resource_id: &ResourceId) -> Result<EndPoint> {
         self.resource_id_to_endpoint
             .get(resource_id)
@@ -47,7 +47,7 @@ mod tests {
     use super::EndpointResourceIdMap;
     use super::{EmeraldError, EndPoint};
     use crate::indexes::endpoints_iter_src::MockEndpointsIterSrc;
-    use crate::maps::resource_id_querier::ResourceIdQuerier;
+    use crate::maps::resource_id_querier::ResourceIdRetriever;
     use std::path::PathBuf;
     use EmeraldError::*;
 

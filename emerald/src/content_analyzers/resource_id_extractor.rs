@@ -1,7 +1,7 @@
 use std::rc::Rc;
 
 use crate::{
-    maps::LinkQuerier,
+    maps::LinkRetriever,
     types::{Link, Link2Tgt},
 };
 
@@ -19,7 +19,7 @@ pub trait ResourceIdExtractorIterSource {
 
 pub struct ResourceIdExtractorIterator<Iter> {
     input_iter: Iter,
-    link_querier: Rc<dyn LinkQuerier>,
+    link_querier: Rc<dyn LinkRetriever>,
 }
 
 impl<Iter: Iterator<Item = Link>> Iterator for ResourceIdExtractorIterator<Iter> {
@@ -38,12 +38,12 @@ impl<Iter: Iterator<Item = Link>> Iterator for ResourceIdExtractorIterator<Iter>
 // --------------------------------------------------------------------------
 
 pub struct ResourceIdExtractor<I: LinkExtractorIterSource> {
-    link_querier: Rc<dyn LinkQuerier>,
+    link_querier: Rc<dyn LinkRetriever>,
     link_extractor: Rc<I>,
 }
 
 impl<I: LinkExtractorIterSource> ResourceIdExtractor<I> {
-    pub fn new(link_querier: Rc<dyn LinkQuerier>, link_extractor: Rc<I>) -> Self {
+    pub fn new(link_querier: Rc<dyn LinkRetriever>, link_extractor: Rc<I>) -> Self {
         Self {
             link_querier,
             link_extractor,

@@ -1,7 +1,7 @@
 use std::fs;
 use std::rc::Rc;
 
-use crate::maps::resource_id_querier::ResourceIdQuerier;
+use crate::maps::resource_id_querier::ResourceIdRetriever;
 use crate::types::Content;
 use crate::types::EndPoint;
 use crate::types::ResourceId;
@@ -16,11 +16,11 @@ use log::{debug, error, info, trace, warn};
 use super::content_loader::ContentLoader;
 
 pub struct FileContentLoader {
-    resource_id_querier: Rc<dyn ResourceIdQuerier>,
+    resource_id_querier: Rc<dyn ResourceIdRetriever>,
 }
 
 impl FileContentLoader {
-    pub fn new(resource_id_querier: Rc<dyn ResourceIdQuerier>) -> Self {
+    pub fn new(resource_id_querier: Rc<dyn ResourceIdRetriever>) -> Self {
         Self {
             resource_id_querier,
         }

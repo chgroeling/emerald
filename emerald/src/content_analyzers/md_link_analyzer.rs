@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use crate::maps::LinkQuerier;
+use crate::maps::LinkRetriever;
 
 use super::{
     link_extractor::LinkExtractor,
@@ -20,7 +20,7 @@ pub struct MdLinkAnalyzer {
 }
 
 impl MdLinkAnalyzer {
-    pub fn new(link_querier: Rc<dyn LinkQuerier>) -> Self {
+    pub fn new(link_querier: Rc<dyn LinkRetriever>) -> Self {
         let markdown_extractor = Rc::new(MarkdownExtractor::new());
         let link_extractor = Rc::new(LinkExtractor::new(markdown_extractor));
         let resource_id_extractor = Rc::new(ResourceIdExtractor::new(link_querier, link_extractor));

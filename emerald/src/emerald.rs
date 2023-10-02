@@ -9,10 +9,10 @@ use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceI
 use crate::indexes::src_2_tgt_index::Src2TargetIndex;
 use crate::indexes::EndpointsIterSrc;
 use crate::maps::endpoint_resource_id_map::EndpointResourceIdMap;
-use crate::maps::resource_id_querier::ResourceIdQuerier;
-use crate::maps::LinkQuerier;
-use crate::maps::TgtIterQuerier;
-use crate::maps::{create_link_querier, SrcIterQuerier};
+use crate::maps::resource_id_querier::ResourceIdRetriever;
+use crate::maps::LinkRetriever;
+use crate::maps::TgtIterRetriever;
+use crate::maps::{create_link_querier, SrcIterRetriever};
 use crate::maps::{create_src_iter_querier, create_tgt_iter_querier};
 use crate::notes::providers::std_provider_factory::StdProviderFactory;
 use crate::notes::vault::Vault;
@@ -27,12 +27,12 @@ use crate::Result;
 pub struct Emerald {
     pub md_link_analyzer: Rc<MdLinkAnalyzer>,
     pub ep_index: Rc<EndpointIndex>,
-    pub resource_id_querier: Rc<dyn ResourceIdQuerier>,
+    pub resource_id_querier: Rc<dyn ResourceIdRetriever>,
     pub meta_data_loader: Rc<dyn MetaDataLoader>,
     pub resource_id_index: Rc<ResourceIdIndex>,
-    pub link_querier: Rc<dyn LinkQuerier>,
-    pub tgt_iter_querier: Rc<dyn TgtIterQuerier>,
-    pub src_iter_querier: Rc<dyn SrcIterQuerier>,
+    pub link_querier: Rc<dyn LinkRetriever>,
+    pub tgt_iter_querier: Rc<dyn TgtIterRetriever>,
+    pub src_iter_querier: Rc<dyn SrcIterRetriever>,
     pub note_link_index: Rc<Src2TargetIndex>,
     pub content_loader: Rc<FileContentLoader>,
     pub content_storage: Rc<ContentFullCache>,
@@ -67,7 +67,7 @@ impl Emerald {
 
         let start = Instant::now();
         let link_querier = create_link_querier(all_res_ids_iter_rc.as_ref());
-        debug!("Creation of LinkQuerierImpl took: {:?}", start.elapsed());
+        debug!("Creation of LinkRetrieverImpl took: {:?}", start.elapsed());
 
         let start = Instant::now();
         let md_link_analyzer = Rc::new(MdLinkAnalyzer::new(link_querier.clone()));
@@ -96,11 +96,11 @@ impl Emerald {
 
         let start = Instant::now();
         let tgt_iter_querier = create_tgt_iter_querier(note_link_index.as_ref());
-        debug!("Creation of TgtIterQuerier took: {:?}", start.elapsed());
+        debug!("Creation of TgtIterRetriever took: {:?}", start.elapsed());
 
         let start = Instant::now();
         let src_iter_querier = create_src_iter_querier(note_link_index.as_ref());
-        debug!("Creation of SrcIterQuerier took: {:?}", start.elapsed());
+        debug!("Creation of SrcIterRetriever took: {:?}", start.elapsed());
 
         let start = Instant::now();
         let std_provider_factory = Rc::new(StdProviderFactory::new(
