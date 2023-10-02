@@ -5,7 +5,7 @@ use crate::{
     types::{Link2Tgt, ResourceId},
 };
 
-use super::tgt_iter_queryable::TgtIterQuerier;
+use super::tgt_iter_querier::TgtIterQuerier;
 
 type Src2Link2TgtMap = HashMap<ResourceId, Vec<Link2Tgt>>;
 

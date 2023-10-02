@@ -1,7 +1,7 @@
 use std::fs;
 use std::rc::Rc;
 
-use crate::maps::resource_id_queryable::ResourceIdQuerier;
+use crate::maps::resource_id_querier::ResourceIdQuerier;
 use crate::types::Content;
 use crate::types::EndPoint;
 use crate::types::ResourceId;

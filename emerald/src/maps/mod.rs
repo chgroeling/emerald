@@ -1,17 +1,17 @@
 use std::rc::Rc;
 
 pub mod endpoint_resource_id_map;
-mod link_queryable;
+mod link_querier;
 mod resource_id_link_map;
-pub mod resource_id_queryable;
-mod src_iter_queryable;
+pub mod resource_id_querier;
+mod src_iter_querier;
 mod src_links_map;
-mod tgt_iter_queryable;
+mod tgt_iter_querier;
 mod tgt_links_map;
 
-pub use self::link_queryable::LinkQuerier;
-pub use self::src_iter_queryable::SrcIterQuerier;
-pub use self::tgt_iter_queryable::TgtIterQuerier;
+pub use self::link_querier::LinkQuerier;
+pub use self::src_iter_querier::SrcIterQuerier;
+pub use self::tgt_iter_querier::TgtIterQuerier;
 
 use self::{
     resource_id_link_map::ResourceIdLinkMap, src_links_map::SrcLinksMap, tgt_links_map::TgtLinksMap,

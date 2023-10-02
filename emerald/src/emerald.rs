@@ -9,7 +9,7 @@ use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceI
 use crate::indexes::src_2_tgt_index::Src2TargetIndex;
 use crate::indexes::EndpointsIterSrc;
 use crate::maps::endpoint_resource_id_map::EndpointResourceIdMap;
-use crate::maps::resource_id_queryable::ResourceIdQuerier;
+use crate::maps::resource_id_querier::ResourceIdQuerier;
 use crate::maps::LinkQuerier;
 use crate::maps::TgtIterQuerier;
 use crate::maps::{create_link_queryable, SrcIterQuerier};
