@@ -16,7 +16,7 @@ use crate::maps::{create_link_queryable, SrcIterQueryable};
 use crate::maps::{create_src_iter_queryable, create_tgt_iter_queryable};
 use crate::notes::providers::std_provider_factory::StdProviderFactory;
 use crate::notes::vault::Vault;
-use crate::resources::content_storage::ContentStorage;
+use crate::resources::content_full_cache::ContentFullCache;
 use crate::resources::file_content_loader::FileContentLoader;
 use crate::resources::file_meta_data_loader::FileMetaDataLoader;
 use crate::resources::meta_data_loader::MetaDataLoader;
@@ -35,8 +35,8 @@ pub struct Emerald {
     pub src_iter_queryable: Rc<dyn SrcIterQueryable>,
     pub note_link_index: Rc<Src2TargetIndex>,
     pub content_loader: Rc<FileContentLoader>,
-    pub content_storage: Rc<ContentStorage>,
-    pub std_provider_factory: Rc<StdProviderFactory<FileMetaDataLoader, ContentStorage>>,
+    pub content_storage: Rc<ContentFullCache>,
+    pub std_provider_factory: Rc<StdProviderFactory<FileMetaDataLoader, ContentFullCache>>,
     pub vault: Rc<Vault<MdResourceIds>>,
 }
 
@@ -78,7 +78,7 @@ impl Emerald {
         debug!("Creation of FileContentLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let content_storage = Rc::new(ContentStorage::new(
+        let content_storage = Rc::new(ContentFullCache::new(
             md_res_ids_iterable.as_ref(),
             content_loader.as_ref(),
         ));

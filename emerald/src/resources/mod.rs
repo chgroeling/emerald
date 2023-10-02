@@ -1,7 +1,6 @@
+pub mod content_full_cache;
 mod content_iterable;
-mod content_loader;
-pub mod content_queryable;
-pub mod content_storage;
+pub mod content_loader;
 pub mod file_content_loader;
 pub mod file_meta_data_loader;
 pub mod meta_data_loader;
