@@ -41,6 +41,9 @@ pub enum EmeraldError {
     #[error("Tried to handle something as a file which was none")]
     NotAFile,
 
+    #[error("The given resource id was not found")]
+    ResourceIdNotFound,
+
     #[error("unknown error")]
     Unknown,
 }

@@ -1,3 +1,4 @@
+use crate::{EmeraldError, Result};
 use std::collections::HashMap;
 
 #[allow(unused_imports)]
@@ -51,8 +52,11 @@ impl<'a> ContentStorage {
 }
 
 impl ContentQueryable for ContentStorage {
-    fn get(&self, resource_id: ResourceId) -> Option<Content> {
-        Some(self.res_id_to_content.get(&resource_id)?.clone())
+    fn get(&self, resource_id: ResourceId) -> Result<Content> {
+        self.res_id_to_content
+            .get(&resource_id)
+            .ok_or(EmeraldError::ResourceIdNotFound)
+            .cloned()
     }
 }
 
