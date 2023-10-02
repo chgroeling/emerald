@@ -5,7 +5,7 @@ use crate::{
     types::{LinkFrmSrc, ResourceId},
 };
 
-use super::src_iter_queryable::SrcIterQueryable;
+use super::src_iter_queryable::SrcIterQuerier;
 
 type Tgt2LinkFrmSrcMap = HashMap<ResourceId, Vec<LinkFrmSrc>>;
 
@@ -36,7 +36,7 @@ impl SrcLinksMap {
     }
 }
 
-impl SrcIterQueryable for SrcLinksMap {
+impl SrcIterQuerier for SrcLinksMap {
     fn query(&self, tgt: ResourceId) -> Option<std::vec::IntoIter<LinkFrmSrc>> {
         self.src_2_tgt_map.get(&tgt).map(|f| f.clone().into_iter())
     }
@@ -45,7 +45,7 @@ impl SrcIterQueryable for SrcLinksMap {
 #[cfg(test)]
 mod tests {
     use super::LinkFrmSrc;
-    use super::SrcIterQueryable;
+    use super::SrcIterQuerier;
     use super::SrcLinksMap;
     use crate::indexes::src_2_tgt_iter_src::MockSrc2TgtIterSrc;
 

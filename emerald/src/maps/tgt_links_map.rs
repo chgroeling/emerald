@@ -5,7 +5,7 @@ use crate::{
     types::{Link2Tgt, ResourceId},
 };
 
-use super::tgt_iter_queryable::TgtIterQueryable;
+use super::tgt_iter_queryable::TgtIterQuerier;
 
 type Src2Link2TgtMap = HashMap<ResourceId, Vec<Link2Tgt>>;
 
@@ -32,7 +32,7 @@ impl TgtLinksMap {
     }
 }
 
-impl TgtIterQueryable for TgtLinksMap {
+impl TgtIterQuerier for TgtLinksMap {
     fn query(&self, src: ResourceId) -> Option<std::vec::IntoIter<Link2Tgt>> {
         self.link_2_tgt_map.get(&src).map(|f| f.clone().into_iter())
     }
@@ -40,7 +40,7 @@ impl TgtIterQueryable for TgtLinksMap {
 
 #[cfg(test)]
 mod tests {
-    use super::TgtIterQueryable;
+    use super::TgtIterQuerier;
     use super::TgtLinksMap;
     use crate::indexes::src_2_tgt_iter_src::MockSrc2TgtIterSrc;
     use crate::types::Link2Tgt;

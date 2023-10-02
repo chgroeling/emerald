@@ -1,7 +1,7 @@
 use std::path::Path;
 use std::rc::Rc;
 
-use crate::maps::resource_id_queryable::ResourceIdQueryable;
+use crate::maps::resource_id_queryable::ResourceIdQuerier;
 use crate::types::meta_data::MetaData;
 use crate::types::EndPoint;
 use crate::types::ResourceId;
@@ -16,11 +16,11 @@ use log::{debug, error, info, trace, warn};
 use super::meta_data_loader::MetaDataLoader;
 
 pub struct FileMetaDataLoader {
-    resource_id_queryable: Rc<dyn ResourceIdQueryable>,
+    resource_id_queryable: Rc<dyn ResourceIdQuerier>,
 }
 
 impl FileMetaDataLoader {
-    pub fn new(resource_id_queryable: Rc<dyn ResourceIdQueryable>) -> Self {
+    pub fn new(resource_id_queryable: Rc<dyn ResourceIdQuerier>) -> Self {
         Self {
             resource_id_queryable,
         }

@@ -14,7 +14,7 @@ use EmeraldError::*;
 use log::{debug, error, info, trace, warn};
 
 use super::link_queryable::Hint;
-use super::link_queryable::LinkQueryable;
+use super::link_queryable::LinkQuerier;
 
 pub type NameToResourceIdList = HashMap<String, Vec<ResourceId>>;
 
@@ -55,7 +55,7 @@ impl ResourceIdLinkMap {
     }
 }
 
-impl LinkQueryable for ResourceIdLinkMap {
+impl LinkQuerier for ResourceIdLinkMap {
     fn get_with_hint(&self, link: &Link, _hint: Hint) -> Result<ResourceId> {
         // convert string to internal link format
         let link_comp = link.split()?;
@@ -118,7 +118,7 @@ impl LinkQueryable for ResourceIdLinkMap {
 #[cfg(test)]
 mod link_mapper_tests {
     use super::EmeraldError::*;
-    use super::LinkQueryable;
+    use super::LinkQuerier;
     use super::ResourceId;
     use super::ResourceIdLinkMap;
     use super::ResourceIdsIterSrc;
