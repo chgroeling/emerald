@@ -8,14 +8,10 @@ use crate::{
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-use super::link_extractor::LinkExtractorIterSource;
-
-pub trait ResourceIdExtractorIterSource {
-    type Iter: Iterator<Item = Link2Tgt>;
-    fn create_iter(&self, content: String) -> Self::Iter;
-}
-
-// --------------------------------------------------------------------------
+use super::{
+    link_extractor_iter_src::LinkExtractorIterSource,
+    resource_id_extractor_iter_src::ResourceIdExtractorIterSource,
+};
 
 pub struct ResourceIdExtractorIterator<Iter> {
     input_iter: Iter,

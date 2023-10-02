@@ -2,21 +2,7 @@
 use log::{debug, error, info, trace, warn};
 use std::{iter::Peekable, str::CharIndices};
 
-// ------------------------------------------------------------------------------------
-
-#[derive(PartialEq, Debug)]
-pub enum ContentType {
-    WikiLink(String),
-    Link(String),
-    CodeBlock(String),
-}
-
-pub trait MarkdownExtractorIterSource {
-    type Iter: Iterator<Item = ContentType>;
-    fn create_iter(&self, content: String) -> Self::Iter;
-}
-
-// ------------------------------------------------------------------------------------
+use super::{content_type::ContentType, md_extractor_iter_src::MarkdownExtractorIterSource};
 
 pub struct MarkdownExtractor {}
 
@@ -39,8 +25,6 @@ impl MarkdownExtractorIterSource for MarkdownExtractor {
         MarkdownExtractorIter::new(content)
     }
 }
-
-// ------------------------------------------------------------------------------------
 
 #[derive(Debug)]
 pub struct MarkdownExtractorIter {

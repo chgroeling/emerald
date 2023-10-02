@@ -3,10 +3,9 @@ use std::rc::Rc;
 use crate::maps::LinkRetriever;
 
 use super::{
-    link_extractor::LinkExtractor,
-    md_extractor::MarkdownExtractor,
-    resource_id_extractor::{ResourceIdExtractor, ResourceIdExtractorIterSource},
-    MdLinkAnalyzerIterSrc,
+    link_extractor::LinkExtractor, md_extractor::MarkdownExtractor,
+    resource_id_extractor::ResourceIdExtractor,
+    resource_id_extractor_iter_src::ResourceIdExtractorIterSource, MdLinkAnalyzerIterSrc,
 };
 
 type IMarkdownIteratorSource = MarkdownExtractor;

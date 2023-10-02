@@ -7,14 +7,11 @@ use log::{debug, error, info, trace, warn};
 
 use crate::types::link::Link;
 
-use super::md_extractor::{ContentType, MarkdownExtractorIterSource};
+use super::content_type::ContentType;
+use super::link_extractor_iter_src::LinkExtractorIterSource;
+use super::md_extractor_iter_src::MarkdownExtractorIterSource;
 
 // --------------------------------------------------------------
-
-pub trait LinkExtractorIterSource {
-    type Iter: Iterator<Item = Link>;
-    fn create_iter(&self, content: String) -> Self::Iter;
-}
 
 pub struct LinkExtractor<I: MarkdownExtractorIterSource> {
     content_iter_rc: Rc<I>,
