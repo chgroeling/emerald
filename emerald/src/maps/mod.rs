@@ -18,7 +18,7 @@ use self::{
 };
 use crate::indexes::{ResourceIdsIterSrc, Src2TgtIterSrc};
 
-pub fn create_link_retriever(
+pub fn create_resource_id_retriever(
     resource_ids_iter_rc: &impl ResourceIdsIterSrc,
 ) -> Rc<dyn ResourceIdRetriever> {
     Rc::new(ResourceIdLinkMap::new(resource_ids_iter_rc))
