@@ -2,16 +2,16 @@ use std::rc::Rc;
 
 use crate::{resources::content_loader::ContentLoader, types::ResourceId};
 
-use super::markdown_provider::MarkdownProvider;
+use super::md_provider::MdProvider;
 
-pub struct ContentMarkdownProvider<I>
+pub struct ContentMdProvider<I>
 where
     I: ContentLoader,
 {
     content_queryable: Rc<I>,
 }
 
-impl<I> ContentMarkdownProvider<I>
+impl<I> ContentMdProvider<I>
 where
     I: ContentLoader,
 {
@@ -19,7 +19,7 @@ where
         Self { content_queryable }
     }
 }
-impl<I> MarkdownProvider for ContentMarkdownProvider<I>
+impl<I> MdProvider for ContentMdProvider<I>
 where
     I: ContentLoader,
 {
