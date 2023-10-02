@@ -4,7 +4,7 @@ use crate::types::EndPoint;
 use mockall::{automock, predicate::*};
 
 #[cfg_attr(test, automock(type Iter=std::vec::IntoIter<EndPoint>;))]
-pub trait EndpointsIterable {
+pub trait EndpointsIterSrc {
     type Iter: Iterator<Item = EndPoint>;
     fn iter(&self) -> Self::Iter;
 }

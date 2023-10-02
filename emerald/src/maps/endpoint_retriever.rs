@@ -5,6 +5,6 @@ use crate::Result;
 use mockall::{automock, predicate::*};
 
 #[cfg_attr(test, automock)]
-pub trait ResourceIdQueryable {
-    fn get(&self, resource_id: &ResourceId) -> Result<EndPoint>;
+pub trait EndPointRetriever {
+    fn retrieve(&self, resource_id: &ResourceId) -> Result<EndPoint>;
 }

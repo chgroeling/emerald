@@ -1,12 +1,12 @@
 use std::rc::Rc;
 
-use crate::{indexes::ResourceIdsIterable, types::ResourceId};
+use crate::{indexes::ResourceIdsIterSrc, types::ResourceId};
 
 use crate::notes::providers::provider_factory::ProviderFactory;
 
 use super::note::Note;
 
-pub struct Vault<I: ResourceIdsIterable>
+pub struct Vault<I: ResourceIdsIterSrc>
 where
     I::Iter: Iterator<Item = ResourceId>,
 {
@@ -14,7 +14,7 @@ where
     provider_factory: Rc<dyn ProviderFactory>,
 }
 
-impl<I: ResourceIdsIterable> Vault<I>
+impl<I: ResourceIdsIterSrc> Vault<I>
 where
     I::Iter: Iterator<Item = ResourceId>,
 {

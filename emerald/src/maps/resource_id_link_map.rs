@@ -1,4 +1,4 @@
-use crate::indexes::ResourceIdsIterable;
+use crate::indexes::ResourceIdsIterSrc;
 use crate::types::link::Link;
 use crate::types::ResourceId;
 use crate::utils::normalize_string::normalize_str;
@@ -13,8 +13,8 @@ use EmeraldError::*;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-use super::link_queryable::Hint;
-use super::link_queryable::LinkQueryable;
+use super::resource_id_retriever::Hint;
+use super::resource_id_retriever::ResourceIdRetriever;
 
 pub type NameToResourceIdList = HashMap<String, Vec<ResourceId>>;
 
@@ -23,12 +23,12 @@ pub struct ResourceIdLinkMap {
 }
 
 impl ResourceIdLinkMap {
-    pub fn new(resource_ids_iterable: &impl ResourceIdsIterable) -> Self {
+    pub fn new(resource_ids_iter_rc: &impl ResourceIdsIterSrc) -> Self {
         // Assumption: All resource ids are encoded in utf8 nfc
         let mut name_to_resource_id_list: NameToResourceIdList = NameToResourceIdList::new();
 
         // Iterator yields (normalized_link, link_to_file)
-        let link_name_iter = resource_ids_iterable.iter().map(|resource_id| {
+        let link_name_iter = resource_ids_iter_rc.iter().map(|resource_id| {
             let res_id_comp = resource_id.split().unwrap();
             let normalized_link = res_id_comp.name.to_lowercase();
 
@@ -55,8 +55,8 @@ impl ResourceIdLinkMap {
     }
 }
 
-impl LinkQueryable for ResourceIdLinkMap {
-    fn get_with_hint(&self, link: &Link, _hint: Hint) -> Result<ResourceId> {
+impl ResourceIdRetriever for ResourceIdLinkMap {
+    fn retrieve_with_hint(&self, link: &Link, _hint: Hint) -> Result<ResourceId> {
         // convert string to internal link format
         let link_comp = link.split()?;
         let link_name_lc = normalize_str(&link_comp.name.trim().to_lowercase());
@@ -118,16 +118,16 @@ impl LinkQueryable for ResourceIdLinkMap {
 #[cfg(test)]
 mod link_mapper_tests {
     use super::EmeraldError::*;
-    use super::LinkQueryable;
     use super::ResourceId;
     use super::ResourceIdLinkMap;
-    use super::ResourceIdsIterable;
+    use super::ResourceIdRetriever;
+    use super::ResourceIdsIterSrc;
 
     struct MockFileIndex {
         links: Vec<ResourceId>,
     }
 
-    impl ResourceIdsIterable for MockFileIndex {
+    impl ResourceIdsIterSrc for MockFileIndex {
         type Iter = std::vec::IntoIter<ResourceId>;
 
         fn iter(&self) -> Self::Iter {
@@ -144,7 +144,7 @@ mod link_mapper_tests {
         let file_index = prepare_mock_file_index(vec!["[[note1.md]]".into()]);
         let dut = ResourceIdLinkMap::new(&file_index);
 
-        let result = dut.get(&"[note1]]".into());
+        let result = dut.retrieve(&"[note1]]".into());
 
         assert!(result.is_err_and(|f| matches!(f, NotAWikiLink)));
     }
@@ -154,7 +154,7 @@ mod link_mapper_tests {
         let file_index = prepare_mock_file_index(vec!["[[note1.md]]".into()]);
         let dut = ResourceIdLinkMap::new(&file_index);
 
-        let result = dut.get(&"[[note1]]".into());
+        let result = dut.retrieve(&"[[note1]]".into());
 
         assert!(result.is_ok_and(|f| f == "[[note1.md]]".into()));
     }
@@ -164,7 +164,7 @@ mod link_mapper_tests {
         let file_index = prepare_mock_file_index(vec!["[[note1.md]]".into()]);
         let dut = ResourceIdLinkMap::new(&file_index);
 
-        let result = dut.get(&"[[note1  ]]".into());
+        let result = dut.retrieve(&"[[note1  ]]".into());
 
         assert!(result.is_ok_and(|f| f == "[[note1.md]]".into()));
     }
@@ -174,7 +174,7 @@ mod link_mapper_tests {
         let file_index = prepare_mock_file_index(vec!["[[note1..md]]".into()]);
         let dut = ResourceIdLinkMap::new(&file_index);
 
-        let result = dut.get(&"[[note1.]]".into());
+        let result = dut.retrieve(&"[[note1.]]".into());
 
         assert!(result.is_ok_and(|f| f == "[[note1..md]]".into()));
     }
@@ -184,7 +184,7 @@ mod link_mapper_tests {
         let file_index = prepare_mock_file_index(vec!["[[note1..md]]".into()]);
         let dut = ResourceIdLinkMap::new(&file_index);
 
-        let result = dut.get(&"[[note1]]".into());
+        let result = dut.retrieve(&"[[note1]]".into());
 
         assert!(result
             .is_err_and(|f| matches!(f, LinkNotFound(failed_link) if failed_link == "[[note1]]")));
@@ -194,7 +194,7 @@ mod link_mapper_tests {
         let file_index = prepare_mock_file_index(vec!["[[note1.md]]".into()]);
         let dut = ResourceIdLinkMap::new(&file_index);
 
-        let result = dut.get(&"[[note1.md]]".into());
+        let result = dut.retrieve(&"[[note1.md]]".into());
 
         assert!(result.is_ok_and(|f| f == "[[note1.md]]".into()));
     }
@@ -204,7 +204,7 @@ mod link_mapper_tests {
         let file_index = prepare_mock_file_index(vec!["[[note1.md]]".into()]);
         let dut = ResourceIdLinkMap::new(&file_index);
 
-        let result = dut.get(&"[[missing]]".into());
+        let result = dut.retrieve(&"[[missing]]".into());
 
         assert!(result.is_err_and(
             |f| matches!(f, LinkNotFound(failed_link) if failed_link == "[[missing]]")
@@ -216,7 +216,7 @@ mod link_mapper_tests {
         let file_index = prepare_mock_file_index(vec!["[[note1.md]]".into()]);
         let dut = ResourceIdLinkMap::new(&file_index);
 
-        let result = dut.get(&"[[missing.md]]".into());
+        let result = dut.retrieve(&"[[missing.md]]".into());
 
         assert!(result.is_err_and(
             |f| matches!(f, LinkNotFound(failed_link) if failed_link == "[[missing.md]]")
@@ -231,7 +231,7 @@ mod link_mapper_tests {
         ]);
         let dut = ResourceIdLinkMap::new(&file_index);
 
-        let result = dut.get(&"[[note1]]".into());
+        let result = dut.retrieve(&"[[note1]]".into());
 
         assert!(result.is_ok_and(|f| f == "[[path1/note1.md]]".into()));
     }
@@ -242,7 +242,7 @@ mod link_mapper_tests {
             prepare_mock_file_index(vec!["[[path1/note1]]".into(), "[[path2/note1.md]]".into()]);
         let dut = ResourceIdLinkMap::new(&file_index);
 
-        let result = dut.get(&"[[note1]]".into());
+        let result = dut.retrieve(&"[[note1]]".into());
 
         // always return the exact match even when a md file exists.
         assert!(result.is_ok_and(|f| f == "[[path1/note1]]".into()));
@@ -256,7 +256,7 @@ mod link_mapper_tests {
         ]);
         let dut = ResourceIdLinkMap::new(&file_index);
 
-        let result = dut.get(&"[[path2/note1]]".into());
+        let result = dut.retrieve(&"[[path2/note1]]".into());
 
         // assert
         assert!(result.is_ok_and(|f| f == "[[path2/note1.md]]".into()));
@@ -270,7 +270,7 @@ mod link_mapper_tests {
         ]);
         let dut = ResourceIdLinkMap::new(&file_index);
 
-        let result = dut.get(&"[[path2/note1.md]]".into());
+        let result = dut.retrieve(&"[[path2/note1.md]]".into());
 
         // assert
         assert!(result.is_ok_and(|f| f == "[[path2/note1.md]]".into()));
@@ -286,7 +286,7 @@ mod link_mapper_tests {
         let dut = ResourceIdLinkMap::new(&file_index);
 
         // Attention: The "ä" from above is coded differently than the following ä
-        let result = dut.get(&"[[päth2/note1.md]]".into());
+        let result = dut.retrieve(&"[[päth2/note1.md]]".into());
 
         // assert
         assert!(result.is_ok_and(|f| f == "[[päth2/note1.md]]".into()));
@@ -302,7 +302,7 @@ mod link_mapper_tests {
         let dut = ResourceIdLinkMap::new(&file_index);
 
         // Attention: The "ö" from above is coded differently than the following ö
-        let result = dut.get(&"[[path2/nöte1.md]]".into());
+        let result = dut.retrieve(&"[[path2/nöte1.md]]".into());
 
         // assert
         assert!(result.is_ok_and(|f| f == "[[path2/nöte1.md]]".into()));

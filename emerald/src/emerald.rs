@@ -7,13 +7,13 @@ use crate::content_analyzers::MdLinkAnalyzer;
 use crate::indexes::endpoint_index::EndpointIndex;
 use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdIndex};
 use crate::indexes::src_2_tgt_index::Src2TargetIndex;
-use crate::indexes::EndpointsIterable;
+use crate::indexes::EndpointsIterSrc;
 use crate::maps::endpoint_resource_id_map::EndpointResourceIdMap;
-use crate::maps::resource_id_queryable::ResourceIdQueryable;
-use crate::maps::LinkQueryable;
-use crate::maps::TgtIterQueryable;
-use crate::maps::{create_link_queryable, SrcIterQueryable};
-use crate::maps::{create_src_iter_queryable, create_tgt_iter_queryable};
+use crate::maps::endpoint_retriever::EndPointRetriever;
+use crate::maps::ResourceIdRetriever;
+use crate::maps::TgtIterRetriever;
+use crate::maps::{create_resource_id_retriever, SrcIterRetriever};
+use crate::maps::{create_src_iter_retriever, create_tgt_iter_retriever};
 use crate::notes::providers::std_provider_factory::StdProviderFactory;
 use crate::notes::vault::Vault;
 use crate::resources::content_full_cache::ContentFullCache;
@@ -27,12 +27,12 @@ use crate::Result;
 pub struct Emerald {
     pub md_link_analyzer: Rc<MdLinkAnalyzer>,
     pub ep_index: Rc<EndpointIndex>,
-    pub resource_id_queryable: Rc<dyn ResourceIdQueryable>,
+    pub ep_retriever: Rc<dyn EndPointRetriever>,
     pub meta_data_loader: Rc<dyn MetaDataLoader>,
     pub resource_id_index: Rc<ResourceIdIndex>,
-    pub link_queryable: Rc<dyn LinkQueryable>,
-    pub tgt_iter_queryable: Rc<dyn TgtIterQueryable>,
-    pub src_iter_queryable: Rc<dyn SrcIterQueryable>,
+    pub resource_id_retriever: Rc<dyn ResourceIdRetriever>,
+    pub tgt_iter_retriever: Rc<dyn TgtIterRetriever>,
+    pub src_iter_retriever: Rc<dyn SrcIterRetriever>,
     pub note_link_index: Rc<Src2TargetIndex>,
     pub content_loader: Rc<FileContentLoader>,
     pub content_storage: Rc<ContentFullCache>,
@@ -48,38 +48,40 @@ impl Emerald {
         debug!("Creation of EndpointIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let resource_id_queryable =
-            Rc::new(EndpointResourceIdMap::new(ep_index.as_ref(), vault_path));
+        let ep_retriever = Rc::new(EndpointResourceIdMap::new(ep_index.as_ref(), vault_path));
         debug!(
             "Creation of EndpointResourceIdMap took: {:?}",
             start.elapsed()
         );
 
         let start = Instant::now();
-        let meta_data_loader = Rc::new(FileMetaDataLoader::new(resource_id_queryable.clone()));
+        let meta_data_loader = Rc::new(FileMetaDataLoader::new(ep_retriever.clone()));
         debug!("Creation of FileMetaDataLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
         let resource_id_index = Rc::new(ResourceIdIndex::new(ep_index.as_ref(), vault_path));
-        let all_res_ids_iterable = Rc::new(AllResourceIds::new_from_rc(&resource_id_index));
-        let md_res_ids_iterable = Rc::new(MdResourceIds::new_from_rc(&resource_id_index));
+        let all_res_ids_iter_rc = Rc::new(AllResourceIds::new_from_rc(&resource_id_index));
+        let md_res_ids_iter_rc = Rc::new(MdResourceIds::new_from_rc(&resource_id_index));
         debug!("Creation of ResourceIdIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let link_queryable = create_link_queryable(all_res_ids_iterable.as_ref());
-        debug!("Creation of LinkQueryableImpl took: {:?}", start.elapsed());
+        let resource_id_retriever = create_resource_id_retriever(all_res_ids_iter_rc.as_ref());
+        debug!(
+            "Creation of ResourceIdRetriever took: {:?}",
+            start.elapsed()
+        );
 
         let start = Instant::now();
-        let md_link_analyzer = Rc::new(MdLinkAnalyzer::new(link_queryable.clone()));
+        let md_link_analyzer = Rc::new(MdLinkAnalyzer::new(resource_id_retriever.clone()));
         debug!("Creation of MdLinkAnalyzer took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let content_loader = Rc::new(FileContentLoader::new(resource_id_queryable.clone()));
+        let content_loader = Rc::new(FileContentLoader::new(ep_retriever.clone()));
         debug!("Creation of FileContentLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
         let content_storage = Rc::new(ContentFullCache::new(
-            md_res_ids_iterable.as_ref(),
+            md_res_ids_iter_rc.as_ref(),
             content_loader.as_ref(),
         ));
         debug!("Creation of ContentStorage took: {:?}", start.elapsed());
@@ -95,12 +97,12 @@ impl Emerald {
         );
 
         let start = Instant::now();
-        let tgt_iter_queryable = create_tgt_iter_queryable(note_link_index.as_ref());
-        debug!("Creation of TgtIterQueryable took: {:?}", start.elapsed());
+        let tgt_iter_retriever = create_tgt_iter_retriever(note_link_index.as_ref());
+        debug!("Creation of TgtIterRetriever took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let src_iter_queryable = create_src_iter_queryable(note_link_index.as_ref());
-        debug!("Creation of SrcIterQueryable took: {:?}", start.elapsed());
+        let src_iter_retriever = create_src_iter_retriever(note_link_index.as_ref());
+        debug!("Creation of SrcIterRetriever took: {:?}", start.elapsed());
 
         let start = Instant::now();
         let std_provider_factory = Rc::new(StdProviderFactory::new(
@@ -111,23 +113,23 @@ impl Emerald {
 
         let start = Instant::now();
         let vault = Rc::new(Vault::new(
-            md_res_ids_iterable.clone(),
+            md_res_ids_iter_rc.clone(),
             std_provider_factory.clone(),
         ));
         debug!("Creation of Vault took: {:?}", start.elapsed());
 
         Ok(Emerald {
             md_link_analyzer,
-            resource_id_queryable,
+            ep_retriever,
             meta_data_loader,
-            link_queryable,
+            resource_id_retriever,
             ep_index,
             resource_id_index,
             content_loader,
             content_storage,
             note_link_index,
-            tgt_iter_queryable,
-            src_iter_queryable,
+            tgt_iter_retriever,
+            src_iter_retriever,
             std_provider_factory,
             vault,
         })

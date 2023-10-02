@@ -1,7 +1,7 @@
 use std::fs;
 use std::rc::Rc;
 
-use crate::maps::resource_id_queryable::ResourceIdQueryable;
+use crate::maps::endpoint_retriever::EndPointRetriever;
 use crate::types::Content;
 use crate::types::EndPoint;
 use crate::types::ResourceId;
@@ -16,20 +16,18 @@ use log::{debug, error, info, trace, warn};
 use super::content_loader::ContentLoader;
 
 pub struct FileContentLoader {
-    resource_id_queryable: Rc<dyn ResourceIdQueryable>,
+    ep_retriever: Rc<dyn EndPointRetriever>,
 }
 
 impl FileContentLoader {
-    pub fn new(resource_id_queryable: Rc<dyn ResourceIdQueryable>) -> Self {
-        Self {
-            resource_id_queryable,
-        }
+    pub fn new(ep_retriever: Rc<dyn EndPointRetriever>) -> Self {
+        Self { ep_retriever }
     }
 }
 
 impl ContentLoader for FileContentLoader {
     fn load(&self, resource_id: &ResourceId) -> Result<Content> {
-        let endpoint = self.resource_id_queryable.get(resource_id)?;
+        let endpoint = self.ep_retriever.retrieve(resource_id)?;
 
         let EndPoint::FileMarkdown(md_path) = endpoint else {
             return Err(NotAMarkdownFile);

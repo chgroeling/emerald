@@ -4,9 +4,9 @@ use std::collections::HashMap;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-use super::{content_iterable::ContentIterable, content_loader::ContentLoader};
+use super::{content_iter_src::ContentIterSrc, content_loader::ContentLoader};
 use crate::{
-    indexes::ResourceIdsIterable,
+    indexes::ResourceIdsIterSrc,
     types::{Content, ResourceId},
 };
 
@@ -17,13 +17,13 @@ pub struct ContentFullCache {
 
 impl<'a> ContentFullCache {
     pub fn new(
-        md_resource_ids_iterable: &impl ResourceIdsIterable,
+        md_resource_ids_iter_rc: &impl ResourceIdsIterSrc,
         content_loader: &'a impl ContentLoader,
     ) -> ContentFullCache {
         let mut res_id_to_content_list = Vec::<(ResourceId, Content)>::new();
         let mut res_id_to_content_idx = HashMap::<ResourceId, Content>::new();
 
-        for md_res_id in md_resource_ids_iterable.iter() {
+        for md_res_id in md_resource_ids_iter_rc.iter() {
             let read_note = content_loader.load(&md_res_id);
 
             // ignore files that cannot be read
@@ -54,7 +54,7 @@ impl ContentLoader for ContentFullCache {
     }
 }
 
-impl ContentIterable for ContentFullCache {
+impl ContentIterSrc for ContentFullCache {
     type Iter = std::vec::IntoIter<(ResourceId, Content)>;
     fn iter(&self) -> Self::Iter {
         self.res_id_to_content_vec.clone().into_iter()

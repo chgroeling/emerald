@@ -2,21 +2,7 @@
 use log::{debug, error, info, trace, warn};
 use std::{iter::Peekable, str::CharIndices};
 
-// ------------------------------------------------------------------------------------
-
-#[derive(PartialEq, Debug)]
-pub enum ContentType {
-    WikiLink(String),
-    Link(String),
-    CodeBlock(String),
-}
-
-pub trait MarkdownExtractorIterSource {
-    type Iter: Iterator<Item = ContentType>;
-    fn create_iter(&self, content: String) -> Self::Iter;
-}
-
-// ------------------------------------------------------------------------------------
+use super::{content_type::ContentType, md_extractor_iter_src::MarkdownExtractorIterSrc};
 
 pub struct MarkdownExtractor {}
 
@@ -32,15 +18,13 @@ impl Default for MarkdownExtractor {
     }
 }
 
-impl MarkdownExtractorIterSource for MarkdownExtractor {
+impl MarkdownExtractorIterSrc for MarkdownExtractor {
     type Iter = MarkdownExtractorIter;
 
     fn create_iter(&self, content: String) -> Self::Iter {
         MarkdownExtractorIter::new(content)
     }
 }
-
-// ------------------------------------------------------------------------------------
 
 #[derive(Debug)]
 pub struct MarkdownExtractorIter {
@@ -61,8 +45,6 @@ impl Iterator for MarkdownExtractorIter {
         self.content_iter.next()
     }
 }
-
-// ------------------------------------------------------------------------------------
 
 enum MarkdownIteratorState {
     IllegalFormat,
