@@ -13,7 +13,7 @@ use EmeraldError::*;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-use super::content_loader::ContentLoader;
+use super::content_queryable::ContentQueryable;
 
 pub struct FileContentLoader {
     resource_id_queryable: Rc<dyn ResourceIdQueryable>,
@@ -27,8 +27,8 @@ impl FileContentLoader {
     }
 }
 
-impl ContentLoader for FileContentLoader {
-    fn load(&self, resource_id: ResourceId) -> Result<Content> {
+impl ContentQueryable for FileContentLoader {
+    fn get(&self, resource_id: ResourceId) -> Result<Content> {
         let endpoint = self.resource_id_queryable.get(&resource_id)?;
 
         let EndPoint::FileMarkdown(md_path) = endpoint else {

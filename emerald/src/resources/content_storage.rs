@@ -4,10 +4,7 @@ use std::collections::HashMap;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-use super::{
-    content_iterable::ContentIterable, content_loader::ContentLoader,
-    content_queryable::ContentQueryable,
-};
+use super::{content_iterable::ContentIterable, content_queryable::ContentQueryable};
 use crate::{
     indexes::ResourceIdsIterable,
     types::{Content, ResourceId},
@@ -24,13 +21,13 @@ pub struct ContentStorage {
 impl<'a> ContentStorage {
     pub fn new(
         md_resource_ids_iterable: &impl ResourceIdsIterable,
-        content_loader: &'a impl ContentLoader,
+        content_loader: &'a impl ContentQueryable,
     ) -> ContentStorage {
         let mut res_id_to_content_list = ResourceIdContentList::new();
         let mut res_id_to_content_idx = ResourceIdToContentIdx::new();
 
         for md_res_id in md_resource_ids_iterable.iter() {
-            let read_note = content_loader.load(md_res_id.clone());
+            let read_note = content_loader.get(md_res_id.clone());
 
             // ignore files that cannot be read
             if let Ok(content) = read_note {
