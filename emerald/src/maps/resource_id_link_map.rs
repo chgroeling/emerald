@@ -1,4 +1,4 @@
-use crate::indexes::ResourceIdsIterable;
+use crate::indexes::ResourceIdsIterSrc;
 use crate::types::link::Link;
 use crate::types::ResourceId;
 use crate::utils::normalize_string::normalize_str;
@@ -23,7 +23,7 @@ pub struct ResourceIdLinkMap {
 }
 
 impl ResourceIdLinkMap {
-    pub fn new(resource_ids_iterable: &impl ResourceIdsIterable) -> Self {
+    pub fn new(resource_ids_iterable: &impl ResourceIdsIterSrc) -> Self {
         // Assumption: All resource ids are encoded in utf8 nfc
         let mut name_to_resource_id_list: NameToResourceIdList = NameToResourceIdList::new();
 
@@ -121,13 +121,13 @@ mod link_mapper_tests {
     use super::LinkQueryable;
     use super::ResourceId;
     use super::ResourceIdLinkMap;
-    use super::ResourceIdsIterable;
+    use super::ResourceIdsIterSrc;
 
     struct MockFileIndex {
         links: Vec<ResourceId>,
     }
 
-    impl ResourceIdsIterable for MockFileIndex {
+    impl ResourceIdsIterSrc for MockFileIndex {
         type Iter = std::vec::IntoIter<ResourceId>;
 
         fn iter(&self) -> Self::Iter {

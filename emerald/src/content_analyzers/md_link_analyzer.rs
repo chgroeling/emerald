@@ -6,7 +6,7 @@ use super::{
     link_extractor::LinkExtractor,
     md_extractor::MarkdownExtractor,
     resource_id_extractor::{ResourceIdExtractor, ResourceIdExtractorIterSource},
-    MdLinkAnalyzerIterable,
+    MdLinkAnalyzerIterSrc,
 };
 
 type IMarkdownIteratorSource = MarkdownExtractor;
@@ -31,7 +31,7 @@ impl MdLinkAnalyzer {
     }
 }
 
-impl MdLinkAnalyzerIterable for MdLinkAnalyzer {
+impl MdLinkAnalyzerIterSrc for MdLinkAnalyzer {
     type Iter = ResourceIdExtractorIteratorImpl;
 
     fn create_iter(&self, content: String) -> Self::Iter {

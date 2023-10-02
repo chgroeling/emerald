@@ -7,7 +7,7 @@ use log::{debug, error, info, trace, warn};
 
 use crate::types::EndPoint;
 
-use super::{endpoints_iterable::EndpointsIterable, resource_ids_iterable::ResourceIdsIterable};
+use super::{endpoints_iter_src::EndpointsIterSrc, resource_ids_iter_src::ResourceIdsIterSrc};
 
 pub struct ResourceIdIndex {
     all_resource_ids_list: Vec<ResourceId>,
@@ -15,7 +15,7 @@ pub struct ResourceIdIndex {
 }
 
 impl ResourceIdIndex {
-    pub fn new(ep_iterable: &impl EndpointsIterable, common_path: &Path) -> ResourceIdIndex {
+    pub fn new(ep_iterable: &impl EndpointsIterSrc, common_path: &Path) -> ResourceIdIndex {
         let mut all_resource_ids_list = Vec::<ResourceId>::new();
         let mut md_resource_ids_list = Vec::<ResourceId>::new();
 
@@ -50,7 +50,7 @@ impl AllResourceIds {
         Self(value.clone())
     }
 }
-impl ResourceIdsIterable for AllResourceIds {
+impl ResourceIdsIterSrc for AllResourceIds {
     type Iter = std::vec::IntoIter<ResourceId>;
     fn iter(&self) -> Self::Iter {
         self.0.all_resource_ids_list.clone().into_iter()
@@ -70,7 +70,7 @@ impl MdResourceIds {
     }
 }
 
-impl ResourceIdsIterable for MdResourceIds {
+impl ResourceIdsIterSrc for MdResourceIds {
     type Iter = std::vec::IntoIter<ResourceId>;
     fn iter(&self) -> Self::Iter {
         self.0.md_resource_ids_list.clone().into_iter()
@@ -80,13 +80,13 @@ impl ResourceIdsIterable for MdResourceIds {
 #[cfg(test)]
 mod tests {
     use super::{EndPoint, ResourceId, ResourceIdIndex};
-    use crate::indexes::endpoints_iterable::MockEndpointsIterable;
-    use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdsIterable};
+    use crate::indexes::endpoints_iter_src::MockEndpointsIterSrc;
+    use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdsIterSrc};
     use std::path::PathBuf;
     use EndPoint::*;
 
-    fn setup_endpoints_iterable(test_data: Vec<EndPoint>) -> MockEndpointsIterable {
-        let mut mock = MockEndpointsIterable::new();
+    fn setup_endpoints_iterable(test_data: Vec<EndPoint>) -> MockEndpointsIterSrc {
+        let mut mock = MockEndpointsIterSrc::new();
         mock.expect_iter().return_const(test_data.into_iter());
         mock
     }

@@ -7,7 +7,7 @@ use crate::content_analyzers::MdLinkAnalyzer;
 use crate::indexes::endpoint_index::EndpointIndex;
 use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdIndex};
 use crate::indexes::src_2_tgt_index::Src2TargetIndex;
-use crate::indexes::EndpointsIterable;
+use crate::indexes::EndpointsIterSrc;
 use crate::maps::endpoint_resource_id_map::EndpointResourceIdMap;
 use crate::maps::resource_id_queryable::ResourceIdQueryable;
 use crate::maps::LinkQueryable;

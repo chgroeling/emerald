@@ -1,7 +1,7 @@
 use std::collections::{hash_map::Entry, HashMap};
 
 use crate::{
-    indexes::Src2TgtIterable,
+    indexes::Src2TgtIterSrc,
     types::{LinkFrmSrc, ResourceId},
 };
 
@@ -14,7 +14,7 @@ pub struct SrcLinksMap {
 }
 
 impl SrcLinksMap {
-    pub fn new(link_s2t_iterable: &impl Src2TgtIterable) -> Self {
+    pub fn new(link_s2t_iterable: &impl Src2TgtIterSrc) -> Self {
         let mut src_2_tgt_map = Tgt2LinkFrmSrcMap::new();
         for s2t in link_s2t_iterable.iter() {
             let link_from_source = s2t.get_link_from_source();
@@ -47,13 +47,13 @@ mod tests {
     use super::LinkFrmSrc;
     use super::SrcIterQueryable;
     use super::SrcLinksMap;
-    use crate::indexes::src_2_tgt_iterable::MockSrc2TgtIterable;
+    use crate::indexes::src_2_tgt_iter_src::MockSrc2TgtIterSrc;
 
     #[test]
     fn test_one_match() {
         let test_data = vec![("o1", "o1->d1", "d1").into()];
 
-        let mut mock = MockSrc2TgtIterable::new();
+        let mut mock = MockSrc2TgtIterSrc::new();
         mock.expect_iter().return_const(test_data.into_iter());
 
         let dut = SrcLinksMap::new(&mock);
@@ -66,7 +66,7 @@ mod tests {
     fn test_two_matches() {
         let test_data = vec![("o1", "o1->d1", "d1").into(), ("o1", "o1->d2", "d2").into()];
 
-        let mut mock = MockSrc2TgtIterable::new();
+        let mut mock = MockSrc2TgtIterSrc::new();
         mock.expect_iter().return_const(test_data.into_iter());
 
         let dut = SrcLinksMap::new(&mock);
@@ -85,7 +85,7 @@ mod tests {
             ("doesn't matter 3", "abc", "def").into(),
         ];
 
-        let mut mock = MockSrc2TgtIterable::new();
+        let mut mock = MockSrc2TgtIterSrc::new();
         mock.expect_iter().return_const(test_data.into_iter());
         let dut = SrcLinksMap::new(&mock);
         let res: Vec<LinkFrmSrc> = dut.query("d1".into()).unwrap().collect();
