@@ -4,7 +4,7 @@ use std::collections::HashMap;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-use super::{content_iterable::ContentIterable, content_queryable::ContentQueryable};
+use super::{content_iterable::ContentIterable, content_loader::ContentLoader};
 use crate::{
     indexes::ResourceIdsIterable,
     types::{Content, ResourceId},
@@ -18,13 +18,13 @@ pub struct ContentFullCache {
 impl<'a> ContentFullCache {
     pub fn new(
         md_resource_ids_iterable: &impl ResourceIdsIterable,
-        content_loader: &'a impl ContentQueryable,
+        content_loader: &'a impl ContentLoader,
     ) -> ContentFullCache {
         let mut res_id_to_content_list = Vec::<(ResourceId, Content)>::new();
         let mut res_id_to_content_idx = HashMap::<ResourceId, Content>::new();
 
         for md_res_id in md_resource_ids_iterable.iter() {
-            let read_note = content_loader.query(&md_res_id);
+            let read_note = content_loader.load(&md_res_id);
 
             // ignore files that cannot be read
             if let Ok(content) = read_note {
@@ -45,8 +45,8 @@ impl<'a> ContentFullCache {
     }
 }
 
-impl ContentQueryable for ContentFullCache {
-    fn query(&self, resource_id: &ResourceId) -> Result<Content> {
+impl ContentLoader for ContentFullCache {
+    fn load(&self, resource_id: &ResourceId) -> Result<Content> {
         self.res_id_to_content
             .get(resource_id)
             .ok_or(EmeraldError::ResourceIdNotFound)
