@@ -6,5 +6,5 @@ use mockall::{automock, predicate::*};
 
 #[cfg_attr(test, automock)]
 pub trait ResourceIdQuerier {
-    fn get(&self, resource_id: &ResourceId) -> Result<EndPoint>;
+    fn query(&self, resource_id: &ResourceId) -> Result<EndPoint>;
 }

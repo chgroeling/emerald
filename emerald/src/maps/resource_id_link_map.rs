@@ -56,7 +56,7 @@ impl ResourceIdLinkMap {
 }
 
 impl LinkQuerier for ResourceIdLinkMap {
-    fn get_with_hint(&self, link: &Link, _hint: Hint) -> Result<ResourceId> {
+    fn query_with_hint(&self, link: &Link, _hint: Hint) -> Result<ResourceId> {
         // convert string to internal link format
         let link_comp = link.split()?;
         let link_name_lc = normalize_str(&link_comp.name.trim().to_lowercase());
@@ -144,7 +144,7 @@ mod link_mapper_tests {
         let file_index = prepare_mock_file_index(vec!["[[note1.md]]".into()]);
         let dut = ResourceIdLinkMap::new(&file_index);
 
-        let result = dut.get(&"[note1]]".into());
+        let result = dut.query(&"[note1]]".into());
 
         assert!(result.is_err_and(|f| matches!(f, NotAWikiLink)));
     }
@@ -154,7 +154,7 @@ mod link_mapper_tests {
         let file_index = prepare_mock_file_index(vec!["[[note1.md]]".into()]);
         let dut = ResourceIdLinkMap::new(&file_index);
 
-        let result = dut.get(&"[[note1]]".into());
+        let result = dut.query(&"[[note1]]".into());
 
         assert!(result.is_ok_and(|f| f == "[[note1.md]]".into()));
     }
@@ -164,7 +164,7 @@ mod link_mapper_tests {
         let file_index = prepare_mock_file_index(vec!["[[note1.md]]".into()]);
         let dut = ResourceIdLinkMap::new(&file_index);
 
-        let result = dut.get(&"[[note1  ]]".into());
+        let result = dut.query(&"[[note1  ]]".into());
 
         assert!(result.is_ok_and(|f| f == "[[note1.md]]".into()));
     }
@@ -174,7 +174,7 @@ mod link_mapper_tests {
         let file_index = prepare_mock_file_index(vec!["[[note1..md]]".into()]);
         let dut = ResourceIdLinkMap::new(&file_index);
 
-        let result = dut.get(&"[[note1.]]".into());
+        let result = dut.query(&"[[note1.]]".into());
 
         assert!(result.is_ok_and(|f| f == "[[note1..md]]".into()));
     }
@@ -184,7 +184,7 @@ mod link_mapper_tests {
         let file_index = prepare_mock_file_index(vec!["[[note1..md]]".into()]);
         let dut = ResourceIdLinkMap::new(&file_index);
 
-        let result = dut.get(&"[[note1]]".into());
+        let result = dut.query(&"[[note1]]".into());
 
         assert!(result
             .is_err_and(|f| matches!(f, LinkNotFound(failed_link) if failed_link == "[[note1]]")));
@@ -194,7 +194,7 @@ mod link_mapper_tests {
         let file_index = prepare_mock_file_index(vec!["[[note1.md]]".into()]);
         let dut = ResourceIdLinkMap::new(&file_index);
 
-        let result = dut.get(&"[[note1.md]]".into());
+        let result = dut.query(&"[[note1.md]]".into());
 
         assert!(result.is_ok_and(|f| f == "[[note1.md]]".into()));
     }
@@ -204,7 +204,7 @@ mod link_mapper_tests {
         let file_index = prepare_mock_file_index(vec!["[[note1.md]]".into()]);
         let dut = ResourceIdLinkMap::new(&file_index);
 
-        let result = dut.get(&"[[missing]]".into());
+        let result = dut.query(&"[[missing]]".into());
 
         assert!(result.is_err_and(
             |f| matches!(f, LinkNotFound(failed_link) if failed_link == "[[missing]]")
@@ -216,7 +216,7 @@ mod link_mapper_tests {
         let file_index = prepare_mock_file_index(vec!["[[note1.md]]".into()]);
         let dut = ResourceIdLinkMap::new(&file_index);
 
-        let result = dut.get(&"[[missing.md]]".into());
+        let result = dut.query(&"[[missing.md]]".into());
 
         assert!(result.is_err_and(
             |f| matches!(f, LinkNotFound(failed_link) if failed_link == "[[missing.md]]")
@@ -231,7 +231,7 @@ mod link_mapper_tests {
         ]);
         let dut = ResourceIdLinkMap::new(&file_index);
 
-        let result = dut.get(&"[[note1]]".into());
+        let result = dut.query(&"[[note1]]".into());
 
         assert!(result.is_ok_and(|f| f == "[[path1/note1.md]]".into()));
     }
@@ -242,7 +242,7 @@ mod link_mapper_tests {
             prepare_mock_file_index(vec!["[[path1/note1]]".into(), "[[path2/note1.md]]".into()]);
         let dut = ResourceIdLinkMap::new(&file_index);
 
-        let result = dut.get(&"[[note1]]".into());
+        let result = dut.query(&"[[note1]]".into());
 
         // always return the exact match even when a md file exists.
         assert!(result.is_ok_and(|f| f == "[[path1/note1]]".into()));
@@ -256,7 +256,7 @@ mod link_mapper_tests {
         ]);
         let dut = ResourceIdLinkMap::new(&file_index);
 
-        let result = dut.get(&"[[path2/note1]]".into());
+        let result = dut.query(&"[[path2/note1]]".into());
 
         // assert
         assert!(result.is_ok_and(|f| f == "[[path2/note1.md]]".into()));
@@ -270,7 +270,7 @@ mod link_mapper_tests {
         ]);
         let dut = ResourceIdLinkMap::new(&file_index);
 
-        let result = dut.get(&"[[path2/note1.md]]".into());
+        let result = dut.query(&"[[path2/note1.md]]".into());
 
         // assert
         assert!(result.is_ok_and(|f| f == "[[path2/note1.md]]".into()));
@@ -286,7 +286,7 @@ mod link_mapper_tests {
         let dut = ResourceIdLinkMap::new(&file_index);
 
         // Attention: The "ä" from above is coded differently than the following ä
-        let result = dut.get(&"[[päth2/note1.md]]".into());
+        let result = dut.query(&"[[päth2/note1.md]]".into());
 
         // assert
         assert!(result.is_ok_and(|f| f == "[[päth2/note1.md]]".into()));
@@ -302,7 +302,7 @@ mod link_mapper_tests {
         let dut = ResourceIdLinkMap::new(&file_index);
 
         // Attention: The "ö" from above is coded differently than the following ö
-        let result = dut.get(&"[[path2/nöte1.md]]".into());
+        let result = dut.query(&"[[path2/nöte1.md]]".into());
 
         // assert
         assert!(result.is_ok_and(|f| f == "[[path2/nöte1.md]]".into()));

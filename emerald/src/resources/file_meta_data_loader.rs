@@ -35,7 +35,7 @@ impl FileMetaDataLoader {
 
 impl MetaDataLoader for FileMetaDataLoader {
     fn load(&self, resource_id: &ResourceId) -> Result<MetaData> {
-        let endpoint = self.resource_id_querier.get(resource_id)?;
+        let endpoint = self.resource_id_querier.query(resource_id)?;
 
         #[allow(unreachable_patterns)]
         match endpoint {

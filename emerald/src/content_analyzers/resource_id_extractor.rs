@@ -27,7 +27,7 @@ impl<Iter: Iterator<Item = Link>> Iterator for ResourceIdExtractorIterator<Iter>
 
     fn next(&mut self) -> Option<Self::Item> {
         let link_candidate = self.input_iter.next()?;
-        if let Ok(resource_id) = self.link_querier.get(&link_candidate) {
+        if let Ok(resource_id) = self.link_querier.query(&link_candidate) {
             Some(Link2Tgt::new(link_candidate, Some(resource_id)))
         } else {
             Some(Link2Tgt::new(link_candidate, None))
