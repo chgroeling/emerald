@@ -3,5 +3,5 @@ use crate::types::ResourceId;
 use crate::Result;
 
 pub trait ContentQueryable {
-    fn get(&self, resource_id: ResourceId) -> Result<Content>;
+    fn query(&self, resource_id: ResourceId) -> Result<Content>;
 }
