@@ -16,20 +16,20 @@ use log::{debug, error, info, trace, warn};
 use super::content_loader::ContentLoader;
 
 pub struct FileContentLoader {
-    resource_id_queryable: Rc<dyn ResourceIdQuerier>,
+    resource_id_querier: Rc<dyn ResourceIdQuerier>,
 }
 
 impl FileContentLoader {
-    pub fn new(resource_id_queryable: Rc<dyn ResourceIdQuerier>) -> Self {
+    pub fn new(resource_id_querier: Rc<dyn ResourceIdQuerier>) -> Self {
         Self {
-            resource_id_queryable,
+            resource_id_querier,
         }
     }
 }
 
 impl ContentLoader for FileContentLoader {
     fn load(&self, resource_id: &ResourceId) -> Result<Content> {
-        let endpoint = self.resource_id_queryable.get(resource_id)?;
+        let endpoint = self.resource_id_querier.get(resource_id)?;
 
         let EndPoint::FileMarkdown(md_path) = endpoint else {
             return Err(NotAMarkdownFile);

@@ -13,7 +13,7 @@ where
     T: ContentLoader,
 {
     meta_data_loader: Rc<I>,
-    content_queryable: Rc<T>,
+    content_querier: Rc<T>,
 }
 
 impl<I, T> StdProviderFactory<I, T>
@@ -21,10 +21,10 @@ where
     I: MetaDataLoader,
     T: ContentLoader,
 {
-    pub fn new(meta_data_loader: Rc<I>, content_queryable: Rc<T>) -> Self {
+    pub fn new(meta_data_loader: Rc<I>, content_querier: Rc<T>) -> Self {
         Self {
             meta_data_loader,
-            content_queryable,
+            content_querier,
         }
     }
 }
@@ -39,6 +39,6 @@ where
     }
 
     fn create_markdown_provider(&self) -> Box<dyn super::md_provider::MdProvider> {
-        Box::new(ContentMdProvider::new(self.content_queryable.clone()))
+        Box::new(ContentMdProvider::new(self.content_querier.clone()))
     }
 }

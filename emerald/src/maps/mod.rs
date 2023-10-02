@@ -18,16 +18,14 @@ use self::{
 };
 use crate::indexes::{ResourceIdsIterSrc, Src2TgtIterSrc};
 
-pub fn create_link_queryable(
-    resource_ids_iter_rc: &impl ResourceIdsIterSrc,
-) -> Rc<dyn LinkQuerier> {
+pub fn create_link_querier(resource_ids_iter_rc: &impl ResourceIdsIterSrc) -> Rc<dyn LinkQuerier> {
     Rc::new(ResourceIdLinkMap::new(resource_ids_iter_rc))
 }
 
-pub fn create_tgt_iter_queryable(src_tgt_iter_rc: &impl Src2TgtIterSrc) -> Rc<dyn TgtIterQuerier> {
+pub fn create_tgt_iter_querier(src_tgt_iter_rc: &impl Src2TgtIterSrc) -> Rc<dyn TgtIterQuerier> {
     Rc::new(TgtLinksMap::new(src_tgt_iter_rc))
 }
 
-pub fn create_src_iter_queryable(src_tgt_iter_rc: &impl Src2TgtIterSrc) -> Rc<dyn SrcIterQuerier> {
+pub fn create_src_iter_querier(src_tgt_iter_rc: &impl Src2TgtIterSrc) -> Rc<dyn SrcIterQuerier> {
     Rc::new(SrcLinksMap::new(src_tgt_iter_rc))
 }

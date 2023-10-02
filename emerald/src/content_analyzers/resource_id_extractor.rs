@@ -19,7 +19,7 @@ pub trait ResourceIdExtractorIterSource {
 
 pub struct ResourceIdExtractorIterator<Iter> {
     input_iter: Iter,
-    link_queryable: Rc<dyn LinkQuerier>,
+    link_querier: Rc<dyn LinkQuerier>,
 }
 
 impl<Iter: Iterator<Item = Link>> Iterator for ResourceIdExtractorIterator<Iter> {
@@ -27,7 +27,7 @@ impl<Iter: Iterator<Item = Link>> Iterator for ResourceIdExtractorIterator<Iter>
 
     fn next(&mut self) -> Option<Self::Item> {
         let link_candidate = self.input_iter.next()?;
-        if let Ok(resource_id) = self.link_queryable.get(&link_candidate) {
+        if let Ok(resource_id) = self.link_querier.get(&link_candidate) {
             Some(Link2Tgt::new(link_candidate, Some(resource_id)))
         } else {
             Some(Link2Tgt::new(link_candidate, None))
@@ -38,14 +38,14 @@ impl<Iter: Iterator<Item = Link>> Iterator for ResourceIdExtractorIterator<Iter>
 // --------------------------------------------------------------------------
 
 pub struct ResourceIdExtractor<I: LinkExtractorIterSource> {
-    link_queryable: Rc<dyn LinkQuerier>,
+    link_querier: Rc<dyn LinkQuerier>,
     link_extractor: Rc<I>,
 }
 
 impl<I: LinkExtractorIterSource> ResourceIdExtractor<I> {
-    pub fn new(link_queryable: Rc<dyn LinkQuerier>, link_extractor: Rc<I>) -> Self {
+    pub fn new(link_querier: Rc<dyn LinkQuerier>, link_extractor: Rc<I>) -> Self {
         Self {
-            link_queryable,
+            link_querier,
             link_extractor,
         }
     }
@@ -57,7 +57,7 @@ impl<I: LinkExtractorIterSource> ResourceIdExtractorIterSource for ResourceIdExt
     fn create_iter(&self, content: String) -> Self::Iter {
         ResourceIdExtractorIterator {
             input_iter: self.link_extractor.create_iter(content),
-            link_queryable: self.link_queryable.clone(),
+            link_querier: self.link_querier.clone(),
         }
     }
 }

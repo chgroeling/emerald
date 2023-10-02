@@ -20,11 +20,10 @@ pub struct MdLinkAnalyzer {
 }
 
 impl MdLinkAnalyzer {
-    pub fn new(link_queryable: Rc<dyn LinkQuerier>) -> Self {
+    pub fn new(link_querier: Rc<dyn LinkQuerier>) -> Self {
         let markdown_extractor = Rc::new(MarkdownExtractor::new());
         let link_extractor = Rc::new(LinkExtractor::new(markdown_extractor));
-        let resource_id_extractor =
-            Rc::new(ResourceIdExtractor::new(link_queryable, link_extractor));
+        let resource_id_extractor = Rc::new(ResourceIdExtractor::new(link_querier, link_extractor));
         Self {
             resource_id_extractor,
         }

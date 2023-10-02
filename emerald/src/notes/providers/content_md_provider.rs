@@ -8,15 +8,15 @@ pub struct ContentMdProvider<I>
 where
     I: ContentLoader,
 {
-    content_queryable: Rc<I>,
+    content_querier: Rc<I>,
 }
 
 impl<I> ContentMdProvider<I>
 where
     I: ContentLoader,
 {
-    pub fn new(content_queryable: Rc<I>) -> Self {
-        Self { content_queryable }
+    pub fn new(content_querier: Rc<I>) -> Self {
+        Self { content_querier }
     }
 }
 impl<I> MdProvider for ContentMdProvider<I>
@@ -24,7 +24,7 @@ where
     I: ContentLoader,
 {
     fn get_markdown(&self, resource_id: &ResourceId) -> String {
-        let res = self.content_queryable.load(resource_id).unwrap();
+        let res = self.content_querier.load(resource_id).unwrap();
         (*res.0).clone()
     }
 }
