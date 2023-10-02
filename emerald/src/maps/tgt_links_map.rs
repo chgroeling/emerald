@@ -33,7 +33,7 @@ impl TgtLinksMap {
 }
 
 impl TgtIterRetriever for TgtLinksMap {
-    fn query(&self, src: ResourceId) -> Option<std::vec::IntoIter<Link2Tgt>> {
+    fn retrieve(&self, src: ResourceId) -> Option<std::vec::IntoIter<Link2Tgt>> {
         self.link_2_tgt_map.get(&src).map(|f| f.clone().into_iter())
     }
 }
@@ -52,7 +52,7 @@ mod tests {
         mock.expect_iter().return_const(test_data.into_iter());
 
         let dut = TgtLinksMap::new(&mock);
-        let res: Vec<Link2Tgt> = dut.query("o1".into()).unwrap().collect();
+        let res: Vec<Link2Tgt> = dut.retrieve("o1".into()).unwrap().collect();
 
         assert_eq!(res, vec![Link2Tgt::new("o1->d1".into(), Some("d1".into()))]);
     }
@@ -64,7 +64,7 @@ mod tests {
         mock.expect_iter().return_const(test_data.into_iter());
 
         let dut = TgtLinksMap::new(&mock);
-        let res: Vec<Link2Tgt> = dut.query("o1".into()).unwrap().collect();
+        let res: Vec<Link2Tgt> = dut.retrieve("o1".into()).unwrap().collect();
 
         assert_eq!(
             res,
@@ -88,7 +88,7 @@ mod tests {
         mock.expect_iter().return_const(test_data.into_iter());
 
         let dut = TgtLinksMap::new(&mock);
-        let res: Vec<Link2Tgt> = dut.query("o1".into()).unwrap().collect();
+        let res: Vec<Link2Tgt> = dut.retrieve("o1".into()).unwrap().collect();
 
         assert_eq!(
             res,

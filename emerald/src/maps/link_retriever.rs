@@ -6,9 +6,9 @@ pub enum Hint {
     NoHint,
 }
 pub trait LinkRetriever {
-    fn query(&self, link: &Link) -> Result<ResourceId> {
-        self.query_with_hint(link, Hint::NoHint)
+    fn retrieve(&self, link: &Link) -> Result<ResourceId> {
+        self.retrieve_with_hint(link, Hint::NoHint)
     }
 
-    fn query_with_hint(&self, link: &Link, hint: Hint) -> Result<ResourceId>;
+    fn retrieve_with_hint(&self, link: &Link, hint: Hint) -> Result<ResourceId>;
 }

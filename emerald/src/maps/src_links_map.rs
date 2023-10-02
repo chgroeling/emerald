@@ -37,7 +37,7 @@ impl SrcLinksMap {
 }
 
 impl SrcIterRetriever for SrcLinksMap {
-    fn query(&self, tgt: ResourceId) -> Option<std::vec::IntoIter<LinkFrmSrc>> {
+    fn retrieve(&self, tgt: ResourceId) -> Option<std::vec::IntoIter<LinkFrmSrc>> {
         self.src_2_tgt_map.get(&tgt).map(|f| f.clone().into_iter())
     }
 }
@@ -57,7 +57,7 @@ mod tests {
         mock.expect_iter().return_const(test_data.into_iter());
 
         let dut = SrcLinksMap::new(&mock);
-        let res: Vec<LinkFrmSrc> = dut.query("d1".into()).unwrap().collect();
+        let res: Vec<LinkFrmSrc> = dut.retrieve("d1".into()).unwrap().collect();
 
         assert_eq!(res, vec![LinkFrmSrc::new("o1->d1".into(), "o1".into())]);
     }
@@ -70,7 +70,7 @@ mod tests {
         mock.expect_iter().return_const(test_data.into_iter());
 
         let dut = SrcLinksMap::new(&mock);
-        let res: Vec<LinkFrmSrc> = dut.query("d1".into()).unwrap().collect();
+        let res: Vec<LinkFrmSrc> = dut.retrieve("d1".into()).unwrap().collect();
 
         assert_eq!(res, vec![LinkFrmSrc::new("o1->d1".into(), "o1".into())]);
     }
@@ -88,7 +88,7 @@ mod tests {
         let mut mock = MockSrc2TgtIterSrc::new();
         mock.expect_iter().return_const(test_data.into_iter());
         let dut = SrcLinksMap::new(&mock);
-        let res: Vec<LinkFrmSrc> = dut.query("d1".into()).unwrap().collect();
+        let res: Vec<LinkFrmSrc> = dut.retrieve("d1".into()).unwrap().collect();
 
         assert_eq!(res, vec![LinkFrmSrc::new("o1->d1".into(), "o1".into(),)]);
     }

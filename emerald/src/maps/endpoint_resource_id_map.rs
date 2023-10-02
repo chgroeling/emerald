@@ -35,7 +35,7 @@ impl EndpointResourceIdMap {
 }
 
 impl ResourceIdRetriever for EndpointResourceIdMap {
-    fn query(&self, resource_id: &ResourceId) -> Result<EndPoint> {
+    fn retrieve(&self, resource_id: &ResourceId) -> Result<EndPoint> {
         self.resource_id_to_endpoint
             .get(resource_id)
             .map_or(Err(EndPointNotFound), |f| Ok(f.clone()))
@@ -59,7 +59,7 @@ mod tests {
         mock.expect_iter().return_const(test_data.into_iter());
 
         let dut = EndpointResourceIdMap::new(&mock, &common_path);
-        let ep = dut.query(&"[[testpath]]".into()).unwrap();
+        let ep = dut.retrieve(&"[[testpath]]".into()).unwrap();
 
         assert!(matches!(ep, EndPoint::File(path) if path==PathBuf::from("testpath")));
     }
@@ -72,7 +72,7 @@ mod tests {
         mock.expect_iter().return_const(test_data.into_iter());
 
         let dut = EndpointResourceIdMap::new(&mock, &common_path);
-        let ep = dut.query(&"[[testpäth]]".into()).unwrap();
+        let ep = dut.retrieve(&"[[testpäth]]".into()).unwrap();
 
         assert!(matches!(ep, EndPoint::File(path) if path==PathBuf::from("testpäth")));
     }
@@ -85,7 +85,7 @@ mod tests {
         mock.expect_iter().return_const(test_data.into_iter());
 
         let dut = EndpointResourceIdMap::new(&mock, &common_path);
-        let ep = dut.query(&"[[testpäth]]".into());
+        let ep = dut.retrieve(&"[[testpäth]]".into());
 
         assert!(matches!(ep, Err(EndPointNotFound)));
     }

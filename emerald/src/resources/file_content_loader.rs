@@ -29,7 +29,7 @@ impl FileContentLoader {
 
 impl ContentLoader for FileContentLoader {
     fn load(&self, resource_id: &ResourceId) -> Result<Content> {
-        let endpoint = self.resource_id_retriever.query(resource_id)?;
+        let endpoint = self.resource_id_retriever.retrieve(resource_id)?;
 
         let EndPoint::FileMarkdown(md_path) = endpoint else {
             return Err(NotAMarkdownFile);
