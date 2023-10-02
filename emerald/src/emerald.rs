@@ -12,7 +12,7 @@ use crate::maps::endpoint_resource_id_map::EndpointResourceIdMap;
 use crate::maps::endpoint_retriever::EndPointRetriever;
 use crate::maps::ResourceIdRetriever;
 use crate::maps::TgtIterRetriever;
-use crate::maps::{create_link_retriever, SrcIterRetriever};
+use crate::maps::{create_resource_id_retriever, SrcIterRetriever};
 use crate::maps::{create_src_iter_retriever, create_tgt_iter_retriever};
 use crate::notes::providers::std_provider_factory::StdProviderFactory;
 use crate::notes::vault::Vault;
@@ -65,8 +65,11 @@ impl Emerald {
         debug!("Creation of ResourceIdIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let resource_id_retriever = create_link_retriever(all_res_ids_iter_rc.as_ref());
-        debug!("Creation of LinkRetrieverImpl took: {:?}", start.elapsed());
+        let resource_id_retriever = create_resource_id_retriever(all_res_ids_iter_rc.as_ref());
+        debug!(
+            "Creation of ResourceIdRetriever took: {:?}",
+            start.elapsed()
+        );
 
         let start = Instant::now();
         let md_link_analyzer = Rc::new(MdLinkAnalyzer::new(resource_id_retriever.clone()));
