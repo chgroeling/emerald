@@ -13,8 +13,8 @@ use EmeraldError::*;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-use super::link_retriever::Hint;
-use super::link_retriever::LinkRetriever;
+use super::resource_id_retriever::Hint;
+use super::resource_id_retriever::ResourceIdRetriever;
 
 pub type NameToResourceIdList = HashMap<String, Vec<ResourceId>>;
 
@@ -55,7 +55,7 @@ impl ResourceIdLinkMap {
     }
 }
 
-impl LinkRetriever for ResourceIdLinkMap {
+impl ResourceIdRetriever for ResourceIdLinkMap {
     fn retrieve_with_hint(&self, link: &Link, _hint: Hint) -> Result<ResourceId> {
         // convert string to internal link format
         let link_comp = link.split()?;
@@ -118,9 +118,9 @@ impl LinkRetriever for ResourceIdLinkMap {
 #[cfg(test)]
 mod link_mapper_tests {
     use super::EmeraldError::*;
-    use super::LinkRetriever;
     use super::ResourceId;
     use super::ResourceIdLinkMap;
+    use super::ResourceIdRetriever;
     use super::ResourceIdsIterSrc;
 
     struct MockFileIndex {

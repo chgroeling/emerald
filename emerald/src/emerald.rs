@@ -10,7 +10,7 @@ use crate::indexes::src_2_tgt_index::Src2TargetIndex;
 use crate::indexes::EndpointsIterSrc;
 use crate::maps::endpoint_resource_id_map::EndpointResourceIdMap;
 use crate::maps::endpoint_retriever::EndPointRetriever;
-use crate::maps::LinkRetriever;
+use crate::maps::ResourceIdRetriever;
 use crate::maps::TgtIterRetriever;
 use crate::maps::{create_link_retriever, SrcIterRetriever};
 use crate::maps::{create_src_iter_retriever, create_tgt_iter_retriever};
@@ -30,7 +30,7 @@ pub struct Emerald {
     pub ep_retriever: Rc<dyn EndPointRetriever>,
     pub meta_data_loader: Rc<dyn MetaDataLoader>,
     pub resource_id_index: Rc<ResourceIdIndex>,
-    pub link_retriever: Rc<dyn LinkRetriever>,
+    pub resource_id_retriever: Rc<dyn ResourceIdRetriever>,
     pub tgt_iter_retriever: Rc<dyn TgtIterRetriever>,
     pub src_iter_retriever: Rc<dyn SrcIterRetriever>,
     pub note_link_index: Rc<Src2TargetIndex>,
@@ -65,11 +65,11 @@ impl Emerald {
         debug!("Creation of ResourceIdIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let link_retriever = create_link_retriever(all_res_ids_iter_rc.as_ref());
+        let resource_id_retriever = create_link_retriever(all_res_ids_iter_rc.as_ref());
         debug!("Creation of LinkRetrieverImpl took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let md_link_analyzer = Rc::new(MdLinkAnalyzer::new(link_retriever.clone()));
+        let md_link_analyzer = Rc::new(MdLinkAnalyzer::new(resource_id_retriever.clone()));
         debug!("Creation of MdLinkAnalyzer took: {:?}", start.elapsed());
 
         let start = Instant::now();
@@ -119,7 +119,7 @@ impl Emerald {
             md_link_analyzer,
             ep_retriever,
             meta_data_loader,
-            link_retriever,
+            resource_id_retriever,
             ep_index,
             resource_id_index,
             content_loader,

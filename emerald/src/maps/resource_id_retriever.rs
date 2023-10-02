@@ -5,7 +5,7 @@ pub enum Hint {
     #[allow(dead_code)]
     NoHint,
 }
-pub trait LinkRetriever {
+pub trait ResourceIdRetriever {
     fn retrieve(&self, link: &Link) -> Result<ResourceId> {
         self.retrieve_with_hint(link, Hint::NoHint)
     }

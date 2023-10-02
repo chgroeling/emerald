@@ -1,7 +1,7 @@
 use std::rc::Rc;
 
 use crate::{
-    maps::LinkRetriever,
+    maps::ResourceIdRetriever,
     types::{Link, Link2Tgt},
 };
 
@@ -15,7 +15,7 @@ use super::{
 
 pub struct ResourceIdExtractorIterator<Iter> {
     input_iter: Iter,
-    link_retriever: Rc<dyn LinkRetriever>,
+    resource_id_retriever: Rc<dyn ResourceIdRetriever>,
 }
 
 impl<Iter: Iterator<Item = Link>> Iterator for ResourceIdExtractorIterator<Iter> {
@@ -23,7 +23,7 @@ impl<Iter: Iterator<Item = Link>> Iterator for ResourceIdExtractorIterator<Iter>
 
     fn next(&mut self) -> Option<Self::Item> {
         let link_candidate = self.input_iter.next()?;
-        if let Ok(resource_id) = self.link_retriever.retrieve(&link_candidate) {
+        if let Ok(resource_id) = self.resource_id_retriever.retrieve(&link_candidate) {
             Some(Link2Tgt::new(link_candidate, Some(resource_id)))
         } else {
             Some(Link2Tgt::new(link_candidate, None))
@@ -34,14 +34,14 @@ impl<Iter: Iterator<Item = Link>> Iterator for ResourceIdExtractorIterator<Iter>
 // --------------------------------------------------------------------------
 
 pub struct ResourceIdExtractor<I: LinkExtractorIterSrc> {
-    link_retriever: Rc<dyn LinkRetriever>,
+    resource_id_retriever: Rc<dyn ResourceIdRetriever>,
     link_extractor: Rc<I>,
 }
 
 impl<I: LinkExtractorIterSrc> ResourceIdExtractor<I> {
-    pub fn new(link_retriever: Rc<dyn LinkRetriever>, link_extractor: Rc<I>) -> Self {
+    pub fn new(resource_id_retriever: Rc<dyn ResourceIdRetriever>, link_extractor: Rc<I>) -> Self {
         Self {
-            link_retriever,
+            resource_id_retriever,
             link_extractor,
         }
     }
@@ -53,7 +53,7 @@ impl<I: LinkExtractorIterSrc> ResourceIdExtractorIterSrc for ResourceIdExtractor
     fn create_iter(&self, content: String) -> Self::Iter {
         ResourceIdExtractorIterator {
             input_iter: self.link_extractor.create_iter(content),
-            link_retriever: self.link_retriever.clone(),
+            resource_id_retriever: self.resource_id_retriever.clone(),
         }
     }
 }
