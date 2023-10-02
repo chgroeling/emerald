@@ -5,14 +5,14 @@ use crate::maps::LinkRetriever;
 use super::{
     link_extractor::LinkExtractor, md_extractor::MarkdownExtractor,
     resource_id_extractor::ResourceIdExtractor,
-    resource_id_extractor_iter_src::ResourceIdExtractorIterSource, MdLinkAnalyzerIterSrc,
+    resource_id_extractor_iter_src::ResourceIdExtractorIterSrc, MdLinkAnalyzerIterSrc,
 };
 
 type IMarkdownIteratorSource = MarkdownExtractor;
 type ILinkExtractorIteratorSource = LinkExtractor<IMarkdownIteratorSource>;
 
 type ResourceIdExtractorIteratorImpl =
-    <ResourceIdExtractor<ILinkExtractorIteratorSource> as ResourceIdExtractorIterSource>::Iter;
+    <ResourceIdExtractor<ILinkExtractorIteratorSource> as ResourceIdExtractorIterSrc>::Iter;
 
 pub struct MdLinkAnalyzer {
     resource_id_extractor: Rc<ResourceIdExtractor<ILinkExtractorIteratorSource>>,

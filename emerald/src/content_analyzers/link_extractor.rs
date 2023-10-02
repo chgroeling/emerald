@@ -8,24 +8,20 @@ use log::{debug, error, info, trace, warn};
 use crate::types::link::Link;
 
 use super::content_type::ContentType;
-use super::link_extractor_iter_src::LinkExtractorIterSource;
-use super::md_extractor_iter_src::MarkdownExtractorIterSource;
+use super::link_extractor_iter_src::LinkExtractorIterSrc;
+use super::md_extractor_iter_src::MarkdownExtractorIterSrc;
 
-// --------------------------------------------------------------
-
-pub struct LinkExtractor<I: MarkdownExtractorIterSource> {
+pub struct LinkExtractor<I: MarkdownExtractorIterSrc> {
     content_iter_rc: Rc<I>,
 }
 
-impl<I: MarkdownExtractorIterSource> LinkExtractor<I> {
+impl<I: MarkdownExtractorIterSrc> LinkExtractor<I> {
     pub fn new(content_iter_rc: Rc<I>) -> Self {
         Self { content_iter_rc }
     }
 }
 
-// ------------------------------------------------------------
-
-impl<I: MarkdownExtractorIterSource> LinkExtractorIterSource for LinkExtractor<I> {
+impl<I: MarkdownExtractorIterSrc> LinkExtractorIterSrc for LinkExtractor<I> {
     type Iter = Map<Filter<I::Iter, fn(&ContentType) -> bool>, fn(ContentType) -> Link>;
 
     fn create_iter(&self, content: String) -> Self::Iter {

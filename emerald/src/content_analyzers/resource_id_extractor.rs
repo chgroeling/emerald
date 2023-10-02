@@ -9,8 +9,8 @@ use crate::{
 use log::{debug, error, info, trace, warn};
 
 use super::{
-    link_extractor_iter_src::LinkExtractorIterSource,
-    resource_id_extractor_iter_src::ResourceIdExtractorIterSource,
+    link_extractor_iter_src::LinkExtractorIterSrc,
+    resource_id_extractor_iter_src::ResourceIdExtractorIterSrc,
 };
 
 pub struct ResourceIdExtractorIterator<Iter> {
@@ -33,12 +33,12 @@ impl<Iter: Iterator<Item = Link>> Iterator for ResourceIdExtractorIterator<Iter>
 
 // --------------------------------------------------------------------------
 
-pub struct ResourceIdExtractor<I: LinkExtractorIterSource> {
+pub struct ResourceIdExtractor<I: LinkExtractorIterSrc> {
     link_retriever: Rc<dyn LinkRetriever>,
     link_extractor: Rc<I>,
 }
 
-impl<I: LinkExtractorIterSource> ResourceIdExtractor<I> {
+impl<I: LinkExtractorIterSrc> ResourceIdExtractor<I> {
     pub fn new(link_retriever: Rc<dyn LinkRetriever>, link_extractor: Rc<I>) -> Self {
         Self {
             link_retriever,
@@ -47,7 +47,7 @@ impl<I: LinkExtractorIterSource> ResourceIdExtractor<I> {
     }
 }
 
-impl<I: LinkExtractorIterSource> ResourceIdExtractorIterSource for ResourceIdExtractor<I> {
+impl<I: LinkExtractorIterSrc> ResourceIdExtractorIterSrc for ResourceIdExtractor<I> {
     type Iter = ResourceIdExtractorIterator<I::Iter>;
 
     fn create_iter(&self, content: String) -> Self::Iter {
