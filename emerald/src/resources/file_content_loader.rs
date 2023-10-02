@@ -28,8 +28,8 @@ impl FileContentLoader {
 }
 
 impl ContentQueryable for FileContentLoader {
-    fn query(&self, resource_id: ResourceId) -> Result<Content> {
-        let endpoint = self.resource_id_queryable.get(&resource_id)?;
+    fn query(&self, resource_id: &ResourceId) -> Result<Content> {
+        let endpoint = self.resource_id_queryable.get(resource_id)?;
 
         let EndPoint::FileMarkdown(md_path) = endpoint else {
             return Err(NotAMarkdownFile);

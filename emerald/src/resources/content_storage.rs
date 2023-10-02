@@ -27,7 +27,7 @@ impl<'a> ContentStorage {
         let mut res_id_to_content_idx = ResourceIdToContentIdx::new();
 
         for md_res_id in md_resource_ids_iterable.iter() {
-            let read_note = content_loader.query(md_res_id.clone());
+            let read_note = content_loader.query(&md_res_id);
 
             // ignore files that cannot be read
             if let Ok(content) = read_note {
@@ -49,9 +49,9 @@ impl<'a> ContentStorage {
 }
 
 impl ContentQueryable for ContentStorage {
-    fn query(&self, resource_id: ResourceId) -> Result<Content> {
+    fn query(&self, resource_id: &ResourceId) -> Result<Content> {
         self.res_id_to_content
-            .get(&resource_id)
+            .get(resource_id)
             .ok_or(EmeraldError::ResourceIdNotFound)
             .cloned()
     }

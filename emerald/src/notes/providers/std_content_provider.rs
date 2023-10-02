@@ -24,7 +24,7 @@ where
     I: ContentQueryable,
 {
     fn get_content(&self, resource_id: &ResourceId) -> String {
-        let res = self.content_queryable.query(resource_id.clone()).unwrap();
+        let res = self.content_queryable.query(resource_id).unwrap();
         (*res.0).clone()
     }
 }
