@@ -10,21 +10,18 @@ use crate::{
     types::{Content, ResourceId},
 };
 
-type ResourceIdContentList = Vec<(ResourceId, Content)>;
-type ResourceIdToContentIdx = HashMap<ResourceId, Content>;
-
-pub struct ContentStorage {
-    res_id_to_content: ResourceIdToContentIdx,
-    res_id_to_content_list: ResourceIdContentList,
+pub struct ContentFullCache {
+    res_id_to_content: HashMap<ResourceId, Content>,
+    res_id_to_content_vec: Vec<(ResourceId, Content)>,
 }
 
-impl<'a> ContentStorage {
+impl<'a> ContentFullCache {
     pub fn new(
         md_resource_ids_iterable: &impl ResourceIdsIterable,
         content_loader: &'a impl ContentQueryable,
-    ) -> ContentStorage {
-        let mut res_id_to_content_list = ResourceIdContentList::new();
-        let mut res_id_to_content_idx = ResourceIdToContentIdx::new();
+    ) -> ContentFullCache {
+        let mut res_id_to_content_list = Vec::<(ResourceId, Content)>::new();
+        let mut res_id_to_content_idx = HashMap::<ResourceId, Content>::new();
 
         for md_res_id in md_resource_ids_iterable.iter() {
             let read_note = content_loader.query(&md_res_id);
@@ -42,13 +39,13 @@ impl<'a> ContentStorage {
         }
 
         Self {
-            res_id_to_content_list,
+            res_id_to_content_vec: res_id_to_content_list,
             res_id_to_content: res_id_to_content_idx,
         }
     }
 }
 
-impl ContentQueryable for ContentStorage {
+impl ContentQueryable for ContentFullCache {
     fn query(&self, resource_id: &ResourceId) -> Result<Content> {
         self.res_id_to_content
             .get(resource_id)
@@ -57,9 +54,9 @@ impl ContentQueryable for ContentStorage {
     }
 }
 
-impl ContentIterable for ContentStorage {
+impl ContentIterable for ContentFullCache {
     type Iter = std::vec::IntoIter<(ResourceId, Content)>;
     fn iter(&self) -> Self::Iter {
-        self.res_id_to_content_list.clone().into_iter()
+        self.res_id_to_content_vec.clone().into_iter()
     }
 }
