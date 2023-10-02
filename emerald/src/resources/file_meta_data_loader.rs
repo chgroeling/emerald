@@ -16,13 +16,13 @@ use log::{debug, error, info, trace, warn};
 use super::meta_data_loader::MetaDataLoader;
 
 pub struct FileMetaDataLoader {
-    resource_id_querier: Rc<dyn ResourceIdRetriever>,
+    resource_id_retriever: Rc<dyn ResourceIdRetriever>,
 }
 
 impl FileMetaDataLoader {
-    pub fn new(resource_id_querier: Rc<dyn ResourceIdRetriever>) -> Self {
+    pub fn new(resource_id_retriever: Rc<dyn ResourceIdRetriever>) -> Self {
         Self {
-            resource_id_querier,
+            resource_id_retriever,
         }
     }
 
@@ -35,7 +35,7 @@ impl FileMetaDataLoader {
 
 impl MetaDataLoader for FileMetaDataLoader {
     fn load(&self, resource_id: &ResourceId) -> Result<MetaData> {
-        let endpoint = self.resource_id_querier.query(resource_id)?;
+        let endpoint = self.resource_id_retriever.query(resource_id)?;
 
         #[allow(unreachable_patterns)]
         match endpoint {
