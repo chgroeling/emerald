@@ -13,8 +13,8 @@ use EmeraldError::*;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-use super::link_querier::Hint;
-use super::link_querier::LinkRetriever;
+use super::link_retriever::Hint;
+use super::link_retriever::LinkRetriever;
 
 pub type NameToResourceIdList = HashMap<String, Vec<ResourceId>>;
 

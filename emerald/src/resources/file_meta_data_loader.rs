@@ -1,7 +1,7 @@
 use std::path::Path;
 use std::rc::Rc;
 
-use crate::maps::resource_id_querier::ResourceIdRetriever;
+use crate::maps::resource_id_retriever::ResourceIdRetriever;
 use crate::types::meta_data::MetaData;
 use crate::types::EndPoint;
 use crate::types::ResourceId;

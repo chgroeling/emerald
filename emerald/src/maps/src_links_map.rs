@@ -5,7 +5,7 @@ use crate::{
     types::{LinkFrmSrc, ResourceId},
 };
 
-use super::src_iter_querier::SrcIterRetriever;
+use super::src_iter_retriever::SrcIterRetriever;
 
 type Tgt2LinkFrmSrcMap = HashMap<ResourceId, Vec<LinkFrmSrc>>;
 
