@@ -4,12 +4,13 @@ use super::normalize_string::normalize_str_iter;
 use crate::types::EndPoint;
 use crate::types::ResourceId;
 
+const LINK_FRONT: &str = "[[";
+const LINK_BACK: &str = "]]";
+
 pub fn convert_endpoint_to_resource_id(
     endpoint: EndPoint,
     common_path: &Path,
 ) -> Option<ResourceId> {
-    let (link_front, link_back) = ("[[", "]]");
-
     let path = match endpoint {
         EndPoint::File(path) => path,
         EndPoint::FileMarkdown(path) => path,
@@ -22,7 +23,7 @@ pub fn convert_endpoint_to_resource_id(
         _ => ch,
     });
 
-    let res_id_iter = link_front.chars().chain(path_iter.chain(link_back.chars()));
+    let res_id_iter = LINK_FRONT.chars().chain(path_iter.chain(LINK_BACK.chars()));
     let res_id_str: String = res_id_iter.collect();
     Some(res_id_str.into())
 }

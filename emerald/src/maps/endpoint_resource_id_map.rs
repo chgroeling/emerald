@@ -19,13 +19,13 @@ pub struct EndpointResourceIdMap {
 impl EndpointResourceIdMap {
     pub fn new(ep_iter_rc: &impl EndpointsIterSrc, common_path: &Path) -> Self {
         let mut resource_id_to_endpoint = HashMap::<ResourceId, EndPoint>::new();
-        for endpoint in ep_iter_rc.iter() {
-            let opt_resource_id = convert_endpoint_to_resource_id(endpoint.clone(), common_path);
+        for ep in ep_iter_rc.iter() {
+            let opt_resource_id = convert_endpoint_to_resource_id(ep.clone(), common_path);
 
             if let Some(resource_id) = opt_resource_id {
-                resource_id_to_endpoint.insert(resource_id, endpoint);
+                resource_id_to_endpoint.insert(resource_id, ep);
             } else {
-                warn!("Can't convert Endpoint '{:?}' to ResourceId.", &endpoint);
+                warn!("Can't convert Endpoint '{:?}' to ResourceId.", &ep);
             }
         }
         Self {

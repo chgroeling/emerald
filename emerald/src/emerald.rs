@@ -80,22 +80,20 @@ impl Emerald {
         debug!("Creation of FileContentLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let content_storage = Rc::new(ContentFullCache::new(
+        let content_full_cache = Rc::new(ContentFullCache::new(
             md_res_ids_iter_rc.as_ref(),
             content_loader.as_ref(),
         ));
-        debug!("Creation of ContentStorage took: {:?}", start.elapsed());
+
+        debug!("Creation of ContentFullCache took: {:?}", start.elapsed());
 
         let start = Instant::now();
         let note_link_index = Rc::new(Src2TargetIndex::new(
-            content_storage.as_ref(),
+            content_full_cache.as_ref(),
             md_res_ids_iter_rc.as_ref(),
             md_link_analyzer.as_ref(),
         ));
-        debug!(
-            "Creation of LinkFrmSrcToTargetIndex took: {:?}",
-            start.elapsed()
-        );
+        debug!("Creation of Src2TargetIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
         let tgt_iter_retriever = create_tgt_iter_retriever(note_link_index.as_ref());
@@ -108,7 +106,7 @@ impl Emerald {
         let start = Instant::now();
         let std_provider_factory = Rc::new(StdProviderFactory::new(
             meta_data_loader.clone(),
-            content_storage.clone(),
+            content_full_cache.clone(),
         ));
         debug!("Creation of StdProviderFactory took: {:?}", start.elapsed());
 
@@ -127,7 +125,7 @@ impl Emerald {
             ep_index,
             resource_id_index,
             content_loader,
-            content_storage,
+            content_storage: content_full_cache,
             note_link_index,
             tgt_iter_retriever,
             src_iter_retriever,
