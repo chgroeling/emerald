@@ -14,10 +14,10 @@ pub struct ContentFullCache {
     res_id_to_content: HashMap<ResourceId, Content>,
 }
 
-impl<'a> ContentFullCache {
+impl ContentFullCache {
     pub fn new(
         md_resource_ids_iter_rc: &impl ResourceIdsIterSrc,
-        content_loader: &'a impl ContentLoader,
+        content_loader: &impl ContentLoader,
     ) -> ContentFullCache {
         let mut res_id_to_content_list = Vec::<(ResourceId, Content)>::new();
         let mut res_id_to_content_idx = HashMap::<ResourceId, Content>::new();
