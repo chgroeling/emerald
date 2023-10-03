@@ -89,6 +89,7 @@ impl Emerald {
         let start = Instant::now();
         let note_link_index = Rc::new(Src2TargetIndex::new(
             content_storage.as_ref(),
+            md_res_ids_iter_rc.as_ref(),
             md_link_analyzer.as_ref(),
         ));
         debug!(
