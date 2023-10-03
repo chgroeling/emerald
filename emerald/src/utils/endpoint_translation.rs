@@ -12,7 +12,7 @@ pub fn convert_endpoint_to_resource_id(
     common_path: &Path,
 ) -> Option<ResourceId> {
     let path = match endpoint {
-        EndPoint::File(path) => path,
+        EndPoint::FileUnknown(path) => path,
         EndPoint::FileMarkdown(path) => path,
     };
     let rel_path = path.strip_prefix(common_path).unwrap().to_path_buf();
@@ -39,7 +39,7 @@ mod tests {
     #[test]
     fn test_convert_unix_path_to_endpoint_link() {
         let common_path = PathBuf::from("");
-        let endpoint = File("a/b/c/note.md".into());
+        let endpoint = FileUnknown("a/b/c/note.md".into());
         let link = convert_endpoint_to_resource_id(endpoint, &common_path);
         assert_eq!(link.unwrap(), "[[a/b/c/note.md]]".into())
     }
@@ -47,7 +47,7 @@ mod tests {
     #[test]
     fn test_convert_windows_path_to_endpoint_link() {
         let common_path = PathBuf::from("");
-        let endpoint = File("a\\b\\c\\note.md".into());
+        let endpoint = FileUnknown("a\\b\\c\\note.md".into());
         let link = convert_endpoint_to_resource_id(endpoint, &common_path);
         assert_eq!(link.unwrap(), "[[a/b/c/note.md]]".into())
     }

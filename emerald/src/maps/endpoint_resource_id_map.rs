@@ -54,33 +54,33 @@ mod tests {
     #[test]
     fn test_get_single() {
         let common_path: PathBuf = "".into();
-        let test_data: Vec<EndPoint> = vec![EndPoint::File("testpath".into())];
+        let test_data: Vec<EndPoint> = vec![EndPoint::FileUnknown("testpath".into())];
         let mut mock = MockEndpointsIterSrc::new();
         mock.expect_iter().return_const(test_data.into_iter());
 
         let dut = EndpointResourceIdMap::new(&mock, &common_path);
         let ep = dut.retrieve(&"[[testpath]]".into()).unwrap();
 
-        assert!(matches!(ep, EndPoint::File(path) if path==PathBuf::from("testpath")));
+        assert!(matches!(ep, EndPoint::FileUnknown(path) if path==PathBuf::from("testpath")));
     }
 
     #[test]
     fn test_get_single_with_different_utf8_norm_match() {
         let common_path: PathBuf = "".into();
-        let test_data: Vec<EndPoint> = vec![EndPoint::File("testpäth".into())];
+        let test_data: Vec<EndPoint> = vec![EndPoint::FileUnknown("testpäth".into())];
         let mut mock = MockEndpointsIterSrc::new();
         mock.expect_iter().return_const(test_data.into_iter());
 
         let dut = EndpointResourceIdMap::new(&mock, &common_path);
         let ep = dut.retrieve(&"[[testpäth]]".into()).unwrap();
 
-        assert!(matches!(ep, EndPoint::File(path) if path==PathBuf::from("testpäth")));
+        assert!(matches!(ep, EndPoint::FileUnknown(path) if path==PathBuf::from("testpäth")));
     }
 
     #[test]
     fn test_get_single_with_different_utf8_norm_fail() {
         let common_path: PathBuf = "".into();
-        let test_data: Vec<EndPoint> = vec![EndPoint::File("testpäth".into())];
+        let test_data: Vec<EndPoint> = vec![EndPoint::FileUnknown("testpäth".into())];
         let mut mock = MockEndpointsIterSrc::new();
         mock.expect_iter().return_const(test_data.into_iter());
 

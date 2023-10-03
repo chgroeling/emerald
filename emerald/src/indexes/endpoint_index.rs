@@ -29,7 +29,7 @@ impl EndpointIndex {
             {
                 FileMarkdown(file_path)
             } else {
-                File(file_path)
+                FileUnknown(file_path)
             };
 
             endpoint_list.push(endpoint);

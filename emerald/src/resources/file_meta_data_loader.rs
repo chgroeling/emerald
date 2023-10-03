@@ -33,12 +33,12 @@ impl FileMetaDataLoader {
 
 impl MetaDataLoader for FileMetaDataLoader {
     fn load(&self, resource_id: &ResourceId) -> Result<MetaData> {
-        let endpoint = self.ep_retriever.retrieve(resource_id)?;
+        let ep = self.ep_retriever.retrieve(resource_id)?;
 
         #[allow(unreachable_patterns)]
-        match endpoint {
+        match ep {
             EndPoint::FileMarkdown(path) => self.get_file_meta_data(&path),
-            EndPoint::File(path) => self.get_file_meta_data(&path),
+            EndPoint::FileUnknown(path) => self.get_file_meta_data(&path),
             _ => Err(NoMetaData),
         }
     }
