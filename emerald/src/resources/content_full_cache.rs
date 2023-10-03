@@ -4,7 +4,7 @@ use std::collections::HashMap;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-use super::{content_iter_src::ContentIterSrc, content_loader::ContentLoader};
+use super::content_loader::ContentLoader;
 use crate::{
     indexes::ResourceIdsIterSrc,
     types::{Content, ResourceId},
@@ -12,7 +12,6 @@ use crate::{
 
 pub struct ContentFullCache {
     res_id_to_content: HashMap<ResourceId, Content>,
-    res_id_to_content_vec: Vec<(ResourceId, Content)>,
 }
 
 impl<'a> ContentFullCache {
@@ -39,7 +38,6 @@ impl<'a> ContentFullCache {
         }
 
         Self {
-            res_id_to_content_vec: res_id_to_content_list,
             res_id_to_content: res_id_to_content_idx,
         }
     }
@@ -51,12 +49,5 @@ impl ContentLoader for ContentFullCache {
             .get(resource_id)
             .ok_or(EmeraldError::ResourceIdNotFound)
             .cloned()
-    }
-}
-
-impl ContentIterSrc for ContentFullCache {
-    type Iter = std::vec::IntoIter<(ResourceId, Content)>;
-    fn iter(&self) -> Self::Iter {
-        self.res_id_to_content_vec.clone().into_iter()
     }
 }

@@ -105,7 +105,7 @@ mod tests {
     #[test]
     fn test_one() {
         let common_path = PathBuf::from("");
-        let mock = setup_endpoints_iter_rc(vec![File("testpath".into())]);
+        let mock = setup_endpoints_iter_rc(vec![FileUnknown("testpath".into())]);
 
         let dut = AllResourceIds::new(ResourceIdIndex::new(&mock, &common_path));
         let result: Vec<ResourceId> = dut.iter().collect();
@@ -117,8 +117,10 @@ mod tests {
     #[test]
     fn test_two() {
         let common_path = PathBuf::from("");
-        let mock =
-            setup_endpoints_iter_rc(vec![File("test_file1".into()), File("test_file2".into())]);
+        let mock = setup_endpoints_iter_rc(vec![
+            FileUnknown("test_file1".into()),
+            FileUnknown("test_file2".into()),
+        ]);
 
         let dut = AllResourceIds::new(ResourceIdIndex::new(&mock, &common_path));
         let result: Vec<ResourceId> = dut.iter().collect();
@@ -131,7 +133,7 @@ mod tests {
     fn test_filter_two_but_one_remains() {
         let common_path = PathBuf::from("");
         let mock = setup_endpoints_iter_rc(vec![
-            File("test_file1.png".into()),
+            FileUnknown("test_file1.png".into()),
             FileMarkdown("test_file2.md".into()),
         ]);
 

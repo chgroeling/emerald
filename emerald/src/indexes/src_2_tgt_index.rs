@@ -3,11 +3,11 @@ use log::{debug, error, info, trace, warn};
 
 use crate::{
     content_analyzers::MdLinkAnalyzerIterSrc,
-    resources::ContentIterSrc,
+    resources::content_loader::ContentLoader,
     types::{Link2Tgt, LinkSrc2Tgt},
 };
 
-use super::src_2_tgt_iter_src::Src2TgtIterSrc;
+use super::{src_2_tgt_iter_src::Src2TgtIterSrc, ResourceIdsIterSrc};
 
 pub struct Src2TargetIndex {
     valid_backlink_cnt: usize,
@@ -17,14 +17,16 @@ pub struct Src2TargetIndex {
 
 impl Src2TargetIndex {
     pub fn new(
-        content_iter_rc: &impl ContentIterSrc,
+        content_iter_rc: &impl ContentLoader,
+        md_resource_ids_iter_rc: &impl ResourceIdsIterSrc,
         md_link_analyer_iter_rc: &impl MdLinkAnalyzerIterSrc,
     ) -> Self {
         let mut valid_backlink_cnt: usize = 0;
         let mut invalid_backlink_cnt: usize = 0;
         let mut src_2_tgt_list = Vec::<LinkSrc2Tgt>::new();
 
-        for (src, content) in content_iter_rc.iter() {
+        for src in md_resource_ids_iter_rc.iter() {
+            let content = content_iter_rc.load(&src).unwrap();
             trace!("Link extraction from {:?} starts", &src);
 
             let mut note_valid_backlink_cnt: usize = 0;
