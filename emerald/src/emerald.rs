@@ -15,7 +15,7 @@ use crate::maps::{create_resource_id_retriever, SrcIterRetriever};
 use crate::maps::{create_src_iter_retriever, create_tgt_iter_retriever};
 use crate::notes::providers::std_provider_factory::StdProviderFactory;
 use crate::notes::vault::Vault;
-use crate::resources::content_full_cache::ContentFullCache;
+use crate::resources::content_full_md_cache::ContentFullMdCache;
 use crate::resources::file_content_loader::FileContentLoader;
 use crate::resources::file_meta_data_loader::FileMetaDataLoader;
 use crate::resources::meta_data_loader::MetaDataLoader;
@@ -26,7 +26,7 @@ use crate::Result;
 pub struct Emerald {
     pub md_link_analyzer: Rc<MdLinkAnalyzer>,
     pub ep_index: Rc<EndpointIndex>,
-    pub ep_retriever: Rc<EndpointResourceIdMap>,
+    pub ep_resource_id_map: Rc<EndpointResourceIdMap>,
     pub meta_data_loader: Rc<dyn MetaDataLoader>,
     pub resource_id_index: Rc<ResourceIdIndex>,
     pub resource_id_retriever: Rc<dyn ResourceIdRetriever>,
@@ -34,9 +34,13 @@ pub struct Emerald {
     pub src_iter_retriever: Rc<dyn SrcIterRetriever>,
     pub note_link_index: Rc<Src2TargetIndex>,
     pub content_loader: Rc<FileContentLoader<EndpointResourceIdMap>>,
-    pub content_storage: Rc<ContentFullCache>,
-    pub std_provider_factory:
-        Rc<StdProviderFactory<FileMetaDataLoader<EndpointResourceIdMap>, ContentFullCache>>,
+    pub content_full_md_cache: Rc<ContentFullMdCache<FileContentLoader<EndpointResourceIdMap>>>,
+    pub std_provider_factory: Rc<
+        StdProviderFactory<
+            FileMetaDataLoader<EndpointResourceIdMap>,
+            ContentFullMdCache<FileContentLoader<EndpointResourceIdMap>>,
+        >,
+    >,
     pub vault: Rc<Vault<MdResourceIds>>,
 }
 
@@ -48,14 +52,14 @@ impl Emerald {
         debug!("Creation of EndpointIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let ep_retriever = Rc::new(EndpointResourceIdMap::new(ep_index.as_ref(), vault_path));
+        let ep_resource_id_map = Rc::new(EndpointResourceIdMap::new(ep_index.as_ref(), vault_path));
         debug!(
             "Creation of EndpointResourceIdMap took: {:?}",
             start.elapsed()
         );
 
         let start = Instant::now();
-        let meta_data_loader = Rc::new(FileMetaDataLoader::new(ep_retriever.clone()));
+        let meta_data_loader = Rc::new(FileMetaDataLoader::new(ep_resource_id_map.clone()));
         debug!("Creation of FileMetaDataLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
@@ -76,20 +80,20 @@ impl Emerald {
         debug!("Creation of MdLinkAnalyzer took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let content_loader = Rc::new(FileContentLoader::new(ep_retriever.clone()));
+        let content_loader = Rc::new(FileContentLoader::new(ep_resource_id_map.clone()));
         debug!("Creation of FileContentLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let content_full_cache = Rc::new(ContentFullCache::new(
+        let content_full_md_cache = Rc::new(ContentFullMdCache::new(
             md_res_ids_iter_rc.as_ref(),
-            content_loader.as_ref(),
+            content_loader.clone(),
         ));
 
-        debug!("Creation of ContentFullCache took: {:?}", start.elapsed());
+        debug!("Creation of ContentFullMdCache took: {:?}", start.elapsed());
 
         let start = Instant::now();
         let note_link_index = Rc::new(Src2TargetIndex::new(
-            content_full_cache.as_ref(),
+            content_full_md_cache.as_ref(),
             md_res_ids_iter_rc.as_ref(),
             md_link_analyzer.as_ref(),
         ));
@@ -106,7 +110,7 @@ impl Emerald {
         let start = Instant::now();
         let std_provider_factory = Rc::new(StdProviderFactory::new(
             meta_data_loader.clone(),
-            content_full_cache.clone(),
+            content_full_md_cache.clone(),
         ));
         debug!("Creation of StdProviderFactory took: {:?}", start.elapsed());
 
@@ -119,13 +123,13 @@ impl Emerald {
 
         Ok(Emerald {
             md_link_analyzer,
-            ep_retriever,
+            ep_resource_id_map,
             meta_data_loader,
             resource_id_retriever,
             ep_index,
             resource_id_index,
             content_loader,
-            content_storage: content_full_cache,
+            content_full_md_cache,
             note_link_index,
             tgt_iter_retriever,
             src_iter_retriever,
