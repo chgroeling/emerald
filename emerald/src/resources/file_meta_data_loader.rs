@@ -2,6 +2,7 @@ use std::path::Path;
 use std::rc::Rc;
 
 use crate::maps::endpoint_retriever::EndPointRetriever;
+use crate::types::meta_data::FileType;
 use crate::types::meta_data::MetaData;
 use crate::types::EndPoint;
 use crate::types::ResourceId;
@@ -30,10 +31,29 @@ where
         Self { ep_retriever }
     }
 
-    fn get_file_meta_data(&self, path: &Path) -> Result<MetaData> {
+    fn get_file_type(&self, path: &Path) -> Result<FileType> {
+        let os_ext = path.extension().ok_or(NotAFile)?;
+        let ext = os_ext.to_str().ok_or(ValueError)?.into();
+        match ext {
+            "md" => Ok(FileType::Markdown(ext.to_string())),
+            "markdown" => Ok(FileType::Markdown(ext.to_string())),
+            _ => Ok(FileType::Unknown(ext.to_string())),
+        }
+    }
+
+    fn get_file_stem(&self, path: &Path) -> Result<String> {
         let os_filename = path.file_stem().ok_or(NotAFile)?;
-        let file_stem = os_filename.to_str().ok_or(ValueError)?.into();
-        Ok(MetaData { file_stem })
+        let file_stem = os_filename.to_str().ok_or(ValueError)?.to_string();
+        Ok(file_stem)
+    }
+
+    fn get_file_meta_data(&self, path: &Path) -> Result<MetaData> {
+        let file_stem = self.get_file_stem(path)?;
+        let file_type = self.get_file_type(path)?;
+        Ok(MetaData {
+            file_stem,
+            file_type,
+        })
     }
 }
 
