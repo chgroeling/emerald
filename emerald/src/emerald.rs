@@ -34,7 +34,7 @@ pub struct Emerald {
     pub tgt_iter_retriever: Rc<dyn TgtIterRetriever>,
     pub src_iter_retriever: Rc<dyn SrcIterRetriever>,
     pub note_link_index: Rc<Src2TargetIndex>,
-    pub content_loader: Rc<FileContentLoader>,
+    pub content_loader: Rc<FileContentLoader<EndpointResourceIdMap>>,
     pub content_storage: Rc<ContentFullCache>,
     pub std_provider_factory: Rc<StdProviderFactory<FileMetaDataLoader, ContentFullCache>>,
     pub vault: Rc<Vault<MdResourceIds>>,

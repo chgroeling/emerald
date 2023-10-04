@@ -15,17 +15,26 @@ use log::{debug, error, info, trace, warn};
 
 use super::content_loader::ContentLoader;
 
-pub struct FileContentLoader {
-    ep_retriever: Rc<dyn EndPointRetriever>,
+pub struct FileContentLoader<I>
+where
+    I: EndPointRetriever,
+{
+    ep_retriever: Rc<I>,
 }
 
-impl FileContentLoader {
-    pub fn new(ep_retriever: Rc<dyn EndPointRetriever>) -> Self {
+impl<I> FileContentLoader<I>
+where
+    I: EndPointRetriever,
+{
+    pub fn new(ep_retriever: Rc<I>) -> Self {
         Self { ep_retriever }
     }
 }
 
-impl ContentLoader for FileContentLoader {
+impl<I> ContentLoader for FileContentLoader<I>
+where
+    I: EndPointRetriever,
+{
     fn load(&self, resource_id: &ResourceId) -> Result<Content> {
         let endpoint = self.ep_retriever.retrieve(resource_id)?;
 
