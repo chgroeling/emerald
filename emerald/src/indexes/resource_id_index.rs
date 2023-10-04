@@ -1,9 +1,6 @@
 use std::{path::Path, rc::Rc};
 
-use crate::{
-    maps::endpoint_retriever::EndPointRetriever, types::ResourceId,
-    utils::endpoint_translation::convert_endpoint_to_resource_id,
-};
+use crate::{types::ResourceId, utils::endpoint_translation::convert_endpoint_to_resource_id};
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
@@ -18,11 +15,7 @@ pub struct ResourceIdIndex {
 }
 
 impl ResourceIdIndex {
-    pub fn new(
-        ep_iter_rc: &impl EndpointsIterSrc,
-        ep_retriever: &impl EndPointRetriever,
-        common_path: &Path,
-    ) -> ResourceIdIndex {
+    pub fn new(ep_iter_rc: &impl EndpointsIterSrc, common_path: &Path) -> ResourceIdIndex {
         let mut all_resource_ids_list = Vec::<ResourceId>::new();
         let mut md_resource_ids_list = Vec::<ResourceId>::new();
 
@@ -90,31 +83,20 @@ mod tests {
     use super::{EndPoint, ResourceId, ResourceIdIndex};
     use crate::indexes::endpoints_iter_src::MockEndpointsIterSrc;
     use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdsIterSrc};
-    use crate::maps::endpoint_retriever::MockEndPointRetriever;
-    use crate::Result;
-    use std::iter::zip;
     use std::path::PathBuf;
-
     use EndPoint::*;
 
-    fn setup_dut(test_ep: Vec<EndPoint>, ret_retrieve: Vec<ResourceId>) -> ResourceIdIndex {
+    fn setup_dut(test_ep: Vec<EndPoint>) -> ResourceIdIndex {
         let common_path = PathBuf::from("");
         let mut mock = MockEndpointsIterSrc::new();
         mock.expect_iter().return_const(test_ep.clone().into_iter());
-        let mut mock_retriever = MockEndPointRetriever::new();
-        for (ep, rid) in zip(test_ep, ret_retrieve) {
-            mock_retriever
-                .expect_retrieve()
-                .withf(move |f| *f == rid)
-                .returning(move |f| Ok(ep.clone()));
-        }
-        let dut = ResourceIdIndex::new(&mock, &mock_retriever, &common_path);
+        let dut = ResourceIdIndex::new(&mock, &common_path);
         dut
     }
 
     #[test]
     fn test_md_iter_empty() {
-        let dut = AllResourceIds::new(setup_dut(vec![], vec![]));
+        let dut = AllResourceIds::new(setup_dut(vec![]));
 
         let result: Vec<ResourceId> = dut.iter().collect();
         let expected: Vec<ResourceId> = vec![];
@@ -123,7 +105,7 @@ mod tests {
 
     #[test]
     fn test_one() {
-        let dut = AllResourceIds::new(setup_dut(vec![FileUnknown("testpath".into())], vec![]));
+        let dut = AllResourceIds::new(setup_dut(vec![FileUnknown("testpath".into())]));
         let result: Vec<ResourceId> = dut.iter().collect();
         let expected: Vec<ResourceId> = vec!["[[testpath]]".into()];
 
@@ -132,13 +114,10 @@ mod tests {
 
     #[test]
     fn test_two() {
-        let dut = AllResourceIds::new(setup_dut(
-            vec![
-                FileUnknown("test_file1".into()),
-                FileUnknown("test_file2".into()),
-            ],
-            vec![],
-        ));
+        let dut = AllResourceIds::new(setup_dut(vec![
+            FileUnknown("test_file1".into()),
+            FileUnknown("test_file2".into()),
+        ]));
 
         let result: Vec<ResourceId> = dut.iter().collect();
         let expected: Vec<ResourceId> = vec!["[[test_file1]]".into(), "[[test_file2]]".into()];
@@ -148,13 +127,10 @@ mod tests {
 
     #[test]
     fn test_filter_two_but_one_remains() {
-        let dut = MdResourceIds::new(setup_dut(
-            vec![
-                FileUnknown("test_file1.png".into()),
-                FileMarkdown("test_file2.md".into()),
-            ],
-            vec![],
-        ));
+        let dut = MdResourceIds::new(setup_dut(vec![
+            FileUnknown("test_file1.png".into()),
+            FileMarkdown("test_file2.md".into()),
+        ]));
         let result: Vec<ResourceId> = dut.iter().collect();
         let expected: Vec<ResourceId> = vec!["[[test_file2.md]]".into()];
 

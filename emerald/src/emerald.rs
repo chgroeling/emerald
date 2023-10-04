@@ -63,11 +63,7 @@ impl Emerald {
         debug!("Creation of FileMetaDataLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let resource_id_index = Rc::new(ResourceIdIndex::new(
-            ep_index.as_ref(),
-            ep_resource_id_map.as_ref(),
-            vault_path,
-        ));
+        let resource_id_index = Rc::new(ResourceIdIndex::new(ep_index.as_ref(), vault_path));
         let all_res_ids_iter_rc = Rc::new(AllResourceIds::new_from_rc(&resource_id_index));
         let md_res_ids_iter_rc = Rc::new(MdResourceIds::new_from_rc(&resource_id_index));
         debug!("Creation of ResourceIdIndex took: {:?}", start.elapsed());
