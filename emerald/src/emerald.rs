@@ -26,7 +26,7 @@ use crate::Result;
 pub struct Emerald {
     pub md_link_analyzer: Rc<MdLinkAnalyzer>,
     pub ep_index: Rc<EndpointIndex>,
-    pub ep_retriever: Rc<EndpointResourceIdMap>,
+    pub ep_resource_id_map: Rc<EndpointResourceIdMap>,
     pub meta_data_loader: Rc<dyn MetaDataLoader>,
     pub resource_id_index: Rc<ResourceIdIndex>,
     pub resource_id_retriever: Rc<dyn ResourceIdRetriever>,
@@ -52,14 +52,14 @@ impl Emerald {
         debug!("Creation of EndpointIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let ep_retriever = Rc::new(EndpointResourceIdMap::new(ep_index.as_ref(), vault_path));
+        let ep_resource_id_map = Rc::new(EndpointResourceIdMap::new(ep_index.as_ref(), vault_path));
         debug!(
             "Creation of EndpointResourceIdMap took: {:?}",
             start.elapsed()
         );
 
         let start = Instant::now();
-        let meta_data_loader = Rc::new(FileMetaDataLoader::new(ep_retriever.clone()));
+        let meta_data_loader = Rc::new(FileMetaDataLoader::new(ep_resource_id_map.clone()));
         debug!("Creation of FileMetaDataLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
@@ -80,7 +80,7 @@ impl Emerald {
         debug!("Creation of MdLinkAnalyzer took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let content_loader = Rc::new(FileContentLoader::new(ep_retriever.clone()));
+        let content_loader = Rc::new(FileContentLoader::new(ep_resource_id_map.clone()));
         debug!("Creation of FileContentLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
@@ -123,7 +123,7 @@ impl Emerald {
 
         Ok(Emerald {
             md_link_analyzer,
-            ep_retriever,
+            ep_resource_id_map,
             meta_data_loader,
             resource_id_retriever,
             ep_index,

@@ -41,6 +41,7 @@ impl ResourceIdIndex {
 
 // === Implement trait for all resource ids. =================
 pub struct AllResourceIds(Rc<ResourceIdIndex>);
+
 impl AllResourceIds {
     #[allow(dead_code)]
     pub fn new(value: ResourceIdIndex) -> Self {
