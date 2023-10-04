@@ -9,7 +9,6 @@ use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceI
 use crate::indexes::src_2_tgt_index::Src2TargetIndex;
 use crate::indexes::EndpointsIterSrc;
 use crate::maps::endpoint_resource_id_map::EndpointResourceIdMap;
-use crate::maps::endpoint_retriever::EndPointRetriever;
 use crate::maps::ResourceIdRetriever;
 use crate::maps::TgtIterRetriever;
 use crate::maps::{create_resource_id_retriever, SrcIterRetriever};
@@ -27,7 +26,7 @@ use crate::Result;
 pub struct Emerald {
     pub md_link_analyzer: Rc<MdLinkAnalyzer>,
     pub ep_index: Rc<EndpointIndex>,
-    pub ep_retriever: Rc<dyn EndPointRetriever>,
+    pub ep_retriever: Rc<EndpointResourceIdMap>,
     pub meta_data_loader: Rc<dyn MetaDataLoader>,
     pub resource_id_index: Rc<ResourceIdIndex>,
     pub resource_id_retriever: Rc<dyn ResourceIdRetriever>,
