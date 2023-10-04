@@ -10,15 +10,15 @@ use crate::{
     types::{Content, ResourceId},
 };
 
-pub struct ContentFullCache {
+pub struct ContentFullMdCache {
     res_id_to_content: HashMap<ResourceId, Content>,
 }
 
-impl ContentFullCache {
+impl ContentFullMdCache {
     pub fn new(
         md_resource_ids_iter_rc: &impl ResourceIdsIterSrc,
         content_loader: &impl ContentLoader,
-    ) -> ContentFullCache {
+    ) -> ContentFullMdCache {
         let mut res_id_to_content_list = Vec::<(ResourceId, Content)>::new();
         let mut res_id_to_content_idx = HashMap::<ResourceId, Content>::new();
 
@@ -43,7 +43,7 @@ impl ContentFullCache {
     }
 }
 
-impl ContentLoader for ContentFullCache {
+impl ContentLoader for ContentFullMdCache {
     fn load(&self, resource_id: &ResourceId) -> Result<Content> {
         self.res_id_to_content
             .get(resource_id)
