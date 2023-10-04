@@ -34,9 +34,13 @@ pub struct Emerald {
     pub src_iter_retriever: Rc<dyn SrcIterRetriever>,
     pub note_link_index: Rc<Src2TargetIndex>,
     pub content_loader: Rc<FileContentLoader<EndpointResourceIdMap>>,
-    pub content_full_md_cache: Rc<ContentFullMdCache>,
-    pub std_provider_factory:
-        Rc<StdProviderFactory<FileMetaDataLoader<EndpointResourceIdMap>, ContentFullMdCache>>,
+    pub content_full_md_cache: Rc<ContentFullMdCache<FileContentLoader<EndpointResourceIdMap>>>,
+    pub std_provider_factory: Rc<
+        StdProviderFactory<
+            FileMetaDataLoader<EndpointResourceIdMap>,
+            ContentFullMdCache<FileContentLoader<EndpointResourceIdMap>>,
+        >,
+    >,
     pub vault: Rc<Vault<MdResourceIds>>,
 }
 
@@ -82,7 +86,7 @@ impl Emerald {
         let start = Instant::now();
         let content_full_md_cache = Rc::new(ContentFullMdCache::new(
             md_res_ids_iter_rc.as_ref(),
-            content_loader.as_ref(),
+            content_loader.clone(),
         ));
 
         debug!("Creation of ContentFullMdCache took: {:?}", start.elapsed());

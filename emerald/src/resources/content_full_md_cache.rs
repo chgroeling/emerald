@@ -1,5 +1,5 @@
-use crate::{EmeraldError, Result};
-use std::collections::HashMap;
+use crate::Result;
+use std::{collections::HashMap, rc::Rc};
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
@@ -10,17 +10,20 @@ use crate::{
     types::{Content, ResourceId},
 };
 
-pub struct ContentFullMdCache {
+pub struct ContentFullMdCache<I>
+where
+    I: ContentLoader,
+{
     res_id_to_content: HashMap<ResourceId, Content>,
+    content_loader: Rc<I>,
 }
 
-impl ContentFullMdCache {
-    pub fn new(
-        md_resource_ids_iter_rc: &impl ResourceIdsIterSrc,
-        content_loader: &impl ContentLoader,
-    ) -> ContentFullMdCache {
-        let mut res_id_to_content_list = Vec::<(ResourceId, Content)>::new();
-        let mut res_id_to_content_idx = HashMap::<ResourceId, Content>::new();
+impl<I> ContentFullMdCache<I>
+where
+    I: ContentLoader,
+{
+    pub fn new(md_resource_ids_iter_rc: &impl ResourceIdsIterSrc, content_loader: Rc<I>) -> Self {
+        let mut res_id_to_content = HashMap::<ResourceId, Content>::new();
 
         for md_res_id in md_resource_ids_iter_rc.iter() {
             let read_note = content_loader.load(&md_res_id);
@@ -30,24 +33,29 @@ impl ContentFullMdCache {
                 trace!("Loaded {:?} into string", &md_res_id);
 
                 // insert actual index into hashmap
-                res_id_to_content_idx.insert(md_res_id.clone(), content.clone());
-                res_id_to_content_list.push((md_res_id, content));
+                res_id_to_content.insert(md_res_id.clone(), content.clone());
             } else {
                 warn!("File {:?} could not be loaded", &md_res_id)
             }
         }
 
         Self {
-            res_id_to_content: res_id_to_content_idx,
+            res_id_to_content,
+            content_loader,
         }
     }
 }
 
-impl ContentLoader for ContentFullMdCache {
+impl<I> ContentLoader for ContentFullMdCache<I>
+where
+    I: ContentLoader,
+{
     fn load(&self, resource_id: &ResourceId) -> Result<Content> {
-        self.res_id_to_content
-            .get(resource_id)
-            .ok_or(EmeraldError::ResourceIdNotFound)
-            .cloned()
+        let cached = self.res_id_to_content.get(resource_id);
+
+        match cached {
+            Some(entry) => Ok(entry.clone()),
+            _ => self.content_loader.load(resource_id),
+        }
     }
 }
