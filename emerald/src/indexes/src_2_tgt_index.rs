@@ -17,7 +17,7 @@ pub struct Src2TargetIndex {
 
 impl Src2TargetIndex {
     pub fn new(
-        content_iter_rc: &impl ContentLoader,
+        content_loader: &impl ContentLoader,
         md_resource_ids_iter_rc: &impl ResourceIdsIterSrc,
         md_link_analyer_iter_rc: &impl MdLinkAnalyzerIterSrc,
     ) -> Self {
@@ -26,7 +26,7 @@ impl Src2TargetIndex {
         let mut src_2_tgt_list = Vec::<LinkSrc2Tgt>::new();
 
         for src in md_resource_ids_iter_rc.iter() {
-            let content = content_iter_rc.load(&src).unwrap();
+            let content = content_loader.load(&src).unwrap();
             trace!("Link extraction from {:?} starts", &src);
 
             let mut note_valid_backlink_cnt: usize = 0;
