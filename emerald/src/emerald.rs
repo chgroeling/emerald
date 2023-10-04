@@ -9,7 +9,6 @@ use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceI
 use crate::indexes::src_2_tgt_index::Src2TargetIndex;
 use crate::indexes::EndpointsIterSrc;
 use crate::maps::endpoint_resource_id_map::EndpointResourceIdMap;
-use crate::maps::endpoint_retriever::EndPointRetriever;
 use crate::maps::ResourceIdRetriever;
 use crate::maps::TgtIterRetriever;
 use crate::maps::{create_resource_id_retriever, SrcIterRetriever};
@@ -27,16 +26,17 @@ use crate::Result;
 pub struct Emerald {
     pub md_link_analyzer: Rc<MdLinkAnalyzer>,
     pub ep_index: Rc<EndpointIndex>,
-    pub ep_retriever: Rc<dyn EndPointRetriever>,
+    pub ep_retriever: Rc<EndpointResourceIdMap>,
     pub meta_data_loader: Rc<dyn MetaDataLoader>,
     pub resource_id_index: Rc<ResourceIdIndex>,
     pub resource_id_retriever: Rc<dyn ResourceIdRetriever>,
     pub tgt_iter_retriever: Rc<dyn TgtIterRetriever>,
     pub src_iter_retriever: Rc<dyn SrcIterRetriever>,
     pub note_link_index: Rc<Src2TargetIndex>,
-    pub content_loader: Rc<FileContentLoader>,
+    pub content_loader: Rc<FileContentLoader<EndpointResourceIdMap>>,
     pub content_storage: Rc<ContentFullCache>,
-    pub std_provider_factory: Rc<StdProviderFactory<FileMetaDataLoader, ContentFullCache>>,
+    pub std_provider_factory:
+        Rc<StdProviderFactory<FileMetaDataLoader<EndpointResourceIdMap>, ContentFullCache>>,
     pub vault: Rc<Vault<MdResourceIds>>,
 }
 

@@ -15,12 +15,18 @@ use log::{debug, error, info, trace, warn};
 
 use super::meta_data_loader::MetaDataLoader;
 
-pub struct FileMetaDataLoader {
-    ep_retriever: Rc<dyn EndPointRetriever>,
+pub struct FileMetaDataLoader<I>
+where
+    I: EndPointRetriever,
+{
+    ep_retriever: Rc<I>,
 }
 
-impl FileMetaDataLoader {
-    pub fn new(ep_retriever: Rc<dyn EndPointRetriever>) -> Self {
+impl<I> FileMetaDataLoader<I>
+where
+    I: EndPointRetriever,
+{
+    pub fn new(ep_retriever: Rc<I>) -> Self {
         Self { ep_retriever }
     }
 
@@ -31,7 +37,10 @@ impl FileMetaDataLoader {
     }
 }
 
-impl MetaDataLoader for FileMetaDataLoader {
+impl<I> MetaDataLoader for FileMetaDataLoader<I>
+where
+    I: EndPointRetriever,
+{
     fn load(&self, resource_id: &ResourceId) -> Result<MetaData> {
         let ep = self.ep_retriever.retrieve(resource_id)?;
 
