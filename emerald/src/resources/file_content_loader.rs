@@ -1,7 +1,7 @@
 use std::fs;
 use std::rc::Rc;
 
-use crate::maps::endpoint_retriever::EndPointRetriever;
+use crate::resources::endpoint_retriever::EndPointRetriever;
 use crate::types::Content;
 use crate::types::EndPoint;
 use crate::types::ResourceId;

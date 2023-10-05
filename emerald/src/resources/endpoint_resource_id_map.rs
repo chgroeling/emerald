@@ -51,7 +51,7 @@ impl EndPointRetriever for EndpointResourceIdMap {
 mod tests {
     use super::EndpointResourceIdMap;
     use super::{EmeraldError, EndPoint};
-    use crate::maps::endpoint_retriever::EndPointRetriever;
+    use crate::resources::endpoint_retriever::EndPointRetriever;
     use crate::resources::endpoints_iter_src::MockEndpointsIterSrc;
     use std::path::PathBuf;
     use EmeraldError::*;

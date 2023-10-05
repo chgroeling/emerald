@@ -1,7 +1,7 @@
 use std::path::Path;
 use std::rc::Rc;
 
-use crate::maps::endpoint_retriever::EndPointRetriever;
+use crate::resources::endpoint_retriever::EndPointRetriever;
 use crate::types::meta_data::FileType;
 use crate::types::meta_data::MetaData;
 use crate::types::EndPoint;
