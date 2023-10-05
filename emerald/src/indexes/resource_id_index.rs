@@ -90,15 +90,32 @@ mod tests {
     use super::{EndPoint, ResourceId, ResourceIdIndex};
     use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdsIterSrc};
     use crate::resources::endpoints_iter_src::MockEndpointsIterSrc;
+    use crate::resources::resource_id_resolver::MockResourceIdResolver;
     use std::path::PathBuf;
     use EndPoint::*;
 
-    /* TODO
     fn setup_dut(test_ep: Vec<EndPoint>) -> ResourceIdIndex {
-        let common_path = PathBuf::from("");
         let mut mock = MockEndpointsIterSrc::new();
         mock.expect_iter().return_const(test_ep.clone().into_iter());
-        let dut = ResourceIdIndex::new(&mock, &common_path);
+
+        let mut mock_res_id_res = MockResourceIdResolver::new();
+
+        for i in test_ep {
+            let test_path: PathBuf;
+            let i_cpy = i.clone();
+            match i {
+                FileUnknown(ex) => test_path = ex,
+                FileMarkdown(ex) => test_path = ex,
+                _ => panic!(),
+            }
+            let test_path_str = test_path.to_str().unwrap();
+            let test_str = format!("[[{test_path_str}]]");
+            mock_res_id_res
+                .expect_resolve()
+                .withf(move |f| f == &i_cpy)
+                .returning(move |_f| Ok(ResourceId(test_str.clone())));
+        }
+        let dut = ResourceIdIndex::new(&mock, &mock_res_id_res);
         dut
     }
 
@@ -144,5 +161,4 @@ mod tests {
 
         assert_eq!(result, expected);
     }
-    */
 }
