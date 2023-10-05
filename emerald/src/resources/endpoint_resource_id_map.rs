@@ -1,18 +1,12 @@
 use crate::{
-    resources::{
-        endpoints_iter_src::EndpointsIterSrc,
-        resource_id_resolver::{self, ResourceIdResolver},
-    },
+    resources::{endpoints_iter_src::EndpointsIterSrc, resource_id_resolver::ResourceIdResolver},
     EmeraldError, Result,
 };
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
-use std::{collections::HashMap, path::Path};
+use std::collections::HashMap;
 
-use crate::{
-    types::{EndPoint, ResourceId},
-    utils::endpoint_translation::convert_endpoint_to_resource_id,
-};
+use crate::types::{EndPoint, ResourceId};
 use EmeraldError::*;
 
 use super::endpoint_resolver::EndPointResolver;
@@ -52,14 +46,13 @@ impl EndPointResolver for EndpointResourceIdMap {
 
 #[cfg(test)]
 mod tests {
+    use super::EndPoint;
     use super::EndpointResourceIdMap;
-    use super::{EmeraldError, EndPoint};
     use crate::resources::endpoint_resolver::EndPointResolver;
     use crate::resources::endpoints_iter_src::MockEndpointsIterSrc;
     use crate::resources::resource_id_resolver::MockResourceIdResolver;
     use crate::types::ResourceId;
     use std::path::PathBuf;
-    use EmeraldError::*;
 
     fn create_dut(test_ep_list: Vec<EndPoint>) -> EndpointResourceIdMap {
         let mut mock_it_src = MockEndpointsIterSrc::new();

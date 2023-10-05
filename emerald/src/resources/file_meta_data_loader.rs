@@ -33,7 +33,7 @@ where
 
     fn get_file_type(&self, path: &Path) -> Result<FileType> {
         let os_ext = path.extension().ok_or(NotAFile)?;
-        let ext = os_ext.to_str().ok_or(ValueError)?.into();
+        let ext = os_ext.to_str().ok_or(ValueError)?;
         match ext {
             "md" => Ok(FileType::Markdown(ext.to_string())),
             "markdown" => Ok(FileType::Markdown(ext.to_string())),
