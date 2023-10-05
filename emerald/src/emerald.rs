@@ -55,7 +55,10 @@ impl Emerald {
 
         let start = Instant::now();
         let resource_id_ep_map = Rc::new(ResourceIdEndPointMap::new(ep_index.as_ref(), vault_path));
-        debug!("Creation of ResourceIdMap took: {:?}", start.elapsed());
+        debug!(
+            "Creation of ResourceIdEndPointMap took: {:?}",
+            start.elapsed()
+        );
 
         let start = Instant::now();
         let ep_resource_id_map = Rc::new(EndpointResourceIdMap::new(
@@ -72,7 +75,10 @@ impl Emerald {
         debug!("Creation of FileMetaDataLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let resource_id_index = Rc::new(ResourceIdIndex::new(ep_index.as_ref(), vault_path));
+        let resource_id_index = Rc::new(ResourceIdIndex::new(
+            ep_index.as_ref(),
+            resource_id_ep_map.as_ref(),
+        ));
         let all_res_ids_iter_rc = Rc::new(AllResourceIds::new_from_rc(&resource_id_index));
         let md_res_ids_iter_rc = Rc::new(MdResourceIds::new_from_rc(&resource_id_index));
         debug!("Creation of ResourceIdIndex took: {:?}", start.elapsed());
@@ -97,7 +103,6 @@ impl Emerald {
             md_res_ids_iter_rc.as_ref(),
             content_loader.clone(),
         ));
-
         debug!("Creation of ContentFullMdCache took: {:?}", start.elapsed());
 
         let start = Instant::now();
