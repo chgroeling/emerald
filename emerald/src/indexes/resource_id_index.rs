@@ -1,7 +1,7 @@
 use std::{path::Path, rc::Rc};
 
 use crate::{
-    resources::{endpoints_iter_src::EndpointsIterSrc, resource_id_getter::ResourceIdGetter},
+    resources::{endpoints_iter_src::EndpointsIterSrc, resource_id_resolver::ResourceIdResolver},
     types::{resource_id, ResourceId},
     utils::endpoint_translation::convert_endpoint_to_resource_id,
 };
@@ -21,13 +21,13 @@ pub struct ResourceIdIndex {
 impl ResourceIdIndex {
     pub fn new(
         ep_iter_rc: &impl EndpointsIterSrc,
-        resource_id_getter: &impl ResourceIdGetter,
+        resource_id_resolver: &impl ResourceIdResolver,
     ) -> ResourceIdIndex {
         let mut all_resource_ids_list = Vec::<ResourceId>::new();
         let mut md_resource_ids_list = Vec::<ResourceId>::new();
 
         for endpoint in ep_iter_rc.iter() {
-            let opt_resource_id = resource_id_getter.get(&endpoint);
+            let opt_resource_id = resource_id_resolver.resolve(&endpoint);
 
             if let Ok(resource_id) = opt_resource_id {
                 all_resource_ids_list.push(resource_id.clone());

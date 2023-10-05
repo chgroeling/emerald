@@ -1,7 +1,7 @@
 use crate::{
     resources::{
         endpoints_iter_src::EndpointsIterSrc,
-        resource_id_getter::{self, ResourceIdGetter},
+        resource_id_resolver::{self, ResourceIdResolver},
     },
     EmeraldError, Result,
 };
@@ -15,17 +15,20 @@ use crate::{
 };
 use EmeraldError::*;
 
-use super::endpoint_retriever::EndPointRetriever;
+use super::endpoint_resolver::EndPointResolver;
 
 pub struct EndpointResourceIdMap {
     resource_id_to_endpoint: HashMap<ResourceId, EndPoint>,
 }
 
 impl EndpointResourceIdMap {
-    pub fn new(ep_iter_src: &impl EndpointsIterSrc, res_id_getter: &impl ResourceIdGetter) -> Self {
+    pub fn new(
+        ep_iter_src: &impl EndpointsIterSrc,
+        resource_id_resolver: &impl ResourceIdResolver,
+    ) -> Self {
         let mut resource_id_to_endpoint = HashMap::<ResourceId, EndPoint>::new();
         for ep in ep_iter_src.iter() {
-            let opt_resource_id = res_id_getter.get(&ep);
+            let opt_resource_id = resource_id_resolver.resolve(&ep);
 
             if let Ok(resource_id) = opt_resource_id {
                 resource_id_to_endpoint.insert(resource_id, ep);
@@ -39,8 +42,8 @@ impl EndpointResourceIdMap {
     }
 }
 
-impl EndPointRetriever for EndpointResourceIdMap {
-    fn retrieve(&self, resource_id: &ResourceId) -> Result<EndPoint> {
+impl EndPointResolver for EndpointResourceIdMap {
+    fn resolve(&self, resource_id: &ResourceId) -> Result<EndPoint> {
         self.resource_id_to_endpoint
             .get(resource_id)
             .map_or(Err(EndPointNotFound), |f| Ok(f.clone()))
@@ -51,7 +54,7 @@ impl EndPointRetriever for EndpointResourceIdMap {
 mod tests {
     use super::EndpointResourceIdMap;
     use super::{EmeraldError, EndPoint};
-    use crate::resources::endpoint_retriever::EndPointRetriever;
+    use crate::resources::endpoint_resolver::EndPointResolver;
     use crate::resources::endpoints_iter_src::MockEndpointsIterSrc;
     use std::path::PathBuf;
     use EmeraldError::*;

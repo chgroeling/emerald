@@ -9,7 +9,7 @@ use crate::{
 };
 use EmeraldError::*;
 
-use super::resource_id_getter::ResourceIdGetter;
+use super::resource_id_resolver::ResourceIdResolver;
 
 pub struct ResourceIdEndPointMap {
     ep_to_resource_id: HashMap<EndPoint, ResourceId>,
@@ -31,8 +31,8 @@ impl ResourceIdEndPointMap {
     }
 }
 
-impl ResourceIdGetter for ResourceIdEndPointMap {
-    fn get(&self, ep: &EndPoint) -> Result<ResourceId> {
+impl ResourceIdResolver for ResourceIdEndPointMap {
+    fn resolve(&self, ep: &EndPoint) -> Result<ResourceId> {
         self.ep_to_resource_id
             .get(ep)
             .map_or(Err(ResourceIdNotFound), |f| Ok(f.clone()))
