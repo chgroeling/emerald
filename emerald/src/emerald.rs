@@ -58,7 +58,10 @@ impl Emerald {
         debug!("Creation of ResourceIdMap took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let ep_resource_id_map = Rc::new(EndpointResourceIdMap::new(ep_index.as_ref(), vault_path));
+        let ep_resource_id_map = Rc::new(EndpointResourceIdMap::new(
+            ep_index.as_ref(),
+            resource_id_map.as_ref(),
+        ));
         debug!(
             "Creation of EndpointResourceIdMap took: {:?}",
             start.elapsed()
