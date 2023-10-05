@@ -1,7 +1,4 @@
 use std::rc::Rc;
-
-pub mod endpoint_resource_id_map;
-pub mod endpoint_retriever;
 mod resource_id_link_map;
 mod resource_id_retriever;
 mod src_iter_retriever;

@@ -1,7 +1,7 @@
 use std::path::Path;
 use std::rc::Rc;
 
-use crate::maps::endpoint_retriever::EndPointRetriever;
+use crate::resources::endpoint_resolver::EndPointResolver;
 use crate::types::meta_data::FileType;
 use crate::types::meta_data::MetaData;
 use crate::types::EndPoint;
@@ -18,14 +18,14 @@ use super::meta_data_loader::MetaDataLoader;
 
 pub struct FileMetaDataLoader<I>
 where
-    I: EndPointRetriever,
+    I: EndPointResolver,
 {
     ep_retriever: Rc<I>,
 }
 
 impl<I> FileMetaDataLoader<I>
 where
-    I: EndPointRetriever,
+    I: EndPointResolver,
 {
     pub fn new(ep_retriever: Rc<I>) -> Self {
         Self { ep_retriever }
@@ -33,7 +33,7 @@ where
 
     fn get_file_type(&self, path: &Path) -> Result<FileType> {
         let os_ext = path.extension().ok_or(NotAFile)?;
-        let ext = os_ext.to_str().ok_or(ValueError)?.into();
+        let ext = os_ext.to_str().ok_or(ValueError)?;
         match ext {
             "md" => Ok(FileType::Markdown(ext.to_string())),
             "markdown" => Ok(FileType::Markdown(ext.to_string())),
@@ -59,10 +59,10 @@ where
 
 impl<I> MetaDataLoader for FileMetaDataLoader<I>
 where
-    I: EndPointRetriever,
+    I: EndPointResolver,
 {
     fn load(&self, resource_id: &ResourceId) -> Result<MetaData> {
-        let ep = self.ep_retriever.retrieve(resource_id)?;
+        let ep = self.ep_retriever.resolve(resource_id)?;
 
         #[allow(unreachable_patterns)]
         match ep {
