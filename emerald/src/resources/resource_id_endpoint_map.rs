@@ -40,4 +40,44 @@ impl ResourceIdResolver for ResourceIdEndPointMap {
 }
 
 #[cfg(test)]
-mod tests {}
+mod tests {
+
+    use crate::resources::endpoint_resolver::EndPointResolver;
+    use crate::resources::endpoints_iter_src::MockEndpointsIterSrc;
+    use crate::resources::resource_id_endpoint_map::ResourceIdEndPointMap;
+    use crate::resources::resource_id_resolver::MockResourceIdResolver;
+    use crate::resources::resource_id_resolver::ResourceIdResolver;
+    use crate::types::EndPoint;
+    use crate::types::ResourceId;
+    use crate::EmeraldError;
+    use std::path::PathBuf;
+
+    fn create_dut(test_data: Vec<EndPoint>) -> ResourceIdEndPointMap {
+        let test_data: Vec<EndPoint> = vec![EndPoint::FileUnknown("testpäth".into())];
+        let mut mock_it_src = MockEndpointsIterSrc::new();
+        mock_it_src
+            .expect_iter()
+            .return_const(test_data.into_iter());
+
+        let common_path: PathBuf = "".into();
+
+        ResourceIdEndPointMap::new(&mock_it_src, &common_path)
+    }
+    #[test]
+    fn test_resolve_different_utf8_norm_match() {
+        let test_data: Vec<EndPoint> = vec![EndPoint::FileUnknown("testpäth".into())];
+        let dut = create_dut(test_data);
+        let ep = dut
+            .resolve(&EndPoint::FileUnknown("testpäth".into()))
+            .unwrap();
+        assert_eq!(ep, ResourceId("[[testpäth]]".into()));
+    }
+
+    #[test]
+    fn test_resolve_with_different_utf8_norm_fail() {
+        let test_data: Vec<EndPoint> = vec![EndPoint::FileUnknown("testpäth".into())];
+        let dut = create_dut(test_data);
+        let ep = dut.resolve(&EndPoint::FileUnknown("testpäth".into()));
+        assert!(matches!(ep, Err(EmeraldError::ResourceIdNotFound)));
+    }
+}
