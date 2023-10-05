@@ -94,34 +94,34 @@ mod tests {
     use std::path::PathBuf;
     use EndPoint::*;
 
-    fn setup_dut(test_ep: Vec<EndPoint>) -> ResourceIdIndex {
-        let mut mock = MockEndpointsIterSrc::new();
-        mock.expect_iter().return_const(test_ep.clone().into_iter());
-
+    fn create_dut(test_ep_list: Vec<EndPoint>) -> ResourceIdIndex {
+        let mut mock_it_src = MockEndpointsIterSrc::new();
         let mut mock_res_id_res = MockResourceIdResolver::new();
 
-        for i in test_ep {
+        mock_it_src
+            .expect_iter()
+            .return_const(test_ep_list.clone().into_iter());
+
+        // iterate test data to set expectations for resolver
+        for test_ep in test_ep_list {
             let test_path: PathBuf;
-            let i_cpy = i.clone();
-            match i {
-                FileUnknown(ex) => test_path = ex,
-                FileMarkdown(ex) => test_path = ex,
-                _ => panic!(),
+            match &test_ep {
+                FileUnknown(ex) => test_path = ex.clone(),
+                FileMarkdown(ex) => test_path = ex.clone(),
             }
             let test_path_str = test_path.to_str().unwrap();
             let test_str = format!("[[{test_path_str}]]");
             mock_res_id_res
                 .expect_resolve()
-                .withf(move |f| f == &i_cpy)
+                .withf(move |f| f == &test_ep)
                 .returning(move |_f| Ok(ResourceId(test_str.clone())));
         }
-        let dut = ResourceIdIndex::new(&mock, &mock_res_id_res);
-        dut
+        ResourceIdIndex::new(&mock_it_src, &mock_res_id_res)
     }
 
     #[test]
     fn test_md_iter_empty() {
-        let dut = AllResourceIds::new(setup_dut(vec![]));
+        let dut = AllResourceIds::new(create_dut(vec![]));
 
         let result: Vec<ResourceId> = dut.iter().collect();
         let expected: Vec<ResourceId> = vec![];
@@ -130,35 +130,34 @@ mod tests {
 
     #[test]
     fn test_one() {
-        let dut = AllResourceIds::new(setup_dut(vec![FileUnknown("testpath".into())]));
+        let dut = AllResourceIds::new(create_dut(vec![FileUnknown("testpath".into())]));
+
         let result: Vec<ResourceId> = dut.iter().collect();
         let expected: Vec<ResourceId> = vec!["[[testpath]]".into()];
-
         assert_eq!(result, expected);
     }
 
     #[test]
     fn test_two() {
-        let dut = AllResourceIds::new(setup_dut(vec![
+        let dut = AllResourceIds::new(create_dut(vec![
             FileUnknown("test_file1".into()),
             FileUnknown("test_file2".into()),
         ]));
 
         let result: Vec<ResourceId> = dut.iter().collect();
         let expected: Vec<ResourceId> = vec!["[[test_file1]]".into(), "[[test_file2]]".into()];
-
         assert_eq!(result, expected);
     }
 
     #[test]
     fn test_filter_two_but_one_remains() {
-        let dut = MdResourceIds::new(setup_dut(vec![
+        let dut = MdResourceIds::new(create_dut(vec![
             FileUnknown("test_file1.png".into()),
             FileMarkdown("test_file2.md".into()),
         ]));
+
         let result: Vec<ResourceId> = dut.iter().collect();
         let expected: Vec<ResourceId> = vec!["[[test_file2.md]]".into()];
-
         assert_eq!(result, expected);
     }
 }

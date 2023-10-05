@@ -61,11 +61,11 @@ mod tests {
     use std::path::PathBuf;
     use EmeraldError::*;
 
-    fn create_dut(test_data: Vec<EndPoint>) -> EndpointResourceIdMap {
+    fn create_dut(test_ep_list: Vec<EndPoint>) -> EndpointResourceIdMap {
         let mut mock_it_src = MockEndpointsIterSrc::new();
         mock_it_src
             .expect_iter()
-            .return_const(test_data.into_iter());
+            .return_const(test_ep_list.into_iter());
 
         let mut mock_res_id_res = MockResourceIdResolver::new();
         mock_res_id_res
@@ -78,8 +78,7 @@ mod tests {
     }
     #[test]
     fn test_resolve_single_entry() {
-        let test_data: Vec<EndPoint> = vec![EndPoint::FileUnknown("testpath".into())];
-        let dut = create_dut(test_data);
+        let dut = create_dut(vec![EndPoint::FileUnknown("testpath".into())]);
         let ep = dut.resolve(&"[[testpath]]".into()).unwrap();
 
         assert!(matches!(ep, EndPoint::FileUnknown(path) if path==PathBuf::from("testpath")));
@@ -87,12 +86,12 @@ mod tests {
 
     #[test]
     fn test_new_correct_iteration() {
-        let test_data: Vec<EndPoint> = vec![EndPoint::FileUnknown("testpath".into())];
+        let test_ep_list: Vec<EndPoint> = vec![EndPoint::FileUnknown("testpath".into())];
         let mut mock_it_src = MockEndpointsIterSrc::new();
         mock_it_src
             .expect_iter()
             .times(1)
-            .return_const(test_data.into_iter());
+            .return_const(test_ep_list.into_iter());
 
         let mut mock_res_id_res = MockResourceIdResolver::new();
         mock_res_id_res
@@ -104,11 +103,11 @@ mod tests {
 
     #[test]
     fn test_new_resolve() {
-        let test_data: Vec<EndPoint> = vec![EndPoint::FileUnknown("testpath".into())];
+        let test_ep_list: Vec<EndPoint> = vec![EndPoint::FileUnknown("testpath".into())];
         let mut mock_it_src = MockEndpointsIterSrc::new();
         mock_it_src
             .expect_iter()
-            .return_const(test_data.into_iter());
+            .return_const(test_ep_list.into_iter());
 
         let mut mock_res_id_res = MockResourceIdResolver::new();
         mock_res_id_res
