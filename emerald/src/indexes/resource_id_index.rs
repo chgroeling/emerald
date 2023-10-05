@@ -26,17 +26,17 @@ impl ResourceIdIndex {
         let mut all_resource_ids_list = Vec::<ResourceId>::new();
         let mut md_resource_ids_list = Vec::<ResourceId>::new();
 
-        for endpoint in ep_iter_rc.iter() {
-            let opt_resource_id = resource_id_resolver.resolve(&endpoint);
+        for ep in ep_iter_rc.iter() {
+            let opt_resource_id = resource_id_resolver.resolve(&ep);
 
             if let Ok(resource_id) = opt_resource_id {
                 all_resource_ids_list.push(resource_id.clone());
 
-                if let EndPoint::FileMarkdown(_) = endpoint {
+                if let EndPoint::FileMarkdown(_) = ep {
                     md_resource_ids_list.push(resource_id);
                 }
             } else {
-                warn!("Can't convert Endpoint '{:?}' to ResourceId.", &endpoint);
+                warn!("Can't convert Endpoint '{:?}' to ResourceId.", &ep);
             }
         }
         Self {
