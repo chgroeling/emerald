@@ -5,3 +5,5 @@ pub mod endpoints_iter_src;
 pub mod file_content_loader;
 pub mod file_meta_data_loader;
 pub mod meta_data_loader;
+pub mod resource_id_getter;
+pub mod resource_id_map;

@@ -5,3 +5,5 @@ pub enum EndPoint {
     FileUnknown(PathBuf),
     FileMarkdown(PathBuf),
 }
+
+impl Eq for EndPoint {}
