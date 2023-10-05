@@ -77,11 +77,45 @@ mod tests {
         dut
     }
     #[test]
-    fn test_resolve_single() {
+    fn test_resolve_single_entry() {
         let test_data: Vec<EndPoint> = vec![EndPoint::FileUnknown("testpath".into())];
         let dut = create_dut(test_data);
         let ep = dut.resolve(&"[[testpath]]".into()).unwrap();
 
         assert!(matches!(ep, EndPoint::FileUnknown(path) if path==PathBuf::from("testpath")));
+    }
+
+    #[test]
+    fn test_new_correct_iteration() {
+        let test_data: Vec<EndPoint> = vec![EndPoint::FileUnknown("testpath".into())];
+        let mut mock_it_src = MockEndpointsIterSrc::new();
+        mock_it_src
+            .expect_iter()
+            .times(1)
+            .return_const(test_data.into_iter());
+
+        let mut mock_res_id_res = MockResourceIdResolver::new();
+        mock_res_id_res
+            .expect_resolve()
+            .returning(|_f| Ok(ResourceId("[[doesnt matter]]".to_string())));
+
+        let _dut = EndpointResourceIdMap::new(&mock_it_src, &mock_res_id_res);
+    }
+
+    #[test]
+    fn test_new_resolve() {
+        let test_data: Vec<EndPoint> = vec![EndPoint::FileUnknown("testpath".into())];
+        let mut mock_it_src = MockEndpointsIterSrc::new();
+        mock_it_src
+            .expect_iter()
+            .return_const(test_data.into_iter());
+
+        let mut mock_res_id_res = MockResourceIdResolver::new();
+        mock_res_id_res
+            .expect_resolve()
+            .withf(|f| matches!(f, EndPoint::FileUnknown(path) if path==&PathBuf::from("testpath")))
+            .returning(|_f| Ok(ResourceId("[[doesnt matter]]".to_string())));
+
+        let _dut = EndpointResourceIdMap::new(&mock_it_src, &mock_res_id_res);
     }
 }
