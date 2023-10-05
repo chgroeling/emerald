@@ -11,11 +11,11 @@ use EmeraldError::*;
 
 use super::resource_id_getter::ResourceIdGetter;
 
-pub struct ResourceIdMap {
+pub struct ResourceIdEndPointMap {
     ep_to_resource_id: HashMap<EndPoint, ResourceId>,
 }
 
-impl ResourceIdMap {
+impl ResourceIdEndPointMap {
     pub fn new(ep_iter_rc: &impl EndpointsIterSrc, common_path: &Path) -> Self {
         let mut ep_to_resource_id = HashMap::<EndPoint, ResourceId>::new();
         for ep in ep_iter_rc.iter() {
@@ -31,7 +31,7 @@ impl ResourceIdMap {
     }
 }
 
-impl ResourceIdGetter for ResourceIdMap {
+impl ResourceIdGetter for ResourceIdEndPointMap {
     fn get(&self, ep: &EndPoint) -> Result<ResourceId> {
         self.ep_to_resource_id
             .get(ep)
