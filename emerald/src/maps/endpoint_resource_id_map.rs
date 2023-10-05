@@ -1,10 +1,9 @@
-use crate::{EmeraldError, Result};
+use crate::{resources::endpoints_iter_src::EndpointsIterSrc, EmeraldError, Result};
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 use std::{collections::HashMap, path::Path};
 
 use crate::{
-    indexes::EndpointsIterSrc,
     types::{EndPoint, ResourceId},
     utils::endpoint_translation::convert_endpoint_to_resource_id,
 };
@@ -46,8 +45,8 @@ impl EndPointRetriever for EndpointResourceIdMap {
 mod tests {
     use super::EndpointResourceIdMap;
     use super::{EmeraldError, EndPoint};
-    use crate::indexes::endpoints_iter_src::MockEndpointsIterSrc;
     use crate::maps::endpoint_retriever::EndPointRetriever;
+    use crate::resources::endpoints_iter_src::MockEndpointsIterSrc;
     use std::path::PathBuf;
     use EmeraldError::*;
 

@@ -1,13 +1,16 @@
 use std::{path::Path, rc::Rc};
 
-use crate::{types::ResourceId, utils::endpoint_translation::convert_endpoint_to_resource_id};
+use crate::{
+    resources::endpoints_iter_src::EndpointsIterSrc, types::ResourceId,
+    utils::endpoint_translation::convert_endpoint_to_resource_id,
+};
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
 use crate::types::EndPoint;
 
-use super::{endpoints_iter_src::EndpointsIterSrc, resource_ids_iter_src::ResourceIdsIterSrc};
+use super::resource_ids_iter_src::ResourceIdsIterSrc;
 
 pub struct ResourceIdIndex {
     all_resource_ids_list: Vec<ResourceId>,
@@ -81,8 +84,8 @@ impl ResourceIdsIterSrc for MdResourceIds {
 #[cfg(test)]
 mod tests {
     use super::{EndPoint, ResourceId, ResourceIdIndex};
-    use crate::indexes::endpoints_iter_src::MockEndpointsIterSrc;
     use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdsIterSrc};
+    use crate::resources::endpoints_iter_src::MockEndpointsIterSrc;
     use std::path::PathBuf;
     use EndPoint::*;
 
