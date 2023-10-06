@@ -1,6 +1,6 @@
-use crate::types::Link;
+use crate::types::{Content, Link};
 
 pub trait LinkExtractorIterSrc {
     type Iter: Iterator<Item = Link>;
-    fn create_iter(&self, content: String) -> Self::Iter;
+    fn iter(&self, content: Content) -> Self::Iter;
 }

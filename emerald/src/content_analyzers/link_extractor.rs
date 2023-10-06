@@ -6,6 +6,7 @@ use std::rc::Rc;
 use log::{debug, error, info, trace, warn};
 
 use crate::types::link::Link;
+use crate::types::Content;
 
 use super::content_type::ContentType;
 use super::link_extractor_iter_src::LinkExtractorIterSrc;
@@ -24,7 +25,7 @@ impl<I: MarkdownExtractorIterSrc> LinkExtractor<I> {
 impl<I: MarkdownExtractorIterSrc> LinkExtractorIterSrc for LinkExtractor<I> {
     type Iter = Map<Filter<I::Iter, fn(&ContentType) -> bool>, fn(ContentType) -> Link>;
 
-    fn create_iter(&self, content: String) -> Self::Iter {
+    fn iter(&self, content: Content) -> Self::Iter {
         fn filter_func(pred: &ContentType) -> bool {
             matches!(pred, ContentType::WikiLink(_))
         }
@@ -36,7 +37,7 @@ impl<I: MarkdownExtractorIterSrc> LinkExtractorIterSrc for LinkExtractor<I> {
             }
         }
         self.content_iter_rc
-            .create_iter(content)
+            .iter(content)
             .filter(filter_func as _) //  as fn(&ContentType) -> bool also works
             .map(map_func as _)
     }

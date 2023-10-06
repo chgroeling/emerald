@@ -31,7 +31,7 @@ impl Src2TargetIndex {
 
             let mut note_valid_backlink_cnt: usize = 0;
             let mut note_invalid_backlink_cnt: usize = 0;
-            for link_to_target in md_link_analyer_iter_rc.create_iter(content.0.as_ref().clone()) {
+            for link_to_target in md_link_analyer_iter_rc.iter(content) {
                 match &link_to_target {
                     Link2Tgt { link, tgt: None } => {
                         note_invalid_backlink_cnt += 1;
