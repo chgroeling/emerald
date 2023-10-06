@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use crate::maps::ResourceIdRetriever;
+use crate::{maps::ResourceIdRetriever, types::Content};
 
 use super::{
     link_extractor::LinkExtractor, md_extractor::MarkdownExtractor,
@@ -30,7 +30,7 @@ impl MdLinkAnalyzerIterSrc for MdLinkAnalyzer {
     type Iter =
         <ResourceIdExtractor<LinkExtractor<MarkdownExtractor>> as ResourceIdExtractorIterSrc>::Iter;
 
-    fn iter(&self, content: String) -> Self::Iter {
+    fn iter(&self, content: Content) -> Self::Iter {
         self.resource_id_extractor.iter(content)
     }
 }

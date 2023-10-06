@@ -2,6 +2,8 @@
 use log::{debug, error, info, trace, warn};
 use std::{iter::Peekable, str::CharIndices};
 
+use crate::types::Content;
+
 use super::{content_type::ContentType, md_extractor_iter_src::MarkdownExtractorIterSrc};
 
 pub struct MarkdownExtractor {}
@@ -21,7 +23,7 @@ impl Default for MarkdownExtractor {
 impl MarkdownExtractorIterSrc for MarkdownExtractor {
     type Iter = MarkdownExtractorIter;
 
-    fn iter(&self, content: String) -> Self::Iter {
+    fn iter(&self, content: Content) -> Self::Iter {
         MarkdownExtractorIter::new(content)
     }
 }
@@ -32,8 +34,9 @@ pub struct MarkdownExtractorIter {
 }
 
 impl MarkdownExtractorIter {
-    fn new(content: String) -> Self {
-        let content_list = BorrowedMarkdownIterator::new(&content).collect::<Vec<_>>();
+    fn new(content: Content) -> Self {
+        let content_str = content.0.as_ref();
+        let content_list = BorrowedMarkdownIterator::new(content_str).collect::<Vec<_>>();
         Self {
             content_iter: content_list.into_iter(),
         }
