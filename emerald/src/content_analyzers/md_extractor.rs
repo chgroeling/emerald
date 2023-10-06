@@ -21,7 +21,7 @@ impl Default for MarkdownExtractor {
 impl MarkdownExtractorIterSrc for MarkdownExtractor {
     type Iter = MarkdownExtractorIter;
 
-    fn create_iter(&self, content: String) -> Self::Iter {
+    fn iter(&self, content: String) -> Self::Iter {
         MarkdownExtractorIter::new(content)
     }
 }

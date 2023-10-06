@@ -30,7 +30,7 @@ impl MdLinkAnalyzerIterSrc for MdLinkAnalyzer {
     type Iter =
         <ResourceIdExtractor<LinkExtractor<MarkdownExtractor>> as ResourceIdExtractorIterSrc>::Iter;
 
-    fn create_iter(&self, content: String) -> Self::Iter {
-        self.resource_id_extractor.create_iter(content)
+    fn iter(&self, content: String) -> Self::Iter {
+        self.resource_id_extractor.iter(content)
     }
 }

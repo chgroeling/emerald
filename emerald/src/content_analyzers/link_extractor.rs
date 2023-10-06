@@ -24,7 +24,7 @@ impl<I: MarkdownExtractorIterSrc> LinkExtractor<I> {
 impl<I: MarkdownExtractorIterSrc> LinkExtractorIterSrc for LinkExtractor<I> {
     type Iter = Map<Filter<I::Iter, fn(&ContentType) -> bool>, fn(ContentType) -> Link>;
 
-    fn create_iter(&self, content: String) -> Self::Iter {
+    fn iter(&self, content: String) -> Self::Iter {
         fn filter_func(pred: &ContentType) -> bool {
             matches!(pred, ContentType::WikiLink(_))
         }
@@ -36,7 +36,7 @@ impl<I: MarkdownExtractorIterSrc> LinkExtractorIterSrc for LinkExtractor<I> {
             }
         }
         self.content_iter_rc
-            .create_iter(content)
+            .iter(content)
             .filter(filter_func as _) //  as fn(&ContentType) -> bool also works
             .map(map_func as _)
     }

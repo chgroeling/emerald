@@ -50,9 +50,9 @@ impl<I: LinkExtractorIterSrc> ResourceIdExtractor<I> {
 impl<I: LinkExtractorIterSrc> ResourceIdExtractorIterSrc for ResourceIdExtractor<I> {
     type Iter = ResourceIdExtractorIterator<I::Iter>;
 
-    fn create_iter(&self, content: String) -> Self::Iter {
+    fn iter(&self, content: String) -> Self::Iter {
         ResourceIdExtractorIterator {
-            input_iter: self.link_extractor.create_iter(content),
+            input_iter: self.link_extractor.iter(content),
             resource_id_retriever: self.resource_id_retriever.clone(),
         }
     }
