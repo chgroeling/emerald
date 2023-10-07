@@ -1,3 +1,4 @@
+use crate::Result;
 use std::rc::Rc;
 
 use crate::{
@@ -11,6 +12,29 @@ use log::{debug, error, info, trace, warn};
 use crate::types::EndPoint;
 
 use super::resource_ids_iter_src::ResourceIdsIterSrc;
+
+struct EndPointIterator<'a, T, U>
+where
+    T: Iterator<Item = EndPoint>,
+    U: ResourceIdResolver,
+{
+    ep_iter: T,
+    resource_id_resolver: &'a U,
+}
+
+impl<'a, T, U> Iterator for EndPointIterator<'a, T, U>
+where
+    T: Iterator<Item = EndPoint>,
+    U: ResourceIdResolver,
+{
+    type Item = Result<ResourceId>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let ep = self.ep_iter.next()?;
+        let opt_resource_id = self.resource_id_resolver.resolve(&ep);
+        Some(opt_resource_id)
+    }
+}
 
 pub struct ResourceIdIndex<I>
 where
@@ -40,6 +64,10 @@ where
         let mut all_resource_ids_list = Vec::<ResourceId>::new();
         let mut md_resource_ids_list = Vec::<ResourceId>::new();
 
+        let ep_iter = EndPointIterator {
+            ep_iter: ep_iter_src.iter(),
+            resource_id_resolver: self.resource_id_resolver.as_ref(),
+        };
         for ep in ep_iter_src.iter() {
             let opt_resource_id = self.resource_id_resolver.resolve(&ep);
 
