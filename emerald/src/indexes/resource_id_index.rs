@@ -13,16 +13,16 @@ use crate::types::EndPoint;
 
 use super::resource_ids_iter_src::ResourceIdsIterSrc;
 
-struct EndPointIterator<'a, T, U>
+struct EndPointIterator<T, U>
 where
     T: Iterator<Item = EndPoint>,
     U: ResourceIdResolver,
 {
     ep_iter: T,
-    resource_id_resolver: &'a U,
+    resource_id_resolver: Rc<U>,
 }
 
-impl<'a, T, U> Iterator for EndPointIterator<'a, T, U>
+impl<T, U> Iterator for EndPointIterator<T, U>
 where
     T: Iterator<Item = EndPoint>,
     U: ResourceIdResolver,
@@ -70,7 +70,7 @@ where
 
         let ep_iter = EndPointIterator {
             ep_iter: ep_iter_src.iter(),
-            resource_id_resolver: self.resource_id_resolver.as_ref(),
+            resource_id_resolver: self.resource_id_resolver.clone(),
         };
         for opt_resource_id in ep_iter {
             if let Ok(resource_id) = opt_resource_id {
