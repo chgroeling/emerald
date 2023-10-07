@@ -19,13 +19,13 @@ pub struct ResourceIdIndex {
 
 impl ResourceIdIndex {
     pub fn new(
-        ep_iter_rc: &impl EndpointsIterSrc,
+        ep_iter_src: &impl EndpointsIterSrc,
         resource_id_resolver: &impl ResourceIdResolver,
     ) -> ResourceIdIndex {
         let mut all_resource_ids_list = Vec::<ResourceId>::new();
         let mut md_resource_ids_list = Vec::<ResourceId>::new();
 
-        for ep in ep_iter_rc.iter() {
+        for ep in ep_iter_src.iter() {
             let opt_resource_id = resource_id_resolver.resolve(&ep);
 
             if let Ok(resource_id) = opt_resource_id {
