@@ -30,7 +30,7 @@ type MdResourceIdsImpl = MdResourceIds<FileMetaDataLoaderImpl>;
 #[allow(dead_code)]
 pub struct Emerald {
     pub md_link_analyzer: Rc<MdLinkAnalyzer>,
-    pub ep_index: Rc<EndpointIndex>,
+    pub ep_index: EndpointIndex,
     pub resource_id_resolver: Rc<ResourceIdEndPointMap>,
     pub endpoint_resolver: Rc<EndpointResourceIdMap>,
     pub meta_data_loader: Rc<FileMetaDataLoaderImpl>,
@@ -54,12 +54,11 @@ impl Emerald {
     pub fn new(vault_path: &Path) -> Result<Emerald> {
         // Build dependency root
         let start = Instant::now();
-        let ep_index = Rc::new(EndpointIndex::new(vault_path)?);
+        let ep_index = EndpointIndex::new(vault_path)?;
         debug!("Creation of EndpointIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let resource_id_resolver =
-            Rc::new(ResourceIdEndPointMap::new(ep_index.as_ref(), vault_path));
+        let resource_id_resolver = Rc::new(ResourceIdEndPointMap::new(&ep_index, vault_path));
         debug!(
             "Creation of ResourceIdEndPointMap took: {:?}",
             start.elapsed()
@@ -67,7 +66,7 @@ impl Emerald {
 
         let start = Instant::now();
         let endpoint_resolver = Rc::new(EndpointResourceIdMap::new(
-            ep_index.as_ref(),
+            &ep_index,
             resource_id_resolver.as_ref(),
         ));
         debug!(

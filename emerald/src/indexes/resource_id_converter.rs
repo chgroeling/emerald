@@ -47,7 +47,7 @@ where
     T: EndpointsIterSrc,
     U: ResourceIdResolver,
 {
-    pub ep_iter_src: Rc<T>,
+    pub ep_iter_src: T,
     pub resource_id_resolver: Rc<U>,
 }
 
@@ -98,7 +98,7 @@ mod tests {
         }
 
         ResourceIdConverter {
-            ep_iter_src: Rc::new(mock_it_src),
+            ep_iter_src: mock_it_src,
             resource_id_resolver: Rc::new(mock_res_id_res),
         }
     }

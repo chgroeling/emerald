@@ -1,5 +1,6 @@
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::rc::Rc;
 
 use crate::Result;
 #[allow(unused_imports)]
@@ -10,8 +11,9 @@ use crate::types::EndPoint;
 
 use EndPoint::*;
 
+#[derive(Debug, Clone, PartialEq, Hash)]
 pub struct EndpointIndex {
-    endpoint_list: Vec<EndPoint>,
+    endpoint_list: Rc<Vec<EndPoint>>,
 }
 
 impl EndpointIndex {
@@ -35,7 +37,9 @@ impl EndpointIndex {
             endpoint_list.push(endpoint);
         }
 
-        Ok(EndpointIndex { endpoint_list })
+        Ok(EndpointIndex {
+            endpoint_list: Rc::new(endpoint_list),
+        })
     }
 
     fn _get_file_list_recursive(path: &Path) -> Result<Vec<PathBuf>> {
@@ -65,6 +69,6 @@ impl EndpointIndex {
 impl EndpointsIterSrc for EndpointIndex {
     type Iter = std::vec::IntoIter<EndPoint>;
     fn iter(&self) -> Self::Iter {
-        self.endpoint_list.clone().into_iter()
+        (*self.endpoint_list).clone().into_iter()
     }
 }
