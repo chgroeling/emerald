@@ -1,4 +1,8 @@
-use crate::Result;
+use crate::{
+    resources::meta_data_loader::{self, MetaDataLoader},
+    types::meta_data::{FileType, MetaData},
+    Result,
+};
 use std::rc::Rc;
 
 use crate::{
@@ -36,20 +40,23 @@ where
     }
 }
 
-pub struct ResourceIdIndex<I>
+pub struct ResourceIdIndex<I, U>
 where
     I: ResourceIdResolver,
+    U: MetaDataLoader,
 {
     all_resource_ids_list: Vec<ResourceId>,
     md_resource_ids_list: Vec<ResourceId>,
     resource_id_resolver: Rc<I>,
+    meta_data_loader: Rc<U>,
 }
 
-impl<I> ResourceIdIndex<I>
+impl<I, U> ResourceIdIndex<I, U>
 where
     I: ResourceIdResolver,
+    U: MetaDataLoader,
 {
-    pub fn new(resource_id_resolver: Rc<I>) -> Self {
+    pub fn new(resource_id_resolver: Rc<I>, meta_data_loader: Rc<U>) -> Self {
         let all_resource_ids_list = Vec::<ResourceId>::new();
         let md_resource_ids_list = Vec::<ResourceId>::new();
 
@@ -57,6 +64,7 @@ where
             all_resource_ids_list,
             md_resource_ids_list,
             resource_id_resolver,
+            meta_data_loader,
         }
     }
 
@@ -74,11 +82,16 @@ where
             if let Ok(resource_id) = opt_resource_id {
                 all_resource_ids_list.push(resource_id.clone());
 
-                if let EndPoint::FileMarkdown(_) = ep {
+                let Ok(meta_data) = self.meta_data_loader.load(&resource_id) else {
+                    warn!("No meta_data available for '{:?}'.", &resource_id);
+                    continue;
+                };
+
+                if let FileType::Markdown(_) = meta_data.file_type {
                     md_resource_ids_list.push(resource_id);
                 }
             } else {
-                warn!("Can't convert Endpoint '{:?}' to ResourceId.", &ep);
+                warn!("No resource id available for '{:?}'.", &ep);
             }
         }
 
@@ -88,25 +101,28 @@ where
 }
 
 // === Implement trait for all resource ids. =================
-pub struct AllResourceIds<I>(Rc<ResourceIdIndex<I>>)
-where
-    I: ResourceIdResolver;
-
-impl<I> AllResourceIds<I>
+pub struct AllResourceIds<I, U>(Rc<ResourceIdIndex<I, U>>)
 where
     I: ResourceIdResolver,
+    U: MetaDataLoader;
+
+impl<I, U> AllResourceIds<I, U>
+where
+    I: ResourceIdResolver,
+    U: MetaDataLoader,
 {
     #[allow(dead_code)]
-    pub fn new(value: ResourceIdIndex<I>) -> Self {
+    pub fn new(value: ResourceIdIndex<I, U>) -> Self {
         Self(Rc::new(value))
     }
-    pub fn new_from_rc(value: &Rc<ResourceIdIndex<I>>) -> Self {
+    pub fn new_from_rc(value: &Rc<ResourceIdIndex<I, U>>) -> Self {
         Self(value.clone())
     }
 }
-impl<I> ResourceIdsIterSrc for AllResourceIds<I>
+impl<I, U> ResourceIdsIterSrc for AllResourceIds<I, U>
 where
     I: ResourceIdResolver,
+    U: MetaDataLoader,
 {
     type Iter = std::vec::IntoIter<ResourceId>;
     fn iter(&self) -> Self::Iter {
@@ -115,26 +131,29 @@ where
 }
 
 // === Implement trait for md resource ids. =================
-pub struct MdResourceIds<I>(Rc<ResourceIdIndex<I>>)
-where
-    I: ResourceIdResolver;
-
-impl<I> MdResourceIds<I>
+pub struct MdResourceIds<I, U>(Rc<ResourceIdIndex<I, U>>)
 where
     I: ResourceIdResolver,
+    U: MetaDataLoader;
+
+impl<I, U> MdResourceIds<I, U>
+where
+    I: ResourceIdResolver,
+    U: MetaDataLoader,
 {
     #[allow(dead_code)]
-    pub fn new(value: ResourceIdIndex<I>) -> Self {
+    pub fn new(value: ResourceIdIndex<I, U>) -> Self {
         Self(Rc::new(value))
     }
-    pub fn new_from_rc(value: &Rc<ResourceIdIndex<I>>) -> Self {
+    pub fn new_from_rc(value: &Rc<ResourceIdIndex<I, U>>) -> Self {
         Self(value.clone())
     }
 }
 
-impl<I> ResourceIdsIterSrc for MdResourceIds<I>
+impl<I, U> ResourceIdsIterSrc for MdResourceIds<I, U>
 where
     I: ResourceIdResolver,
+    U: MetaDataLoader,
 {
     type Iter = std::vec::IntoIter<ResourceId>;
     fn iter(&self) -> Self::Iter {
@@ -147,12 +166,18 @@ mod tests {
     use super::{EndPoint, ResourceId, ResourceIdIndex};
     use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdsIterSrc};
     use crate::resources::endpoints_iter_src::MockEndpointsIterSrc;
+    use crate::resources::meta_data_loader::MockMetaDataLoader;
     use crate::resources::resource_id_resolver::MockResourceIdResolver;
+    use crate::types::meta_data::{FileType, MetaData};
+    use crate::EmeraldError;
     use std::path::PathBuf;
     use std::rc::Rc;
     use EndPoint::*;
 
-    fn create_dut(test_ep_list: Vec<EndPoint>) -> ResourceIdIndex<MockResourceIdResolver> {
+    fn create_dut(
+        test_ep_list: Vec<EndPoint>,
+        file_type: Vec<FileType>,
+    ) -> ResourceIdIndex<MockResourceIdResolver, MockMetaDataLoader> {
         let mut mock_it_src = MockEndpointsIterSrc::new();
         let mut mock_res_id_res = MockResourceIdResolver::new();
 
@@ -174,7 +199,26 @@ mod tests {
                 .withf(move |f| f == &test_ep)
                 .returning(move |_f| Ok(ResourceId(test_str.clone())));
         }
-        let mut ridx = ResourceIdIndex::new(Rc::new(mock_res_id_res));
+
+        let mut mock_meta_data_loader_load = MockMetaDataLoader::new();
+        let mut call_count_meta_data = 0;
+        mock_meta_data_loader_load
+            .expect_load()
+            .returning(move |_| {
+                let meta_data = file_type
+                    .get(call_count_meta_data)
+                    .ok_or_else(|| EmeraldError::Unknown)
+                    .map(|ft| MetaData {
+                        file_stem: "".into(),
+                        file_type: ft.clone(),
+                    });
+                call_count_meta_data += 1;
+                meta_data
+            });
+        let mut ridx = ResourceIdIndex::new(
+            Rc::new(mock_res_id_res),
+            Rc::new(mock_meta_data_loader_load),
+        );
 
         ridx.update(&mock_it_src);
 
@@ -183,7 +227,7 @@ mod tests {
 
     #[test]
     fn test_md_iter_empty() {
-        let dut = AllResourceIds::new(create_dut(vec![]));
+        let dut = AllResourceIds::new(create_dut(vec![], vec![]));
 
         let result: Vec<ResourceId> = dut.iter().collect();
         let expected: Vec<ResourceId> = vec![];
@@ -192,7 +236,10 @@ mod tests {
 
     #[test]
     fn test_one() {
-        let dut = AllResourceIds::new(create_dut(vec![FileUnknown("testpath".into())]));
+        let dut = AllResourceIds::new(create_dut(
+            vec![FileUnknown("testpath".into())],
+            vec![], /* Doesnt matter here */
+        ));
 
         let result: Vec<ResourceId> = dut.iter().collect();
         let expected: Vec<ResourceId> = vec!["[[testpath]]".into()];
@@ -201,10 +248,13 @@ mod tests {
 
     #[test]
     fn test_two() {
-        let dut = AllResourceIds::new(create_dut(vec![
-            FileUnknown("test_file1".into()),
-            FileUnknown("test_file2".into()),
-        ]));
+        let dut = AllResourceIds::new(create_dut(
+            vec![
+                FileUnknown("test_file1".into()),
+                FileUnknown("test_file2".into()),
+            ],
+            vec![], /* Doesnt matter here */
+        ));
 
         let result: Vec<ResourceId> = dut.iter().collect();
         let expected: Vec<ResourceId> = vec!["[[test_file1]]".into(), "[[test_file2]]".into()];
@@ -213,10 +263,16 @@ mod tests {
 
     #[test]
     fn test_filter_two_but_one_remains() {
-        let dut = MdResourceIds::new(create_dut(vec![
-            FileUnknown("test_file1.png".into()),
-            FileMarkdown("test_file2.md".into()),
-        ]));
+        let dut = MdResourceIds::new(create_dut(
+            vec![
+                FileUnknown("test_file1.png".into()),
+                FileMarkdown("test_file2.md".into()),
+            ],
+            vec![
+                FileType::Unknown("".into()),
+                FileType::Markdown("md".into()),
+            ],
+        ));
 
         let result: Vec<ResourceId> = dut.iter().collect();
         let expected: Vec<ResourceId> = vec!["[[test_file2.md]]".into()];
