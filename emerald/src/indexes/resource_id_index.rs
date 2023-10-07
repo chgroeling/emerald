@@ -1,8 +1,4 @@
-use crate::{
-    resources::meta_data_loader::{self, MetaDataLoader},
-    types::meta_data::{FileType, MetaData},
-    Result,
-};
+use crate::{resources::meta_data_loader::MetaDataLoader, types::meta_data::FileType, Result};
 use std::rc::Rc;
 
 use crate::{

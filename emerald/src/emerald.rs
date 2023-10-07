@@ -4,7 +4,7 @@ use std::rc::Rc;
 use std::{path::Path, time::Instant};
 
 use crate::content_analyzers::MdLinkAnalyzer;
-use crate::indexes::resource_id_index::{self, AllResourceIds, MdResourceIds, ResourceIdIndex};
+use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdIndex};
 use crate::indexes::src_2_tgt_index::Src2TargetIndex;
 use crate::maps::ResourceIdRetriever;
 use crate::maps::TgtIterRetriever;
@@ -18,7 +18,6 @@ use crate::resources::endpoint_resource_id_map::EndpointResourceIdMap;
 use crate::resources::endpoints_iter_src::EndpointsIterSrc;
 use crate::resources::file_content_loader::FileContentLoader;
 use crate::resources::file_meta_data_loader::FileMetaDataLoader;
-use crate::resources::meta_data_loader::MetaDataLoader;
 use crate::resources::resource_id_endpoint_map::ResourceIdEndPointMap;
 use crate::types::EndPoint;
 use crate::Result;
