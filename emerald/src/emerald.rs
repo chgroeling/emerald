@@ -4,6 +4,7 @@ use std::rc::Rc;
 use std::{path::Path, time::Instant};
 
 use crate::content_analyzers::MdLinkAnalyzer;
+use crate::indexes::resource_id_converter::ResourceIdConverter;
 use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdIndex};
 use crate::indexes::src_2_tgt_index::Src2TargetIndex;
 use crate::maps::ResourceIdRetriever;
@@ -18,19 +19,22 @@ use crate::resources::endpoint_resource_id_map::EndpointResourceIdMap;
 use crate::resources::endpoints_iter_src::EndpointsIterSrc;
 use crate::resources::file_content_loader::FileContentLoader;
 use crate::resources::file_meta_data_loader::FileMetaDataLoader;
-use crate::resources::meta_data_loader::MetaDataLoader;
 use crate::resources::resource_id_endpoint_map::ResourceIdEndPointMap;
 use crate::types::EndPoint;
 use crate::Result;
+
+type FileMetaDataLoaderImpl = FileMetaDataLoader<EndpointResourceIdMap>;
+type ResourceIdIndexImpl = ResourceIdIndex<FileMetaDataLoaderImpl>;
+type MdResourceIdsImpl = MdResourceIds<FileMetaDataLoaderImpl>;
 
 #[allow(dead_code)]
 pub struct Emerald {
     pub md_link_analyzer: Rc<MdLinkAnalyzer>,
     pub ep_index: Rc<EndpointIndex>,
-    pub resource_id_map: Rc<ResourceIdEndPointMap>,
-    pub ep_resource_id_map: Rc<EndpointResourceIdMap>,
-    pub meta_data_loader: Rc<dyn MetaDataLoader>,
-    pub resource_id_index: Rc<ResourceIdIndex>,
+    pub resource_id_resolver: Rc<ResourceIdEndPointMap>,
+    pub endpoint_resolver: Rc<EndpointResourceIdMap>,
+    pub meta_data_loader: Rc<FileMetaDataLoaderImpl>,
+    pub resource_id_index: Rc<ResourceIdIndexImpl>,
     pub resource_id_retriever: Rc<dyn ResourceIdRetriever>,
     pub tgt_iter_retriever: Rc<dyn TgtIterRetriever>,
     pub src_iter_retriever: Rc<dyn SrcIterRetriever>,
@@ -43,7 +47,7 @@ pub struct Emerald {
             ContentFullMdCache<FileContentLoader<EndpointResourceIdMap>>,
         >,
     >,
-    pub vault: Rc<Vault<MdResourceIds>>,
+    pub vault: Rc<Vault<MdResourceIdsImpl>>,
 }
 
 impl Emerald {
@@ -54,16 +58,17 @@ impl Emerald {
         debug!("Creation of EndpointIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let resource_id_ep_map = Rc::new(ResourceIdEndPointMap::new(ep_index.as_ref(), vault_path));
+        let resource_id_resolver =
+            Rc::new(ResourceIdEndPointMap::new(ep_index.as_ref(), vault_path));
         debug!(
             "Creation of ResourceIdEndPointMap took: {:?}",
             start.elapsed()
         );
 
         let start = Instant::now();
-        let ep_resource_id_map = Rc::new(EndpointResourceIdMap::new(
+        let endpoint_resolver = Rc::new(EndpointResourceIdMap::new(
             ep_index.as_ref(),
-            resource_id_ep_map.as_ref(),
+            resource_id_resolver.as_ref(),
         ));
         debug!(
             "Creation of EndpointResourceIdMap took: {:?}",
@@ -71,14 +76,18 @@ impl Emerald {
         );
 
         let start = Instant::now();
-        let meta_data_loader = Rc::new(FileMetaDataLoader::new(ep_resource_id_map.clone()));
+        let meta_data_loader = Rc::new(FileMetaDataLoader::new(endpoint_resolver.clone()));
         debug!("Creation of FileMetaDataLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let resource_id_index = Rc::new(ResourceIdIndex::new(
-            ep_index.as_ref(),
-            resource_id_ep_map.as_ref(),
-        ));
+        let resource_id_iter_src_not_cached = Rc::new(ResourceIdConverter {
+            ep_iter_src: ep_index.clone(),
+            resource_id_resolver: resource_id_resolver.clone(),
+        });
+
+        let mut resource_id_index_obj = ResourceIdIndex::new(meta_data_loader.clone());
+        resource_id_index_obj.update(resource_id_iter_src_not_cached.as_ref());
+        let resource_id_index = Rc::new(resource_id_index_obj);
         let all_res_ids_iter_rc = Rc::new(AllResourceIds::new_from_rc(&resource_id_index));
         let md_res_ids_iter_rc = Rc::new(MdResourceIds::new_from_rc(&resource_id_index));
         debug!("Creation of ResourceIdIndex took: {:?}", start.elapsed());
@@ -95,7 +104,7 @@ impl Emerald {
         debug!("Creation of MdLinkAnalyzer took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let content_loader = Rc::new(FileContentLoader::new(ep_resource_id_map.clone()));
+        let content_loader = Rc::new(FileContentLoader::new(endpoint_resolver.clone()));
         debug!("Creation of FileContentLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
@@ -137,8 +146,8 @@ impl Emerald {
 
         Ok(Emerald {
             md_link_analyzer,
-            resource_id_map: resource_id_ep_map,
-            ep_resource_id_map,
+            resource_id_resolver,
+            endpoint_resolver,
             meta_data_loader,
             resource_id_retriever,
             ep_index,
@@ -155,7 +164,7 @@ impl Emerald {
 }
 
 impl Emerald {
-    pub fn get_vault(&self) -> Rc<Vault<MdResourceIds>> {
+    pub fn get_vault(&self) -> Rc<Vault<MdResourceIdsImpl>> {
         self.vault.clone()
     }
 

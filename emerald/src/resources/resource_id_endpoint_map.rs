@@ -35,7 +35,7 @@ impl ResourceIdResolver for ResourceIdEndPointMap {
     fn resolve(&self, ep: &EndPoint) -> Result<ResourceId> {
         self.ep_to_resource_id
             .get(ep)
-            .map_or(Err(ResourceIdNotFound), |f| Ok(f.clone()))
+            .map_or(Err(EndpointHasNoResourceId(ep.clone())), |f| Ok(f.clone()))
     }
 }
 
