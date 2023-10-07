@@ -31,9 +31,6 @@ where
 
     fn next(&mut self) -> Option<Self::Item> {
         let ep = self.ep_iter.next()?;
-        /* TODO : else {
-            warn!("No resource id available for '{:?}'.", &ep);
-        }*/
         let opt_resource_id = self.resource_id_resolver.resolve(&ep);
         Some(opt_resource_id)
     }
@@ -79,14 +76,20 @@ where
             if let Ok(resource_id) = opt_resource_id {
                 all_resource_ids_list.push(resource_id.clone());
 
-                let Ok(meta_data) = self.meta_data_loader.load(&resource_id) else {
-                    warn!("No meta_data available for '{:?}'.", &resource_id);
+                let res_meta_data = self.meta_data_loader.load(&resource_id);
+                let Ok(meta_data) = res_meta_data else {
+                    /*warn!(
+                        "No meta_data available for '{:?}'. Error: {:?}",
+                        &resource_id, res_meta_data
+                    );*/
                     continue;
                 };
 
                 if let FileType::Markdown(_) = meta_data.file_type {
                     md_resource_ids_list.push(resource_id);
                 }
+            } else {
+                warn!("{0:?}", opt_resource_id);
             }
         }
 

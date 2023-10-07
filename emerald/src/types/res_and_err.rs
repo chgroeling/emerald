@@ -2,6 +2,8 @@ use std::io;
 use std::path::{PathBuf, StripPrefixError};
 use thiserror::Error;
 
+use super::EndPoint;
+
 #[allow(dead_code)]
 #[derive(Error, Debug)]
 pub enum EmeraldError {
@@ -41,8 +43,8 @@ pub enum EmeraldError {
     #[error("Tried to handle something as a file which was none")]
     NotAFile,
 
-    #[error("The given resource id was not found")]
-    ResourceIdNotFound,
+    #[error("The endpoint {0:?}  has no assigned resource id")]
+    EndpointHasNoResourceId(EndPoint),
 
     #[error("unknown error")]
     Unknown,
