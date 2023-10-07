@@ -1,3 +1,4 @@
+pub mod resource_id_converter;
 pub mod resource_id_index;
 mod resource_ids_iter_src;
 pub mod src_2_tgt_index;

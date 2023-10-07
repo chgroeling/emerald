@@ -4,9 +4,8 @@ use std::rc::Rc;
 use std::{path::Path, time::Instant};
 
 use crate::content_analyzers::MdLinkAnalyzer;
-use crate::indexes::resource_id_index::{
-    AllResourceIds, MdResourceIds, ResourceIdConverter, ResourceIdIndex,
-};
+use crate::indexes::resource_id_converter::ResourceIdConverter;
+use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdIndex};
 use crate::indexes::src_2_tgt_index::Src2TargetIndex;
 use crate::maps::ResourceIdRetriever;
 use crate::maps::TgtIterRetriever;
