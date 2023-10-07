@@ -4,7 +4,9 @@ use std::rc::Rc;
 use std::{path::Path, time::Instant};
 
 use crate::content_analyzers::MdLinkAnalyzer;
-use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdIndex};
+use crate::indexes::resource_id_index::{
+    AllResourceIds, MdResourceIds, ResourceIdConverter, ResourceIdIndex,
+};
 use crate::indexes::src_2_tgt_index::Src2TargetIndex;
 use crate::maps::ResourceIdRetriever;
 use crate::maps::TgtIterRetriever;
@@ -23,8 +25,8 @@ use crate::types::EndPoint;
 use crate::Result;
 
 type FileMetaDataLoaderImpl = FileMetaDataLoader<EndpointResourceIdMap>;
-type ResourceIdIndexImpl = ResourceIdIndex<ResourceIdEndPointMap, FileMetaDataLoaderImpl>;
-type MdResourceIdsImpl = MdResourceIds<ResourceIdEndPointMap, FileMetaDataLoaderImpl>;
+type ResourceIdIndexImpl = ResourceIdIndex<FileMetaDataLoaderImpl>;
+type MdResourceIdsImpl = MdResourceIds<FileMetaDataLoaderImpl>;
 #[allow(dead_code)]
 pub struct Emerald {
     pub md_link_analyzer: Rc<MdLinkAnalyzer>,
@@ -63,6 +65,11 @@ impl Emerald {
             start.elapsed()
         );
 
+        let resource_id_iter_src_not_cached = Rc::new(ResourceIdConverter {
+            ep_iter_src: ep_index.clone(),
+            resource_id_resolver: resource_id_resolver.clone(),
+        });
+
         let start = Instant::now();
         let endpoint_resolver = Rc::new(EndpointResourceIdMap::new(
             ep_index.as_ref(),
@@ -78,9 +85,8 @@ impl Emerald {
         debug!("Creation of FileMetaDataLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let mut resource_id_index_obj =
-            ResourceIdIndex::new(resource_id_resolver.clone(), meta_data_loader.clone());
-        resource_id_index_obj.update(ep_index.as_ref());
+        let mut resource_id_index_obj = ResourceIdIndex::new(meta_data_loader.clone());
+        resource_id_index_obj.update(resource_id_iter_src_not_cached.as_ref());
         let resource_id_index = Rc::new(resource_id_index_obj);
         let all_res_ids_iter_rc = Rc::new(AllResourceIds::new_from_rc(&resource_id_index));
         let md_res_ids_iter_rc = Rc::new(MdResourceIds::new_from_rc(&resource_id_index));
