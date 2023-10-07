@@ -12,21 +12,36 @@ use crate::types::EndPoint;
 
 use super::resource_ids_iter_src::ResourceIdsIterSrc;
 
-pub struct ResourceIdIndex {
+pub struct ResourceIdIndex<I>
+where
+    I: ResourceIdResolver,
+{
     all_resource_ids_list: Vec<ResourceId>,
     md_resource_ids_list: Vec<ResourceId>,
+    resource_id_resolver: Rc<I>,
 }
 
-impl ResourceIdIndex {
-    pub fn new(
-        ep_iter_src: &impl EndpointsIterSrc,
-        resource_id_resolver: &impl ResourceIdResolver,
-    ) -> ResourceIdIndex {
+impl<I> ResourceIdIndex<I>
+where
+    I: ResourceIdResolver,
+{
+    pub fn new(resource_id_resolver: Rc<I>) -> Self {
+        let all_resource_ids_list = Vec::<ResourceId>::new();
+        let md_resource_ids_list = Vec::<ResourceId>::new();
+
+        Self {
+            all_resource_ids_list,
+            md_resource_ids_list,
+            resource_id_resolver,
+        }
+    }
+
+    pub fn update(&mut self, ep_iter_src: &impl EndpointsIterSrc) {
         let mut all_resource_ids_list = Vec::<ResourceId>::new();
         let mut md_resource_ids_list = Vec::<ResourceId>::new();
 
         for ep in ep_iter_src.iter() {
-            let opt_resource_id = resource_id_resolver.resolve(&ep);
+            let opt_resource_id = self.resource_id_resolver.resolve(&ep);
 
             if let Ok(resource_id) = opt_resource_id {
                 all_resource_ids_list.push(resource_id.clone());
@@ -38,26 +53,33 @@ impl ResourceIdIndex {
                 warn!("Can't convert Endpoint '{:?}' to ResourceId.", &ep);
             }
         }
-        Self {
-            all_resource_ids_list,
-            md_resource_ids_list,
-        }
+
+        self.all_resource_ids_list = all_resource_ids_list;
+        self.md_resource_ids_list = md_resource_ids_list;
     }
 }
 
 // === Implement trait for all resource ids. =================
-pub struct AllResourceIds(Rc<ResourceIdIndex>);
+pub struct AllResourceIds<I>(Rc<ResourceIdIndex<I>>)
+where
+    I: ResourceIdResolver;
 
-impl AllResourceIds {
+impl<I> AllResourceIds<I>
+where
+    I: ResourceIdResolver,
+{
     #[allow(dead_code)]
-    pub fn new(value: ResourceIdIndex) -> Self {
+    pub fn new(value: ResourceIdIndex<I>) -> Self {
         Self(Rc::new(value))
     }
-    pub fn new_from_rc(value: &Rc<ResourceIdIndex>) -> Self {
+    pub fn new_from_rc(value: &Rc<ResourceIdIndex<I>>) -> Self {
         Self(value.clone())
     }
 }
-impl ResourceIdsIterSrc for AllResourceIds {
+impl<I> ResourceIdsIterSrc for AllResourceIds<I>
+where
+    I: ResourceIdResolver,
+{
     type Iter = std::vec::IntoIter<ResourceId>;
     fn iter(&self) -> Self::Iter {
         self.0.all_resource_ids_list.clone().into_iter()
@@ -65,19 +87,27 @@ impl ResourceIdsIterSrc for AllResourceIds {
 }
 
 // === Implement trait for md resource ids. =================
-pub struct MdResourceIds(Rc<ResourceIdIndex>);
+pub struct MdResourceIds<I>(Rc<ResourceIdIndex<I>>)
+where
+    I: ResourceIdResolver;
 
-impl MdResourceIds {
+impl<I> MdResourceIds<I>
+where
+    I: ResourceIdResolver,
+{
     #[allow(dead_code)]
-    pub fn new(value: ResourceIdIndex) -> Self {
+    pub fn new(value: ResourceIdIndex<I>) -> Self {
         Self(Rc::new(value))
     }
-    pub fn new_from_rc(value: &Rc<ResourceIdIndex>) -> Self {
+    pub fn new_from_rc(value: &Rc<ResourceIdIndex<I>>) -> Self {
         Self(value.clone())
     }
 }
 
-impl ResourceIdsIterSrc for MdResourceIds {
+impl<I> ResourceIdsIterSrc for MdResourceIds<I>
+where
+    I: ResourceIdResolver,
+{
     type Iter = std::vec::IntoIter<ResourceId>;
     fn iter(&self) -> Self::Iter {
         self.0.md_resource_ids_list.clone().into_iter()
@@ -91,9 +121,10 @@ mod tests {
     use crate::resources::endpoints_iter_src::MockEndpointsIterSrc;
     use crate::resources::resource_id_resolver::MockResourceIdResolver;
     use std::path::PathBuf;
+    use std::rc::Rc;
     use EndPoint::*;
 
-    fn create_dut(test_ep_list: Vec<EndPoint>) -> ResourceIdIndex {
+    fn create_dut(test_ep_list: Vec<EndPoint>) -> ResourceIdIndex<MockResourceIdResolver> {
         let mut mock_it_src = MockEndpointsIterSrc::new();
         let mut mock_res_id_res = MockResourceIdResolver::new();
 
@@ -115,7 +146,11 @@ mod tests {
                 .withf(move |f| f == &test_ep)
                 .returning(move |_f| Ok(ResourceId(test_str.clone())));
         }
-        ResourceIdIndex::new(&mock_it_src, &mock_res_id_res)
+        let mut ridx = ResourceIdIndex::new(Rc::new(mock_res_id_res));
+
+        ridx.update(&mock_it_src);
+
+        ridx
     }
 
     #[test]

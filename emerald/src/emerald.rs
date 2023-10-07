@@ -4,7 +4,7 @@ use std::rc::Rc;
 use std::{path::Path, time::Instant};
 
 use crate::content_analyzers::MdLinkAnalyzer;
-use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdIndex};
+use crate::indexes::resource_id_index::{self, AllResourceIds, MdResourceIds, ResourceIdIndex};
 use crate::indexes::src_2_tgt_index::Src2TargetIndex;
 use crate::maps::ResourceIdRetriever;
 use crate::maps::TgtIterRetriever;
@@ -30,7 +30,7 @@ pub struct Emerald {
     pub resource_id_map: Rc<ResourceIdEndPointMap>,
     pub ep_resource_id_map: Rc<EndpointResourceIdMap>,
     pub meta_data_loader: Rc<dyn MetaDataLoader>,
-    pub resource_id_index: Rc<ResourceIdIndex>,
+    pub resource_id_index: Rc<ResourceIdIndex<ResourceIdEndPointMap>>,
     pub resource_id_retriever: Rc<dyn ResourceIdRetriever>,
     pub tgt_iter_retriever: Rc<dyn TgtIterRetriever>,
     pub src_iter_retriever: Rc<dyn SrcIterRetriever>,
@@ -43,7 +43,7 @@ pub struct Emerald {
             ContentFullMdCache<FileContentLoader<EndpointResourceIdMap>>,
         >,
     >,
-    pub vault: Rc<Vault<MdResourceIds>>,
+    pub vault: Rc<Vault<MdResourceIds<ResourceIdEndPointMap>>>,
 }
 
 impl Emerald {
@@ -75,10 +75,9 @@ impl Emerald {
         debug!("Creation of FileMetaDataLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let resource_id_index = Rc::new(ResourceIdIndex::new(
-            ep_index.as_ref(),
-            resource_id_ep_map.as_ref(),
-        ));
+        let mut resource_id_index_obj = ResourceIdIndex::new(resource_id_ep_map.clone());
+        resource_id_index_obj.update(ep_index.as_ref());
+        let resource_id_index = Rc::new(resource_id_index_obj);
         let all_res_ids_iter_rc = Rc::new(AllResourceIds::new_from_rc(&resource_id_index));
         let md_res_ids_iter_rc = Rc::new(MdResourceIds::new_from_rc(&resource_id_index));
         debug!("Creation of ResourceIdIndex took: {:?}", start.elapsed());
@@ -155,7 +154,7 @@ impl Emerald {
 }
 
 impl Emerald {
-    pub fn get_vault(&self) -> Rc<Vault<MdResourceIds>> {
+    pub fn get_vault(&self) -> Rc<Vault<MdResourceIds<ResourceIdEndPointMap>>> {
         self.vault.clone()
     }
 
