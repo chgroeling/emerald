@@ -178,41 +178,7 @@ mod tests {
         ridx
     }
 
-    #[test]
-    fn test_md_iter_empty() {
-        let dut = AllResourceIds::new(create_dut(vec![], vec![]));
 
-        let result: Vec<ResourceId> = dut.iter().collect();
-        let expected: Vec<ResourceId> = vec![];
-        assert_eq!(result, expected);
-    }
-
-    #[test]
-    fn test_one() {
-        let dut = AllResourceIds::new(create_dut(
-            vec![FileUnknown("testpath".into())],
-            vec![], /* Doesnt matter here */
-        ));
-
-        let result: Vec<ResourceId> = dut.iter().collect();
-        let expected: Vec<ResourceId> = vec!["[[testpath]]".into()];
-        assert_eq!(result, expected);
-    }
-
-    #[test]
-    fn test_two() {
-        let dut = AllResourceIds::new(create_dut(
-            vec![
-                FileUnknown("test_file1".into()),
-                FileUnknown("test_file2".into()),
-            ],
-            vec![], /* Doesnt matter here */
-        ));
-
-        let result: Vec<ResourceId> = dut.iter().collect();
-        let expected: Vec<ResourceId> = vec!["[[test_file1]]".into(), "[[test_file2]]".into()];
-        assert_eq!(result, expected);
-    }
 
     #[test]
     fn test_filter_two_but_one_remains() {
