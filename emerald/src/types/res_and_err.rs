@@ -4,7 +4,6 @@ use thiserror::Error;
 
 use super::EndPoint;
 
-//#[allow(dead_code)]
 #[derive(Error, Debug)]
 pub enum EmeraldError {
     #[error("A vault at the specified position could not be found")]
