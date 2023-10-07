@@ -26,6 +26,7 @@ use crate::Result;
 type FileMetaDataLoaderImpl = FileMetaDataLoader<EndpointResourceIdMap>;
 type ResourceIdIndexImpl = ResourceIdIndex<FileMetaDataLoaderImpl>;
 type MdResourceIdsImpl = MdResourceIds<FileMetaDataLoaderImpl>;
+
 #[allow(dead_code)]
 pub struct Emerald {
     pub md_link_analyzer: Rc<MdLinkAnalyzer>,
@@ -64,11 +65,6 @@ impl Emerald {
             start.elapsed()
         );
 
-        let resource_id_iter_src_not_cached = Rc::new(ResourceIdConverter {
-            ep_iter_src: ep_index.clone(),
-            resource_id_resolver: resource_id_resolver.clone(),
-        });
-
         let start = Instant::now();
         let endpoint_resolver = Rc::new(EndpointResourceIdMap::new(
             ep_index.as_ref(),
@@ -84,6 +80,11 @@ impl Emerald {
         debug!("Creation of FileMetaDataLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
+        let resource_id_iter_src_not_cached = Rc::new(ResourceIdConverter {
+            ep_iter_src: ep_index.clone(),
+            resource_id_resolver: resource_id_resolver.clone(),
+        });
+
         let mut resource_id_index_obj = ResourceIdIndex::new(meta_data_loader.clone());
         resource_id_index_obj.update(resource_id_iter_src_not_cached.as_ref());
         let resource_id_index = Rc::new(resource_id_index_obj);

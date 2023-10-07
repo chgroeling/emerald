@@ -102,6 +102,7 @@ mod tests {
             resource_id_resolver: Rc::new(mock_res_id_res),
         }
     }
+
     #[test]
     fn test_iter_empty() {
         let dut = create_dut_everything_matches(vec![], vec![]);
