@@ -1,6 +1,5 @@
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
-use std::rc::Rc;
 use std::{path::Path, time::Instant};
 
 use crate::content_analyzers::MdLinkAnalyzer;
@@ -74,13 +73,13 @@ impl Emerald {
         debug!("Creation of FileMetaDataLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let resource_id_iter_src_not_cached = Rc::new(ResourceIdConverter {
+        let resource_id_iter_src_not_cached = ResourceIdConverter {
             ep_iter_src: ep_iter_src.clone(),
             resource_id_resolver: resource_id_resolver.clone(),
-        });
+        };
 
         let mut resource_id_index = ResourceIdIndex::new(meta_data_loader.clone());
-        resource_id_index.update(resource_id_iter_src_not_cached.as_ref());
+        resource_id_index.update(&resource_id_iter_src_not_cached);
         let all_res_ids_iter_rc = AllResourceIds::new(resource_id_index.clone());
         let md_res_ids_iter_rc = MdResourceIds::new(resource_id_index.clone());
         debug!("Creation of ResourceIdIndex took: {:?}", start.elapsed());
