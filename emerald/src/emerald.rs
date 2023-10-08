@@ -25,7 +25,10 @@ use crate::Result;
 type FileMetaDataLoaderImpl = FileMetaDataLoader<EndpointResourceIdMap>;
 type ResourceIdIndexImpl = ResourceIdIndex<FileMetaDataLoaderImpl>;
 type MdResourceIdsImpl = MdResourceIds<FileMetaDataLoaderImpl>;
-
+type StdProviderFactoryImpl = StdProviderFactory<
+    FileMetaDataLoader<EndpointResourceIdMap>,
+    ContentFullMdCache<FileContentLoader<EndpointResourceIdMap>>,
+>;
 #[allow(dead_code)]
 pub struct Emerald {
     pub ep_iter_src: EndpointIndex,
@@ -40,13 +43,9 @@ pub struct Emerald {
     pub content_full_md_cache: ContentFullMdCache<FileContentLoader<EndpointResourceIdMap>>,
     pub tgt_iter_retriever: TgtLinksMap,
     pub src_iter_retriever: SrcLinksMap,
-    pub std_provider_factory: Rc<
-        StdProviderFactory<
-            FileMetaDataLoader<EndpointResourceIdMap>,
-            ContentFullMdCache<FileContentLoader<EndpointResourceIdMap>>,
-        >,
-    >,
-    pub vault: Rc<Vault<MdResourceIdsImpl>>,
+    pub std_provider_factory: StdProviderFactoryImpl,
+
+    pub vault: Rc<Vault<MdResourceIdsImpl, StdProviderFactoryImpl>>,
 }
 
 impl Emerald {
@@ -120,10 +119,8 @@ impl Emerald {
         debug!("Creation of SrcLinksMap took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let std_provider_factory = Rc::new(StdProviderFactory::new(
-            meta_data_loader.clone(),
-            content_full_md_cache.clone(),
-        ));
+        let std_provider_factory =
+            StdProviderFactory::new(meta_data_loader.clone(), content_full_md_cache.clone());
         debug!("Creation of StdProviderFactory took: {:?}", start.elapsed());
 
         let start = Instant::now();
@@ -153,7 +150,7 @@ impl Emerald {
 }
 
 impl Emerald {
-    pub fn get_vault(&self) -> Rc<Vault<MdResourceIdsImpl>> {
+    pub fn get_vault(&self) -> Rc<Vault<MdResourceIdsImpl, StdProviderFactoryImpl>> {
         self.vault.clone()
     }
 

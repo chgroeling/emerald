@@ -5,6 +5,7 @@ use super::{
     provider_factory::ProviderFactory,
 };
 
+#[derive(Clone)]
 pub struct StdProviderFactory<I, T>
 where
     I: MetaDataLoader + Clone,
