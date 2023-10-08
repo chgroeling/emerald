@@ -36,11 +36,11 @@ pub struct Emerald {
     pub resource_id_index: ResourceIdIndexImpl,
     pub resource_id_retriever: ResourceIdLinkMap,
     pub md_link_analyzer: MdLinkAnalyzer<ResourceIdLinkMap>,
-    pub tgt_iter_retriever: Rc<dyn TgtIterRetriever>,
-    pub src_iter_retriever: Rc<dyn SrcIterRetriever>,
-    pub note_link_index: Rc<Src2TargetIndex>,
+    pub note_link_index: Src2TargetIndex,
     pub content_loader: FileContentLoader<EndpointResourceIdMap>,
     pub content_full_md_cache: ContentFullMdCache<FileContentLoader<EndpointResourceIdMap>>,
+    pub tgt_iter_retriever: Rc<dyn TgtIterRetriever>,
+    pub src_iter_retriever: Rc<dyn SrcIterRetriever>,
     pub std_provider_factory: Rc<
         StdProviderFactory<
             FileMetaDataLoader<EndpointResourceIdMap>,
@@ -105,19 +105,19 @@ impl Emerald {
         debug!("Creation of ContentFullMdCache took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let note_link_index = Rc::new(Src2TargetIndex::new(
+        let note_link_index = Src2TargetIndex::new(
             &content_full_md_cache,
             &md_res_ids_iter_rc,
             &md_link_analyzer,
-        ));
+        );
         debug!("Creation of Src2TargetIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let tgt_iter_retriever = create_tgt_iter_retriever(note_link_index.as_ref());
+        let tgt_iter_retriever = create_tgt_iter_retriever(&note_link_index);
         debug!("Creation of TgtIterRetriever took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let src_iter_retriever = create_src_iter_retriever(note_link_index.as_ref());
+        let src_iter_retriever = create_src_iter_retriever(&note_link_index);
         debug!("Creation of SrcIterRetriever took: {:?}", start.elapsed());
 
         let start = Instant::now();
