@@ -8,9 +8,10 @@ use crate::indexes::resource_id_converter::ResourceIdConverter;
 use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdIndex};
 use crate::indexes::src_2_tgt_index::Src2TargetIndex;
 use crate::maps::resource_id_link_map::ResourceIdLinkMap;
+use crate::maps::src_links_map::SrcLinksMap;
+use crate::maps::tgt_links_map::TgtLinksMap;
 use crate::maps::SrcIterRetriever;
 use crate::maps::TgtIterRetriever;
-use crate::maps::{create_src_iter_retriever, create_tgt_iter_retriever};
 use crate::notes::providers::std_provider_factory::StdProviderFactory;
 use crate::notes::vault::Vault;
 use crate::resources::content_full_md_cache::ContentFullMdCache;
@@ -113,11 +114,11 @@ impl Emerald {
         debug!("Creation of Src2TargetIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let tgt_iter_retriever = create_tgt_iter_retriever(&note_link_index);
+        let tgt_iter_retriever = Rc::new(TgtLinksMap::new(&note_link_index));
         debug!("Creation of TgtIterRetriever took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let src_iter_retriever = create_src_iter_retriever(&note_link_index);
+        let src_iter_retriever = Rc::new(SrcLinksMap::new(&note_link_index));
         debug!("Creation of SrcIterRetriever took: {:?}", start.elapsed());
 
         let start = Instant::now();
