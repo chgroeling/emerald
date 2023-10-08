@@ -1,5 +1,5 @@
 use crate::Result;
-use std::collections::HashMap;
+use std::{collections::HashMap, rc::Rc};
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
@@ -10,11 +10,12 @@ use crate::{
     types::{Content, ResourceId},
 };
 
+#[derive(Clone)]
 pub struct ContentFullMdCache<I>
 where
     I: ContentLoader,
 {
-    res_id_to_content: HashMap<ResourceId, Content>,
+    res_id_to_content: Rc<HashMap<ResourceId, Content>>,
     content_loader: I,
 }
 
@@ -40,7 +41,7 @@ where
         }
 
         Self {
-            res_id_to_content,
+            res_id_to_content: Rc::new(res_id_to_content),
             content_loader,
         }
     }
