@@ -2,6 +2,7 @@ use super::note::Note;
 use crate::notes::providers::provider_factory::ProviderFactory;
 use crate::{indexes::ResourceIdsIterSrc, types::ResourceId};
 
+#[derive(Clone)]
 pub struct Vault<I: ResourceIdsIterSrc, U>
 where
     I::Iter: Iterator<Item = ResourceId>,

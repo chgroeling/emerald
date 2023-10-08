@@ -45,7 +45,7 @@ pub struct Emerald {
     pub src_iter_retriever: SrcLinksMap,
     pub std_provider_factory: StdProviderFactoryImpl,
 
-    pub vault: Rc<Vault<MdResourceIdsImpl, StdProviderFactoryImpl>>,
+    pub vault: Vault<MdResourceIdsImpl, StdProviderFactoryImpl>,
 }
 
 impl Emerald {
@@ -124,10 +124,7 @@ impl Emerald {
         debug!("Creation of StdProviderFactory took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let vault = Rc::new(Vault::new(
-            md_res_ids_iter_rc.clone(),
-            std_provider_factory.clone(),
-        ));
+        let vault = Vault::new(md_res_ids_iter_rc.clone(), std_provider_factory.clone());
         debug!("Creation of Vault took: {:?}", start.elapsed());
 
         Ok(Emerald {
@@ -150,7 +147,7 @@ impl Emerald {
 }
 
 impl Emerald {
-    pub fn get_vault(&self) -> Rc<Vault<MdResourceIdsImpl, StdProviderFactoryImpl>> {
+    pub fn get_vault(&self) -> Vault<MdResourceIdsImpl, StdProviderFactoryImpl> {
         self.vault.clone()
     }
 
