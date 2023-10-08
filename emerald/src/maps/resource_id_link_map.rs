@@ -18,6 +18,7 @@ use super::resource_id_retriever::ResourceIdRetriever;
 
 pub type NameToResourceIdList = HashMap<String, Vec<ResourceId>>;
 
+#[derive(Clone)]
 pub struct ResourceIdLinkMap {
     name_to_resource_id_list: NameToResourceIdList,
 }
