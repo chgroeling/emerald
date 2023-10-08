@@ -32,7 +32,7 @@ pub struct Emerald {
     pub md_link_analyzer: Rc<MdLinkAnalyzer>,
     pub ep_index: EndpointIndex,
     pub resource_id_resolver: ResourceIdEndPointMap,
-    pub endpoint_resolver: Rc<EndpointResourceIdMap>,
+    pub endpoint_resolver: EndpointResourceIdMap,
     pub meta_data_loader: Rc<FileMetaDataLoaderImpl>,
     pub resource_id_index: Rc<ResourceIdIndexImpl>,
     pub resource_id_retriever: Rc<dyn ResourceIdRetriever>,
@@ -65,8 +65,7 @@ impl Emerald {
         );
 
         let start = Instant::now();
-        let endpoint_resolver =
-            Rc::new(EndpointResourceIdMap::new(&ep_index, &resource_id_resolver));
+        let endpoint_resolver = EndpointResourceIdMap::new(&ep_index, &resource_id_resolver);
         debug!(
             "Creation of EndpointResourceIdMap took: {:?}",
             start.elapsed()

@@ -4,15 +4,16 @@ use crate::{
 };
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
-use std::collections::HashMap;
+use std::{collections::HashMap, rc::Rc};
 
 use crate::types::{EndPoint, ResourceId};
 use EmeraldError::*;
 
 use super::endpoint_resolver::EndPointResolver;
 
+#[derive(Clone)]
 pub struct EndpointResourceIdMap {
-    resource_id_to_endpoint: HashMap<ResourceId, EndPoint>,
+    resource_id_to_endpoint: Rc<HashMap<ResourceId, EndPoint>>,
 }
 
 impl EndpointResourceIdMap {
@@ -31,7 +32,7 @@ impl EndpointResourceIdMap {
             }
         }
         Self {
-            resource_id_to_endpoint,
+            resource_id_to_endpoint: Rc::new(resource_id_to_endpoint),
         }
     }
 }

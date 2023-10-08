@@ -1,5 +1,4 @@
 use std::path::Path;
-use std::rc::Rc;
 
 use crate::resources::endpoint_resolver::EndPointResolver;
 use crate::types::meta_data::FileType;
@@ -20,14 +19,14 @@ pub struct FileMetaDataLoader<I>
 where
     I: EndPointResolver,
 {
-    ep_retriever: Rc<I>,
+    ep_retriever: I,
 }
 
 impl<I> FileMetaDataLoader<I>
 where
     I: EndPointResolver,
 {
-    pub fn new(ep_retriever: Rc<I>) -> Self {
+    pub fn new(ep_retriever: I) -> Self {
         Self { ep_retriever }
     }
 
