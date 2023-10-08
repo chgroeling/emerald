@@ -1,5 +1,3 @@
-use std::rc::Rc;
-
 use super::title_provider::TitleProvider;
 
 use crate::resources::meta_data_loader::MetaDataLoader;
@@ -9,14 +7,14 @@ pub struct MetaDataTitleProvider<I>
 where
     I: MetaDataLoader,
 {
-    meta_data_loader: Rc<I>,
+    meta_data_loader: I,
 }
 
 impl<I> MetaDataTitleProvider<I>
 where
     I: MetaDataLoader,
 {
-    pub fn new(meta_data_loader: Rc<I>) -> Self {
+    pub fn new(meta_data_loader: I) -> Self {
         Self { meta_data_loader }
     }
 }

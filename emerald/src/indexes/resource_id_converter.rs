@@ -1,5 +1,3 @@
-use std::rc::Rc;
-
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
@@ -13,16 +11,16 @@ use super::ResourceIdsIterSrc;
 pub struct ResourceIdIterator<T, U>
 where
     T: Iterator<Item = EndPoint>,
-    U: ResourceIdResolver,
+    U: ResourceIdResolver + Clone,
 {
     ep_iter: T,
-    resource_id_resolver: Rc<U>,
+    resource_id_resolver: U,
 }
 
 impl<T, U> Iterator for ResourceIdIterator<T, U>
 where
     T: Iterator<Item = EndPoint>,
-    U: ResourceIdResolver,
+    U: ResourceIdResolver + Clone,
 {
     type Item = ResourceId;
 
@@ -45,16 +43,16 @@ where
 pub struct ResourceIdConverter<T, U>
 where
     T: EndpointsIterSrc,
-    U: ResourceIdResolver,
+    U: ResourceIdResolver + Clone,
 {
-    pub ep_iter_src: Rc<T>,
-    pub resource_id_resolver: Rc<U>,
+    pub ep_iter_src: T,
+    pub resource_id_resolver: U,
 }
 
 impl<T, U> ResourceIdsIterSrc for ResourceIdConverter<T, U>
 where
     T: EndpointsIterSrc,
-    U: ResourceIdResolver,
+    U: ResourceIdResolver + Clone,
 {
     type Iter = ResourceIdIterator<T::Iter, U>;
 
@@ -75,31 +73,41 @@ mod tests {
     use crate::resources::endpoints_iter_src::MockEndpointsIterSrc;
     use crate::resources::resource_id_resolver::MockResourceIdResolver;
     use std::iter::zip;
-    use std::rc::Rc;
     use EndPoint::*;
 
+    fn create_mock_resource_id_resolver(
+        arg_ep_list: Vec<EndPoint>,
+        ret_resource_id: Vec<ResourceId>,
+    ) -> MockResourceIdResolver {
+        let mut mock_res_id_res = MockResourceIdResolver::new();
+        // iterate test data to set expectations and returns for resolver
+        for (ep, resource_id) in zip(arg_ep_list.clone(), ret_resource_id.clone()) {
+            mock_res_id_res
+                .expect_resolve()
+                .withf(move |f| f == &(ep.clone()))
+                .returning(move |_f| Ok(resource_id.clone()));
+        }
+        mock_res_id_res
+    }
     fn create_dut_everything_matches(
-        test_ep_list: Vec<EndPoint>,
-        iter_res: Vec<ResourceId>,
+        arg_ep_list: Vec<EndPoint>,
+        ret_resource_id: Vec<ResourceId>,
     ) -> ResourceIdConverter<MockEndpointsIterSrc, MockResourceIdResolver> {
         let mut mock_it_src = MockEndpointsIterSrc::new();
         let mut mock_res_id_res = MockResourceIdResolver::new();
 
         mock_it_src
             .expect_iter()
-            .return_const(test_ep_list.clone().into_iter());
+            .return_const(arg_ep_list.clone().into_iter());
 
-        // iterate test data to set expectations and returns for resolver
-        for (ep, resource_id) in zip(test_ep_list, iter_res) {
-            mock_res_id_res
-                .expect_resolve()
-                .withf(move |f| f == &ep)
-                .returning(move |_f| Ok(resource_id.clone()));
-        }
+        // expect clone
+        mock_res_id_res.expect_clone().returning(move || {
+            create_mock_resource_id_resolver(arg_ep_list.clone(), ret_resource_id.clone())
+        });
 
         ResourceIdConverter {
-            ep_iter_src: Rc::new(mock_it_src),
-            resource_id_resolver: Rc::new(mock_res_id_res),
+            ep_iter_src: mock_it_src,
+            resource_id_resolver: mock_res_id_res,
         }
     }
 

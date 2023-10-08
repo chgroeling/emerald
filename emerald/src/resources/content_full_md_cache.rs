@@ -10,19 +10,20 @@ use crate::{
     types::{Content, ResourceId},
 };
 
+#[derive(Clone)]
 pub struct ContentFullMdCache<I>
 where
     I: ContentLoader,
 {
-    res_id_to_content: HashMap<ResourceId, Content>,
-    content_loader: Rc<I>,
+    res_id_to_content: Rc<HashMap<ResourceId, Content>>,
+    content_loader: I,
 }
 
 impl<I> ContentFullMdCache<I>
 where
     I: ContentLoader,
 {
-    pub fn new(md_resource_ids_iter_rc: &impl ResourceIdsIterSrc, content_loader: Rc<I>) -> Self {
+    pub fn new(md_resource_ids_iter_rc: &impl ResourceIdsIterSrc, content_loader: I) -> Self {
         let mut res_id_to_content = HashMap::<ResourceId, Content>::new();
 
         for md_res_id in md_resource_ids_iter_rc.iter() {
@@ -40,7 +41,7 @@ where
         }
 
         Self {
-            res_id_to_content,
+            res_id_to_content: Rc::new(res_id_to_content),
             content_loader,
         }
     }

@@ -1,7 +1,7 @@
 use crate::{resources::endpoints_iter_src::EndpointsIterSrc, EmeraldError, Result};
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
-use std::{collections::HashMap, path::Path};
+use std::{collections::HashMap, path::Path, rc::Rc};
 
 use crate::{
     types::{EndPoint, ResourceId},
@@ -11,8 +11,9 @@ use EmeraldError::*;
 
 use super::resource_id_resolver::ResourceIdResolver;
 
+#[derive(Clone)]
 pub struct ResourceIdEndPointMap {
-    ep_to_resource_id: HashMap<EndPoint, ResourceId>,
+    ep_to_resource_id: Rc<HashMap<EndPoint, ResourceId>>,
 }
 
 impl ResourceIdEndPointMap {
@@ -27,7 +28,9 @@ impl ResourceIdEndPointMap {
                 warn!("Can't convert Endpoint '{:?}' to ResourceId.", &ep);
             }
         }
-        Self { ep_to_resource_id }
+        Self {
+            ep_to_resource_id: Rc::new(ep_to_resource_id),
+        }
     }
 }
 

@@ -1,5 +1,3 @@
-use std::rc::Rc;
-
 use crate::resources::{content_loader::ContentLoader, meta_data_loader::MetaDataLoader};
 
 use super::{
@@ -7,21 +5,22 @@ use super::{
     provider_factory::ProviderFactory,
 };
 
+#[derive(Clone)]
 pub struct StdProviderFactory<I, T>
 where
-    I: MetaDataLoader,
-    T: ContentLoader,
+    I: MetaDataLoader + Clone,
+    T: ContentLoader + Clone,
 {
-    meta_data_loader: Rc<I>,
-    content_loader: Rc<T>,
+    meta_data_loader: I,
+    content_loader: T,
 }
 
 impl<I, T> StdProviderFactory<I, T>
 where
-    I: MetaDataLoader,
-    T: ContentLoader,
+    I: MetaDataLoader + Clone,
+    T: ContentLoader + Clone,
 {
-    pub fn new(meta_data_loader: Rc<I>, content_loader: Rc<T>) -> Self {
+    pub fn new(meta_data_loader: I, content_loader: T) -> Self {
         Self {
             meta_data_loader,
             content_loader,
@@ -31,8 +30,8 @@ where
 
 impl<I, T> ProviderFactory for StdProviderFactory<I, T>
 where
-    I: MetaDataLoader + 'static,
-    T: ContentLoader + 'static,
+    I: MetaDataLoader + 'static + Clone,
+    T: ContentLoader + 'static + Clone,
 {
     fn create_title_provider(&self) -> Box<dyn super::title_provider::TitleProvider> {
         Box::new(MetaDataTitleProvider::new(self.meta_data_loader.clone()))

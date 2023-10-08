@@ -1,27 +1,26 @@
-use crate::{resources::meta_data_loader::MetaDataLoader, types::meta_data::FileType};
-use std::rc::Rc;
-
 use crate::types::ResourceId;
+use crate::{resources::meta_data_loader::MetaDataLoader, types::meta_data::FileType};
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
 use super::resource_ids_iter_src::ResourceIdsIterSrc;
 
+#[derive(Clone)]
 pub struct ResourceIdIndex<U>
 where
     U: MetaDataLoader,
 {
     all_resource_ids_list: Vec<ResourceId>,
     md_resource_ids_list: Vec<ResourceId>,
-    meta_data_loader: Rc<U>,
+    meta_data_loader: U,
 }
 
 impl<U> ResourceIdIndex<U>
 where
     U: MetaDataLoader,
 {
-    pub fn new(meta_data_loader: Rc<U>) -> Self {
+    pub fn new(meta_data_loader: U) -> Self {
         let all_resource_ids_list = Vec::<ResourceId>::new();
         let md_resource_ids_list = Vec::<ResourceId>::new();
 
@@ -59,7 +58,8 @@ where
 }
 
 // === Implement trait for all resource ids. =================
-pub struct AllResourceIds<U>(Rc<ResourceIdIndex<U>>)
+#[derive(Clone)]
+pub struct AllResourceIds<U>(ResourceIdIndex<U>)
 where
     U: MetaDataLoader;
 
@@ -69,10 +69,7 @@ where
 {
     #[allow(dead_code)]
     pub fn new(value: ResourceIdIndex<U>) -> Self {
-        Self(Rc::new(value))
-    }
-    pub fn new_from_rc(value: &Rc<ResourceIdIndex<U>>) -> Self {
-        Self(value.clone())
+        Self(value)
     }
 }
 impl<U> ResourceIdsIterSrc for AllResourceIds<U>
@@ -86,7 +83,8 @@ where
 }
 
 // === Implement trait for md resource ids. =================
-pub struct MdResourceIds<U>(Rc<ResourceIdIndex<U>>)
+#[derive(Clone)]
+pub struct MdResourceIds<U>(ResourceIdIndex<U>)
 where
     U: MetaDataLoader;
 
@@ -96,10 +94,7 @@ where
 {
     #[allow(dead_code)]
     pub fn new(value: ResourceIdIndex<U>) -> Self {
-        Self(Rc::new(value))
-    }
-    pub fn new_from_rc(value: &Rc<ResourceIdIndex<U>>) -> Self {
-        Self(value.clone())
+        Self(value)
     }
 }
 
@@ -122,7 +117,6 @@ mod tests {
     use crate::resources::meta_data_loader::MockMetaDataLoader;
     use crate::types::meta_data::{FileType, MetaData};
     use crate::EmeraldError;
-    use std::rc::Rc;
 
     fn create_dut(file_type: Vec<FileType>) -> ResourceIdIndex<MockMetaDataLoader> {
         let mut mock_meta_data_loader_load = MockMetaDataLoader::new();
@@ -140,7 +134,7 @@ mod tests {
                 call_count_meta_data += 1;
                 meta_data
             });
-        ResourceIdIndex::new(Rc::new(mock_meta_data_loader_load))
+        ResourceIdIndex::new(mock_meta_data_loader_load)
     }
 
     #[test]

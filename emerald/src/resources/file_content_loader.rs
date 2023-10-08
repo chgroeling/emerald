@@ -1,29 +1,28 @@
-use std::fs;
-use std::rc::Rc;
-
 use crate::resources::endpoint_resolver::EndPointResolver;
 use crate::types::Content;
 use crate::types::EndPoint;
 use crate::types::ResourceId;
 use crate::Result;
+use std::fs;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
 use super::content_loader::ContentLoader;
 
+#[derive(Clone)]
 pub struct FileContentLoader<I>
 where
     I: EndPointResolver,
 {
-    ep_retriever: Rc<I>,
+    ep_retriever: I,
 }
 
 impl<I> FileContentLoader<I>
 where
     I: EndPointResolver,
 {
-    pub fn new(ep_retriever: Rc<I>) -> Self {
+    pub fn new(ep_retriever: I) -> Self {
         Self { ep_retriever }
     }
 }

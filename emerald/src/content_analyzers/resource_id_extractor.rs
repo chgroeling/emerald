@@ -13,12 +13,18 @@ use super::{
     resource_id_extractor_iter_src::ResourceIdExtractorIterSrc,
 };
 
-pub struct ResourceIdExtractorIterator<Iter> {
+pub struct ResourceIdExtractorIterator<Iter, U>
+where
+    U: ResourceIdRetriever,
+{
     input_iter: Iter,
-    resource_id_retriever: Rc<dyn ResourceIdRetriever>,
+    resource_id_retriever: U,
 }
 
-impl<Iter: Iterator<Item = Link>> Iterator for ResourceIdExtractorIterator<Iter> {
+impl<Iter: Iterator<Item = Link>, U> Iterator for ResourceIdExtractorIterator<Iter, U>
+where
+    U: ResourceIdRetriever,
+{
     type Item = Link2Tgt;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -33,13 +39,19 @@ impl<Iter: Iterator<Item = Link>> Iterator for ResourceIdExtractorIterator<Iter>
 
 // --------------------------------------------------------------------------
 
-pub struct ResourceIdExtractor<I: LinkExtractorIterSrc> {
-    resource_id_retriever: Rc<dyn ResourceIdRetriever>,
+pub struct ResourceIdExtractor<I: LinkExtractorIterSrc, U>
+where
+    U: ResourceIdRetriever + Clone,
+{
+    resource_id_retriever: U,
     link_extractor: Rc<I>,
 }
 
-impl<I: LinkExtractorIterSrc> ResourceIdExtractor<I> {
-    pub fn new(resource_id_retriever: Rc<dyn ResourceIdRetriever>, link_extractor: Rc<I>) -> Self {
+impl<I: LinkExtractorIterSrc, U> ResourceIdExtractor<I, U>
+where
+    U: ResourceIdRetriever + Clone,
+{
+    pub fn new(resource_id_retriever: U, link_extractor: Rc<I>) -> Self {
         Self {
             resource_id_retriever,
             link_extractor,
@@ -47,8 +59,11 @@ impl<I: LinkExtractorIterSrc> ResourceIdExtractor<I> {
     }
 }
 
-impl<I: LinkExtractorIterSrc> ResourceIdExtractorIterSrc for ResourceIdExtractor<I> {
-    type Iter = ResourceIdExtractorIterator<I::Iter>;
+impl<I: LinkExtractorIterSrc, U> ResourceIdExtractorIterSrc for ResourceIdExtractor<I, U>
+where
+    U: ResourceIdRetriever + 'static + Clone,
+{
+    type Iter = ResourceIdExtractorIterator<I::Iter, U>;
 
     fn iter(&self, content: Content) -> Self::Iter {
         ResourceIdExtractorIterator {

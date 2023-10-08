@@ -1,24 +1,23 @@
-use std::rc::Rc;
-
+use super::note::Note;
+use crate::notes::providers::provider_factory::ProviderFactory;
 use crate::{indexes::ResourceIdsIterSrc, types::ResourceId};
 
-use crate::notes::providers::provider_factory::ProviderFactory;
-
-use super::note::Note;
-
-pub struct Vault<I: ResourceIdsIterSrc>
+#[derive(Clone)]
+pub struct Vault<I: ResourceIdsIterSrc, U>
 where
     I::Iter: Iterator<Item = ResourceId>,
+    U: ProviderFactory,
 {
-    md_resource_ids_iter: Rc<I>,
-    provider_factory: Rc<dyn ProviderFactory>,
+    md_resource_ids_iter: I,
+    provider_factory: U,
 }
 
-impl<I: ResourceIdsIterSrc> Vault<I>
+impl<I: ResourceIdsIterSrc, U> Vault<I, U>
 where
     I::Iter: Iterator<Item = ResourceId>,
+    U: ProviderFactory,
 {
-    pub fn new(md_resource_ids_iter: Rc<I>, provider_factory: Rc<dyn ProviderFactory>) -> Self {
+    pub fn new(md_resource_ids_iter: I, provider_factory: U) -> Self {
         Self {
             md_resource_ids_iter,
             provider_factory,

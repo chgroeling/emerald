@@ -1,17 +1,13 @@
 use std::io;
-use std::path::{PathBuf, StripPrefixError};
+use std::path::PathBuf;
 use thiserror::Error;
 
 use super::EndPoint;
 
-#[allow(dead_code)]
 #[derive(Error, Debug)]
 pub enum EmeraldError {
     #[error("A vault at the specified position could not be found")]
     VaultNotFound,
-
-    #[error("Strip prefix error")]
-    StripPrefixError(#[from] StripPrefixError),
 
     #[error("General io Error")]
     IoError(#[from] io::Error),
