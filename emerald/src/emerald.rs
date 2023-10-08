@@ -83,12 +83,12 @@ impl Emerald {
 
         let mut resource_id_index = ResourceIdIndex::new(meta_data_loader.clone());
         resource_id_index.update(resource_id_iter_src_not_cached.as_ref());
-        let all_res_ids_iter_rc = Rc::new(AllResourceIds::new(resource_id_index.clone()));
-        let md_res_ids_iter_rc = Rc::new(MdResourceIds::new(resource_id_index.clone()));
+        let all_res_ids_iter_rc = AllResourceIds::new(resource_id_index.clone());
+        let md_res_ids_iter_rc = MdResourceIds::new(resource_id_index.clone());
         debug!("Creation of ResourceIdIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let resource_id_retriever = create_resource_id_retriever(all_res_ids_iter_rc.as_ref());
+        let resource_id_retriever = create_resource_id_retriever(&all_res_ids_iter_rc);
         debug!(
             "Creation of ResourceIdRetriever took: {:?}",
             start.elapsed()
@@ -104,7 +104,7 @@ impl Emerald {
 
         let start = Instant::now();
         let content_full_md_cache = Rc::new(ContentFullMdCache::new(
-            md_res_ids_iter_rc.as_ref(),
+            &md_res_ids_iter_rc,
             content_loader.clone(),
         ));
         debug!("Creation of ContentFullMdCache took: {:?}", start.elapsed());
@@ -112,7 +112,7 @@ impl Emerald {
         let start = Instant::now();
         let note_link_index = Rc::new(Src2TargetIndex::new(
             content_full_md_cache.as_ref(),
-            md_res_ids_iter_rc.as_ref(),
+            &md_res_ids_iter_rc,
             md_link_analyzer.as_ref(),
         ));
         debug!("Creation of Src2TargetIndex took: {:?}", start.elapsed());

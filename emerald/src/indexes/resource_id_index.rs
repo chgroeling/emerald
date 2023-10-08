@@ -58,6 +58,7 @@ where
 }
 
 // === Implement trait for all resource ids. =================
+#[derive(Clone)]
 pub struct AllResourceIds<U>(ResourceIdIndex<U>)
 where
     U: MetaDataLoader;
@@ -82,6 +83,7 @@ where
 }
 
 // === Implement trait for md resource ids. =================
+#[derive(Clone)]
 pub struct MdResourceIds<U>(ResourceIdIndex<U>)
 where
     U: MetaDataLoader;

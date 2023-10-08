@@ -10,7 +10,7 @@ pub struct Vault<I: ResourceIdsIterSrc>
 where
     I::Iter: Iterator<Item = ResourceId>,
 {
-    md_resource_ids_iter: Rc<I>,
+    md_resource_ids_iter: I,
     provider_factory: Rc<dyn ProviderFactory>,
 }
 
@@ -18,7 +18,7 @@ impl<I: ResourceIdsIterSrc> Vault<I>
 where
     I::Iter: Iterator<Item = ResourceId>,
 {
-    pub fn new(md_resource_ids_iter: Rc<I>, provider_factory: Rc<dyn ProviderFactory>) -> Self {
+    pub fn new(md_resource_ids_iter: I, provider_factory: Rc<dyn ProviderFactory>) -> Self {
         Self {
             md_resource_ids_iter,
             provider_factory,
