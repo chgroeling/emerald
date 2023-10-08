@@ -9,7 +9,10 @@ fn vault_load() {
 }
 
 pub fn criterion_benchmark(c: &mut Criterion) {
-    c.bench_function("vault_load", |b| b.iter(|| vault_load()));
+    let mut group = c.benchmark_group("sample-size-2000");
+    group.sample_size(2000);
+    group.bench_function("vault_load", |b| b.iter(|| vault_load()));
+    group.finish();
 }
 
 criterion_group!(benches, criterion_benchmark);
