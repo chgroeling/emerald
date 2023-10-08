@@ -8,12 +8,18 @@ use super::{
     resource_id_extractor_iter_src::ResourceIdExtractorIterSrc, MdLinkAnalyzerIterSrc,
 };
 
-pub struct MdLinkAnalyzer {
-    resource_id_extractor: Rc<ResourceIdExtractor<LinkExtractor<MarkdownExtractor>>>,
+pub struct MdLinkAnalyzer<U>
+where
+    U: ResourceIdRetriever,
+{
+    resource_id_extractor: Rc<ResourceIdExtractor<LinkExtractor<MarkdownExtractor>, U>>,
 }
 
-impl MdLinkAnalyzer {
-    pub fn new(resource_id_retriever: Rc<dyn ResourceIdRetriever>) -> Self {
+impl<U> MdLinkAnalyzer<U>
+where
+    U: ResourceIdRetriever,
+{
+    pub fn new(resource_id_retriever: Rc<U>) -> Self {
         let markdown_extractor = Rc::new(MarkdownExtractor::new());
         let link_extractor = Rc::new(LinkExtractor::new(markdown_extractor));
         let resource_id_extractor = Rc::new(ResourceIdExtractor::new(
@@ -26,9 +32,12 @@ impl MdLinkAnalyzer {
     }
 }
 
-impl MdLinkAnalyzerIterSrc for MdLinkAnalyzer {
+impl<U> MdLinkAnalyzerIterSrc for MdLinkAnalyzer<U>
+where
+    U: ResourceIdRetriever + 'static,
+{
     type Iter =
-        <ResourceIdExtractor<LinkExtractor<MarkdownExtractor>> as ResourceIdExtractorIterSrc>::Iter;
+        <ResourceIdExtractor<LinkExtractor<MarkdownExtractor>,U> as ResourceIdExtractorIterSrc>::Iter;
 
     fn iter(&self, content: Content) -> Self::Iter {
         self.resource_id_extractor.iter(content)

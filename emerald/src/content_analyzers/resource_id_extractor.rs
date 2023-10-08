@@ -33,13 +33,19 @@ impl<Iter: Iterator<Item = Link>> Iterator for ResourceIdExtractorIterator<Iter>
 
 // --------------------------------------------------------------------------
 
-pub struct ResourceIdExtractor<I: LinkExtractorIterSrc> {
-    resource_id_retriever: Rc<dyn ResourceIdRetriever>,
+pub struct ResourceIdExtractor<I: LinkExtractorIterSrc, U>
+where
+    U: ResourceIdRetriever,
+{
+    resource_id_retriever: Rc<U>,
     link_extractor: Rc<I>,
 }
 
-impl<I: LinkExtractorIterSrc> ResourceIdExtractor<I> {
-    pub fn new(resource_id_retriever: Rc<dyn ResourceIdRetriever>, link_extractor: Rc<I>) -> Self {
+impl<I: LinkExtractorIterSrc, U> ResourceIdExtractor<I, U>
+where
+    U: ResourceIdRetriever,
+{
+    pub fn new(resource_id_retriever: Rc<U>, link_extractor: Rc<I>) -> Self {
         Self {
             resource_id_retriever,
             link_extractor,
@@ -47,7 +53,10 @@ impl<I: LinkExtractorIterSrc> ResourceIdExtractor<I> {
     }
 }
 
-impl<I: LinkExtractorIterSrc> ResourceIdExtractorIterSrc for ResourceIdExtractor<I> {
+impl<I: LinkExtractorIterSrc, U> ResourceIdExtractorIterSrc for ResourceIdExtractor<I, U>
+where
+    U: ResourceIdRetriever + 'static,
+{
     type Iter = ResourceIdExtractorIterator<I::Iter>;
 
     fn iter(&self, content: Content) -> Self::Iter {

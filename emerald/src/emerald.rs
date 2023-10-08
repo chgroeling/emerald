@@ -35,7 +35,7 @@ pub struct Emerald {
     pub endpoint_resolver: EndpointResourceIdMap,
     pub meta_data_loader: FileMetaDataLoaderImpl,
     pub resource_id_index: ResourceIdIndexImpl,
-    pub md_link_analyzer: Rc<MdLinkAnalyzer>,
+    pub md_link_analyzer: Rc<MdLinkAnalyzer<ResourceIdLinkMap>>,
     pub resource_id_retriever: Rc<dyn ResourceIdRetriever>,
     pub tgt_iter_retriever: Rc<dyn TgtIterRetriever>,
     pub src_iter_retriever: Rc<dyn SrcIterRetriever>,
