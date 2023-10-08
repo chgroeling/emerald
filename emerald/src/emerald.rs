@@ -29,11 +29,11 @@ type MdResourceIdsImpl = MdResourceIds<FileMetaDataLoaderImpl>;
 
 #[allow(dead_code)]
 pub struct Emerald {
-    pub md_link_analyzer: Rc<MdLinkAnalyzer>,
-    pub ep_index: EndpointIndex,
+    pub ep_iter_src: EndpointIndex,
     pub resource_id_resolver: ResourceIdEndPointMap,
     pub endpoint_resolver: EndpointResourceIdMap,
     pub meta_data_loader: Rc<FileMetaDataLoaderImpl>,
+    pub md_link_analyzer: Rc<MdLinkAnalyzer>,
     pub resource_id_index: Rc<ResourceIdIndexImpl>,
     pub resource_id_retriever: Rc<dyn ResourceIdRetriever>,
     pub tgt_iter_retriever: Rc<dyn TgtIterRetriever>,
@@ -54,18 +54,18 @@ impl Emerald {
     pub fn new(vault_path: &Path) -> Result<Emerald> {
         // Build dependency root
         let start = Instant::now();
-        let ep_index = EndpointIndex::new(vault_path)?;
+        let ep_iter_src = EndpointIndex::new(vault_path)?;
         debug!("Creation of EndpointIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let resource_id_resolver = ResourceIdEndPointMap::new(&ep_index, vault_path);
+        let resource_id_resolver = ResourceIdEndPointMap::new(&ep_iter_src, vault_path);
         debug!(
             "Creation of ResourceIdEndPointMap took: {:?}",
             start.elapsed()
         );
 
         let start = Instant::now();
-        let endpoint_resolver = EndpointResourceIdMap::new(&ep_index, &resource_id_resolver);
+        let endpoint_resolver = EndpointResourceIdMap::new(&ep_iter_src, &resource_id_resolver);
         debug!(
             "Creation of EndpointResourceIdMap took: {:?}",
             start.elapsed()
@@ -77,7 +77,7 @@ impl Emerald {
 
         let start = Instant::now();
         let resource_id_iter_src_not_cached = Rc::new(ResourceIdConverter {
-            ep_iter_src: ep_index.clone(),
+            ep_iter_src: ep_iter_src.clone(),
             resource_id_resolver: resource_id_resolver.clone(),
         });
 
@@ -146,7 +146,7 @@ impl Emerald {
             endpoint_resolver,
             meta_data_loader,
             resource_id_retriever,
-            ep_index,
+            ep_iter_src,
             resource_id_index,
             content_loader,
             content_full_md_cache,
@@ -165,11 +165,11 @@ impl Emerald {
     }
 
     pub fn file_count(&self) -> usize {
-        self.ep_index.iter().count()
+        self.ep_iter_src.iter().count()
     }
 
     pub fn md_file_count(&self) -> usize {
-        self.ep_index
+        self.ep_iter_src
             .iter()
             .filter(|pred| matches!(pred, EndPoint::FileMarkdown(_)))
             .count()
