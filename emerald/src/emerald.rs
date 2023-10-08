@@ -7,9 +7,10 @@ use crate::content_analyzers::MdLinkAnalyzer;
 use crate::indexes::resource_id_converter::ResourceIdConverter;
 use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdIndex};
 use crate::indexes::src_2_tgt_index::Src2TargetIndex;
+use crate::maps::resource_id_link_map::ResourceIdLinkMap;
 use crate::maps::ResourceIdRetriever;
+use crate::maps::SrcIterRetriever;
 use crate::maps::TgtIterRetriever;
-use crate::maps::{create_resource_id_retriever, SrcIterRetriever};
 use crate::maps::{create_src_iter_retriever, create_tgt_iter_retriever};
 use crate::notes::providers::std_provider_factory::StdProviderFactory;
 use crate::notes::vault::Vault;
@@ -88,11 +89,8 @@ impl Emerald {
         debug!("Creation of ResourceIdIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let resource_id_retriever = create_resource_id_retriever(&all_res_ids_iter_rc);
-        debug!(
-            "Creation of ResourceIdRetriever took: {:?}",
-            start.elapsed()
-        );
+        let resource_id_retriever = Rc::new(ResourceIdLinkMap::new(&all_res_ids_iter_rc));
+        debug!("Creation of ResourceIdLinkMap took: {:?}", start.elapsed());
 
         let start = Instant::now();
         let md_link_analyzer = Rc::new(MdLinkAnalyzer::new(resource_id_retriever.clone()));

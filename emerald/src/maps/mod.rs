@@ -1,5 +1,5 @@
 use std::rc::Rc;
-mod resource_id_link_map;
+pub mod resource_id_link_map;
 mod resource_id_retriever;
 mod src_iter_retriever;
 mod src_links_map;
@@ -9,17 +9,8 @@ mod tgt_links_map;
 pub use self::resource_id_retriever::ResourceIdRetriever;
 pub use self::src_iter_retriever::SrcIterRetriever;
 pub use self::tgt_iter_retriever::TgtIterRetriever;
-
-use self::{
-    resource_id_link_map::ResourceIdLinkMap, src_links_map::SrcLinksMap, tgt_links_map::TgtLinksMap,
-};
-use crate::indexes::{ResourceIdsIterSrc, Src2TgtIterSrc};
-
-pub fn create_resource_id_retriever(
-    resource_ids_iter_rc: &impl ResourceIdsIterSrc,
-) -> Rc<dyn ResourceIdRetriever> {
-    Rc::new(ResourceIdLinkMap::new(resource_ids_iter_rc))
-}
+use self::{src_links_map::SrcLinksMap, tgt_links_map::TgtLinksMap};
+use crate::indexes::Src2TgtIterSrc;
 
 pub fn create_tgt_iter_retriever(
     src_tgt_iter_rc: &impl Src2TgtIterSrc,
