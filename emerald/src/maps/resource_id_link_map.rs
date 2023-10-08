@@ -4,6 +4,7 @@ use crate::types::ResourceId;
 use crate::utils::normalize_string::normalize_str;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
+use std::rc::Rc;
 
 use crate::EmeraldError;
 use crate::Result;
@@ -20,7 +21,7 @@ pub type NameToResourceIdList = HashMap<String, Vec<ResourceId>>;
 
 #[derive(Clone)]
 pub struct ResourceIdLinkMap {
-    name_to_resource_id_list: NameToResourceIdList,
+    name_to_resource_id_list: Rc<NameToResourceIdList>,
 }
 
 impl ResourceIdLinkMap {
@@ -51,7 +52,7 @@ impl ResourceIdLinkMap {
         }
 
         ResourceIdLinkMap {
-            name_to_resource_id_list,
+            name_to_resource_id_list: Rc::new(name_to_resource_id_list),
         }
     }
 }
