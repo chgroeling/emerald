@@ -32,7 +32,7 @@ pub struct Emerald {
     pub ep_iter_src: EndpointIndex,
     pub resource_id_resolver: ResourceIdEndPointMap,
     pub endpoint_resolver: EndpointResourceIdMap,
-    pub meta_data_loader: Rc<FileMetaDataLoaderImpl>,
+    pub meta_data_loader: FileMetaDataLoaderImpl,
     pub md_link_analyzer: Rc<MdLinkAnalyzer>,
     pub resource_id_index: Rc<ResourceIdIndexImpl>,
     pub resource_id_retriever: Rc<dyn ResourceIdRetriever>,
@@ -72,7 +72,7 @@ impl Emerald {
         );
 
         let start = Instant::now();
-        let meta_data_loader = Rc::new(FileMetaDataLoader::new(endpoint_resolver.clone()));
+        let meta_data_loader = FileMetaDataLoader::new(endpoint_resolver.clone());
         debug!("Creation of FileMetaDataLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();

@@ -9,19 +9,19 @@ use super::{
 
 pub struct StdProviderFactory<I, T>
 where
-    I: MetaDataLoader,
+    I: MetaDataLoader + Clone,
     T: ContentLoader,
 {
-    meta_data_loader: Rc<I>,
+    meta_data_loader: I,
     content_loader: Rc<T>,
 }
 
 impl<I, T> StdProviderFactory<I, T>
 where
-    I: MetaDataLoader,
+    I: MetaDataLoader + Clone,
     T: ContentLoader,
 {
-    pub fn new(meta_data_loader: Rc<I>, content_loader: Rc<T>) -> Self {
+    pub fn new(meta_data_loader: I, content_loader: Rc<T>) -> Self {
         Self {
             meta_data_loader,
             content_loader,
@@ -31,7 +31,7 @@ where
 
 impl<I, T> ProviderFactory for StdProviderFactory<I, T>
 where
-    I: MetaDataLoader + 'static,
+    I: MetaDataLoader + 'static + Clone,
     T: ContentLoader + 'static,
 {
     fn create_title_provider(&self) -> Box<dyn super::title_provider::TitleProvider> {

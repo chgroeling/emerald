@@ -15,6 +15,7 @@ use log::{debug, error, info, trace, warn};
 
 use super::meta_data_loader::MetaDataLoader;
 
+#[derive(Clone)]
 pub struct FileMetaDataLoader<I>
 where
     I: EndPointResolver,

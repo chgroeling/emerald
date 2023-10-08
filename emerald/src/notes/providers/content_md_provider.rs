@@ -13,7 +13,7 @@ where
     U: MetaDataLoader,
 {
     content_loader: Rc<T>,
-    meta_data_loader: Rc<U>,
+    meta_data_loader: U,
 }
 
 impl<I, U> ContentMdProvider<I, U>
@@ -21,7 +21,7 @@ where
     I: ContentLoader,
     U: MetaDataLoader,
 {
-    pub fn new(content_loader: Rc<I>, meta_data_loader: Rc<U>) -> Self {
+    pub fn new(content_loader: Rc<I>, meta_data_loader: U) -> Self {
         Self {
             content_loader,
             meta_data_loader,

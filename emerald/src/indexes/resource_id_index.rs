@@ -14,14 +14,14 @@ where
 {
     all_resource_ids_list: Vec<ResourceId>,
     md_resource_ids_list: Vec<ResourceId>,
-    meta_data_loader: Rc<U>,
+    meta_data_loader: U,
 }
 
 impl<U> ResourceIdIndex<U>
 where
     U: MetaDataLoader,
 {
-    pub fn new(meta_data_loader: Rc<U>) -> Self {
+    pub fn new(meta_data_loader: U) -> Self {
         let all_resource_ids_list = Vec::<ResourceId>::new();
         let md_resource_ids_list = Vec::<ResourceId>::new();
 
@@ -122,7 +122,6 @@ mod tests {
     use crate::resources::meta_data_loader::MockMetaDataLoader;
     use crate::types::meta_data::{FileType, MetaData};
     use crate::EmeraldError;
-    use std::rc::Rc;
 
     fn create_dut(file_type: Vec<FileType>) -> ResourceIdIndex<MockMetaDataLoader> {
         let mut mock_meta_data_loader_load = MockMetaDataLoader::new();
@@ -140,7 +139,7 @@ mod tests {
                 call_count_meta_data += 1;
                 meta_data
             });
-        ResourceIdIndex::new(Rc::new(mock_meta_data_loader_load))
+        ResourceIdIndex::new(mock_meta_data_loader_load)
     }
 
     #[test]
