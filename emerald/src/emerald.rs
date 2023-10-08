@@ -24,10 +24,9 @@ use crate::Result;
 type FileMetaDataLoaderImpl = FileMetaDataLoader<EndpointResourceIdMap>;
 type ResourceIdIndexImpl = ResourceIdIndex<FileMetaDataLoaderImpl>;
 type MdResourceIdsImpl = MdResourceIds<FileMetaDataLoaderImpl>;
-type StdProviderFactoryImpl = StdProviderFactory<
-    FileMetaDataLoader<EndpointResourceIdMap>,
-    ContentFullMdCache<FileContentLoader<EndpointResourceIdMap>>,
->;
+type ContentFullMdCacheImpl = ContentFullMdCache<FileContentLoader<EndpointResourceIdMap>>;
+type StdProviderFactoryImpl = StdProviderFactory<FileMetaDataLoaderImpl, ContentFullMdCacheImpl>;
+
 #[allow(dead_code)]
 pub struct Emerald {
     pub ep_iter_src: EndpointIndex,
@@ -37,13 +36,12 @@ pub struct Emerald {
     pub resource_id_index: ResourceIdIndexImpl,
     pub resource_id_retriever: ResourceIdLinkMap,
     pub md_link_analyzer: MdLinkAnalyzer<ResourceIdLinkMap>,
-    pub note_link_index: Src2TargetIndex,
+    pub src_2_tgt_iter_src: Src2TargetIndex,
     pub content_loader: FileContentLoader<EndpointResourceIdMap>,
-    pub content_full_md_cache: ContentFullMdCache<FileContentLoader<EndpointResourceIdMap>>,
+    pub content_full_md_cache: ContentFullMdCacheImpl,
     pub tgt_iter_retriever: TgtLinksMap,
     pub src_iter_retriever: SrcLinksMap,
     pub std_provider_factory: StdProviderFactoryImpl,
-
     pub vault: Vault<MdResourceIdsImpl, StdProviderFactoryImpl>,
 }
 
@@ -102,7 +100,7 @@ impl Emerald {
         debug!("Creation of ContentFullMdCache took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let note_link_index = Src2TargetIndex::new(
+        let src_2_tgt_iter_src = Src2TargetIndex::new(
             &content_full_md_cache,
             &md_res_ids_iter_rc,
             &md_link_analyzer,
@@ -110,11 +108,11 @@ impl Emerald {
         debug!("Creation of Src2TargetIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let tgt_iter_retriever = TgtLinksMap::new(&note_link_index);
+        let tgt_iter_retriever = TgtLinksMap::new(&src_2_tgt_iter_src);
         debug!("Creation of TgtLinksMap took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let src_iter_retriever = SrcLinksMap::new(&note_link_index);
+        let src_iter_retriever = SrcLinksMap::new(&src_2_tgt_iter_src);
         debug!("Creation of SrcLinksMap took: {:?}", start.elapsed());
 
         let start = Instant::now();
@@ -136,7 +134,7 @@ impl Emerald {
             resource_id_index,
             content_loader,
             content_full_md_cache,
-            note_link_index,
+            src_2_tgt_iter_src,
             tgt_iter_retriever,
             src_iter_retriever,
             std_provider_factory,
@@ -162,10 +160,10 @@ impl Emerald {
     }
 
     pub fn valid_backlink_count(&self) -> usize {
-        self.note_link_index.get_valid_backlink_cnt()
+        self.src_2_tgt_iter_src.get_valid_backlink_cnt()
     }
 
     pub fn invalid_backlink_count(&self) -> usize {
-        self.note_link_index.get_invalid_backlink_cnt()
+        self.src_2_tgt_iter_src.get_invalid_backlink_cnt()
     }
 }
