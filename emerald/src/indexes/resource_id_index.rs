@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::types::ResourceId;
 use crate::{resources::meta_data_loader::MetaDataLoader, types::meta_data::FileType};
 
@@ -11,8 +13,8 @@ pub struct ResourceIdIndex<U>
 where
     U: MetaDataLoader,
 {
-    all_resource_ids_list: Vec<ResourceId>,
-    md_resource_ids_list: Vec<ResourceId>,
+    all_resource_ids_list: Rc<Vec<ResourceId>>,
+    md_resource_ids_list: Rc<Vec<ResourceId>>,
     meta_data_loader: U,
 }
 
@@ -21,8 +23,8 @@ where
     U: MetaDataLoader,
 {
     pub fn new(meta_data_loader: U) -> Self {
-        let all_resource_ids_list = Vec::<ResourceId>::new();
-        let md_resource_ids_list = Vec::<ResourceId>::new();
+        let all_resource_ids_list = Rc::new(Vec::<ResourceId>::new());
+        let md_resource_ids_list = Rc::new(Vec::<ResourceId>::new());
 
         Self {
             all_resource_ids_list,
@@ -52,8 +54,8 @@ where
             }
         }
 
-        self.all_resource_ids_list = all_resource_ids_list;
-        self.md_resource_ids_list = md_resource_ids_list;
+        self.all_resource_ids_list = Rc::new(all_resource_ids_list);
+        self.md_resource_ids_list = Rc::new(md_resource_ids_list);
     }
 }
 
@@ -78,7 +80,7 @@ where
 {
     type Iter = std::vec::IntoIter<ResourceId>;
     fn iter(&self) -> Self::Iter {
-        self.0.all_resource_ids_list.clone().into_iter()
+        (*self.0.all_resource_ids_list).clone().into_iter()
     }
 }
 
@@ -104,7 +106,7 @@ where
 {
     type Iter = std::vec::IntoIter<ResourceId>;
     fn iter(&self) -> Self::Iter {
-        self.0.md_resource_ids_list.clone().into_iter()
+        (*self.0.md_resource_ids_list).clone().into_iter()
     }
 }
 
