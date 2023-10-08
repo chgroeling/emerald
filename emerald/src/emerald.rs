@@ -39,7 +39,7 @@ pub struct Emerald {
     pub tgt_iter_retriever: Rc<dyn TgtIterRetriever>,
     pub src_iter_retriever: Rc<dyn SrcIterRetriever>,
     pub note_link_index: Rc<Src2TargetIndex>,
-    pub content_loader: Rc<FileContentLoader<EndpointResourceIdMap>>,
+    pub content_loader: FileContentLoader<EndpointResourceIdMap>,
     pub content_full_md_cache: Rc<ContentFullMdCache<FileContentLoader<EndpointResourceIdMap>>>,
     pub std_provider_factory: Rc<
         StdProviderFactory<
@@ -96,7 +96,7 @@ impl Emerald {
         debug!("Creation of MdLinkAnalyzer took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let content_loader = Rc::new(FileContentLoader::new(endpoint_resolver.clone()));
+        let content_loader = FileContentLoader::new(endpoint_resolver.clone());
         debug!("Creation of FileContentLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();

@@ -10,6 +10,7 @@ use log::{debug, error, info, trace, warn};
 
 use super::content_loader::ContentLoader;
 
+#[derive(Clone)]
 pub struct FileContentLoader<I>
 where
     I: EndPointResolver,

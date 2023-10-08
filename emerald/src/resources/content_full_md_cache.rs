@@ -1,5 +1,5 @@
 use crate::Result;
-use std::{collections::HashMap, rc::Rc};
+use std::collections::HashMap;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
@@ -15,14 +15,14 @@ where
     I: ContentLoader,
 {
     res_id_to_content: HashMap<ResourceId, Content>,
-    content_loader: Rc<I>,
+    content_loader: I,
 }
 
 impl<I> ContentFullMdCache<I>
 where
     I: ContentLoader,
 {
-    pub fn new(md_resource_ids_iter_rc: &impl ResourceIdsIterSrc, content_loader: Rc<I>) -> Self {
+    pub fn new(md_resource_ids_iter_rc: &impl ResourceIdsIterSrc, content_loader: I) -> Self {
         let mut res_id_to_content = HashMap::<ResourceId, Content>::new();
 
         for md_res_id in md_resource_ids_iter_rc.iter() {
