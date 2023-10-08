@@ -8,7 +8,6 @@ use crate::indexes::resource_id_converter::ResourceIdConverter;
 use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdIndex};
 use crate::indexes::src_2_tgt_index::Src2TargetIndex;
 use crate::maps::resource_id_link_map::ResourceIdLinkMap;
-use crate::maps::ResourceIdRetriever;
 use crate::maps::SrcIterRetriever;
 use crate::maps::TgtIterRetriever;
 use crate::maps::{create_src_iter_retriever, create_tgt_iter_retriever};
@@ -35,8 +34,8 @@ pub struct Emerald {
     pub endpoint_resolver: EndpointResourceIdMap,
     pub meta_data_loader: FileMetaDataLoaderImpl,
     pub resource_id_index: ResourceIdIndexImpl,
+    pub resource_id_retriever: ResourceIdLinkMap,
     pub md_link_analyzer: Rc<MdLinkAnalyzer<ResourceIdLinkMap>>,
-    pub resource_id_retriever: Rc<dyn ResourceIdRetriever>,
     pub tgt_iter_retriever: Rc<dyn TgtIterRetriever>,
     pub src_iter_retriever: Rc<dyn SrcIterRetriever>,
     pub note_link_index: Rc<Src2TargetIndex>,
@@ -89,7 +88,7 @@ impl Emerald {
         debug!("Creation of ResourceIdIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let resource_id_retriever = Rc::new(ResourceIdLinkMap::new(&all_res_ids_iter_rc));
+        let resource_id_retriever = ResourceIdLinkMap::new(&all_res_ids_iter_rc);
         debug!("Creation of ResourceIdLinkMap took: {:?}", start.elapsed());
 
         let start = Instant::now();

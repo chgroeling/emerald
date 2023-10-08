@@ -10,16 +10,16 @@ use super::{
 
 pub struct MdLinkAnalyzer<U>
 where
-    U: ResourceIdRetriever,
+    U: ResourceIdRetriever + Clone,
 {
     resource_id_extractor: Rc<ResourceIdExtractor<LinkExtractor<MarkdownExtractor>, U>>,
 }
 
 impl<U> MdLinkAnalyzer<U>
 where
-    U: ResourceIdRetriever,
+    U: ResourceIdRetriever + Clone,
 {
-    pub fn new(resource_id_retriever: Rc<U>) -> Self {
+    pub fn new(resource_id_retriever: U) -> Self {
         let markdown_extractor = Rc::new(MarkdownExtractor::new());
         let link_extractor = Rc::new(LinkExtractor::new(markdown_extractor));
         let resource_id_extractor = Rc::new(ResourceIdExtractor::new(
@@ -34,7 +34,7 @@ where
 
 impl<U> MdLinkAnalyzerIterSrc for MdLinkAnalyzer<U>
 where
-    U: ResourceIdRetriever + 'static,
+    U: ResourceIdRetriever + 'static + Clone,
 {
     type Iter =
         <ResourceIdExtractor<LinkExtractor<MarkdownExtractor>,U> as ResourceIdExtractorIterSrc>::Iter;
