@@ -8,6 +8,7 @@ use super::{
     resource_id_extractor_iter_src::ResourceIdExtractorIterSrc, MdLinkAnalyzerIterSrc,
 };
 
+#[derive(Clone)]
 pub struct MdLinkAnalyzer<U>
 where
     U: ResourceIdRetriever + Clone,

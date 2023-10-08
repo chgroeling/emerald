@@ -35,7 +35,7 @@ pub struct Emerald {
     pub meta_data_loader: FileMetaDataLoaderImpl,
     pub resource_id_index: ResourceIdIndexImpl,
     pub resource_id_retriever: ResourceIdLinkMap,
-    pub md_link_analyzer: Rc<MdLinkAnalyzer<ResourceIdLinkMap>>,
+    pub md_link_analyzer: MdLinkAnalyzer<ResourceIdLinkMap>,
     pub tgt_iter_retriever: Rc<dyn TgtIterRetriever>,
     pub src_iter_retriever: Rc<dyn SrcIterRetriever>,
     pub note_link_index: Rc<Src2TargetIndex>,
@@ -92,7 +92,7 @@ impl Emerald {
         debug!("Creation of ResourceIdLinkMap took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let md_link_analyzer = Rc::new(MdLinkAnalyzer::new(resource_id_retriever.clone()));
+        let md_link_analyzer = MdLinkAnalyzer::new(resource_id_retriever.clone());
         debug!("Creation of MdLinkAnalyzer took: {:?}", start.elapsed());
 
         let start = Instant::now();
@@ -110,7 +110,7 @@ impl Emerald {
         let note_link_index = Rc::new(Src2TargetIndex::new(
             content_full_md_cache.as_ref(),
             &md_res_ids_iter_rc,
-            md_link_analyzer.as_ref(),
+            &md_link_analyzer,
         ));
         debug!("Creation of Src2TargetIndex took: {:?}", start.elapsed());
 
