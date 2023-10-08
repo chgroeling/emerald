@@ -1,5 +1,3 @@
-use std::rc::Rc;
-
 use crate::{
     resources::{content_loader::ContentLoader, meta_data_loader::MetaDataLoader},
     types::{meta_data::FileType, ResourceId},
@@ -12,7 +10,7 @@ where
     T: ContentLoader,
     U: MetaDataLoader,
 {
-    content_loader: Rc<T>,
+    content_loader: T,
     meta_data_loader: U,
 }
 
@@ -21,7 +19,7 @@ where
     I: ContentLoader,
     U: MetaDataLoader,
 {
-    pub fn new(content_loader: Rc<I>, meta_data_loader: U) -> Self {
+    pub fn new(content_loader: I, meta_data_loader: U) -> Self {
         Self {
             content_loader,
             meta_data_loader,

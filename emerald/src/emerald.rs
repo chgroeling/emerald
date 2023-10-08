@@ -40,7 +40,7 @@ pub struct Emerald {
     pub src_iter_retriever: Rc<dyn SrcIterRetriever>,
     pub note_link_index: Rc<Src2TargetIndex>,
     pub content_loader: FileContentLoader<EndpointResourceIdMap>,
-    pub content_full_md_cache: Rc<ContentFullMdCache<FileContentLoader<EndpointResourceIdMap>>>,
+    pub content_full_md_cache: ContentFullMdCache<FileContentLoader<EndpointResourceIdMap>>,
     pub std_provider_factory: Rc<
         StdProviderFactory<
             FileMetaDataLoader<EndpointResourceIdMap>,
@@ -100,15 +100,13 @@ impl Emerald {
         debug!("Creation of FileContentLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let content_full_md_cache = Rc::new(ContentFullMdCache::new(
-            &md_res_ids_iter_rc,
-            content_loader.clone(),
-        ));
+        let content_full_md_cache =
+            ContentFullMdCache::new(&md_res_ids_iter_rc, content_loader.clone());
         debug!("Creation of ContentFullMdCache took: {:?}", start.elapsed());
 
         let start = Instant::now();
         let note_link_index = Rc::new(Src2TargetIndex::new(
-            content_full_md_cache.as_ref(),
+            &content_full_md_cache,
             &md_res_ids_iter_rc,
             &md_link_analyzer,
         ));
