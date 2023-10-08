@@ -18,9 +18,7 @@ mock! {
     }
 
     impl Clone for ResourceIdResolver {
-        fn clone(&self) -> Self {
-            self.clone()
-        }
+        fn clone(&self) -> Self;
     }
 
 }

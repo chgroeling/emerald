@@ -11,6 +11,7 @@ use EmeraldError::*;
 
 use super::resource_id_resolver::ResourceIdResolver;
 
+#[derive(Clone)]
 pub struct ResourceIdEndPointMap {
     ep_to_resource_id: Rc<HashMap<EndPoint, ResourceId>>,
 }
