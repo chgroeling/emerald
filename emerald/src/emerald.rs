@@ -115,11 +115,11 @@ impl Emerald {
 
         let start = Instant::now();
         let tgt_iter_retriever = Rc::new(TgtLinksMap::new(&note_link_index));
-        debug!("Creation of TgtIterRetriever took: {:?}", start.elapsed());
+        debug!("Creation of TgtLinksMap took: {:?}", start.elapsed());
 
         let start = Instant::now();
         let src_iter_retriever = Rc::new(SrcLinksMap::new(&note_link_index));
-        debug!("Creation of SrcIterRetriever took: {:?}", start.elapsed());
+        debug!("Creation of SrcLinksMap took: {:?}", start.elapsed());
 
         let start = Instant::now();
         let std_provider_factory = Rc::new(StdProviderFactory::new(
