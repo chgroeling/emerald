@@ -1,13 +1,12 @@
-use crate::{resources::meta_data_loader::MetaDataLoader, types::meta_data::FileType};
-use std::rc::Rc;
-
 use crate::types::ResourceId;
+use crate::{resources::meta_data_loader::MetaDataLoader, types::meta_data::FileType};
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
 use super::resource_ids_iter_src::ResourceIdsIterSrc;
 
+#[derive(Clone)]
 pub struct ResourceIdIndex<U>
 where
     U: MetaDataLoader,
@@ -59,7 +58,7 @@ where
 }
 
 // === Implement trait for all resource ids. =================
-pub struct AllResourceIds<U>(Rc<ResourceIdIndex<U>>)
+pub struct AllResourceIds<U>(ResourceIdIndex<U>)
 where
     U: MetaDataLoader;
 
@@ -69,10 +68,7 @@ where
 {
     #[allow(dead_code)]
     pub fn new(value: ResourceIdIndex<U>) -> Self {
-        Self(Rc::new(value))
-    }
-    pub fn new_from_rc(value: &Rc<ResourceIdIndex<U>>) -> Self {
-        Self(value.clone())
+        Self(value)
     }
 }
 impl<U> ResourceIdsIterSrc for AllResourceIds<U>
@@ -86,7 +82,7 @@ where
 }
 
 // === Implement trait for md resource ids. =================
-pub struct MdResourceIds<U>(Rc<ResourceIdIndex<U>>)
+pub struct MdResourceIds<U>(ResourceIdIndex<U>)
 where
     U: MetaDataLoader;
 
@@ -96,10 +92,7 @@ where
 {
     #[allow(dead_code)]
     pub fn new(value: ResourceIdIndex<U>) -> Self {
-        Self(Rc::new(value))
-    }
-    pub fn new_from_rc(value: &Rc<ResourceIdIndex<U>>) -> Self {
-        Self(value.clone())
+        Self(value)
     }
 }
 

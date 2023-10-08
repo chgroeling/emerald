@@ -33,8 +33,8 @@ pub struct Emerald {
     pub resource_id_resolver: ResourceIdEndPointMap,
     pub endpoint_resolver: EndpointResourceIdMap,
     pub meta_data_loader: FileMetaDataLoaderImpl,
+    pub resource_id_index: ResourceIdIndexImpl,
     pub md_link_analyzer: Rc<MdLinkAnalyzer>,
-    pub resource_id_index: Rc<ResourceIdIndexImpl>,
     pub resource_id_retriever: Rc<dyn ResourceIdRetriever>,
     pub tgt_iter_retriever: Rc<dyn TgtIterRetriever>,
     pub src_iter_retriever: Rc<dyn SrcIterRetriever>,
@@ -81,11 +81,10 @@ impl Emerald {
             resource_id_resolver: resource_id_resolver.clone(),
         });
 
-        let mut resource_id_index_obj = ResourceIdIndex::new(meta_data_loader.clone());
-        resource_id_index_obj.update(resource_id_iter_src_not_cached.as_ref());
-        let resource_id_index = Rc::new(resource_id_index_obj);
-        let all_res_ids_iter_rc = Rc::new(AllResourceIds::new_from_rc(&resource_id_index));
-        let md_res_ids_iter_rc = Rc::new(MdResourceIds::new_from_rc(&resource_id_index));
+        let mut resource_id_index = ResourceIdIndex::new(meta_data_loader.clone());
+        resource_id_index.update(resource_id_iter_src_not_cached.as_ref());
+        let all_res_ids_iter_rc = Rc::new(AllResourceIds::new(resource_id_index.clone()));
+        let md_res_ids_iter_rc = Rc::new(MdResourceIds::new(resource_id_index.clone()));
         debug!("Creation of ResourceIdIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
