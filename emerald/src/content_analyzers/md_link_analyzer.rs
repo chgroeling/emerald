@@ -8,7 +8,7 @@ use super::{
     resource_id_extractor::extract_resource, MdLinkAnalyzerIterSrc,
 };
 
-fn extract_md_links(
+pub fn extract_md_links(
     content: Content,
     resource_id_retriever: impl ResourceIdRetriever,
 ) -> impl Iterator<Item = Link2Tgt> {
