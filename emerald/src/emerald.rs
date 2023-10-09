@@ -2,7 +2,7 @@
 use log::{debug, error, info, trace, warn};
 use std::{path::Path, time::Instant};
 
-use crate::content_analyzers::MdLinkAnalyzer;
+use crate::content_analyzers::md_link_analyzer::extract_md_links;
 use crate::indexes::resource_id_converter::ResourceIdConverter;
 use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdIndex};
 use crate::indexes::src_2_tgt_index::Src2TargetIndex;
@@ -35,7 +35,6 @@ pub struct Emerald {
     pub meta_data_loader: FileMetaDataLoaderImpl,
     pub resource_id_index: ResourceIdIndexImpl,
     pub resource_id_retriever: ResourceIdLinkMap,
-    pub md_link_analyzer: MdLinkAnalyzer<ResourceIdLinkMap>,
     pub src_2_tgt_iter_src: Src2TargetIndex,
     pub content_loader: FileContentLoader<EndpointResourceIdMap>,
     pub content_full_md_cache: ContentFullMdCacheImpl,
@@ -87,10 +86,6 @@ impl Emerald {
         debug!("Creation of ResourceIdLinkMap took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let md_link_analyzer = MdLinkAnalyzer::new(resource_id_retriever.clone());
-        debug!("Creation of MdLinkAnalyzer took: {:?}", start.elapsed());
-
-        let start = Instant::now();
         let content_loader = FileContentLoader::new(endpoint_resolver.clone());
         debug!("Creation of FileContentLoader took: {:?}", start.elapsed());
 
@@ -103,7 +98,8 @@ impl Emerald {
         let src_2_tgt_iter_src = Src2TargetIndex::new(
             &content_full_md_cache,
             &md_res_ids_iter_rc,
-            &md_link_analyzer,
+            resource_id_retriever.clone(),
+            extract_md_links,
         );
         debug!("Creation of Src2TargetIndex took: {:?}", start.elapsed());
 
@@ -125,7 +121,6 @@ impl Emerald {
         debug!("Creation of Vault took: {:?}", start.elapsed());
 
         Ok(Emerald {
-            md_link_analyzer,
             resource_id_resolver,
             endpoint_resolver,
             meta_data_loader,
