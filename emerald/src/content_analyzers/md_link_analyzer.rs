@@ -1,5 +1,5 @@
 use crate::{
-    maps::{resource_id_link_map::ResourceIdLinkMap, ResourceIdRetriever},
+    maps::ResourceIdRetriever,
     types::{Content, Link2Tgt},
 };
 
