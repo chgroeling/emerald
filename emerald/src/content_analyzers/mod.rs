@@ -4,19 +4,19 @@ use crate::{
 };
 
 use self::{
-    link_extractor::extract_links, md_extractor::extract_content_types,
-    resource_id_extractor::convert_to_resource_id,
+    convert_to_link2tgt::convert_to_link2tgt, extract_content_types::extract_content_types,
+    extract_links::extract_links,
 };
 mod content_type;
-mod link_extractor;
-mod md_extractor;
-mod resource_id_extractor;
+mod convert_to_link2tgt;
+mod extract_content_types;
+mod extract_links;
 
-pub fn extract_md_links(
+pub fn extract_link2tgt(
     content: Content,
     resource_id_retriever: impl ResourceIdRetriever,
 ) -> impl Iterator<Item = Link2Tgt> {
     let content_type_iter = extract_content_types(content);
     let link_iter = extract_links(content_type_iter);
-    convert_to_resource_id(link_iter, resource_id_retriever)
+    convert_to_link2tgt(link_iter, resource_id_retriever)
 }
