@@ -95,12 +95,12 @@ impl Emerald {
         debug!("Creation of ContentFullMdCache took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let src_2_tgt_iter_src = Src2TargetIndex::new(
-            &content_full_md_cache,
-            &md_res_ids_iter_rc,
-            resource_id_retriever.clone(),
-            extract_md_links,
-        );
+        let resource_id_retriever_clone = resource_id_retriever.clone();
+        let extract_links =
+            move |content| return extract_md_links(content, resource_id_retriever_clone.clone());
+
+        let src_2_tgt_iter_src =
+            Src2TargetIndex::new(&content_full_md_cache, &md_res_ids_iter_rc, extract_links);
         debug!("Creation of Src2TargetIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();

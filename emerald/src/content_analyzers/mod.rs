@@ -20,5 +20,3 @@ pub fn extract_md_links(
     let link_iter = extract_links(content_type_iter);
     convert_to_resource_id(link_iter, resource_id_retriever)
 }
-
-pub type AbstractLinkExtractor<T, C> = fn(Content, T) -> C;
