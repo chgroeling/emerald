@@ -21,7 +21,7 @@ impl Src2TargetIndex {
     pub fn new<U, F>(
         content_loader: &impl ContentLoader,
         md_resource_ids_iter_rc: &impl ResourceIdsIterSrc,
-        extract_links_from_md: F,
+        extract_links2tgt: F,
     ) -> Self
     where
         F: Fn(Content) -> U,
@@ -37,7 +37,7 @@ impl Src2TargetIndex {
 
             let mut note_valid_backlink_cnt: usize = 0;
             let mut note_invalid_backlink_cnt: usize = 0;
-            for link_to_target in extract_links_from_md(content) {
+            for link_to_target in extract_links2tgt(content) {
                 match &link_to_target {
                     Link2Tgt { link, tgt: None } => {
                         note_invalid_backlink_cnt += 1;
