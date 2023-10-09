@@ -78,7 +78,7 @@ impl Emerald {
         let mut resource_id_index = ResourceIdIndex::new(meta_data_loader.clone());
         resource_id_index.update(&resource_id_iter_src_not_cached);
         let all_res_ids_iter_rc = AllResourceIds::new(resource_id_index.clone());
-        let md_res_ids_iter_rc = MdResourceIds::new(resource_id_index.clone());
+        let md_res_ids_iter_src = MdResourceIds::new(resource_id_index.clone());
         debug!("Creation of ResourceIdIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
@@ -91,18 +91,16 @@ impl Emerald {
 
         let start = Instant::now();
         let content_full_md_cache =
-            ContentFullMdCache::new(&md_res_ids_iter_rc, content_loader.clone());
+            ContentFullMdCache::new(&md_res_ids_iter_src, content_loader.clone());
         debug!("Creation of ContentFullMdCache took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let resource_id_retriever_clone = resource_id_retriever.clone();
-        let clsr_extr_link2tgt = move |content| {
-            return extract_link2tgt(content, resource_id_retriever_clone.clone());
+        let clsr_extr_link2tgt = |content| {
+            return extract_link2tgt(content, &resource_id_retriever);
         };
-
         let src_2_tgt_iter_src = Src2TargetIndex::new(
             &content_full_md_cache,
-            &md_res_ids_iter_rc,
+            &md_res_ids_iter_src,
             clsr_extr_link2tgt,
         );
         debug!("Creation of Src2TargetIndex took: {:?}", start.elapsed());
@@ -121,7 +119,7 @@ impl Emerald {
         debug!("Creation of StdProviderFactory took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let vault = Vault::new(md_res_ids_iter_rc.clone(), std_provider_factory.clone());
+        let vault = Vault::new(md_res_ids_iter_src.clone(), std_provider_factory.clone());
         debug!("Creation of Vault took: {:?}", start.elapsed());
 
         Ok(Emerald {

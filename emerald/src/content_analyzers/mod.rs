@@ -12,10 +12,10 @@ mod convert_to_link2tgt;
 mod extract_content_types;
 mod extract_links;
 
-pub fn extract_link2tgt(
+pub fn extract_link2tgt<'a>(
     content: Content,
-    resource_id_retriever: impl ResourceIdRetriever,
-) -> impl Iterator<Item = Link2Tgt> {
+    resource_id_retriever: &'a impl ResourceIdRetriever,
+) -> impl Iterator<Item = Link2Tgt> + 'a {
     let content_type_iter = extract_content_types(content);
     let link_iter = extract_links(content_type_iter);
     convert_to_link2tgt(link_iter, resource_id_retriever)

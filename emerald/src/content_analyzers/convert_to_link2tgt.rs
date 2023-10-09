@@ -6,16 +6,16 @@ use crate::{
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-pub struct ResourceIdExtractorIterator<I, U>
+pub struct ResourceIdExtractorIterator<'a, I, U>
 where
     I: Iterator<Item = Link>,
     U: ResourceIdRetriever,
 {
     input_iter: I,
-    resource_id_retriever: U,
+    resource_id_retriever: &'a U,
 }
 
-impl<I, U> Iterator for ResourceIdExtractorIterator<I, U>
+impl<'a, I, U> Iterator for ResourceIdExtractorIterator<'a, I, U>
 where
     I: Iterator<Item = Link>,
     U: ResourceIdRetriever,
@@ -32,11 +32,10 @@ where
     }
 }
 
-// TODO: IMPL als Argument für TEmplate new
-pub fn convert_to_link2tgt(
-    link_iter: impl Iterator<Item = Link>,
-    resource_id_retriever: impl ResourceIdRetriever,
-) -> impl Iterator<Item = Link2Tgt> {
+pub fn convert_to_link2tgt<'a>(
+    link_iter: impl Iterator<Item = Link> + 'static,
+    resource_id_retriever: &'a impl ResourceIdRetriever,
+) -> impl Iterator<Item = Link2Tgt> + 'a {
     ResourceIdExtractorIterator {
         input_iter: link_iter,
         resource_id_retriever,
