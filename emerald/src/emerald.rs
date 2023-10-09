@@ -2,7 +2,7 @@
 use log::{debug, error, info, trace, warn};
 use std::{path::Path, time::Instant};
 
-use crate::content_analyzers::md_link_analyzer::extract_md_links;
+use crate::content_analyzers::extract_md_links;
 use crate::indexes::resource_id_converter::ResourceIdConverter;
 use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdIndex};
 use crate::indexes::src_2_tgt_index::Src2TargetIndex;

@@ -4,7 +4,7 @@ use std::rc::Rc;
 use log::{debug, error, info, trace, warn};
 
 use crate::{
-    content_analyzers::md_link_analyzer::AbstractLinkExtractor,
+    content_analyzers::AbstractLinkExtractor,
     maps::ResourceIdRetriever,
     resources::content_loader::ContentLoader,
     types::{Link2Tgt, LinkSrc2Tgt},
