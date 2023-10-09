@@ -1,31 +1,11 @@
+use super::content_type::ContentType;
+use crate::types::Content;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 use std::{iter::Peekable, str::CharIndices};
 
-use crate::types::Content;
-
-use super::{content_type::ContentType, md_extractor_iter_src::MarkdownExtractorIterSrc};
-
-pub struct MarkdownExtractor {}
-
-impl MarkdownExtractor {
-    pub fn new() -> Self {
-        Self {}
-    }
-}
-
-impl Default for MarkdownExtractor {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl MarkdownExtractorIterSrc for MarkdownExtractor {
-    type Iter = MarkdownExtractorIter;
-
-    fn iter(&self, content: Content) -> Self::Iter {
-        MarkdownExtractorIter::new(content)
-    }
+pub fn extract_content_types(content: Content) -> impl Iterator<Item = ContentType> {
+    MarkdownExtractorIter::new(content)
 }
 
 #[derive(Debug)]
