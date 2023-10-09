@@ -5,7 +5,7 @@ use crate::{
 
 use self::{
     link_extractor::extract_links, md_extractor::extract_content_types,
-    resource_id_extractor::extract_resource,
+    resource_id_extractor::convert_to_resource_id,
 };
 mod content_type;
 mod link_extractor;
@@ -18,7 +18,7 @@ pub fn extract_md_links(
 ) -> impl Iterator<Item = Link2Tgt> {
     let content_type_iter = extract_content_types(content);
     let link_iter = extract_links(content_type_iter);
-    extract_resource(link_iter, resource_id_retriever)
+    convert_to_resource_id(link_iter, resource_id_retriever)
 }
 
 pub type AbstractLinkExtractor<T, C> = fn(Content, T) -> C;

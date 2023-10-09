@@ -33,7 +33,7 @@ where
 }
 
 // TODO: IMPL als Argument für TEmplate new
-pub fn extract_resource(
+pub fn convert_to_resource_id(
     link_iter: impl Iterator<Item = Link>,
     resource_id_retriever: impl ResourceIdRetriever,
 ) -> impl Iterator<Item = Link2Tgt> {
