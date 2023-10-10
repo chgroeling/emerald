@@ -32,7 +32,7 @@ where
     }
 }
 
-pub fn convert_to_link_2_tgt<'a>(
+pub fn convert_to_link_src_2_tgt<'a>(
     iter: impl Iterator<Item = Link> + 'static,
     resource_id_retriever: &'a impl ResourceIdRetriever,
 ) -> impl Iterator<Item = Link2Tgt> + 'a {

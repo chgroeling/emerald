@@ -4,9 +4,7 @@ use log::{debug, error, info, trace, warn};
 use super::content_type::ContentType;
 use crate::types::link::Link;
 
-pub fn extract_links(
-    content_type_iter: impl Iterator<Item = ContentType>,
-) -> impl Iterator<Item = Link> {
+pub fn extract_links(iter: impl Iterator<Item = ContentType>) -> impl Iterator<Item = Link> {
     fn filter_func(pred: &ContentType) -> bool {
         matches!(pred, ContentType::WikiLink(_))
     }
@@ -17,5 +15,5 @@ pub fn extract_links(
             _ => panic!(),
         }
     }
-    content_type_iter.filter(filter_func).map(map_func)
+    iter.filter(filter_func).map(map_func)
 }
