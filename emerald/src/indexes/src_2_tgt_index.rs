@@ -3,11 +3,8 @@ use std::rc::Rc;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
+use crate::types::{LinkSrc2Tgt, ResourceId};
 use crate::Result;
-use crate::{
-    resources::content_loader::ContentLoader,
-    types::{Content, Link2Tgt, LinkSrc2Tgt, ResourceId},
-};
 
 use super::{src_2_tgt_iter_src::Src2TgtIterSrc, ResourceIdsIterSrc};
 
@@ -32,7 +29,6 @@ impl Src2TargetIndex {
         let mut src_2_tgt_list = Vec::<LinkSrc2Tgt>::new();
 
         for src in md_resource_ids_iter_rc.iter() {
-            // let content = content_loader.load(&src).unwrap();
             trace!("Link extraction from {:?} starts", &src);
 
             let mut note_valid_backlink_cnt: usize = 0;

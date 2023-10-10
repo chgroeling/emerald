@@ -1,7 +1,4 @@
-use crate::{
-    maps::ResourceIdRetriever,
-    types::{Link, Link2Tgt, LinkSrc2Tgt, ResourceId},
-};
+use crate::types::{Link2Tgt, LinkSrc2Tgt, ResourceId};
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
