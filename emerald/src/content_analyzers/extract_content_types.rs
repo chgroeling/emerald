@@ -4,7 +4,7 @@ use crate::types::Content;
 use log::{debug, error, info, trace, warn};
 use std::{iter::Peekable, str::CharIndices};
 
-pub fn extract_content_types(content: Content) -> impl Iterator<Item = ContentType> {
+pub fn extract_content_types(content: Content) -> impl Iterator<Item = ContentType> + 'static {
     MarkdownExtractorIter::new(content)
 }
 
