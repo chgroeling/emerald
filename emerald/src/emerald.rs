@@ -2,7 +2,7 @@
 use log::{debug, error, info, trace, warn};
 use std::{path::Path, time::Instant};
 
-use crate::content_analyzers::extract_link2tgt;
+use crate::content_analyzers::{extract_link2tgt, extract_linksrc2tgt};
 use crate::indexes::resource_id_converter::ResourceIdConverter;
 use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdIndex};
 use crate::indexes::src_2_tgt_index::Src2TargetIndex;
@@ -98,11 +98,12 @@ impl Emerald {
         let clsr_extr_link2tgt = |content| {
             return extract_link2tgt(content, &resource_id_retriever);
         };
-        let src_2_tgt_iter_src = Src2TargetIndex::new(
-            &content_full_md_cache,
-            &md_res_ids_iter_src,
-            clsr_extr_link2tgt,
-        );
+
+        let clsr_extr_linksrc2tgt = |src| {
+            return extract_linksrc2tgt(src, &content_full_md_cache, &resource_id_retriever);
+        };
+
+        let src_2_tgt_iter_src = Src2TargetIndex::new(&md_res_ids_iter_src, clsr_extr_linksrc2tgt);
         debug!("Creation of Src2TargetIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();

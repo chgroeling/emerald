@@ -3,9 +3,10 @@ use std::rc::Rc;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
+use crate::Result;
 use crate::{
     resources::content_loader::ContentLoader,
-    types::{Content, Link2Tgt, LinkSrc2Tgt},
+    types::{Content, Link2Tgt, LinkSrc2Tgt, ResourceId},
 };
 
 use super::{src_2_tgt_iter_src::Src2TgtIterSrc, ResourceIdsIterSrc};
@@ -19,33 +20,35 @@ pub struct Src2TargetIndex {
 
 impl Src2TargetIndex {
     pub fn new<U, F>(
-        content_loader: &impl ContentLoader,
         md_resource_ids_iter_rc: &impl ResourceIdsIterSrc,
-        extract_links2tgt: F,
+        extract_links_src_2_tgt: F,
     ) -> Self
     where
-        F: Fn(Content) -> U,
-        U: Iterator<Item = Link2Tgt>,
+        F: Fn(ResourceId) -> Result<U>,
+        U: Iterator<Item = LinkSrc2Tgt>,
     {
         let mut valid_backlink_cnt: usize = 0;
         let mut invalid_backlink_cnt: usize = 0;
         let mut src_2_tgt_list = Vec::<LinkSrc2Tgt>::new();
 
         for src in md_resource_ids_iter_rc.iter() {
-            let content = content_loader.load(&src).unwrap();
+            // let content = content_loader.load(&src).unwrap();
             trace!("Link extraction from {:?} starts", &src);
 
             let mut note_valid_backlink_cnt: usize = 0;
             let mut note_invalid_backlink_cnt: usize = 0;
-            for link_to_target in extract_links2tgt(content) {
-                match &link_to_target {
-                    Link2Tgt { link, tgt: None } => {
+            for s2t in extract_links_src_2_tgt(src.clone()).unwrap() {
+                match &s2t {
+                    LinkSrc2Tgt {
+                        src: _,
+                        link,
+                        tgt: None,
+                    } => {
                         note_invalid_backlink_cnt += 1;
                         warn!("Parsing {:?} -> Link not found: {:?}", &src, &link);
                     }
                     _ => note_valid_backlink_cnt += 1,
                 }
-                let s2t = LinkSrc2Tgt::from_link_to_target(src.clone(), link_to_target);
                 src_2_tgt_list.push(s2t);
             }
 
