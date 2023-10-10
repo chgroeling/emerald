@@ -19,6 +19,7 @@ impl Src2TargetIndex {
     pub fn new<U, F>(
         md_resource_ids_iter_rc: &impl ResourceIdsIterSrc,
         extract_links_src_2_tgt: F,
+        iter: impl Iterator<Item = (ResourceId, Result<Vec<LinkSrc2Tgt>>)>,
     ) -> Self
     where
         F: Fn(ResourceId) -> Result<U>,
