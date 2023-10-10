@@ -102,6 +102,7 @@ impl Emerald {
             &resource_id_retriever,
         );
         let src_2_tgt_iter_src = Src2TargetIndex::new(all_links_iter);
+
         debug!("Creation of Src2TargetIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
