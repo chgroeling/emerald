@@ -31,6 +31,17 @@ pub fn extract_links_from_content<'a>(
     convert_to_link_src_2_tgt(src, link_2_tgt_iter)
 }
 
+pub fn extract_links_from_content_boxed<'a>(
+    src: ResourceId,
+    content: Content,
+    resource_id_retriever: &'a impl ResourceIdRetriever,
+) -> Box<dyn Iterator<Item = LinkSrc2Tgt> + 'a> {
+    Box::new(extract_links_from_content(
+        src,
+        content,
+        resource_id_retriever,
+    ))
+}
 pub fn extract_links_from_vault<'a>(
     iter: impl Iterator<Item = ResourceId> + 'a,
     content_loader: &'a impl ContentLoader,
