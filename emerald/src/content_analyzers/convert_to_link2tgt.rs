@@ -6,7 +6,7 @@ use crate::{
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-pub struct ResourceIdExtractorIterator<'a, I, U>
+pub struct ConvertToLink2TgtIterator<'a, I, U>
 where
     I: Iterator<Item = Link>,
     U: ResourceIdRetriever,
@@ -15,7 +15,7 @@ where
     resource_id_retriever: &'a U,
 }
 
-impl<'a, I, U> Iterator for ResourceIdExtractorIterator<'a, I, U>
+impl<'a, I, U> Iterator for ConvertToLink2TgtIterator<'a, I, U>
 where
     I: Iterator<Item = Link>,
     U: ResourceIdRetriever,
@@ -36,7 +36,7 @@ pub fn convert_to_link2tgt<'a>(
     link_iter: impl Iterator<Item = Link> + 'static,
     resource_id_retriever: &'a impl ResourceIdRetriever,
 ) -> impl Iterator<Item = Link2Tgt> + 'a {
-    ResourceIdExtractorIterator {
+    ConvertToLink2TgtIterator {
         input_iter: link_iter,
         resource_id_retriever,
     }
