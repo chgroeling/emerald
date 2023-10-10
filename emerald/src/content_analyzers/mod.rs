@@ -18,6 +18,9 @@ mod extract_links;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
+trait LinkSrc2TgtIterator: Iterator<Item = LinkSrc2Tgt> {}
+impl<I: Iterator<Item = LinkSrc2Tgt>> LinkSrc2TgtIterator for I {}
+
 pub fn extract_links_from_vault<'a>(
     iter: impl Iterator<Item = ResourceId> + 'static,
     content_loader: &'a impl ContentLoader,
