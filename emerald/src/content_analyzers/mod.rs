@@ -7,7 +7,7 @@ use crate::Result;
 use crate::{
     maps::ResourceIdRetriever,
     resources::content_loader::ContentLoader,
-    types::{Content, Link2Tgt, LinkSrc2Tgt, ResourceId},
+    types::{LinkSrc2Tgt, ResourceId},
 };
 mod content_type;
 mod convert_to_link_2_tgt;
@@ -18,16 +18,7 @@ mod extract_links;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-pub fn extract_link2tgt<'a>(
-    content: Content,
-    resource_id_retriever: &'a impl ResourceIdRetriever,
-) -> impl Iterator<Item = Link2Tgt> + 'a {
-    let content_type_iter = extract_content_types(content);
-    let link_iter = extract_links(content_type_iter);
-    convert_to_link_2_tgt(link_iter, resource_id_retriever)
-}
-
-pub fn extract_all<'a>(
+pub fn extract_links_from_vault<'a>(
     iter: impl Iterator<Item = ResourceId> + 'static,
     content_loader: &'a impl ContentLoader,
     resource_id_retriever: &'a impl ResourceIdRetriever,
@@ -42,9 +33,12 @@ pub fn extract_all<'a>(
     let all_links_iter = content_iter.map(move |f| {
         (
             f.0.clone(),
-            f.1.map(move |src_id| {
-                trace!("Link extraction from {:?} starts", &src_id);
-                let link_2_tgt_iter = extract_link2tgt(src_id, resource_id_retriever);
+            f.1.map(move |content| {
+                trace!("Link extraction from {:?} starts", &f.0);
+
+                let content_type_iter = extract_content_types(content);
+                let link_iter = extract_links(content_type_iter);
+                let link_2_tgt_iter = convert_to_link_2_tgt(link_iter, resource_id_retriever);
                 convert_to_link_src_2_tgt(f.0, link_2_tgt_iter).collect()
             }),
         )
