@@ -6,7 +6,7 @@ use log::{debug, error, info, trace, warn};
 use crate::types::{LinkSrc2Tgt, ResourceId};
 use crate::Result;
 
-use super::{src_2_tgt_iter_src::Src2TgtIterSrc, ResourceIdsIterSrc};
+use super::src_2_tgt_iter_src::Src2TgtIterSrc;
 
 #[derive(Clone)]
 pub struct Src2TargetIndex {
@@ -16,25 +16,15 @@ pub struct Src2TargetIndex {
 }
 
 impl Src2TargetIndex {
-    pub fn new<U, F>(
-        md_resource_ids_iter_rc: &impl ResourceIdsIterSrc,
-        extract_links_src_2_tgt: F,
-        iter: impl Iterator<Item = (ResourceId, Result<Vec<LinkSrc2Tgt>>)>,
-    ) -> Self
-    where
-        F: Fn(ResourceId) -> Result<U>,
-        U: Iterator<Item = LinkSrc2Tgt>,
-    {
+    pub fn new(iter: impl Iterator<Item = (ResourceId, Result<Vec<LinkSrc2Tgt>>)>) -> Self {
         let mut valid_backlink_cnt: usize = 0;
         let mut invalid_backlink_cnt: usize = 0;
         let mut src_2_tgt_list = Vec::<LinkSrc2Tgt>::new();
 
-        for src in md_resource_ids_iter_rc.iter() {
-            trace!("Link extraction from {:?} starts", &src);
-
+        for (src, res_vec) in iter {
             let mut note_valid_backlink_cnt: usize = 0;
             let mut note_invalid_backlink_cnt: usize = 0;
-            for s2t in extract_links_src_2_tgt(src.clone()).unwrap() {
+            for s2t in res_vec.unwrap() {
                 match &s2t {
                     LinkSrc2Tgt {
                         src: _,
@@ -42,7 +32,7 @@ impl Src2TargetIndex {
                         tgt: None,
                     } => {
                         note_invalid_backlink_cnt += 1;
-                        warn!("Parsing {:?} -> Link not found: {:?}", &src, &link);
+                        warn!("Invalid link '{:?}' found in '{:?}'", &link, &src);
                     }
                     _ => note_valid_backlink_cnt += 1,
                 }
@@ -50,7 +40,7 @@ impl Src2TargetIndex {
             }
 
             if note_valid_backlink_cnt == 0 {
-                trace!("No valid links found in  {:?}", &src);
+                trace!("No valid links found in {:?}", &src);
             }
 
             valid_backlink_cnt += note_valid_backlink_cnt;
