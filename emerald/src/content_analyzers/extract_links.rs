@@ -4,9 +4,9 @@ use log::{debug, error, info, trace, warn};
 use super::content_type::ContentType;
 use crate::types::link::Link;
 
-pub fn extract_links(
-    iter: impl Iterator<Item = ContentType> + 'static,
-) -> impl Iterator<Item = Link> + 'static {
+pub fn extract_links<'a>(
+    iter: impl Iterator<Item = ContentType> + 'a,
+) -> impl Iterator<Item = Link> + 'a {
     fn filter_func(pred: &ContentType) -> bool {
         matches!(pred, ContentType::WikiLink(_))
     }
