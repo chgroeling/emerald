@@ -9,38 +9,23 @@ use log::{debug, error, info, trace, warn};
 use super::resource_ids_iter_src::ResourceIdsIterSrc;
 
 #[derive(Clone)]
-pub struct ResourceIdIndex<U>
-where
-    U: MetaDataLoader,
-{
+pub struct ResourceIdIndex {
     all_resource_ids_list: Rc<Vec<ResourceId>>,
     md_resource_ids_list: Rc<Vec<ResourceId>>,
-    meta_data_loader: U,
 }
 
-impl<U> ResourceIdIndex<U>
-where
-    U: MetaDataLoader,
-{
-    pub fn new(meta_data_loader: U) -> Self {
-        let all_resource_ids_list = Rc::new(Vec::<ResourceId>::new());
-        let md_resource_ids_list = Rc::new(Vec::<ResourceId>::new());
-
-        Self {
-            all_resource_ids_list,
-            md_resource_ids_list,
-            meta_data_loader,
-        }
-    }
-
-    pub fn update(&mut self, resource_iter_src: &impl ResourceIdsIterSrc) {
+impl ResourceIdIndex {
+    pub fn new(
+        meta_data_loader: &impl MetaDataLoader,
+        resource_iter_src: &impl ResourceIdsIterSrc,
+    ) -> Self {
         let mut all_resource_ids_list = Vec::<ResourceId>::new();
         let mut md_resource_ids_list = Vec::<ResourceId>::new();
 
         for resource_id in resource_iter_src.iter() {
             all_resource_ids_list.push(resource_id.clone());
 
-            let res_meta_data = self.meta_data_loader.load(&resource_id);
+            let res_meta_data = meta_data_loader.load(&resource_id);
             let Ok(meta_data) = res_meta_data else {
                 /*warn!(
                     "No meta_data available for '{:?}'. Error: {:?}",
@@ -54,30 +39,24 @@ where
             }
         }
 
-        self.all_resource_ids_list = Rc::new(all_resource_ids_list);
-        self.md_resource_ids_list = Rc::new(md_resource_ids_list);
+        Self {
+            all_resource_ids_list: Rc::new(all_resource_ids_list),
+            md_resource_ids_list: Rc::new(md_resource_ids_list),
+        }
     }
 }
 
 // === Implement trait for all resource ids. =================
 #[derive(Clone)]
-pub struct AllResourceIds<U>(ResourceIdIndex<U>)
-where
-    U: MetaDataLoader;
+pub struct AllResourceIds(ResourceIdIndex);
 
-impl<U> AllResourceIds<U>
-where
-    U: MetaDataLoader,
-{
+impl AllResourceIds {
     #[allow(dead_code)]
-    pub fn new(value: ResourceIdIndex<U>) -> Self {
+    pub fn new(value: ResourceIdIndex) -> Self {
         Self(value)
     }
 }
-impl<U> ResourceIdsIterSrc for AllResourceIds<U>
-where
-    U: MetaDataLoader,
-{
+impl ResourceIdsIterSrc for AllResourceIds {
     type Iter = std::vec::IntoIter<ResourceId>;
     fn iter(&self) -> Self::Iter {
         (*self.0.all_resource_ids_list).clone().into_iter()
@@ -86,24 +65,16 @@ where
 
 // === Implement trait for md resource ids. =================
 #[derive(Clone)]
-pub struct MdResourceIds<U>(ResourceIdIndex<U>)
-where
-    U: MetaDataLoader;
+pub struct MdResourceIds(ResourceIdIndex);
 
-impl<U> MdResourceIds<U>
-where
-    U: MetaDataLoader,
-{
+impl MdResourceIds {
     #[allow(dead_code)]
-    pub fn new(value: ResourceIdIndex<U>) -> Self {
+    pub fn new(value: ResourceIdIndex) -> Self {
         Self(value)
     }
 }
 
-impl<U> ResourceIdsIterSrc for MdResourceIds<U>
-where
-    U: MetaDataLoader,
-{
+impl ResourceIdsIterSrc for MdResourceIds {
     type Iter = std::vec::IntoIter<ResourceId>;
     fn iter(&self) -> Self::Iter {
         (*self.0.md_resource_ids_list).clone().into_iter()
@@ -120,9 +91,15 @@ mod tests {
     use crate::types::meta_data::{FileType, MetaData};
     use crate::EmeraldError;
 
-    fn create_dut(file_type: Vec<FileType>) -> ResourceIdIndex<MockMetaDataLoader> {
+    fn create_dut(file_type: Vec<FileType>, resource_ids: Vec<ResourceId>) -> ResourceIdIndex {
         let mut mock_meta_data_loader_load = MockMetaDataLoader::new();
         let mut call_count_meta_data = 0;
+        let mut mock_it_src = MockResourceIdsIterSrc::new();
+
+        mock_it_src
+            .expect_iter()
+            .return_const(resource_ids.clone().into_iter());
+
         mock_meta_data_loader_load
             .expect_load()
             .returning(move |_| {
@@ -136,24 +113,18 @@ mod tests {
                 call_count_meta_data += 1;
                 meta_data
             });
-        ResourceIdIndex::new(mock_meta_data_loader_load)
+        ResourceIdIndex::new(&mock_meta_data_loader_load, &mock_it_src)
     }
 
     #[test]
     fn test_filter_two_but_one_remains() {
         // Arrange
-        let mut obj = create_dut(vec![
+        let file_types = vec![
             FileType::Unknown("".into()),
             FileType::Markdown("md".into()),
-        ]);
-
-        let mut mock_it_src = MockResourceIdsIterSrc::new();
+        ];
         let res_ids = vec![ResourceId("[[rid1]]".into()), ResourceId("[[rid2]]".into())];
-        mock_it_src
-            .expect_iter()
-            .return_const(res_ids.clone().into_iter());
-
-        obj.update(&mock_it_src);
+        let obj = create_dut(file_types, res_ids);
         let dut = MdResourceIds::new(obj);
 
         // Act
