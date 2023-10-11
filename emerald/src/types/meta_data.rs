@@ -2,6 +2,7 @@
 pub enum FileType {
     Unknown(String),
     Markdown(String),
+    NoFileType(), // No file type available
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]

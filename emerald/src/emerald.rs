@@ -4,8 +4,11 @@ use std::{path::Path, time::Instant};
 
 use crate::content_analyzers::extract_link2tgt;
 use crate::indexes::resource_id_converter::ResourceIdConverter;
-use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdIndex};
+use crate::indexes::resource_id_index::{
+    transform_to_filetype_and_resource_id, AllResourceIds, MdResourceIds, ResourceIdIndex,
+};
 use crate::indexes::src_2_tgt_index::Src2TargetIndex;
+use crate::indexes::ResourceIdsIterSrc;
 use crate::maps::resource_id_link_map::ResourceIdLinkMap;
 use crate::maps::src_links_map::SrcLinksMap;
 use crate::maps::tgt_links_map::TgtLinksMap;
@@ -75,8 +78,13 @@ impl Emerald {
             resource_id_resolver: resource_id_resolver.clone(),
         };
 
-        let res_id_index =
-            ResourceIdIndex::new(&meta_data_loader, &resource_id_iter_src_not_cached);
+        // Transform iter: from (ResourceId) to (FileType, ResourceId)
+        let ft_and_rid_iter = transform_to_filetype_and_resource_id(
+            resource_id_iter_src_not_cached.iter(),
+            &meta_data_loader,
+        );
+
+        let res_id_index = ResourceIdIndex::new(ft_and_rid_iter);
         let all_res_ids_iter_src = AllResourceIds::new(res_id_index.clone());
         let md_res_ids_iter_src = MdResourceIds::new(res_id_index.clone());
         debug!("Creation of ResourceIdIndex took: {:?}", start.elapsed());
