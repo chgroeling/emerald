@@ -2,7 +2,7 @@
 use log::{debug, error, info, trace, warn};
 use std::{path::Path, time::Instant};
 
-use crate::content_analyzers::extract_link2tgt;
+use crate::content_analyzers::extract_links_from_vault;
 use crate::indexes::resource_id_converter::ResourceIdConverter;
 use crate::indexes::resource_id_index::{
     transform_to_filetype_and_resource_id, AllResourceIds, MdResourceIds, ResourceIdIndex,
@@ -103,14 +103,13 @@ impl Emerald {
         debug!("Creation of ContentFullMdCache took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let clsr_extr_link2tgt = |content| {
-            return extract_link2tgt(content, &resource_id_retriever);
-        };
-        let src_2_tgt_iter_src = Src2TargetIndex::new(
+        let all_links_iter = extract_links_from_vault(
+            md_res_ids_iter_src.iter(),
             &content_full_md_cache,
-            &md_res_ids_iter_src,
-            clsr_extr_link2tgt,
+            &resource_id_retriever,
         );
+        let src_2_tgt_iter_src = Src2TargetIndex::new(all_links_iter);
+
         debug!("Creation of Src2TargetIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
