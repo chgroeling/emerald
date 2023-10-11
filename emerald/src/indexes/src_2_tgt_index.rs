@@ -3,6 +3,7 @@ use std::rc::Rc;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
+use crate::content_analyzers::LinkSrc2TgtIterBoxed;
 use crate::types::{LinkSrc2Tgt, ResourceId};
 use crate::Result;
 
@@ -16,7 +17,9 @@ pub struct Src2TargetIndex {
 }
 
 impl Src2TargetIndex {
-    pub fn new(iter: impl Iterator<Item = (ResourceId, Result<Vec<LinkSrc2Tgt>>)>) -> Self {
+    pub fn new<'a>(
+        iter: impl Iterator<Item = (ResourceId, Result<LinkSrc2TgtIterBoxed<'a>>)>,
+    ) -> Self {
         let mut valid_backlink_cnt: usize = 0;
         let mut invalid_backlink_cnt: usize = 0;
         let mut src_2_tgt_list = Vec::<LinkSrc2Tgt>::new();
@@ -24,7 +27,7 @@ impl Src2TargetIndex {
         for (src, res_vec) in iter {
             let mut note_valid_backlink_cnt: usize = 0;
             let mut note_invalid_backlink_cnt: usize = 0;
-            for s2t in res_vec.unwrap() {
+            for s2t in res_vec.unwrap().into_iter() {
                 match &s2t {
                     LinkSrc2Tgt {
                         src: _,

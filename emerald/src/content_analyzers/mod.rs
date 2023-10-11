@@ -19,6 +19,8 @@ mod extract_links;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
+pub type LinkSrc2TgtIterBoxed<'a> = Box<dyn Iterator<Item = LinkSrc2Tgt> + 'a>;
+
 pub fn extract_links_from_content<'a>(
     src: ResourceId,
     content: Content,
@@ -35,18 +37,19 @@ pub fn extract_links_from_content_boxed<'a>(
     src: ResourceId,
     content: Content,
     resource_id_retriever: &'a impl ResourceIdRetriever,
-) -> Box<dyn Iterator<Item = LinkSrc2Tgt> + 'a> {
+) -> LinkSrc2TgtIterBoxed<'a> {
     Box::new(extract_links_from_content(
         src,
         content,
         resource_id_retriever,
     ))
 }
+
 pub fn extract_links_from_vault<'a>(
     iter: impl Iterator<Item = ResourceId> + 'a,
     content_loader: &'a impl ContentLoader,
     resource_id_retriever: &'a impl ResourceIdRetriever,
-) -> impl Iterator<Item = (ResourceId, Result<Vec<LinkSrc2Tgt>>)> + 'a {
+) -> impl Iterator<Item = (ResourceId, Result<LinkSrc2TgtIterBoxed<'a>>)> + 'a {
     // load content.
     // iterator yields (ResourceId, Result<Content>)
     let content_iter = iter.map(move |f| (f.clone(), content_loader.load(&f)));
@@ -58,7 +61,7 @@ pub fn extract_links_from_vault<'a>(
         (
             f.0.clone(),
             f.1.map(move |content| {
-                extract_links_from_content(f.0, content, resource_id_retriever).collect()
+                extract_links_from_content_boxed(f.0, content, resource_id_retriever)
             }),
         )
     });
