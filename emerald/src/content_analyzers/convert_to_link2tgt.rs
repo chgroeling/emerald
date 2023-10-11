@@ -6,16 +6,6 @@ use crate::{
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-pub fn convert_to_link2tgt<'a>(
-    link_iter: impl Iterator<Item = Link> + 'static,
-    resource_id_retriever: &'a impl ResourceIdRetriever,
-) -> impl Iterator<Item = Link2Tgt> + 'a {
-    ResourceIdExtractorIterator {
-        input_iter: link_iter,
-        resource_id_retriever,
-    }
-}
-
 pub struct ResourceIdExtractorIterator<'a, I, U>
 where
     I: Iterator<Item = Link>,
@@ -39,5 +29,15 @@ where
         } else {
             Some(Link2Tgt::new(link_candidate, None))
         }
+    }
+}
+
+pub fn convert_to_link2tgt<'a>(
+    link_iter: impl Iterator<Item = Link> + 'static,
+    resource_id_retriever: &'a impl ResourceIdRetriever,
+) -> impl Iterator<Item = Link2Tgt> + 'a {
+    ResourceIdExtractorIterator {
+        input_iter: link_iter,
+        resource_id_retriever,
     }
 }
