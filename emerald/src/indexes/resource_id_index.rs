@@ -14,13 +14,10 @@ pub fn transform_to_filetype_and_resource_id<'a>(
 ) -> impl Iterator<Item = (FileType, ResourceId)> + 'a {
     iter.map(|f| {
         let res_meta_data = meta_data_loader.load(&f);
-        let file_type: FileType;
         if let Ok(meta_data) = res_meta_data {
-            file_type = meta_data.file_type;
-            (file_type, f.clone())
+            (meta_data.file_type, f.clone())
         } else {
-            file_type = FileType::NoFileType();
-            (file_type, f.clone())
+            (FileType::NoFileType(), f.clone())
         }
     })
 }
@@ -87,7 +84,6 @@ impl ResourceIdsIterSrc for MdResourceIds {
 
 #[cfg(test)]
 mod tests {
-
     use super::{transform_to_filetype_and_resource_id, ResourceId, ResourceIdIndex};
     use crate::indexes::resource_id_index::{MdResourceIds, ResourceIdsIterSrc};
     use crate::resources::meta_data_loader::MockMetaDataLoader;
