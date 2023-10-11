@@ -22,8 +22,8 @@ use crate::types::EndPoint;
 use crate::Result;
 
 type FileMetaDataLoaderImpl = FileMetaDataLoader<EndpointResourceIdMap>;
-type ResourceIdIndexImpl = ResourceIdIndex<FileMetaDataLoaderImpl>;
-type MdResourceIdsImpl = MdResourceIds<FileMetaDataLoaderImpl>;
+type ResourceIdIndexImpl = ResourceIdIndex;
+type MdResourceIdsImpl = MdResourceIds;
 type ContentFullMdCacheImpl = ContentFullMdCache<FileContentLoader<EndpointResourceIdMap>>;
 type StdProviderFactoryImpl = StdProviderFactory<FileMetaDataLoaderImpl, ContentFullMdCacheImpl>;
 
@@ -75,14 +75,14 @@ impl Emerald {
             resource_id_resolver: resource_id_resolver.clone(),
         };
 
-        let mut resource_id_index = ResourceIdIndex::new(meta_data_loader.clone());
-        resource_id_index.update(&resource_id_iter_src_not_cached);
-        let all_res_ids_iter_rc = AllResourceIds::new(resource_id_index.clone());
-        let md_res_ids_iter_src = MdResourceIds::new(resource_id_index.clone());
+        let res_id_index =
+            ResourceIdIndex::new(&meta_data_loader, &resource_id_iter_src_not_cached);
+        let all_res_ids_iter_src = AllResourceIds::new(res_id_index.clone());
+        let md_res_ids_iter_src = MdResourceIds::new(res_id_index.clone());
         debug!("Creation of ResourceIdIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let resource_id_retriever = ResourceIdLinkMap::new(&all_res_ids_iter_rc);
+        let resource_id_retriever = ResourceIdLinkMap::new(&all_res_ids_iter_src);
         debug!("Creation of ResourceIdLinkMap took: {:?}", start.elapsed());
 
         let start = Instant::now();
@@ -128,7 +128,7 @@ impl Emerald {
             meta_data_loader,
             resource_id_retriever,
             ep_iter_src,
-            resource_id_index,
+            resource_id_index: res_id_index,
             content_loader,
             content_full_md_cache,
             src_2_tgt_iter_src,
