@@ -1,7 +1,7 @@
-use crate::{md_analyzer::markdown_analyzer::MarkdownExtractorIter, types::Content};
+use crate::{md_analyzer::markdown_analyzer::analyze_markdown, types::Content};
 
 use super::content_type::ContentType;
 
-pub fn extract_content_types<'a>(content: Content) -> impl Iterator<Item = ContentType> + 'a {
-    MarkdownExtractorIter::new(content)
+pub fn extract_content_types(content: Content) -> impl Iterator<Item = ContentType> {
+    analyze_markdown(&content.0).into_iter()
 }
