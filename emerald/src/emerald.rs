@@ -1,10 +1,4 @@
-#[allow(unused_imports)]
-use log::{debug, error, info, trace, warn};
-use std::{path::Path, time::Instant};
-
-use crate::indexes::resource_id_converter::ResourceIdConverter;
 use crate::indexes::src_2_tgt_index::Src2TargetIndex;
-use crate::indexes::ResourceIdsIterSrc;
 use crate::maps::resource_id_link_map::ResourceIdLinkMap;
 use crate::maps::src_links_map::SrcLinksMap;
 use crate::maps::tgt_links_map::TgtLinksMap;
@@ -19,10 +13,14 @@ use crate::resources::file_content_loader::FileContentLoader;
 use crate::resources::file_meta_data_loader::FileMetaDataLoader;
 use crate::resources::resource_id_endpoint_map::ResourceIdEndPointMap;
 use crate::trafos::{
-    extract_links_from_vault, filter_markdown_types, trafo_to_filetype_and_resource_id,
+    extract_links_from_vault, filter_markdown_types, trafo_ep_to_rid,
+    trafo_to_filetype_and_resource_id,
 };
 use crate::types::{EndPoint, ResourceId};
 use crate::Result;
+#[allow(unused_imports)]
+use log::{debug, error, info, trace, warn};
+use std::{path::Path, time::Instant};
 
 type FileMetaDataLoaderImpl = FileMetaDataLoader<EndpointResourceIdMap>;
 type ContentFullMdCacheImpl = ContentFullMdCache<FileContentLoader<EndpointResourceIdMap>>;
@@ -70,12 +68,9 @@ impl Emerald {
         debug!("Creation of FileMetaDataLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let resource_id_iter_src_not_cached = ResourceIdConverter {
-            ep_iter_src: ep_iter_src.clone(),
-            resource_id_resolver: resource_id_resolver.clone(),
-        };
 
-        let all_resource_ids: Vec<ResourceId> = resource_id_iter_src_not_cached.iter().collect();
+        let res_id_iter = trafo_ep_to_rid(ep_iter_src.clone().iter(), &resource_id_resolver);
+        let all_resource_ids: Vec<ResourceId> = res_id_iter.collect();
 
         // Transform iter: from (ResourceId) to (FileType, ResourceId)
         let ft_and_rid_iter = trafo_to_filetype_and_resource_id(

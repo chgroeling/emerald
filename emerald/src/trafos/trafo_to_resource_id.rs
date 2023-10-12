@@ -1,10 +1,34 @@
-use crate::types::{meta_data::FileType, ResourceId};
+use crate::{
+    resources::resource_id_resolver::ResourceIdResolver,
+    types::{meta_data::FileType, EndPoint, ResourceId},
+};
+
+#[allow(unused_imports)]
+use log::{debug, error, info, trace, warn};
 
 pub fn filter_markdown_types<'a>(
     iter: impl Iterator<Item = (FileType, ResourceId)> + 'a,
 ) -> impl Iterator<Item = ResourceId> + 'a {
     iter.filter(|pred| matches!(pred.0, FileType::Markdown(_)))
         .map(|f| f.1)
+}
+
+pub fn trafo_ep_to_rid<'a>(
+    ep_iter: impl Iterator<Item = EndPoint> + 'a,
+    resource_id_resolver: &'a impl ResourceIdResolver,
+) -> impl Iterator<Item = ResourceId> + 'a {
+    ep_iter.filter_map(|ep| {
+        let opt_resource_id = resource_id_resolver.resolve(&ep);
+        if let Ok(resource_id) = opt_resource_id {
+            return Some(resource_id);
+        }
+
+        warn!(
+            "Obtaining resource id for endpoint {:?} yielded {:?} ",
+            ep, opt_resource_id
+        );
+        None
+    })
 }
 
 #[cfg(test)]

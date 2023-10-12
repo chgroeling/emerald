@@ -11,5 +11,6 @@ mod trafo_to_resource_id;
 pub use extract_links_from_vault::extract_links_from_vault;
 pub use trafo_to_filetype_and_resource_id::trafo_to_filetype_and_resource_id;
 pub use trafo_to_resource_id::filter_markdown_types;
+pub use trafo_to_resource_id::trafo_ep_to_rid;
 
 pub type LinkSrc2TgtIterBoxed<'a> = Box<dyn Iterator<Item = LinkSrc2Tgt> + 'a>;
