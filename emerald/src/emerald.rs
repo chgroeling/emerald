@@ -90,7 +90,7 @@ impl Emerald {
         let md_resource_id_iter = filter_markdown_types(ft_and_rid_iter);
         let md_resource_ids: Vec<ResourceId> = md_resource_id_iter.collect();
 
-        let res_id_index = ResourceIdIndex::new(all_resource_ids, md_resource_ids);
+        let res_id_index = ResourceIdIndex::new(all_resource_ids, md_resource_ids.clone());
         let all_res_ids_iter_src = AllResourceIds::new(res_id_index.clone());
         let md_res_ids_iter_src = MdResourceIds::new(res_id_index.clone());
         debug!("Creation of ResourceIdIndex took: {:?}", start.elapsed());
@@ -105,7 +105,7 @@ impl Emerald {
 
         let start = Instant::now();
         let content_full_md_cache =
-            ContentFullMdCache::new(&md_res_ids_iter_src, content_loader.clone());
+            ContentFullMdCache::new(md_resource_ids.iter(), content_loader.clone());
         debug!("Creation of ContentFullMdCache took: {:?}", start.elapsed());
 
         let start = Instant::now();
