@@ -4,6 +4,8 @@ use crate::types::Content;
 use log::{debug, error, info, trace, warn};
 use std::{iter::Peekable, str::CharIndices};
 
+use super::markdown_iterator_state::MarkdownIteratorState;
+
 #[derive(Debug)]
 pub struct MarkdownExtractorIter {
     content_iter: std::vec::IntoIter<ContentType>,
@@ -23,26 +25,6 @@ impl Iterator for MarkdownExtractorIter {
     fn next(&mut self) -> Option<Self::Item> {
         self.content_iter.next()
     }
-}
-
-enum MarkdownIteratorState {
-    IllegalFormat,
-
-    // Inline Code Block Start
-    InlCodeBlockStart(usize),
-
-    // Inline Code Block Found
-    InlCodeBlockFound(usize, usize),
-
-    CodeBlockStart(usize),
-    CodeBlockFound(usize, usize),
-
-    WikiLinkStart(usize),
-    WikiLinkFound(usize, usize),
-
-    LinkStart(usize),
-    LinkDescriptionFinished(usize),
-    LinkFound(usize, usize),
 }
 
 #[derive(Debug)]
