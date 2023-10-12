@@ -16,6 +16,9 @@ mod convert_to_link_2_tgt;
 mod convert_to_link_src_2_tgt;
 mod extract_content_types;
 mod extract_links;
+mod trafo_to_filetype_and_resource_id;
+
+pub use trafo_to_filetype_and_resource_id::trafo_to_filetype_and_resource_id;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};

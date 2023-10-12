@@ -5,7 +5,7 @@ use std::{path::Path, time::Instant};
 use crate::indexes::resource_id_converter::ResourceIdConverter;
 use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdIndex};
 use crate::indexes::src_2_tgt_index::Src2TargetIndex;
-use crate::indexes::{trafo_to_filetype_and_resource_id, ResourceIdsIterSrc};
+use crate::indexes::ResourceIdsIterSrc;
 use crate::maps::resource_id_link_map::ResourceIdLinkMap;
 use crate::maps::src_links_map::SrcLinksMap;
 use crate::maps::tgt_links_map::TgtLinksMap;
@@ -19,7 +19,7 @@ use crate::resources::endpoints_iter_src::EndpointsIterSrc;
 use crate::resources::file_content_loader::FileContentLoader;
 use crate::resources::file_meta_data_loader::FileMetaDataLoader;
 use crate::resources::resource_id_endpoint_map::ResourceIdEndPointMap;
-use crate::trafos::extract_links_from_vault;
+use crate::trafos::{extract_links_from_vault, trafo_to_filetype_and_resource_id};
 use crate::types::EndPoint;
 use crate::Result;
 
