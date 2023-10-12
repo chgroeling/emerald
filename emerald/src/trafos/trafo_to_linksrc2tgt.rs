@@ -11,9 +11,10 @@ pub type LinkSrc2TgtIterBoxed<'a> = Box<dyn Iterator<Item = LinkSrc2Tgt> + 'a>;
 use crate::Result;
 use crate::{
     maps::ResourceIdRetriever,
-    md_analyzer::ContentType,
     types::{Content, LinkSrc2Tgt, ResourceId},
 };
+
+use crate::types::ContentType;
 
 fn extract_links_from_content<'a, I>(
     src: ResourceId,

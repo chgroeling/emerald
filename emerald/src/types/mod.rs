@@ -1,4 +1,5 @@
 mod content;
+mod content_type;
 mod endpoint;
 pub mod link;
 mod link_2_tgt;
@@ -14,6 +15,7 @@ pub use self::content::Content;
 pub use self::res_and_err::EmeraldError;
 
 pub type Result<T> = self::res_and_err::Result<T>;
+pub use self::content_type::ContentType;
 pub use self::endpoint::EndPoint;
 pub use self::link::Link;
 pub use self::link_2_tgt::Link2Tgt;

@@ -1,5 +1,5 @@
-use super::content_type::ContentType;
 use super::markdown_iterator_state::MarkdownIteratorState;
+use crate::types::ContentType;
 use std::{iter::Peekable, str::CharIndices};
 
 #[allow(unused_imports)]

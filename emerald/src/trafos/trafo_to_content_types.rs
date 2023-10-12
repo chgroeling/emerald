@@ -1,4 +1,5 @@
-use crate::{md_analyzer::ContentType, types::Content};
+use crate::types::Content;
+use crate::types::ContentType;
 
 pub fn trafo_from_content_to_content_type<'a, I>(
     content: Content,
