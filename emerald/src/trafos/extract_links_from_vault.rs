@@ -50,7 +50,7 @@ where
 }
 
 pub fn extract_links_from_vault<'a, I>(
-    iter: impl Iterator<Item = ResourceId> + 'a,
+    iter: impl Iterator<Item = &'a ResourceId> + 'a,
     content_loader: &'a impl ContentLoader,
     resource_id_retriever: &'a impl ResourceIdRetriever,
     md_analyzer: &'a I,
