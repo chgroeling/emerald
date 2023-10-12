@@ -19,8 +19,10 @@ use crate::resources::endpoints_iter_src::EndpointsIterSrc;
 use crate::resources::file_content_loader::FileContentLoader;
 use crate::resources::file_meta_data_loader::FileMetaDataLoader;
 use crate::resources::resource_id_endpoint_map::ResourceIdEndPointMap;
-use crate::trafos::{extract_links_from_vault, trafo_to_filetype_and_resource_id};
-use crate::types::EndPoint;
+use crate::trafos::{
+    extract_links_from_vault, filter_markdown_types, trafo_to_filetype_and_resource_id,
+};
+use crate::types::{EndPoint, ResourceId};
 use crate::Result;
 
 type FileMetaDataLoaderImpl = FileMetaDataLoader<EndpointResourceIdMap>;
@@ -77,13 +79,18 @@ impl Emerald {
             resource_id_resolver: resource_id_resolver.clone(),
         };
 
+        let all_resource_ids: Vec<ResourceId> = resource_id_iter_src_not_cached.iter().collect();
+
         // Transform iter: from (ResourceId) to (FileType, ResourceId)
         let ft_and_rid_iter = trafo_to_filetype_and_resource_id(
-            resource_id_iter_src_not_cached.iter(),
+            all_resource_ids.clone().into_iter(),
             &meta_data_loader,
         );
 
-        let res_id_index = ResourceIdIndex::new(ft_and_rid_iter);
+        let md_resource_id_iter = filter_markdown_types(ft_and_rid_iter);
+        let md_resource_ids: Vec<ResourceId> = md_resource_id_iter.collect();
+
+        let res_id_index = ResourceIdIndex::new(all_resource_ids, md_resource_ids);
         let all_res_ids_iter_src = AllResourceIds::new(res_id_index.clone());
         let md_res_ids_iter_src = MdResourceIds::new(res_id_index.clone());
         debug!("Creation of ResourceIdIndex took: {:?}", start.elapsed());

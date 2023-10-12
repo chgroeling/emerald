@@ -1,7 +1,5 @@
-use std::rc::Rc;
-
-use crate::types::meta_data::FileType;
 use crate::types::ResourceId;
+use std::rc::Rc;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
@@ -15,17 +13,10 @@ pub struct ResourceIdIndex {
 }
 
 impl ResourceIdIndex {
-    pub fn new(iter: impl Iterator<Item = (FileType, ResourceId)>) -> Self {
-        let mut all_resource_ids_list = Vec::<ResourceId>::new();
-        let mut md_resource_ids_list = Vec::<ResourceId>::new();
-
-        for (file_type, resource_id) in iter {
-            all_resource_ids_list.push(resource_id.clone());
-            if let FileType::Markdown(_) = file_type {
-                md_resource_ids_list.push(resource_id);
-            }
-        }
-
+    pub fn new(
+        all_resource_ids_list: Vec<ResourceId>,
+        md_resource_ids_list: Vec<ResourceId>,
+    ) -> Self {
         Self {
             all_resource_ids_list: Rc::new(all_resource_ids_list),
             md_resource_ids_list: Rc::new(md_resource_ids_list),
@@ -70,25 +61,14 @@ impl ResourceIdsIterSrc for MdResourceIds {
 
 #[cfg(test)]
 mod tests {
-    use std::iter::zip;
-
     use super::{ResourceId, ResourceIdIndex};
     use crate::indexes::resource_id_index::{MdResourceIds, ResourceIdsIterSrc};
-    use crate::types::meta_data::FileType;
 
     #[test]
     fn test_filter_two_but_one_remains() {
-        // Arrange
-        let file_types = vec![
-            FileType::Unknown("".into()),
-            FileType::Markdown("md".into()),
-        ];
-        let res_ids = vec![
-            ResourceId("[[rid1]]".into()), //
-            ResourceId("[[rid2]]".into()),
-        ];
-        let iter = zip(file_types.into_iter(), res_ids.into_iter());
-        let dut = MdResourceIds(ResourceIdIndex::new(iter));
+        let all_res_ids = vec![ResourceId("[[rid1]]".into()), ResourceId("[[rid2]]".into())];
+        let md_res_ids = vec![ResourceId("[[rid2]]".into())];
+        let dut = MdResourceIds(ResourceIdIndex::new(all_res_ids, md_res_ids));
 
         // Act
         let result: Vec<ResourceId> = dut.iter().collect();
