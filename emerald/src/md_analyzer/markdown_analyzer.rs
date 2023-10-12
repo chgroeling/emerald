@@ -1,4 +1,4 @@
-use super::content_type::ContentType;
+use crate::trafos::content_type::ContentType;
 use crate::types::Content;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};

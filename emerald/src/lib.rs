@@ -1,5 +1,6 @@
 mod indexes;
 mod maps;
+mod md_analyzer;
 mod notes;
 mod resources;
 mod trafos;

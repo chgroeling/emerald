@@ -10,12 +10,11 @@ use crate::{
     resources::content_loader::ContentLoader,
     types::{LinkSrc2Tgt, ResourceId},
 };
-mod content_type;
+pub mod content_type;
 mod convert_to_link_2_tgt;
 mod convert_to_link_src_2_tgt;
 mod extract_content_types;
 mod extract_links;
-mod markdown_analyzer;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
