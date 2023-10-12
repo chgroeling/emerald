@@ -27,12 +27,12 @@ type StdProviderFactoryImpl = StdProviderFactory<FileMetaDataLoaderImpl, Content
 
 #[allow(dead_code)]
 pub struct Emerald {
-    pub ep_iter_src: EndpointIndex,
+    pub ep_index: EndpointIndex,
     pub resource_id_resolver: ResourceIdEndPointMap,
     pub endpoint_resolver: EndpointResourceIdMap,
     pub meta_data_loader: FileMetaDataLoaderImpl,
     pub resource_id_retriever: ResourceIdLinkMap,
-    pub src_2_tgt_iter_src: Src2TargetIndex,
+    pub src2_tgt_index: Src2TargetIndex,
     pub content_cache: ContentFullMdCacheImpl,
     pub tgt_iter_retriever: TgtLinksMap,
     pub src_iter_retriever: SrcLinksMap,
@@ -44,19 +44,18 @@ impl Emerald {
     pub fn new(vault_path: &Path) -> Result<Emerald> {
         // Build dependency root
         let start = Instant::now();
-        let ep_iter_src = EndpointIndex::new(vault_path)?;
+        let ep_index = EndpointIndex::new(vault_path)?;
         debug!("Creation of EndpointIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let resource_id_resolver = ResourceIdEndPointMap::new(ep_iter_src.ref_iter(), vault_path);
+        let resource_id_resolver = ResourceIdEndPointMap::new(ep_index.iter(), vault_path);
         debug!(
             "Creation of ResourceIdEndPointMap took: {:?}",
             start.elapsed()
         );
 
         let start = Instant::now();
-        let endpoint_resolver =
-            EndpointResourceIdMap::new(ep_iter_src.ref_iter(), &resource_id_resolver);
+        let endpoint_resolver = EndpointResourceIdMap::new(ep_index.iter(), &resource_id_resolver);
         debug!(
             "Creation of EndpointResourceIdMap took: {:?}",
             start.elapsed()
@@ -71,7 +70,7 @@ impl Emerald {
         debug!("Creation of FileMetaDataLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let res_id_iter = trafo_ep_to_rid(ep_iter_src.ref_iter(), &resource_id_resolver);
+        let res_id_iter = trafo_ep_to_rid(ep_index.iter(), &resource_id_resolver);
         let all_resource_ids: Vec<ResourceId> = res_id_iter.collect();
 
         // Transform iter: from (ResourceId) to (FileType, ResourceId)
@@ -84,7 +83,10 @@ impl Emerald {
         let md_resource_id_iter = filter_markdown_types(ft_and_rid_iter);
         let md_resource_ids: Vec<ResourceId> = md_resource_id_iter.collect();
 
-        debug!("Creation of Indexes took: {:?}", start.elapsed());
+        debug!(
+            "Creation of Resource Id indexes took: {:?}",
+            start.elapsed()
+        );
 
         let start = Instant::now();
         let resource_id_retriever = ResourceIdLinkMap::new(all_resource_ids.iter());
@@ -103,16 +105,16 @@ impl Emerald {
             &resource_id_retriever,
             &analyze_markdown,
         );
-        let src_2_tgt_iter_src = Src2TargetIndex::new(all_links_iter);
+        let src_2_tgt_index = Src2TargetIndex::new(all_links_iter);
 
         debug!("Creation of Src2TargetIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let tgt_iter_retriever = TgtLinksMap::new(src_2_tgt_iter_src.iter());
+        let tgt_iter_retriever = TgtLinksMap::new(src_2_tgt_index.iter());
         debug!("Creation of TgtLinksMap took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let src_iter_retriever = SrcLinksMap::new(src_2_tgt_iter_src.iter());
+        let src_iter_retriever = SrcLinksMap::new(src_2_tgt_index.iter());
         debug!("Creation of SrcLinksMap took: {:?}", start.elapsed());
 
         let start = Instant::now();
@@ -129,9 +131,9 @@ impl Emerald {
             endpoint_resolver,
             meta_data_loader,
             resource_id_retriever,
-            ep_iter_src,
+            ep_index,
             content_cache,
-            src_2_tgt_iter_src,
+            src2_tgt_index: src_2_tgt_index,
             tgt_iter_retriever,
             src_iter_retriever,
             provider_factory,
@@ -146,21 +148,21 @@ impl Emerald {
     }
 
     pub fn file_count(&self) -> usize {
-        self.ep_iter_src.ref_iter().count()
+        self.ep_index.iter().count()
     }
 
     pub fn md_file_count(&self) -> usize {
-        self.ep_iter_src
-            .ref_iter()
+        self.ep_index
+            .iter()
             .filter(|pred| matches!(pred, EndPoint::FileMarkdown(_)))
             .count()
     }
 
     pub fn valid_backlink_count(&self) -> usize {
-        self.src_2_tgt_iter_src.get_valid_backlink_cnt()
+        self.src2_tgt_index.get_valid_backlink_cnt()
     }
 
     pub fn invalid_backlink_count(&self) -> usize {
-        self.src_2_tgt_iter_src.get_invalid_backlink_cnt()
+        self.src2_tgt_index.get_invalid_backlink_cnt()
     }
 }
