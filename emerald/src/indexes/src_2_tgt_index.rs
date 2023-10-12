@@ -64,6 +64,9 @@ impl Src2TargetIndex {
     pub fn get_invalid_backlink_cnt(&self) -> usize {
         self.invalid_backlink_cnt
     }
+    pub fn ref_iter<'a>(&'a self) -> impl Iterator<Item = &'a LinkSrc2Tgt> + 'a {
+        self.src_2_tgt_list.iter()
+    }
 }
 
 impl Src2TgtIterSrc for Src2TargetIndex {
