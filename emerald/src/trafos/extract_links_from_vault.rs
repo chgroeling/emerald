@@ -1,10 +1,10 @@
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-use super::convert_to_link_2_tgt::convert_to_link_2_tgt;
-use super::convert_to_link_src_2_tgt::convert_to_link_src_2_tgt;
-use super::extract_content_types::extract_content_types;
-use super::extract_links::extract_links;
+use super::trafo_to_content_types::extract_content_types;
+use super::trafo_to_link_2_tgt::convert_to_link_2_tgt;
+use super::trafo_to_link_src_2_tgt::convert_to_link_src_2_tgt;
+use super::trafo_to_links::trafo_to_links;
 
 pub type LinkSrc2TgtIterBoxed<'a> = Box<dyn Iterator<Item = LinkSrc2Tgt> + 'a>;
 
@@ -27,7 +27,7 @@ where
 {
     trace!("Link extraction from {:?} starts", src);
     let content_type_iter = extract_content_types(content, md_analyzer);
-    let link_iter = extract_links(content_type_iter);
+    let link_iter = trafo_to_links(content_type_iter);
     let link_2_tgt_iter = convert_to_link_2_tgt(link_iter, resource_id_retriever);
     convert_to_link_src_2_tgt(src, link_2_tgt_iter)
 }
