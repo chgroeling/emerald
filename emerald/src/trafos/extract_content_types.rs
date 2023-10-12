@@ -1,8 +1,11 @@
-use crate::{
-    md_analyzer::{analyze_markdown, ContentType},
-    types::Content,
-};
+use crate::{md_analyzer::ContentType, types::Content};
 
-pub fn extract_content_types(content: Content) -> impl Iterator<Item = ContentType> {
-    analyze_markdown(&content.0).into_iter()
+pub fn extract_content_types<'a, I>(
+    content: Content,
+    md_analyzer: &'a I,
+) -> impl Iterator<Item = ContentType> + 'static
+where
+    I: Fn(&String) -> Vec<ContentType>,
+{
+    md_analyzer(&content.0).into_iter()
 }
