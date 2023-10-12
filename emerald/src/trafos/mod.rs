@@ -15,6 +15,7 @@ mod convert_to_link_2_tgt;
 mod convert_to_link_src_2_tgt;
 mod extract_content_types;
 mod extract_links;
+mod markdown_analyzer;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
