@@ -11,7 +11,7 @@ use crate::indexes::ResourceIdsIterSrc;
 use crate::maps::resource_id_link_map::ResourceIdLinkMap;
 use crate::maps::src_links_map::SrcLinksMap;
 use crate::maps::tgt_links_map::TgtLinksMap;
-use crate::md_analyzer::{self, analyze_markdown};
+use crate::md_analyzer::analyze_markdown;
 use crate::notes::providers::std_provider_factory::StdProviderFactory;
 use crate::notes::vault::Vault;
 use crate::resources::content_full_md_cache::ContentFullMdCache;

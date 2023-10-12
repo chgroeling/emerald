@@ -3,7 +3,7 @@ use self::{
     convert_to_link_src_2_tgt::convert_to_link_src_2_tgt,
     extract_content_types::extract_content_types, extract_links::extract_links,
 };
-use crate::md_analyzer::{analyze_markdown, ContentType};
+use crate::md_analyzer::ContentType;
 use crate::types::Content;
 use crate::Result;
 use crate::{
