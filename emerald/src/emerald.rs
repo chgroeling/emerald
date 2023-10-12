@@ -3,11 +3,9 @@ use log::{debug, error, info, trace, warn};
 use std::{path::Path, time::Instant};
 
 use crate::indexes::resource_id_converter::ResourceIdConverter;
-use crate::indexes::resource_id_index::{
-    transform_to_filetype_and_resource_id, AllResourceIds, MdResourceIds, ResourceIdIndex,
-};
+use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdIndex};
 use crate::indexes::src_2_tgt_index::Src2TargetIndex;
-use crate::indexes::ResourceIdsIterSrc;
+use crate::indexes::{trafo_to_filetype_and_resource_id, ResourceIdsIterSrc};
 use crate::maps::resource_id_link_map::ResourceIdLinkMap;
 use crate::maps::src_links_map::SrcLinksMap;
 use crate::maps::tgt_links_map::TgtLinksMap;
@@ -80,7 +78,7 @@ impl Emerald {
         };
 
         // Transform iter: from (ResourceId) to (FileType, ResourceId)
-        let ft_and_rid_iter = transform_to_filetype_and_resource_id(
+        let ft_and_rid_iter = trafo_to_filetype_and_resource_id(
             resource_id_iter_src_not_cached.iter(),
             &meta_data_loader,
         );

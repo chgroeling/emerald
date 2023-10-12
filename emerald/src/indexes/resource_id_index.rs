@@ -1,26 +1,12 @@
 use std::rc::Rc;
 
+use crate::types::meta_data::FileType;
 use crate::types::ResourceId;
-use crate::{resources::meta_data_loader::MetaDataLoader, types::meta_data::FileType};
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
 use super::resource_ids_iter_src::ResourceIdsIterSrc;
-
-pub fn transform_to_filetype_and_resource_id<'a>(
-    iter: impl Iterator<Item = ResourceId> + 'a,
-    meta_data_loader: &'a impl MetaDataLoader,
-) -> impl Iterator<Item = (FileType, ResourceId)> + 'a {
-    iter.map(|f| {
-        let res_meta_data = meta_data_loader.load(&f);
-        if let Ok(meta_data) = res_meta_data {
-            (meta_data.file_type, f.clone())
-        } else {
-            (FileType::NoFileType(), f.clone())
-        }
-    })
-}
 
 #[derive(Clone)]
 pub struct ResourceIdIndex {
@@ -84,36 +70,11 @@ impl ResourceIdsIterSrc for MdResourceIds {
 
 #[cfg(test)]
 mod tests {
-    use super::{transform_to_filetype_and_resource_id, ResourceId, ResourceIdIndex};
+    use std::iter::zip;
+
+    use super::{ResourceId, ResourceIdIndex};
     use crate::indexes::resource_id_index::{MdResourceIds, ResourceIdsIterSrc};
-    use crate::resources::meta_data_loader::MockMetaDataLoader;
-    use crate::types::meta_data::{FileType, MetaData};
-    use crate::EmeraldError;
-
-    fn create_dut(file_type: Vec<FileType>, resource_ids: Vec<ResourceId>) -> ResourceIdIndex {
-        let mut mock_meta_data_loader_load = MockMetaDataLoader::new();
-        let mut call_count_meta_data = 0;
-
-        mock_meta_data_loader_load
-            .expect_load()
-            .returning(move |_| {
-                let meta_data = file_type
-                    .get(call_count_meta_data)
-                    .ok_or_else(|| EmeraldError::Unknown)
-                    .map(|ft| MetaData {
-                        file_stem: "".into(),
-                        file_type: ft.clone(),
-                    });
-                call_count_meta_data += 1;
-                meta_data
-            });
-
-        let iter = transform_to_filetype_and_resource_id(
-            resource_ids.clone().into_iter(),
-            &mock_meta_data_loader_load,
-        );
-        ResourceIdIndex::new(iter)
-    }
+    use crate::types::meta_data::FileType;
 
     #[test]
     fn test_filter_two_but_one_remains() {
@@ -126,8 +87,8 @@ mod tests {
             ResourceId("[[rid1]]".into()), //
             ResourceId("[[rid2]]".into()),
         ];
-        let obj = create_dut(file_types, res_ids);
-        let dut = MdResourceIds::new(obj);
+        let iter = zip(file_types.into_iter(), res_ids.into_iter());
+        let dut = MdResourceIds(ResourceIdIndex::new(iter));
 
         // Act
         let result: Vec<ResourceId> = dut.iter().collect();
