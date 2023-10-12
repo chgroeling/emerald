@@ -1,7 +1,4 @@
-use crate::{
-    resources::{endpoints_iter_src::EndpointsIterSrc, resource_id_resolver::ResourceIdResolver},
-    EmeraldError, Result,
-};
+use crate::{resources::resource_id_resolver::ResourceIdResolver, EmeraldError, Result};
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 use std::{collections::HashMap, rc::Rc};
@@ -50,7 +47,6 @@ mod tests {
     use super::EndPoint;
     use super::EndpointResourceIdMap;
     use crate::resources::endpoint_resolver::EndPointResolver;
-    use crate::resources::endpoints_iter_src::MockEndpointsIterSrc;
     use crate::resources::resource_id_resolver::MockResourceIdResolver;
     use crate::types::ResourceId;
     use std::path::PathBuf;

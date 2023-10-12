@@ -6,7 +6,6 @@ use crate::Result;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-use super::endpoints_iter_src::EndpointsIterSrc;
 use crate::types::EndPoint;
 
 use EndPoint::*;
@@ -67,12 +66,5 @@ impl EndpointIndex {
 
     pub fn ref_iter<'a>(&'a self) -> impl Iterator<Item = &'a EndPoint> + 'a {
         self.endpoint_list.iter()
-    }
-}
-
-impl EndpointsIterSrc for EndpointIndex {
-    type Iter = std::vec::IntoIter<EndPoint>;
-    fn iter(&self) -> Self::Iter {
-        (*self.endpoint_list).clone().into_iter()
     }
 }

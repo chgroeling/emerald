@@ -8,7 +8,6 @@ use crate::notes::vault::Vault;
 use crate::resources::content_full_md_cache::ContentFullMdCache;
 use crate::resources::endpoint_index::EndpointIndex;
 use crate::resources::endpoint_resource_id_map::EndpointResourceIdMap;
-use crate::resources::endpoints_iter_src::EndpointsIterSrc;
 use crate::resources::file_content_loader::FileContentLoader;
 use crate::resources::file_meta_data_loader::FileMetaDataLoader;
 use crate::resources::resource_id_endpoint_map::ResourceIdEndPointMap;
@@ -72,8 +71,8 @@ impl Emerald {
         debug!("Creation of FileMetaDataLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
-
-        let res_id_iter = trafo_ep_to_rid(ep_iter_src.iter(), &resource_id_resolver);
+        let ep_iter = ep_iter_src.ref_iter().map(|f| f.clone());
+        let res_id_iter = trafo_ep_to_rid(ep_iter, &resource_id_resolver);
         let all_resource_ids: Vec<ResourceId> = res_id_iter.collect();
 
         // Transform iter: from (ResourceId) to (FileType, ResourceId)
@@ -148,12 +147,12 @@ impl Emerald {
     }
 
     pub fn file_count(&self) -> usize {
-        self.ep_iter_src.iter().count()
+        self.ep_iter_src.ref_iter().count()
     }
 
     pub fn md_file_count(&self) -> usize {
         self.ep_iter_src
-            .iter()
+            .ref_iter()
             .filter(|pred| matches!(pred, EndPoint::FileMarkdown(_)))
             .count()
     }

@@ -1,4 +1,4 @@
-use crate::{resources::endpoints_iter_src::EndpointsIterSrc, EmeraldError, Result};
+use crate::{EmeraldError, Result};
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 use std::{collections::HashMap, path::Path, rc::Rc};
@@ -44,23 +44,18 @@ impl ResourceIdResolver for ResourceIdEndPointMap {
 
 #[cfg(test)]
 mod tests {
-    use crate::resources::endpoints_iter_src::MockEndpointsIterSrc;
     use crate::resources::resource_id_endpoint_map::ResourceIdEndPointMap;
     use crate::resources::resource_id_resolver::ResourceIdResolver;
     use crate::types::EndPoint;
     use crate::types::ResourceId;
     use std::path::PathBuf;
 
-    fn create_dut(test_data: Vec<EndPoint>) -> ResourceIdEndPointMap {
-        let mut mock_it_src = MockEndpointsIterSrc::new();
-        let common_path: PathBuf = "".into();
-
-        ResourceIdEndPointMap::new(test_data.iter(), &common_path)
-    }
     #[test]
     fn test_resolve_different_utf8_norm_match() {
         let test_data: Vec<EndPoint> = vec![EndPoint::FileUnknown("testpäth".into())];
-        let dut = create_dut(test_data);
+        let common_path: PathBuf = "".into();
+
+        let dut = ResourceIdEndPointMap::new(test_data.iter(), &common_path);
         let ep = dut
             .resolve(&EndPoint::FileUnknown("testpäth".into()))
             .unwrap();
@@ -70,7 +65,9 @@ mod tests {
     #[test]
     fn test_resolve_with_different_utf8_norm_match_2() {
         let test_data: Vec<EndPoint> = vec![EndPoint::FileUnknown("testpäth".into())];
-        let dut = create_dut(test_data);
+        let common_path: PathBuf = "".into();
+
+        let dut = ResourceIdEndPointMap::new(test_data.iter(), &common_path);
         let ep = dut
             .resolve(&EndPoint::FileUnknown("testpäth".into()))
             .unwrap();
