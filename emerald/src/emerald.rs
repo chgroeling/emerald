@@ -34,10 +34,10 @@ pub struct Emerald {
     pub meta_data_loader: FileMetaDataLoaderImpl,
     pub resource_id_retriever: ResourceIdLinkMap,
     pub src_2_tgt_iter_src: Src2TargetIndex,
-    pub content_full_md_cache: ContentFullMdCacheImpl,
+    pub content_cache: ContentFullMdCacheImpl,
     pub tgt_iter_retriever: TgtLinksMap,
     pub src_iter_retriever: SrcLinksMap,
-    pub std_provider_factory: StdProviderFactoryImpl,
+    pub provider_factory: StdProviderFactoryImpl,
     pub vault: Vault<StdProviderFactoryImpl>,
 }
 
@@ -92,14 +92,13 @@ impl Emerald {
         debug!("Creation of ResourceIdLinkMap took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let content_full_md_cache =
-            ContentFullMdCache::new(md_resource_ids.iter(), content_loader.clone());
+        let content_cache = ContentFullMdCache::new(md_resource_ids.iter(), content_loader.clone());
         debug!("Creation of ContentFullMdCache took: {:?}", start.elapsed());
 
         let start = Instant::now();
         let all_links_iter = extract_links_from_vault(
             md_resource_ids.iter(),
-            &content_full_md_cache,
+            &content_cache,
             &resource_id_retriever,
             &analyze_markdown,
         );
@@ -108,20 +107,20 @@ impl Emerald {
         debug!("Creation of Src2TargetIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let tgt_iter_retriever = TgtLinksMap::new(src_2_tgt_iter_src.ref_iter());
+        let tgt_iter_retriever = TgtLinksMap::new(src_2_tgt_iter_src.iter());
         debug!("Creation of TgtLinksMap took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let src_iter_retriever = SrcLinksMap::new(src_2_tgt_iter_src.ref_iter());
+        let src_iter_retriever = SrcLinksMap::new(src_2_tgt_iter_src.iter());
         debug!("Creation of SrcLinksMap took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let std_provider_factory =
-            StdProviderFactory::new(meta_data_loader.clone(), content_full_md_cache.clone());
+        let provider_factory =
+            StdProviderFactory::new(meta_data_loader.clone(), content_cache.clone());
         debug!("Creation of StdProviderFactory took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let vault = Vault::new(md_resource_ids.iter(), std_provider_factory.clone());
+        let vault = Vault::new(md_resource_ids.iter(), provider_factory.clone());
         debug!("Creation of Vault took: {:?}", start.elapsed());
 
         Ok(Emerald {
@@ -130,11 +129,11 @@ impl Emerald {
             meta_data_loader,
             resource_id_retriever,
             ep_iter_src,
-            content_full_md_cache,
+            content_cache,
             src_2_tgt_iter_src,
             tgt_iter_retriever,
             src_iter_retriever,
-            std_provider_factory,
+            provider_factory,
             vault,
         })
     }
