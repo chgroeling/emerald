@@ -1,4 +1,4 @@
-use crate::types::meta_data::MetaData;
+use crate::types::MetaData;
 use crate::types::ResourceId;
 use crate::Result;
 

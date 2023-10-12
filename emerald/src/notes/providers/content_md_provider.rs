@@ -1,6 +1,6 @@
 use crate::{
     resources::{content_loader::ContentLoader, meta_data_loader::MetaDataLoader},
-    types::{meta_data::FileType, ResourceId},
+    types::{FileType, ResourceId},
 };
 
 use super::md_provider::MdProvider;

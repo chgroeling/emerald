@@ -1,8 +1,8 @@
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-use crate::types::link::Link;
 use crate::types::ContentType;
+use crate::types::Link;
 
 pub fn trafo_from_content_type_to_links<'a>(
     iter: impl Iterator<Item = ContentType> + 'a,

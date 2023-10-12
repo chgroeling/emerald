@@ -1,4 +1,4 @@
-use crate::types::link::Link;
+use crate::types::Link;
 use crate::types::ResourceId;
 use crate::utils::normalize_string::normalize_str;
 use std::collections::hash_map::Entry;

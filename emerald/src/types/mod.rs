@@ -1,14 +1,14 @@
 mod content;
 mod content_type;
 mod endpoint;
-pub mod link;
+mod link;
 mod link_2_tgt;
-pub mod link_comps;
+mod link_comps;
 mod link_frm_src;
 mod link_src_2_tgt;
-pub mod meta_data;
+mod meta_data;
 mod res_and_err;
-pub mod resource_id;
+mod resource_id;
 pub mod resource_id_comps;
 
 pub use self::content::Content;
@@ -21,4 +21,6 @@ pub use self::link::Link;
 pub use self::link_2_tgt::Link2Tgt;
 pub use self::link_frm_src::LinkFrmSrc;
 pub use self::link_src_2_tgt::LinkSrc2Tgt;
+pub use self::meta_data::FileType;
+pub use self::meta_data::MetaData;
 pub use self::resource_id::ResourceId;

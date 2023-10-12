@@ -1,6 +1,6 @@
 use crate::{
     resources::meta_data_loader::MetaDataLoader,
-    types::{meta_data::FileType, ResourceId},
+    types::{FileType, ResourceId},
 };
 
 pub fn trafo_to_filetype_and_resource_id<'a>(
@@ -22,10 +22,7 @@ mod tests {
     use crate::{
         resources::meta_data_loader::MockMetaDataLoader,
         trafos::trafo_to_filetype_and_resource_id,
-        types::{
-            meta_data::{FileType, MetaData},
-            ResourceId,
-        },
+        types::{FileType, MetaData, ResourceId},
     };
 
     #[test]

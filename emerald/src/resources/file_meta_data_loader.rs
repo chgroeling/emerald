@@ -1,9 +1,9 @@
 use std::path::Path;
 
 use crate::resources::endpoint_resolver::EndPointResolver;
-use crate::types::meta_data::FileType;
-use crate::types::meta_data::MetaData;
 use crate::types::EndPoint;
+use crate::types::FileType;
+use crate::types::MetaData;
 use crate::types::ResourceId;
 use crate::EmeraldError;
 use crate::Result;

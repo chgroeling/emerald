@@ -1,6 +1,6 @@
 use crate::{
     resources::resource_id_resolver::ResourceIdResolver,
-    types::{meta_data::FileType, EndPoint, ResourceId},
+    types::{EndPoint, FileType, ResourceId},
 };
 
 #[allow(unused_imports)]
@@ -34,7 +34,7 @@ pub fn trafo_ep_to_rid<'a>(
 #[cfg(test)]
 mod tests {
     use super::ResourceId;
-    use crate::{trafos::filter_markdown_types, types::meta_data::FileType};
+    use crate::{trafos::filter_markdown_types, types::FileType};
 
     #[test]
     fn test_filter_markdown_types_two_but_one_remains() {
