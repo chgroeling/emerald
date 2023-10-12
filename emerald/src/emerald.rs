@@ -13,7 +13,7 @@ use crate::resources::file_content_loader::FileContentLoader;
 use crate::resources::file_meta_data_loader::FileMetaDataLoader;
 use crate::resources::resource_id_endpoint_map::ResourceIdEndPointMap;
 use crate::trafos::{
-    filter_markdown_types, trafo_ep_to_rid, trafo_links_from_contents,
+    filter_markdown_types, trafo_ep_to_rid, trafo_from_content_to_linksrc2tgt,
     trafo_resource_ids_to_content, trafo_to_filetype_and_resource_id,
 };
 use crate::types::{EndPoint, ResourceId};
@@ -99,7 +99,7 @@ impl Emerald {
         let content_from_vault_iter =
             trafo_resource_ids_to_content(md_resource_ids.iter(), &content_cache);
 
-        let all_links_iter = trafo_links_from_contents(
+        let all_links_iter = trafo_from_content_to_linksrc2tgt(
             content_from_vault_iter,
             &resource_id_retriever,
             &analyze_markdown,

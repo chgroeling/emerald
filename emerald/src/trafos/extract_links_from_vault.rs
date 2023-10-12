@@ -49,7 +49,7 @@ where
     ))
 }
 
-pub fn trafo_links_from_contents<'a, I>(
+pub fn trafo_from_content_to_linksrc2tgt<'a, I>(
     iter: impl Iterator<Item = (ResourceId, Result<Content>)> + 'a,
     resource_id_retriever: &'a impl ResourceIdRetriever,
     md_analyzer: &'a I,
