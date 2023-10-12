@@ -1,4 +1,3 @@
-use crate::indexes::ResourceIdsIterSrc;
 use crate::types::link::Link;
 use crate::types::ResourceId;
 use crate::utils::normalize_string::normalize_str;
@@ -119,11 +118,12 @@ impl ResourceIdRetriever for ResourceIdLinkMap {
 
 #[cfg(test)]
 mod link_mapper_tests {
+    use crate::indexes::ResourceIdsIterSrc;
+
     use super::EmeraldError::*;
     use super::ResourceId;
     use super::ResourceIdLinkMap;
     use super::ResourceIdRetriever;
-    use super::ResourceIdsIterSrc;
 
     struct MockFileIndex {
         links: Vec<ResourceId>,
@@ -135,10 +135,6 @@ mod link_mapper_tests {
         fn iter(&self) -> Self::Iter {
             self.links.clone().into_iter()
         }
-    }
-
-    fn prepare_mock_file_index(link_list: Vec<ResourceId>) -> MockFileIndex {
-        MockFileIndex { links: link_list }
     }
 
     #[test]

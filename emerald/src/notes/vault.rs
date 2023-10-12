@@ -1,6 +1,6 @@
 use super::note::Note;
 use crate::notes::providers::provider_factory::ProviderFactory;
-use crate::{indexes::ResourceIdsIterSrc, types::ResourceId};
+use crate::types::ResourceId;
 
 #[derive(Clone)]
 pub struct Vault<U>

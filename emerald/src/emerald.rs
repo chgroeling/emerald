@@ -3,7 +3,6 @@ use log::{debug, error, info, trace, warn};
 use std::{path::Path, time::Instant};
 
 use crate::indexes::resource_id_converter::ResourceIdConverter;
-use crate::indexes::resource_id_index::{AllResourceIds, MdResourceIds, ResourceIdIndex};
 use crate::indexes::src_2_tgt_index::Src2TargetIndex;
 use crate::indexes::ResourceIdsIterSrc;
 use crate::maps::resource_id_link_map::ResourceIdLinkMap;
@@ -26,8 +25,6 @@ use crate::types::{EndPoint, ResourceId};
 use crate::Result;
 
 type FileMetaDataLoaderImpl = FileMetaDataLoader<EndpointResourceIdMap>;
-type ResourceIdIndexImpl = ResourceIdIndex;
-type MdResourceIdsImpl = MdResourceIds;
 type ContentFullMdCacheImpl = ContentFullMdCache<FileContentLoader<EndpointResourceIdMap>>;
 type StdProviderFactoryImpl = StdProviderFactory<FileMetaDataLoaderImpl, ContentFullMdCacheImpl>;
 
