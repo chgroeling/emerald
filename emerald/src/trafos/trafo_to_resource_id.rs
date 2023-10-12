@@ -14,11 +14,11 @@ pub fn filter_markdown_types<'a>(
 }
 
 pub fn trafo_ep_to_rid<'a>(
-    ep_iter: impl Iterator<Item = EndPoint> + 'a,
+    ep_iter: impl Iterator<Item = &'a EndPoint> + 'a,
     resource_id_resolver: &'a impl ResourceIdResolver,
 ) -> impl Iterator<Item = ResourceId> + 'a {
     ep_iter.filter_map(|ep| {
-        let opt_resource_id = resource_id_resolver.resolve(&ep);
+        let opt_resource_id = resource_id_resolver.resolve(ep);
         if let Ok(resource_id) = opt_resource_id {
             return Some(resource_id);
         }
