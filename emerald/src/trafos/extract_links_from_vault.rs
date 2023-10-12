@@ -49,23 +49,18 @@ where
     ))
 }
 
-pub fn trafo_links_from_vault<'a, I>(
-    iter: impl Iterator<Item = &'a ResourceId> + 'a,
-    content_loader: &'a impl ContentLoader,
+pub fn trafo_links_from_contents<'a, I>(
+    iter: impl Iterator<Item = (ResourceId, Result<Content>)> + 'a,
     resource_id_retriever: &'a impl ResourceIdRetriever,
     md_analyzer: &'a I,
 ) -> impl Iterator<Item = (ResourceId, Result<LinkSrc2TgtIterBoxed<'a>>)> + 'a
 where
     I: Fn(&String) -> Vec<ContentType>,
 {
-    // load content.
-    // iterator yields (ResourceId, Result<Content>)
-    let content_iter = iter.map(move |f| (f.clone(), content_loader.load(&f)));
-
     // iterator yield (a, b)
     // a: the resource id of the source which was loaded
     // b: a vector containing the links which were found wrapped in a Result
-    let all_links_iter = content_iter.map(move |f| {
+    let all_links_iter = iter.map(move |f| {
         (
             f.0.clone(),
             f.1.map(move |content| {
