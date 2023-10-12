@@ -17,13 +17,13 @@ pub struct ResourceIdEndPointMap {
 }
 
 impl ResourceIdEndPointMap {
-    pub fn new(ep_iter_rc: &impl EndpointsIterSrc, common_path: &Path) -> Self {
+    pub fn new<'a>(iter: impl Iterator<Item = &'a EndPoint>, common_path: &Path) -> Self {
         let mut ep_to_resource_id = HashMap::<EndPoint, ResourceId>::new();
-        for ep in ep_iter_rc.iter() {
+        for ep in iter {
             let opt_resource_id = convert_endpoint_to_resource_id(ep.clone(), common_path);
 
             if let Some(resource_id) = opt_resource_id {
-                ep_to_resource_id.insert(ep, resource_id);
+                ep_to_resource_id.insert(ep.clone(), resource_id);
             } else {
                 warn!("Can't convert Endpoint '{:?}' to ResourceId.", &ep);
             }
@@ -53,13 +53,9 @@ mod tests {
 
     fn create_dut(test_data: Vec<EndPoint>) -> ResourceIdEndPointMap {
         let mut mock_it_src = MockEndpointsIterSrc::new();
-        mock_it_src
-            .expect_iter()
-            .return_const(test_data.into_iter());
-
         let common_path: PathBuf = "".into();
 
-        ResourceIdEndPointMap::new(&mock_it_src, &common_path)
+        ResourceIdEndPointMap::new(test_data.iter(), &common_path)
     }
     #[test]
     fn test_resolve_different_utf8_norm_match() {
