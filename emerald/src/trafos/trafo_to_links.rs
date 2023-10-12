@@ -1,10 +1,9 @@
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-use super::content_type::ContentType;
-use crate::types::link::Link;
+use crate::{md_analyzer::ContentType, types::link::Link};
 
-pub fn extract_links<'a>(
+pub fn trafo_from_content_type_to_links<'a>(
     iter: impl Iterator<Item = ContentType> + 'a,
 ) -> impl Iterator<Item = Link> + 'a {
     fn filter_func(pred: &ContentType) -> bool {

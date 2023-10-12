@@ -3,10 +3,7 @@ use std::{
     rc::Rc,
 };
 
-use crate::{
-    indexes::Src2TgtIterSrc,
-    types::{Link2Tgt, ResourceId},
-};
+use crate::types::{Link2Tgt, LinkSrc2Tgt, ResourceId};
 
 use super::tgt_iter_retriever::TgtIterRetriever;
 
@@ -18,12 +15,12 @@ pub struct TgtLinksMap {
 }
 
 impl TgtLinksMap {
-    pub fn new(link_s2t_iter_rc: &impl Src2TgtIterSrc) -> Self {
+    pub fn new<'a>(iter: impl Iterator<Item = &'a LinkSrc2Tgt>) -> Self {
         let mut link_2_tgt_map = Src2Link2TgtMap::new();
-        for s2t in link_s2t_iter_rc.iter() {
+        for s2t in iter {
             let link_to_target = s2t.get_link_to_target();
 
-            match link_2_tgt_map.entry(s2t.src) {
+            match link_2_tgt_map.entry(s2t.src.clone()) {
                 Entry::Occupied(mut e) => {
                     e.get_mut().push(link_to_target);
                 }
@@ -48,16 +45,13 @@ impl TgtIterRetriever for TgtLinksMap {
 mod tests {
     use super::TgtIterRetriever;
     use super::TgtLinksMap;
-    use crate::indexes::src_2_tgt_iter_src::MockSrc2TgtIterSrc;
     use crate::types::Link2Tgt;
+    use crate::types::LinkSrc2Tgt;
 
     #[test]
     fn test_one_match() {
-        let test_data = vec![("o1", "o1->d1", "d1").into()];
-        let mut mock = MockSrc2TgtIterSrc::new();
-        mock.expect_iter().return_const(test_data.into_iter());
-
-        let dut = TgtLinksMap::new(&mock);
+        let test_data: Vec<LinkSrc2Tgt> = vec![("o1", "o1->d1", "d1").into()];
+        let dut = TgtLinksMap::new(test_data.iter());
         let res: Vec<Link2Tgt> = dut.retrieve("o1".into()).unwrap().collect();
 
         assert_eq!(res, vec![Link2Tgt::new("o1->d1".into(), Some("d1".into()))]);
@@ -65,11 +59,10 @@ mod tests {
 
     #[test]
     fn test_two_matches() {
-        let test_data = vec![("o1", "o1->d1", "d1").into(), ("o1", "o1->d2", "d2").into()];
-        let mut mock = MockSrc2TgtIterSrc::new();
-        mock.expect_iter().return_const(test_data.into_iter());
+        let test_data: Vec<LinkSrc2Tgt> =
+            vec![("o1", "o1->d1", "d1").into(), ("o1", "o1->d2", "d2").into()];
 
-        let dut = TgtLinksMap::new(&mock);
+        let dut = TgtLinksMap::new(test_data.iter());
         let res: Vec<Link2Tgt> = dut.retrieve("o1".into()).unwrap().collect();
 
         assert_eq!(
@@ -83,17 +76,15 @@ mod tests {
 
     #[test]
     fn test_two_matches_elements_inbetween() {
-        let test_data = vec![
+        let test_data: Vec<LinkSrc2Tgt> = vec![
             ("doesn't matter 1", "abc", "def").into(),
             ("o1", "o1->d1", "d1").into(),
             ("doesn't matter 2", "abc", "def").into(),
             ("o1", "o1->d2", "d2").into(),
             ("doesn't matter 3", "abc", "def").into(),
         ];
-        let mut mock = MockSrc2TgtIterSrc::new();
-        mock.expect_iter().return_const(test_data.into_iter());
 
-        let dut = TgtLinksMap::new(&mock);
+        let dut = TgtLinksMap::new(test_data.iter());
         let res: Vec<Link2Tgt> = dut.retrieve("o1".into()).unwrap().collect();
 
         assert_eq!(

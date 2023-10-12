@@ -1,65 +1,21 @@
 use super::content_type::ContentType;
-use crate::types::Content;
-#[allow(unused_imports)]
-use log::{debug, error, info, trace, warn};
+use super::markdown_iterator_state::MarkdownIteratorState;
 use std::{iter::Peekable, str::CharIndices};
 
-pub fn extract_content_types<'a>(content: Content) -> impl Iterator<Item = ContentType> + 'a {
-    MarkdownExtractorIter::new(content)
-}
+#[allow(unused_imports)]
+use log::{debug, error, info, trace, warn};
 
 #[derive(Debug)]
-pub struct MarkdownExtractorIter {
-    content_iter: std::vec::IntoIter<ContentType>,
-}
-
-impl MarkdownExtractorIter {
-    fn new(content: Content) -> Self {
-        let content_str = content.0.as_ref();
-        let content_list = BorrowedMarkdownIterator::new(content_str).collect::<Vec<_>>();
-        Self {
-            content_iter: content_list.into_iter(),
-        }
-    }
-}
-impl Iterator for MarkdownExtractorIter {
-    type Item = ContentType;
-    fn next(&mut self) -> Option<Self::Item> {
-        self.content_iter.next()
-    }
-}
-
-enum MarkdownIteratorState {
-    IllegalFormat,
-
-    // Inline Code Block Start
-    InlCodeBlockStart(usize),
-
-    // Inline Code Block Found
-    InlCodeBlockFound(usize, usize),
-
-    CodeBlockStart(usize),
-    CodeBlockFound(usize, usize),
-
-    WikiLinkStart(usize),
-    WikiLinkFound(usize, usize),
-
-    LinkStart(usize),
-    LinkDescriptionFinished(usize),
-    LinkFound(usize, usize),
-}
-
-#[derive(Debug)]
-pub struct BorrowedMarkdownIterator<'a> {
-    content: &'a str,
+pub struct MarkdownAnalyzerIter<'a> {
+    md_str: &'a str,
     iter: Peekable<CharIndices<'a>>,
 }
 
-impl<'a> BorrowedMarkdownIterator<'a> {
-    pub fn new(content: &'a str) -> Self {
+impl<'a> MarkdownAnalyzerIter<'a> {
+    pub fn new(md_str: &'a str) -> Self {
         Self {
-            content,
-            iter: content.char_indices().peekable(),
+            md_str,
+            iter: md_str.char_indices().peekable(),
         }
     }
 
@@ -258,7 +214,7 @@ impl<'a> BorrowedMarkdownIterator<'a> {
         }
     }
 }
-impl<'a> Iterator for BorrowedMarkdownIterator<'a> {
+impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
     type Item = ContentType;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -277,10 +233,10 @@ impl<'a> Iterator for BorrowedMarkdownIterator<'a> {
             };
 
             match iter_state {
-                WikiLinkFound(s1, e1) => return Some(WikiLink(self.content[s1..e1].into())),
-                LinkFound(s1, e1) => return Some(Link(self.content[s1..e1].into())),
-                CodeBlockFound(s1, e1) => return Some(CodeBlock(self.content[s1..e1].into())),
-                InlCodeBlockFound(s1, e1) => return Some(CodeBlock(self.content[s1..e1].into())),
+                WikiLinkFound(s1, e1) => return Some(WikiLink(self.md_str[s1..e1].into())),
+                LinkFound(s1, e1) => return Some(Link(self.md_str[s1..e1].into())),
+                CodeBlockFound(s1, e1) => return Some(CodeBlock(self.md_str[s1..e1].into())),
+                InlCodeBlockFound(s1, e1) => return Some(CodeBlock(self.md_str[s1..e1].into())),
                 // this also matches IllegalFormat
                 _ => next_element = self.iter.next(),
             };
@@ -294,13 +250,13 @@ impl<'a> Iterator for BorrowedMarkdownIterator<'a> {
 
 #[cfg(test)]
 mod tests {
-    use super::{BorrowedMarkdownIterator, ContentType};
+    use super::{ContentType, MarkdownAnalyzerIter};
     use ContentType::*;
 
     #[test]
     fn test_content_iter_empty_string_empty() {
         let test_str = "";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert!(out_vec.is_empty());
@@ -309,7 +265,7 @@ mod tests {
     #[test]
     fn test_content_iter_string_without_links_empty() {
         let test_str = "no links";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert!(out_vec.is_empty());
@@ -318,7 +274,7 @@ mod tests {
     #[test]
     fn test_content_iter_simple_wiki_link() {
         let test_str = "[[internal_link]]";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(out_vec, [WikiLink("[[internal_link]]".into())]);
@@ -327,7 +283,7 @@ mod tests {
     #[test]
     fn test_content_iter_simple_link() {
         let test_str = "[link_name](link)";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(out_vec, [Link("[link_name](link)".into())]);
@@ -336,7 +292,7 @@ mod tests {
     #[test]
     fn test_content_iter_two_wiki_links_consecutive() {
         let test_str = "[[internal_link]][[internal_link_2]]";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(
@@ -351,7 +307,7 @@ mod tests {
     #[test]
     fn test_content_iter_two_wiki_links_consecutive_first_illegal() {
         let test_str = "[[illegal_internal_link] ][[internal_link]]";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(out_vec, [WikiLink("[[internal_link]]".into())]);
@@ -360,7 +316,7 @@ mod tests {
     #[test]
     fn test_markdown_link_iter_iter_two_links_consecutive_first_illegal_2() {
         let test_str = "[ [illegal_internal_link]][[internal_link]]";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(out_vec, [WikiLink("[[internal_link]]".into())]);
@@ -369,7 +325,7 @@ mod tests {
     #[test]
     fn test_content_iter_two_links_consecutive_first_illegal_3() {
         let test_str = "[[illegal_internal_link][[internal_link]]";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(out_vec, [WikiLink("[[internal_link]]".into())]);
@@ -378,7 +334,7 @@ mod tests {
     #[test]
     fn test_content_iter_two_links_consecutive_first_illegal_4() {
         let test_str = "[illegal_internal_link]][[internal_link]]";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(out_vec, [WikiLink("[[internal_link]]".into())]);
@@ -387,7 +343,7 @@ mod tests {
     #[test]
     fn test_content_iter_two_links_consecutive_first_illegal_5() {
         let test_str = "[[illegal[_internal_link]][[internal_link]]";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(out_vec, [WikiLink("[[internal_link]]".into())]);
@@ -396,7 +352,7 @@ mod tests {
     #[test]
     fn test_content_iter_two_links_consecutive_first_illegal_6() {
         let test_str = "[[illegal]_internal_link]][[internal_link]]";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(out_vec, [WikiLink("[[internal_link]]".into())]);
@@ -405,7 +361,7 @@ mod tests {
     #[test]
     fn test_content_iter_two_links_with_distance() {
         let test_str = "[[internal_link]]abc[[internal_link_2]]";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(
@@ -420,7 +376,7 @@ mod tests {
     #[test]
     fn test_content_iter_two_links_with_distance_start() {
         let test_str = "123[[internal_link]]abc[[internal_link_2]]";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(
@@ -435,7 +391,7 @@ mod tests {
     #[test]
     fn test_content_iter_two_links_with_distance_start_and_end() {
         let test_str = "123[[internal_link]]abc[[internal_link_2]]456";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(
@@ -450,7 +406,7 @@ mod tests {
     #[test]
     fn test_content_iter_simple_front_text() {
         let test_str = "abc[[internal_link]]";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(out_vec, [WikiLink("[[internal_link]]".into())]);
@@ -459,7 +415,7 @@ mod tests {
     #[test]
     fn test_content_iter_no_link_code_block() {
         let test_str = "abc`[[internal_link]]`";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(out_vec, [CodeBlock("`[[internal_link]]`".into())]);
@@ -468,7 +424,7 @@ mod tests {
     #[test]
     fn test_content_iter_no_link_code_block_2() {
         let test_str = "abc``[[internal_link]]``";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(out_vec, [CodeBlock("``[[internal_link]]``".into())]);
@@ -477,7 +433,7 @@ mod tests {
     #[test]
     fn test_content_iter_no_link_code_block_3() {
         let test_str = "abc[[link]]``[[no_link]]``";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(
@@ -492,7 +448,7 @@ mod tests {
     #[test]
     fn test_markdown_link_iter_no_link_code_block_4() {
         let test_str = "``[[no_link]]``abc[[link]]";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(
@@ -507,7 +463,7 @@ mod tests {
     #[test]
     fn test_content_iter_no_link_code_block_with_newlines() {
         let test_str = "[[link1]]\n```[[no_link]]\n```\n[[link2]]";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(
@@ -522,7 +478,7 @@ mod tests {
     #[test]
     fn test_content_iter_no_link_code_block_at_top_with_newlines_and_text() {
         let test_str = "```[[no_link]]\n```\ndef\n[[link]]";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(
@@ -537,7 +493,7 @@ mod tests {
     #[test]
     fn test_content_iter_no_link_code_block_at_end_with_newlines_and_text() {
         let test_str = "def\n[[link]]\n```[[no_link]]\n```\n";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(
@@ -552,7 +508,7 @@ mod tests {
     #[test]
     fn test_content_iter_no_link_code_block_with_newlines_and_text() {
         let test_str = "[[link1]]\nabc\n```[[no_link]]\n```\ndef\n[[link2]]";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(
@@ -568,7 +524,7 @@ mod tests {
     #[test]
     fn test_content_iter_link_surrounded_by_code_blocks() {
         let test_str = "``code_block``[[link]]``code_block``";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(
@@ -584,7 +540,7 @@ mod tests {
     #[test]
     fn test_content_iter_two_links_surrounded_by_code_blocks() {
         let test_str = "``code_block``[[link1]][[link2]]``code_block``";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(
@@ -600,7 +556,7 @@ mod tests {
     #[test]
     fn test_content_iter_no_link_code_block_with_newlines_and_text_and_special_chars() {
         let test_str = "[[link1]]\n—abc—\n```[[—no_link—]]\n```\n—def—\n[[link2]]";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(
@@ -616,7 +572,7 @@ mod tests {
     #[test]
     fn test_content_iter_code_block_in_code_block() {
         let test_str = "```` ```[[no_link]]``` ````";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(out_vec, [CodeBlock("```` ```[[no_link]]``` ````".into())]);
@@ -625,7 +581,7 @@ mod tests {
     #[test]
     fn test_content_iter_inline_codeblock_first_line() {
         let test_str = "    [[no_link]]";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(out_vec, [CodeBlock("    [[no_link]]".into()),]);
@@ -634,7 +590,7 @@ mod tests {
     #[test]
     fn test_content_iter_inline_codeblock_first_line_with_newline() {
         let test_str = "    [[no_link]]\nText";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(out_vec, [CodeBlock("    [[no_link]]".into()),]);
@@ -643,7 +599,7 @@ mod tests {
     #[test]
     fn test_content_iter_inline_codeblock_second_line() {
         let test_str = "Text\n    [[no_link]]";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(out_vec, [CodeBlock("    [[no_link]]".into()),]);
@@ -652,7 +608,7 @@ mod tests {
     #[test]
     fn test_content_iter_inline_codeblock_second_line_with_newline() {
         let test_str = "Text\n    [[no_link]]\nText2";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(out_vec, [CodeBlock("    [[no_link]]".into()),]);
@@ -661,7 +617,7 @@ mod tests {
     #[test]
     fn test_content_iter_inline_code_blocks() {
         let test_str = "    line1\n    line2\n";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(
@@ -673,7 +629,7 @@ mod tests {
     #[test]
     fn test_content_iter_inline_code_blocks_last_empty() {
         let test_str = "    line1\n    ";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(
@@ -685,7 +641,7 @@ mod tests {
     #[test]
     fn test_content_iter_code_block_inside_inline_code_block() {
         let test_str = "    ```line1\n    line2```\n";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(
@@ -700,7 +656,7 @@ mod tests {
     #[test]
     fn test_content_iter_link_with_leadinger_underscore() {
         let test_str = "[[_link]]";
-        let output = BorrowedMarkdownIterator::new(&test_str);
+        let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(out_vec, [WikiLink("[[_link]]".into())]);

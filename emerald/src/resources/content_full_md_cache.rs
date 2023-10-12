@@ -5,10 +5,7 @@ use std::{collections::HashMap, rc::Rc};
 use log::{debug, error, info, trace, warn};
 
 use super::content_loader::ContentLoader;
-use crate::{
-    indexes::ResourceIdsIterSrc,
-    types::{Content, ResourceId},
-};
+use crate::types::{Content, ResourceId};
 
 #[derive(Clone)]
 pub struct ContentFullMdCache<I>
@@ -23,10 +20,13 @@ impl<I> ContentFullMdCache<I>
 where
     I: ContentLoader,
 {
-    pub fn new(md_resource_ids_iter_rc: &impl ResourceIdsIterSrc, content_loader: I) -> Self {
+    pub fn new<'a>(
+        md_resource_ids_iter: impl Iterator<Item = &'a ResourceId>,
+        content_loader: I,
+    ) -> Self {
         let mut res_id_to_content = HashMap::<ResourceId, Content>::new();
 
-        for md_res_id in md_resource_ids_iter_rc.iter() {
+        for md_res_id in md_resource_ids_iter {
             let read_note = content_loader.load(&md_res_id);
 
             // ignore files that cannot be read

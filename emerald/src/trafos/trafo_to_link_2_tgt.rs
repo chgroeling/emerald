@@ -32,7 +32,7 @@ where
     }
 }
 
-pub fn convert_to_link_2_tgt<'a>(
+pub fn trafo_from_links_to_link_2_tgt<'a>(
     iter: impl Iterator<Item = Link> + 'a,
     resource_id_retriever: &'a impl ResourceIdRetriever,
 ) -> impl Iterator<Item = Link2Tgt> + 'a {
