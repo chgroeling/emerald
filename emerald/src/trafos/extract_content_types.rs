@@ -1,4 +1,4 @@
-use crate::{md_analyzer::markdown_analyzer::analyze_markdown, types::Content};
+use crate::{md_analyzer::analyze_markdown, types::Content};
 
 use super::content_type::ContentType;
 

@@ -1,4 +1,5 @@
-pub mod markdown_analyzer;
+mod analyzer_markdown;
+mod markdown_analyzer_iter;
 mod markdown_iterator_state;
 
-use markdown_analyzer::analyze_markdown;
+pub use analyzer_markdown::analyze_markdown;
