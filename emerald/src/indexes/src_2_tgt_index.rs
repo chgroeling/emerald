@@ -3,7 +3,7 @@ use std::rc::Rc;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-use crate::content_analyzers::LinkSrc2TgtIterBoxed;
+use crate::trafos::LinkSrc2TgtIterBoxed;
 use crate::types::{LinkSrc2Tgt, ResourceId};
 use crate::Result;
 

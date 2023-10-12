@@ -2,7 +2,6 @@
 use log::{debug, error, info, trace, warn};
 use std::{path::Path, time::Instant};
 
-use crate::content_analyzers::extract_links_from_vault;
 use crate::indexes::resource_id_converter::ResourceIdConverter;
 use crate::indexes::resource_id_index::{
     transform_to_filetype_and_resource_id, AllResourceIds, MdResourceIds, ResourceIdIndex,
@@ -21,6 +20,7 @@ use crate::resources::endpoints_iter_src::EndpointsIterSrc;
 use crate::resources::file_content_loader::FileContentLoader;
 use crate::resources::file_meta_data_loader::FileMetaDataLoader;
 use crate::resources::resource_id_endpoint_map::ResourceIdEndPointMap;
+use crate::trafos::extract_links_from_vault;
 use crate::types::EndPoint;
 use crate::Result;
 

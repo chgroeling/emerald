@@ -1,8 +1,8 @@
-mod content_analyzers;
 mod indexes;
 mod maps;
 mod notes;
 mod resources;
+mod trafos;
 mod types;
 mod utils;
 
