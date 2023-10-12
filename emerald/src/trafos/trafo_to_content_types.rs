@@ -1,6 +1,6 @@
 use crate::{md_analyzer::ContentType, types::Content};
 
-pub fn extract_content_types<'a, I>(
+pub fn trafo_from_content_to_content_type<'a, I>(
     content: Content,
     md_analyzer: &'a I,
 ) -> impl Iterator<Item = ContentType> + 'static

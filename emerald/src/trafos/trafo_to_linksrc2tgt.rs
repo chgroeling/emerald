@@ -1,10 +1,10 @@
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-use super::trafo_to_content_types::extract_content_types;
-use super::trafo_to_link_2_tgt::convert_to_link_2_tgt;
-use super::trafo_to_link_src_2_tgt::convert_to_link_src_2_tgt;
-use super::trafo_to_links::trafo_to_links;
+use super::trafo_to_content_types::trafo_from_content_to_content_type;
+use super::trafo_to_link_2_tgt::trafo_from_links_to_link_2_tgt;
+use super::trafo_to_link_src_2_tgt::trafo_from_link_2_tgt_to_link_src_2_tgt;
+use super::trafo_to_links::trafo_from_content_type_to_links;
 
 pub type LinkSrc2TgtIterBoxed<'a> = Box<dyn Iterator<Item = LinkSrc2Tgt> + 'a>;
 
@@ -12,7 +12,6 @@ use crate::Result;
 use crate::{
     maps::ResourceIdRetriever,
     md_analyzer::ContentType,
-    resources::content_loader::ContentLoader,
     types::{Content, LinkSrc2Tgt, ResourceId},
 };
 
@@ -26,10 +25,10 @@ where
     I: Fn(&String) -> Vec<ContentType>,
 {
     trace!("Link extraction from {:?} starts", src);
-    let content_type_iter = extract_content_types(content, md_analyzer);
-    let link_iter = trafo_to_links(content_type_iter);
-    let link_2_tgt_iter = convert_to_link_2_tgt(link_iter, resource_id_retriever);
-    convert_to_link_src_2_tgt(src, link_2_tgt_iter)
+    let content_type_iter = trafo_from_content_to_content_type(content, md_analyzer);
+    let link_iter = trafo_from_content_type_to_links(content_type_iter);
+    let link_2_tgt_iter = trafo_from_links_to_link_2_tgt(link_iter, resource_id_retriever);
+    trafo_from_link_2_tgt_to_link_src_2_tgt(src, link_2_tgt_iter)
 }
 
 fn extract_links_from_content_boxed<'a, I>(

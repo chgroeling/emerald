@@ -3,7 +3,7 @@ use log::{debug, error, info, trace, warn};
 
 use crate::{md_analyzer::ContentType, types::link::Link};
 
-pub fn trafo_to_links<'a>(
+pub fn trafo_from_content_type_to_links<'a>(
     iter: impl Iterator<Item = ContentType> + 'a,
 ) -> impl Iterator<Item = Link> + 'a {
     fn filter_func(pred: &ContentType) -> bool {
