@@ -49,7 +49,7 @@ where
     ))
 }
 
-pub fn extract_links_from_vault<'a, I>(
+pub fn trafo_links_from_vault<'a, I>(
     iter: impl Iterator<Item = &'a ResourceId> + 'a,
     content_loader: &'a impl ContentLoader,
     resource_id_retriever: &'a impl ResourceIdRetriever,

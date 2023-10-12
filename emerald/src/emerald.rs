@@ -13,7 +13,7 @@ use crate::resources::file_content_loader::FileContentLoader;
 use crate::resources::file_meta_data_loader::FileMetaDataLoader;
 use crate::resources::resource_id_endpoint_map::ResourceIdEndPointMap;
 use crate::trafos::{
-    extract_links_from_vault, filter_markdown_types, trafo_ep_to_rid,
+    filter_markdown_types, trafo_ep_to_rid, trafo_links_from_vault,
     trafo_to_filetype_and_resource_id,
 };
 use crate::types::{EndPoint, ResourceId};
@@ -96,7 +96,7 @@ impl Emerald {
         debug!("Creation of ContentFullMdCache took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let all_links_iter = extract_links_from_vault(
+        let all_links_iter = trafo_links_from_vault(
             md_resource_ids.iter(),
             &content_cache,
             &resource_id_retriever,
