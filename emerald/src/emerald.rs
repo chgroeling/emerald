@@ -1,4 +1,4 @@
-use crate::indexes::src_2_tgt_index::Src2TargetIndex;
+use crate::indexes::Src2TargetIndex;
 use crate::maps::resource_id_link_map::ResourceIdLinkMap;
 use crate::maps::src_links_map::SrcLinksMap;
 use crate::maps::tgt_links_map::TgtLinksMap;
@@ -34,7 +34,6 @@ pub struct Emerald {
     pub meta_data_loader: FileMetaDataLoaderImpl,
     pub resource_id_retriever: ResourceIdLinkMap,
     pub src_2_tgt_iter_src: Src2TargetIndex,
-    pub content_loader: FileContentLoader<EndpointResourceIdMap>,
     pub content_full_md_cache: ContentFullMdCacheImpl,
     pub tgt_iter_retriever: TgtLinksMap,
     pub src_iter_retriever: SrcLinksMap,
@@ -64,12 +63,16 @@ impl Emerald {
         );
 
         let start = Instant::now();
+        let content_loader = FileContentLoader::new(endpoint_resolver.clone());
+        debug!("Creation of FileContentLoader took: {:?}", start.elapsed());
+
+        let start = Instant::now();
         let meta_data_loader = FileMetaDataLoader::new(endpoint_resolver.clone());
         debug!("Creation of FileMetaDataLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
 
-        let res_id_iter = trafo_ep_to_rid(ep_iter_src.clone().iter(), &resource_id_resolver);
+        let res_id_iter = trafo_ep_to_rid(ep_iter_src.iter(), &resource_id_resolver);
         let all_resource_ids: Vec<ResourceId> = res_id_iter.collect();
 
         // Transform iter: from (ResourceId) to (FileType, ResourceId)
@@ -78,6 +81,7 @@ impl Emerald {
             &meta_data_loader,
         );
 
+        // Filter markdown files
         let md_resource_id_iter = filter_markdown_types(ft_and_rid_iter);
         let md_resource_ids: Vec<ResourceId> = md_resource_id_iter.collect();
 
@@ -86,10 +90,6 @@ impl Emerald {
         let start = Instant::now();
         let resource_id_retriever = ResourceIdLinkMap::new(all_resource_ids.iter());
         debug!("Creation of ResourceIdLinkMap took: {:?}", start.elapsed());
-
-        let start = Instant::now();
-        let content_loader = FileContentLoader::new(endpoint_resolver.clone());
-        debug!("Creation of FileContentLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
         let content_full_md_cache =
@@ -130,7 +130,6 @@ impl Emerald {
             meta_data_loader,
             resource_id_retriever,
             ep_iter_src,
-            content_loader,
             content_full_md_cache,
             src_2_tgt_iter_src,
             tgt_iter_retriever,

@@ -118,24 +118,9 @@ impl ResourceIdRetriever for ResourceIdLinkMap {
 
 #[cfg(test)]
 mod link_mapper_tests {
-    use crate::indexes::ResourceIdsIterSrc;
-
     use super::EmeraldError::*;
-    use super::ResourceId;
     use super::ResourceIdLinkMap;
     use super::ResourceIdRetriever;
-
-    struct MockFileIndex {
-        links: Vec<ResourceId>,
-    }
-
-    impl ResourceIdsIterSrc for MockFileIndex {
-        type Iter = std::vec::IntoIter<ResourceId>;
-
-        fn iter(&self) -> Self::Iter {
-            self.links.clone().into_iter()
-        }
-    }
 
     #[test]
     fn check_malformed_link_causes_error() {
