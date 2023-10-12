@@ -1,9 +1,9 @@
-use crate::trafos::content_type::ContentType;
-#[allow(unused_imports)]
-use log::{debug, error, info, trace, warn};
+use super::content_type::ContentType;
+use super::markdown_iterator_state::MarkdownIteratorState;
 use std::{iter::Peekable, str::CharIndices};
 
-use super::markdown_iterator_state::MarkdownIteratorState;
+#[allow(unused_imports)]
+use log::{debug, error, info, trace, warn};
 
 #[derive(Debug)]
 pub struct MarkdownAnalyzerIter<'a> {

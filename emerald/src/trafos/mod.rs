@@ -10,7 +10,7 @@ use crate::{
     resources::content_loader::ContentLoader,
     types::{LinkSrc2Tgt, ResourceId},
 };
-pub mod content_type;
+
 mod convert_to_link_2_tgt;
 mod convert_to_link_src_2_tgt;
 mod extract_content_types;
