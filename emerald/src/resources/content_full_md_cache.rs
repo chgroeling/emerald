@@ -4,15 +4,15 @@ use std::{collections::HashMap, rc::Rc};
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-use super::{content_loader::ContentLoader, content_retriever::ContentRetriever};
+use super::{content_loader::ContentLoader, content_retriever::MdContentRetriever};
 use crate::types::{Content, ResourceId};
 
 #[derive(Clone)]
-pub struct ContentFullMdCache {
+pub struct MdContentCache {
     res_id_to_content: Rc<HashMap<ResourceId, Content>>,
 }
 
-impl ContentFullMdCache {
+impl MdContentCache {
     pub fn new<'a>(
         md_resource_ids_iter: impl Iterator<Item = &'a ResourceId>,
         content_loader: &impl ContentLoader,
@@ -39,13 +39,13 @@ impl ContentFullMdCache {
     }
 }
 
-impl ContentRetriever for ContentFullMdCache {
+impl MdContentRetriever for MdContentCache {
     fn retrieve(&self, resource_id: &ResourceId) -> Result<&Content> {
         let cached = self.res_id_to_content.get(resource_id);
 
         match cached {
             Some(entry) => Ok(entry),
-            _ => panic!("ContentFullMdCache does not cached this"),
+            _ => panic!("ContentFullMdCache does not cached this."),
         }
     }
 }
