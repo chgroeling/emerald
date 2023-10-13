@@ -8,21 +8,14 @@ use super::{content_loader::ContentLoader, content_retriever::ContentRetriever};
 use crate::types::{Content, ResourceId};
 
 #[derive(Clone)]
-pub struct ContentFullMdCache<I>
-where
-    I: ContentLoader,
-{
+pub struct ContentFullMdCache {
     res_id_to_content: Rc<HashMap<ResourceId, Content>>,
-    content_loader: I,
 }
 
-impl<I> ContentFullMdCache<I>
-where
-    I: ContentLoader,
-{
+impl ContentFullMdCache {
     pub fn new<'a>(
         md_resource_ids_iter: impl Iterator<Item = &'a ResourceId>,
-        content_loader: I,
+        content_loader: &impl ContentLoader,
     ) -> Self {
         let mut res_id_to_content = HashMap::<ResourceId, Content>::new();
 
@@ -42,21 +35,17 @@ where
 
         Self {
             res_id_to_content: Rc::new(res_id_to_content),
-            content_loader,
         }
     }
 }
 
-impl<I> ContentRetriever for ContentFullMdCache<I>
-where
-    I: ContentLoader,
-{
-    fn load(&self, resource_id: &ResourceId) -> Result<Content> {
+impl ContentRetriever for ContentFullMdCache {
+    fn retrieve(&self, resource_id: &ResourceId) -> Result<&Content> {
         let cached = self.res_id_to_content.get(resource_id);
 
         match cached {
-            Some(entry) => Ok(entry.clone()),
-            _ => self.content_loader.load(resource_id),
+            Some(entry) => Ok(entry),
+            _ => panic!("ContentFullMdCache does not cached this"),
         }
     }
 }
