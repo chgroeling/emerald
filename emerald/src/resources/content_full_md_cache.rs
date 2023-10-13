@@ -4,7 +4,7 @@ use std::{collections::HashMap, rc::Rc};
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-use super::content_loader::ContentLoader;
+use super::{content_loader::ContentLoader, content_retriever::ContentRetriever};
 use crate::types::{Content, ResourceId};
 
 #[derive(Clone)]
@@ -47,7 +47,7 @@ where
     }
 }
 
-impl<I> ContentLoader for ContentFullMdCache<I>
+impl<I> ContentRetriever for ContentFullMdCache<I>
 where
     I: ContentLoader,
 {
