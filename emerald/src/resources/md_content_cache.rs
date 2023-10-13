@@ -20,11 +20,11 @@ impl MdContentCache {
         let mut res_id_to_content = HashMap::<ResourceId, Content>::new();
 
         for md_res_id in md_res_ids_iter {
-            let read_note = content_loader.load(&md_res_id);
+            let read_note = content_loader.load(md_res_id);
 
             // ignore files that cannot be read
             if let Ok(content) = read_note {
-                trace!("Loaded {:?} into string", &md_res_id);
+                trace!("Loaded {:?} into string", md_res_id);
 
                 // insert actual index into hashmap
                 res_id_to_content.insert(md_res_id.clone(), content.clone());

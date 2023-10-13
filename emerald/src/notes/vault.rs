@@ -19,7 +19,7 @@ where
         md_resource_ids_iter: impl Iterator<Item = &'a ResourceId>,
         provider_factory: U,
     ) -> Self {
-        let md_resource_ids = md_resource_ids_iter.map(|f| f.clone()).collect();
+        let md_resource_ids = md_resource_ids_iter.cloned().collect();
         Self {
             md_resource_ids,
             provider_factory,

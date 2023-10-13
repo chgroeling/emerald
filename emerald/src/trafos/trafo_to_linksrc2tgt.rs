@@ -23,7 +23,7 @@ fn extract_links_from_content<'a, I, Iter>(
     md_analyzer: &'a I,
 ) -> impl Iterator<Item = LinkSrc2Tgt> + 'a
 where
-    I: Fn(&'a String) -> Iter,
+    I: Fn(&'a str) -> Iter,
     Iter: Iterator<Item = ContentType<'a>> + 'a,
 {
     trace!("Link extraction from {:?} starts", src);
@@ -40,7 +40,7 @@ fn extract_links_from_content_boxed<'a, I, Iter>(
     md_analyzer: &'a I,
 ) -> LinkSrc2TgtIterBoxed<'a>
 where
-    I: Fn(&'a String) -> Iter,
+    I: Fn(&'a str) -> Iter,
     Iter: Iterator<Item = ContentType<'a>> + 'a,
 {
     Box::new(extract_links_from_content(
@@ -57,20 +57,18 @@ pub fn trafo_from_content_to_linksrc2tgt<'a, I, Iter>(
     md_analyzer: &'a I,
 ) -> impl Iterator<Item = (ResourceId, Result<LinkSrc2TgtIterBoxed<'a>>)> + 'a
 where
-    I: Fn(&'a String) -> Iter,
+    I: Fn(&'a str) -> Iter,
     Iter: Iterator<Item = ContentType<'a>> + 'a,
 {
     // iterator yield (a, b)
     // a: the resource id of the source which was loaded
     // b: a vector containing the links which were found wrapped in a Result
-    let all_links_iter = iter.map(move |f| {
+    iter.map(move |f| {
         (
             f.0.clone(),
             f.1.map(move |content| {
                 extract_links_from_content_boxed(f.0, content, resource_id_retriever, md_analyzer)
             }),
         )
-    });
-
-    all_links_iter
+    })
 }

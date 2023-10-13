@@ -6,7 +6,7 @@ pub fn trafo_from_content_to_content_type<'a, I, Iter>(
     md_analyzer: &'a I,
 ) -> impl Iterator<Item = ContentType<'a>> + 'a
 where
-    I: Fn(&'a String) -> Iter,
+    I: Fn(&'a str) -> Iter,
     Iter: Iterator<Item = ContentType<'a>> + 'a,
 {
     md_analyzer(&content.0)

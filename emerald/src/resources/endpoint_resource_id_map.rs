@@ -20,12 +20,12 @@ impl EndpointResourceIdMap {
     ) -> Self {
         let mut resource_id_to_endpoint = HashMap::<ResourceId, EndPoint>::new();
         for ep in iter {
-            let opt_resource_id = resource_id_resolver.resolve(&ep);
+            let opt_resource_id = resource_id_resolver.resolve(ep);
 
             if let Ok(resource_id) = opt_resource_id {
                 resource_id_to_endpoint.insert(resource_id, ep.clone());
             } else {
-                warn!("Can't convert Endpoint '{:?}' to ResourceId.", &ep);
+                warn!("Can't convert Endpoint '{:?}' to ResourceId.", ep);
             }
         }
         Self {

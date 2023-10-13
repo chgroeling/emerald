@@ -25,7 +25,7 @@ impl Src2TargetIndex {
         for (src, res_vec) in iter {
             let mut note_valid_backlink_cnt: usize = 0;
             let mut note_invalid_backlink_cnt: usize = 0;
-            for s2t in res_vec.unwrap().into_iter() {
+            for s2t in res_vec.unwrap() {
                 match &s2t {
                     LinkSrc2Tgt {
                         src: _,
@@ -62,7 +62,7 @@ impl Src2TargetIndex {
     pub fn get_invalid_backlink_cnt(&self) -> usize {
         self.invalid_backlink_cnt
     }
-    pub fn iter<'a>(&'a self) -> impl Iterator<Item = &'a LinkSrc2Tgt> + 'a {
+    pub fn iter(&self) -> impl Iterator<Item = &'_ LinkSrc2Tgt> {
         self.src_2_tgt_list.iter()
     }
 }
