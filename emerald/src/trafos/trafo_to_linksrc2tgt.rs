@@ -16,14 +16,15 @@ use crate::{
 
 use crate::types::ContentType;
 
-fn extract_links_from_content<'a, I>(
+fn extract_links_from_content<'a, I, Iter>(
     src: ResourceId,
     content: &'a Content,
     resource_id_retriever: &'a impl ResourceIdRetriever,
     md_analyzer: &'a I,
 ) -> impl Iterator<Item = LinkSrc2Tgt> + 'a
 where
-    I: Fn(&String) -> Vec<ContentType>,
+    I: Fn(&'a String) -> Iter,
+    Iter: Iterator<Item = ContentType> + 'a,
 {
     trace!("Link extraction from {:?} starts", src);
     let content_type_iter = trafo_from_content_to_content_type(content, md_analyzer);
@@ -32,14 +33,15 @@ where
     trafo_from_link_2_tgt_to_link_src_2_tgt(src, link_2_tgt_iter)
 }
 
-fn extract_links_from_content_boxed<'a, I>(
+fn extract_links_from_content_boxed<'a, I, Iter>(
     src: ResourceId,
     content: &'a Content,
     resource_id_retriever: &'a impl ResourceIdRetriever,
     md_analyzer: &'a I,
 ) -> LinkSrc2TgtIterBoxed<'a>
 where
-    I: Fn(&String) -> Vec<ContentType>,
+    I: Fn(&'a String) -> Iter,
+    Iter: Iterator<Item = ContentType> + 'a,
 {
     Box::new(extract_links_from_content(
         src,
@@ -49,13 +51,14 @@ where
     ))
 }
 
-pub fn trafo_from_content_to_linksrc2tgt<'a, I>(
+pub fn trafo_from_content_to_linksrc2tgt<'a, I, Iter>(
     iter: impl Iterator<Item = (ResourceId, Result<&'a Content>)> + 'a,
     resource_id_retriever: &'a impl ResourceIdRetriever,
     md_analyzer: &'a I,
 ) -> impl Iterator<Item = (ResourceId, Result<LinkSrc2TgtIterBoxed<'a>>)> + 'a
 where
-    I: Fn(&String) -> Vec<ContentType>,
+    I: Fn(&'a String) -> Iter,
+    Iter: Iterator<Item = ContentType> + 'a,
 {
     // iterator yield (a, b)
     // a: the resource id of the source which was loaded
