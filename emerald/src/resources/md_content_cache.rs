@@ -14,12 +14,12 @@ pub struct MdContentCache {
 
 impl MdContentCache {
     pub fn new<'a>(
-        md_resource_ids_iter: impl Iterator<Item = &'a ResourceId>,
-        content_loader: &impl ContentLoader,
+        md_res_ids_iter: impl Iterator<Item = &'a ResourceId>,
+        content_loader: &'a impl ContentLoader,
     ) -> Self {
         let mut res_id_to_content = HashMap::<ResourceId, Content>::new();
 
-        for md_res_id in md_resource_ids_iter {
+        for md_res_id in md_res_ids_iter {
             let read_note = content_loader.load(&md_res_id);
 
             // ignore files that cannot be read
@@ -45,10 +45,7 @@ impl MdContentRetriever for MdContentCache {
 
         match cached {
             Some(entry) => Ok(entry),
-            _ => panic!(
-                "MdContentCache has not cached resource_id={:?}.",
-                resource_id
-            ),
+            _ => Err(crate::EmeraldError::NotAMarkdownFile),
         }
     }
 }
