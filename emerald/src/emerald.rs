@@ -5,11 +5,11 @@ use crate::maps::tgt_links_map::TgtLinksMap;
 use crate::md_analyzer::analyze_markdown;
 use crate::notes::providers::std_provider_factory::StdProviderFactory;
 use crate::notes::vault::Vault;
-use crate::resources::content_full_md_cache::MdContentCache;
 use crate::resources::endpoint_index::EndpointIndex;
 use crate::resources::endpoint_resource_id_map::EndpointResourceIdMap;
 use crate::resources::file_content_loader::FileContentLoader;
 use crate::resources::file_meta_data_loader::FileMetaDataLoader;
+use crate::resources::md_content_cache::MdContentCache;
 use crate::resources::resource_id_endpoint_map::ResourceIdEndPointMap;
 use crate::trafos::{
     filter_markdown_types, trafo_ep_to_rid, trafo_from_content_to_linksrc2tgt,

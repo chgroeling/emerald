@@ -45,7 +45,10 @@ impl MdContentRetriever for MdContentCache {
 
         match cached {
             Some(entry) => Ok(entry),
-            _ => panic!("ContentFullMdCache does not cached this."),
+            _ => panic!(
+                "MdContentCache has not cached resource_id={:?}.",
+                resource_id
+            ),
         }
     }
 }
