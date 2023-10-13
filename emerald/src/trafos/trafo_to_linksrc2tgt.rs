@@ -24,7 +24,7 @@ fn extract_links_from_content<'a, I, Iter>(
 ) -> impl Iterator<Item = LinkSrc2Tgt> + 'a
 where
     I: Fn(&'a String) -> Iter,
-    Iter: Iterator<Item = ContentType> + 'a,
+    Iter: Iterator<Item = ContentType<'a>> + 'a,
 {
     trace!("Link extraction from {:?} starts", src);
     let content_type_iter = trafo_from_content_to_content_type(content, md_analyzer);
@@ -41,7 +41,7 @@ fn extract_links_from_content_boxed<'a, I, Iter>(
 ) -> LinkSrc2TgtIterBoxed<'a>
 where
     I: Fn(&'a String) -> Iter,
-    Iter: Iterator<Item = ContentType> + 'a,
+    Iter: Iterator<Item = ContentType<'a>> + 'a,
 {
     Box::new(extract_links_from_content(
         src,
@@ -58,7 +58,7 @@ pub fn trafo_from_content_to_linksrc2tgt<'a, I, Iter>(
 ) -> impl Iterator<Item = (ResourceId, Result<LinkSrc2TgtIterBoxed<'a>>)> + 'a
 where
     I: Fn(&'a String) -> Iter,
-    Iter: Iterator<Item = ContentType> + 'a,
+    Iter: Iterator<Item = ContentType<'a>> + 'a,
 {
     // iterator yield (a, b)
     // a: the resource id of the source which was loaded

@@ -1,6 +1,6 @@
 #[derive(PartialEq, Debug)]
-pub enum ContentType {
-    WikiLink(String),
-    Link(String),
-    CodeBlock(String),
+pub enum ContentType<'a> {
+    WikiLink(&'a str),
+    Link(&'a str),
+    CodeBlock(&'a str),
 }

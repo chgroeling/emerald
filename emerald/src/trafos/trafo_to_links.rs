@@ -5,7 +5,7 @@ use crate::types::ContentType;
 use crate::types::Link;
 
 pub fn trafo_from_content_type_to_links<'a>(
-    iter: impl Iterator<Item = ContentType> + 'a,
+    iter: impl Iterator<Item = ContentType<'a>> + 'a,
 ) -> impl Iterator<Item = Link> + 'a {
     fn filter_func(pred: &ContentType) -> bool {
         matches!(pred, ContentType::WikiLink(_))
@@ -13,7 +13,7 @@ pub fn trafo_from_content_type_to_links<'a>(
 
     fn map_func(x: ContentType) -> Link {
         match x {
-            ContentType::WikiLink(link) => Link(link),
+            ContentType::WikiLink(link) => Link(link.to_owned()),
             _ => panic!(),
         }
     }
