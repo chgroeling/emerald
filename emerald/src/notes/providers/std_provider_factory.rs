@@ -1,4 +1,6 @@
-use crate::resources::{content_retriever::MdContentRetriever, meta_data_loader::MetaDataLoader};
+use crate::resources::{
+    md_content_retriever::MdContentRetriever, meta_data_loader::MetaDataLoader,
+};
 
 use super::{
     content_md_provider::ContentMdProvider, meta_data_title_provider::MetaDataTitleProvider,

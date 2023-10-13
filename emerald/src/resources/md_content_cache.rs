@@ -4,7 +4,7 @@ use std::{collections::HashMap, rc::Rc};
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-use super::{content_loader::ContentLoader, content_retriever::MdContentRetriever};
+use super::{content_loader::ContentLoader, md_content_retriever::MdContentRetriever};
 use crate::types::{Content, ResourceId};
 
 #[derive(Clone)]
