@@ -215,7 +215,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
     }
 }
 impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
-    type Item = ContentType;
+    type Item = ContentType<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
         use ContentType::*;
@@ -233,10 +233,10 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
             };
 
             match iter_state {
-                WikiLinkFound(s1, e1) => return Some(WikiLink(self.md_str[s1..e1].into())),
-                LinkFound(s1, e1) => return Some(Link(self.md_str[s1..e1].into())),
-                CodeBlockFound(s1, e1) => return Some(CodeBlock(self.md_str[s1..e1].into())),
-                InlCodeBlockFound(s1, e1) => return Some(CodeBlock(self.md_str[s1..e1].into())),
+                WikiLinkFound(s1, e1) => return Some(WikiLink(&self.md_str[s1..e1])),
+                LinkFound(s1, e1) => return Some(Link(&self.md_str[s1..e1])),
+                CodeBlockFound(s1, e1) => return Some(CodeBlock(&self.md_str[s1..e1])),
+                InlCodeBlockFound(s1, e1) => return Some(CodeBlock(&self.md_str[s1..e1])),
                 // this also matches IllegalFormat
                 _ => next_element = self.iter.next(),
             };

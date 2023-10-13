@@ -5,11 +5,11 @@ use crate::maps::tgt_links_map::TgtLinksMap;
 use crate::md_analyzer::analyze_markdown;
 use crate::notes::providers::std_provider_factory::StdProviderFactory;
 use crate::notes::vault::Vault;
-use crate::resources::content_full_md_cache::ContentFullMdCache;
 use crate::resources::endpoint_index::EndpointIndex;
 use crate::resources::endpoint_resource_id_map::EndpointResourceIdMap;
 use crate::resources::file_content_loader::FileContentLoader;
 use crate::resources::file_meta_data_loader::FileMetaDataLoader;
+use crate::resources::md_content_cache::MdContentCache;
 use crate::resources::resource_id_endpoint_map::ResourceIdEndPointMap;
 use crate::trafos::{
     filter_markdown_types, trafo_ep_to_rid, trafo_from_content_to_linksrc2tgt,
@@ -22,8 +22,7 @@ use log::{debug, error, info, trace, warn};
 use std::{path::Path, time::Instant};
 
 type FileMetaDataLoaderImpl = FileMetaDataLoader<EndpointResourceIdMap>;
-type ContentFullMdCacheImpl = ContentFullMdCache<FileContentLoader<EndpointResourceIdMap>>;
-type StdProviderFactoryImpl = StdProviderFactory<FileMetaDataLoaderImpl, ContentFullMdCacheImpl>;
+type StdProviderFactoryImpl = StdProviderFactory<FileMetaDataLoaderImpl, MdContentCache>;
 
 #[allow(dead_code)]
 pub struct Emerald {
@@ -33,7 +32,7 @@ pub struct Emerald {
     pub meta_data_loader: FileMetaDataLoaderImpl,
     pub resource_id_retriever: ResourceIdLinkMap,
     pub src2_tgt_index: Src2TargetIndex,
-    pub content_cache: ContentFullMdCacheImpl,
+    pub content_cache: MdContentCache,
     pub tgt_iter_retriever: TgtLinksMap,
     pub src_iter_retriever: SrcLinksMap,
     pub provider_factory: StdProviderFactoryImpl,
@@ -93,12 +92,12 @@ impl Emerald {
         debug!("Creation of ResourceIdLinkMap took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let content_cache = ContentFullMdCache::new(md_resource_ids.iter(), content_loader.clone());
+        let md_content_cache = MdContentCache::new(md_resource_ids.iter(), &content_loader);
         debug!("Creation of ContentFullMdCache took: {:?}", start.elapsed());
 
         let start = Instant::now();
         let content_from_vault_iter =
-            trafo_resource_ids_to_content(md_resource_ids.iter(), &content_cache);
+            trafo_resource_ids_to_content(md_resource_ids.iter(), &md_content_cache);
 
         let all_links_iter = trafo_from_content_to_linksrc2tgt(
             content_from_vault_iter,
@@ -119,7 +118,7 @@ impl Emerald {
 
         let start = Instant::now();
         let provider_factory =
-            StdProviderFactory::new(meta_data_loader.clone(), content_cache.clone());
+            StdProviderFactory::new(meta_data_loader.clone(), md_content_cache.clone());
         debug!("Creation of StdProviderFactory took: {:?}", start.elapsed());
 
         let start = Instant::now();
@@ -132,7 +131,7 @@ impl Emerald {
             meta_data_loader,
             resource_id_retriever,
             ep_index,
-            content_cache,
+            content_cache: md_content_cache,
             src2_tgt_index: src_2_tgt_index,
             tgt_iter_retriever,
             src_iter_retriever,

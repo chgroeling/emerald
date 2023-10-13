@@ -1,5 +1,5 @@
 use crate::{
-    resources::{content_loader::ContentLoader, meta_data_loader::MetaDataLoader},
+    resources::{md_content_retriever::MdContentRetriever, meta_data_loader::MetaDataLoader},
     types::{FileType, ResourceId},
 };
 
@@ -7,7 +7,7 @@ use super::md_provider::MdProvider;
 
 pub struct ContentMdProvider<T, U>
 where
-    T: ContentLoader,
+    T: MdContentRetriever,
     U: MetaDataLoader,
 {
     content_loader: T,
@@ -16,7 +16,7 @@ where
 
 impl<I, U> ContentMdProvider<I, U>
 where
-    I: ContentLoader,
+    I: MdContentRetriever,
     U: MetaDataLoader,
 {
     pub fn new(content_loader: I, meta_data_loader: U) -> Self {
@@ -28,7 +28,7 @@ where
 }
 impl<I, U> MdProvider for ContentMdProvider<I, U>
 where
-    I: ContentLoader,
+    I: MdContentRetriever,
     U: MetaDataLoader,
 {
     fn get_markdown(&self, resource_id: &ResourceId) -> String {
@@ -39,7 +39,7 @@ where
             panic!("Not a markdown file {:?}", meta_data)
         };
 
-        let res = self.content_loader.load(resource_id).unwrap();
-        (*res.0).clone()
+        let res = self.content_loader.retrieve(resource_id).unwrap();
+        res.into()
     }
 }

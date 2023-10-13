@@ -64,7 +64,7 @@ impl EndpointIndex {
         Ok(file_list)
     }
 
-    pub fn iter<'a>(&'a self) -> impl Iterator<Item = &'a EndPoint> + 'a {
+    pub fn iter(&self) -> impl Iterator<Item = &'_ EndPoint> {
         self.endpoint_list.iter()
     }
 }

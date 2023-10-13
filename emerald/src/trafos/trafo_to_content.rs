@@ -1,14 +1,12 @@
+use crate::resources::md_content_retriever::MdContentRetriever;
+use crate::types::{Content, ResourceId};
 use crate::Result;
-use crate::{
-    resources::content_loader::ContentLoader,
-    types::{Content, ResourceId},
-};
 
 pub fn trafo_resource_ids_to_content<'a>(
-    iter: impl Iterator<Item = &'a ResourceId> + 'a,
-    content_loader: &'a impl ContentLoader,
-) -> impl Iterator<Item = (ResourceId, Result<Content>)> + 'a {
+    md_res_id_iter: impl Iterator<Item = &'a ResourceId>,
+    content_retriever: &'a impl MdContentRetriever,
+) -> impl Iterator<Item = (ResourceId, Result<&'a Content>)> {
     // load content.
     // iterator yields (ResourceId, Result<Content>)
-    iter.map(move |f| (f.clone(), content_loader.load(&f)))
+    md_res_id_iter.map(move |f| (f.clone(), content_retriever.retrieve(f)))
 }
