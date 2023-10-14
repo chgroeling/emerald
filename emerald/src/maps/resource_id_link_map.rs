@@ -37,7 +37,7 @@ impl ResourceIdLinkMap {
         });
 
         for (normalized_link, resource_id) in link_name_iter {
-            trace!("Insert {:?} -> {}", normalized_link, &resource_id.0);
+            trace!("Insert {:?} -> {:?}", &normalized_link, &resource_id);
 
             // this is an interesting way to mutate an element in a HashMap
             match name_to_resource_id_list.entry(normalized_link) {
