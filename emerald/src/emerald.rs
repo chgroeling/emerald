@@ -30,8 +30,8 @@ pub struct Emerald {
     pub endpoint_resolver: EndpointResourceIdMap,
     pub meta_data_loader: FileMetaDataLoaderImpl,
     pub resource_id_retriever: ResourceIdLinkMap,
-    pub src2_tgt_index: Src2TargetIndex,
-    pub content_cache: MdContentCache,
+    pub src_2_tgt_index: Src2TargetIndex,
+    pub md_content_cache: MdContentCache,
     pub tgt_iter_retriever: TgtLinksMap,
     pub src_iter_retriever: SrcLinksMap,
     pub provider_factory: StdProviderFactoryImpl,
@@ -132,8 +132,8 @@ impl Emerald {
             meta_data_loader,
             resource_id_retriever,
             ep_index,
-            content_cache: md_content_cache,
-            src2_tgt_index: src_2_tgt_index,
+            md_content_cache,
+            src_2_tgt_index,
             tgt_iter_retriever,
             src_iter_retriever,
             provider_factory,
@@ -159,10 +159,10 @@ impl Emerald {
     }
 
     pub fn valid_backlink_count(&self) -> usize {
-        self.src2_tgt_index.get_valid_backlink_cnt()
+        self.src_2_tgt_index.get_valid_backlink_cnt()
     }
 
     pub fn invalid_backlink_count(&self) -> usize {
-        self.src2_tgt_index.get_invalid_backlink_cnt()
+        self.src_2_tgt_index.get_invalid_backlink_cnt()
     }
 }
