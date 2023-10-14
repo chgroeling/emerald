@@ -1,5 +1,5 @@
 use crate::{
-    resources::meta_data_loader::MetaDataLoader,
+    resources::MetaDataLoader,
     types::{FileType, ResourceId},
 };
 

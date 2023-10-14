@@ -1,6 +1,6 @@
 use super::title_provider::TitleProvider;
 
-use crate::resources::meta_data_loader::MetaDataLoader;
+use crate::resources::MetaDataLoader;
 use crate::types::ResourceId;
 
 pub struct MetaDataTitleProvider<I>
