@@ -5,7 +5,7 @@ use crate::maps::tgt_links_map::TgtLinksMap;
 use crate::md_analyzer::analyze_markdown;
 use crate::notes::providers::std_provider_factory::StdProviderFactory;
 use crate::notes::vault::Vault;
-use crate::resources::endpoint_index::{get_file_list_recursive, trafo_pathes_to_endpoints};
+use crate::resources;
 use crate::resources::endpoint_resource_id_map::EndpointResourceIdMap;
 use crate::resources::file_content_loader::FileContentLoader;
 use crate::resources::file_meta_data_loader::FileMetaDataLoader;
@@ -43,8 +43,8 @@ impl Emerald {
     pub fn new(vault_path: &Path) -> Result<Emerald> {
         // Build dependency root
         let start = Instant::now();
-        let file_list = get_file_list_recursive(vault_path)?;
-        let ep_index: Vec<_> = trafo_pathes_to_endpoints(file_list).collect();
+        let file_list = resources::get_file_list_recursive(vault_path)?;
+        let ep_index: Vec<_> = resources::trafo_pathes_to_endpoints(file_list).collect();
         debug!("Creation of EndpointIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
