@@ -44,6 +44,7 @@ impl Emerald {
         let start = Instant::now();
         let file_list = resources::get_file_list(vault_path)?;
         let ep_index: Vec<_> = resources::trafo_pathes_to_endpoints(file_list).collect();
+
         debug!("Creation of EndpointIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
