@@ -3,7 +3,6 @@ use crate::types::ResourceId;
 use crate::utils::normalize_string::normalize_str;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
-use std::iter::zip;
 use std::rc::Rc;
 
 use crate::EmeraldError;
@@ -25,8 +24,8 @@ pub struct ResourceIdLinkMap {
 }
 
 fn trafo_resource_id_to_name<'a>(
-    resource_ids_iter: impl Iterator<Item = &'a ResourceId> + 'a,
-) -> impl Iterator<Item = (&'a ResourceId, String)> + 'a {
+    resource_ids_iter: impl Iterator<Item = &'a ResourceId>,
+) -> impl Iterator<Item = (&'a ResourceId, String)> {
     // Assumption: All resource ids are encoded in utf8 nfc
 
     // Iterator yields (normalized_link, link_to_file)
@@ -38,7 +37,7 @@ fn trafo_resource_id_to_name<'a>(
 }
 
 impl ResourceIdLinkMap {
-    pub fn new<'a>(resource_ids_iter: impl Iterator<Item = &'a ResourceId> + 'a) -> Self {
+    pub fn new<'a>(resource_ids_iter: impl Iterator<Item = &'a ResourceId>) -> Self {
         // Assumption: All resource ids are encoded in utf8 nfc
         let mut name_to_resource_id_list: NameToResourceIdList = NameToResourceIdList::new();
 
