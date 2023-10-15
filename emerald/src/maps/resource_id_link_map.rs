@@ -23,27 +23,12 @@ pub struct ResourceIdLinkMap {
     name_to_resource_id_list: Rc<NameToResourceIdList>,
 }
 
-fn trafo_resource_id_to_name<'a>(
-    resource_ids_iter: impl Iterator<Item = &'a ResourceId>,
-) -> impl Iterator<Item = (&'a ResourceId, String)> {
-    // Assumption: All resource ids are encoded in utf8 nfc
-
-    // Iterator yields (normalized_link, link_to_file)
-    resource_ids_iter.map(|resource_id| {
-        let res_id_comp = resource_id.split().unwrap();
-        let name = res_id_comp.name.to_lowercase();
-        (resource_id, name)
-    })
-}
-
 impl ResourceIdLinkMap {
-    pub fn new<'a>(resource_ids_iter: impl Iterator<Item = &'a ResourceId>) -> Self {
+    pub fn new<'a>(iter: impl Iterator<Item = (&'a ResourceId, String)>) -> Self {
         // Assumption: All resource ids are encoded in utf8 nfc
         let mut name_to_resource_id_list: NameToResourceIdList = NameToResourceIdList::new();
 
-        let name_iter = trafo_resource_id_to_name(resource_ids_iter);
-
-        for (resource_id, normalized_link) in name_iter {
+        for (resource_id, normalized_link) in iter {
             trace!("Insert {:?} -> {:?}", &normalized_link, &resource_id);
 
             // this is an interesting way to mutate an element in a HashMap
@@ -125,14 +110,20 @@ impl ResourceIdRetriever for ResourceIdLinkMap {
 
 #[cfg(test)]
 mod link_mapper_tests {
+    use std::iter::zip;
+
+    use crate::types::ResourceId;
+
     use super::EmeraldError::*;
     use super::ResourceIdLinkMap;
     use super::ResourceIdRetriever;
 
     #[test]
     fn check_malformed_link_causes_error() {
-        let file_index = vec!["[[note1.md]]".into()];
-        let dut = ResourceIdLinkMap::new(file_index.iter());
+        let file_index: Vec<ResourceId> = vec!["[[note1.md]]".into()];
+        let name_index = vec!["note1.md".to_string()];
+        let iter = zip(file_index.iter(), name_index);
+        let dut = ResourceIdLinkMap::new(iter);
 
         let result = dut.retrieve(&"[note1]]".into());
 
@@ -141,8 +132,10 @@ mod link_mapper_tests {
 
     #[test]
     fn check_link_match_without_extension() {
-        let file_index = vec!["[[note1.md]]".into()];
-        let dut = ResourceIdLinkMap::new(file_index.iter());
+        let file_index: Vec<ResourceId> = vec!["[[note1.md]]".into()];
+        let name_index = vec!["note1.md".to_string()];
+        let iter = zip(file_index.iter(), name_index);
+        let dut = ResourceIdLinkMap::new(iter);
 
         let result = dut.retrieve(&"[[note1]]".into());
 
@@ -151,8 +144,10 @@ mod link_mapper_tests {
 
     #[test]
     fn check_link_match_without_extension_with_spaces() {
-        let file_index = vec!["[[note1.md]]".into()];
-        let dut = ResourceIdLinkMap::new(file_index.iter());
+        let file_index: Vec<ResourceId> = vec!["[[note1.md]]".into()];
+        let name_index = vec!["note1.md".to_string()];
+        let iter = zip(file_index.iter(), name_index);
+        let dut = ResourceIdLinkMap::new(iter);
 
         let result = dut.retrieve(&"[[note1  ]]".into());
 
@@ -161,8 +156,10 @@ mod link_mapper_tests {
 
     #[test]
     fn check_link_match_without_extension_and_double_dot() {
-        let file_index = vec!["[[note1..md]]".into()];
-        let dut = ResourceIdLinkMap::new(file_index.iter());
+        let file_index: Vec<ResourceId> = vec!["[[note1..md]]".into()];
+        let name_index = vec!["note1..md".to_string()];
+        let iter = zip(file_index.iter(), name_index);
+        let dut = ResourceIdLinkMap::new(iter);
 
         let result = dut.retrieve(&"[[note1.]]".into());
 
@@ -171,8 +168,10 @@ mod link_mapper_tests {
 
     #[test]
     fn check_link_miss_without_extension_and_double_dot() {
-        let file_index = vec!["[[note1..md]]".into()];
-        let dut = ResourceIdLinkMap::new(file_index.iter());
+        let file_index: Vec<ResourceId> = vec!["[[note1..md]]".into()];
+        let name_index = vec!["note1..md".to_string()];
+        let iter = zip(file_index.iter(), name_index);
+        let dut = ResourceIdLinkMap::new(iter);
 
         let result = dut.retrieve(&"[[note1]]".into());
 
@@ -181,8 +180,10 @@ mod link_mapper_tests {
     }
     #[test]
     fn check_link_match_with_extension() {
-        let file_index = vec!["[[note1.md]]".into()];
-        let dut = ResourceIdLinkMap::new(file_index.iter());
+        let file_index: Vec<ResourceId> = vec!["[[note1.md]]".into()];
+        let name_index = vec!["note1.md".to_string()];
+        let iter = zip(file_index.iter(), name_index);
+        let dut = ResourceIdLinkMap::new(iter);
 
         let result = dut.retrieve(&"[[note1.md]]".into());
 
@@ -191,8 +192,10 @@ mod link_mapper_tests {
 
     #[test]
     fn check_link_miss_without_extension() {
-        let file_index = vec!["[[note1.md]]".into()];
-        let dut = ResourceIdLinkMap::new(file_index.iter());
+        let file_index: Vec<ResourceId> = vec!["[[note1.md]]".into()];
+        let name_index = vec!["note1.md".to_string()];
+        let iter = zip(file_index.iter(), name_index);
+        let dut = ResourceIdLinkMap::new(iter);
 
         let result = dut.retrieve(&"[[missing]]".into());
 
@@ -203,8 +206,10 @@ mod link_mapper_tests {
 
     #[test]
     fn check_link_miss_with_extension() {
-        let file_index = vec!["[[note1.md]]".into()];
-        let dut = ResourceIdLinkMap::new(file_index.iter());
+        let file_index: Vec<ResourceId> = vec!["[[note1.md]]".into()];
+        let name_index = vec!["note1.md".to_string()];
+        let iter = zip(file_index.iter(), name_index);
+        let dut = ResourceIdLinkMap::new(iter);
 
         let result = dut.retrieve(&"[[missing.md]]".into());
 
@@ -215,8 +220,11 @@ mod link_mapper_tests {
 
     #[test]
     fn check_link_match_two_files_at_different_pathes() {
-        let file_index = vec!["[[path1/note1.md]]".into(), "[[path2/note1.md]]".into()];
-        let dut = ResourceIdLinkMap::new(file_index.iter());
+        let file_index: Vec<ResourceId> =
+            vec!["[[path1/note1.md]]".into(), "[[path2/note1.md]]".into()];
+        let name_index = vec!["note1.md".to_string(), "note1.md".to_string()];
+        let iter = zip(file_index.iter(), name_index);
+        let dut = ResourceIdLinkMap::new(iter);
 
         let result = dut.retrieve(&"[[note1]]".into());
 
@@ -225,8 +233,11 @@ mod link_mapper_tests {
 
     #[test]
     fn check_link_match_two_files_same_name_different_ext() {
-        let file_index = vec!["[[path1/note1]]".into(), "[[path2/note1.md]]".into()];
-        let dut = ResourceIdLinkMap::new(file_index.iter());
+        let file_index: Vec<ResourceId> =
+            vec!["[[path1/note1]]".into(), "[[path2/note1.md]]".into()];
+        let name_index = vec!["note1".to_string(), "note1.md".to_string()];
+        let iter = zip(file_index.iter(), name_index);
+        let dut = ResourceIdLinkMap::new(iter);
 
         let result = dut.retrieve(&"[[note1]]".into());
 
@@ -236,8 +247,11 @@ mod link_mapper_tests {
 
     #[test]
     fn check_absolute_link_match_two_files_at_different_pathes() {
-        let file_index = vec!["[[path1/note1.md]]".into(), "[[path2/note1.md]]".into()];
-        let dut = ResourceIdLinkMap::new(file_index.iter());
+        let file_index: Vec<ResourceId> =
+            vec!["[[path1/note1.md]]".into(), "[[path2/note1.md]]".into()];
+        let name_index = vec!["note1.md".to_string(), "note1.md".to_string()];
+        let iter = zip(file_index.iter(), name_index);
+        let dut = ResourceIdLinkMap::new(iter);
 
         let result = dut.retrieve(&"[[path2/note1]]".into());
 
@@ -247,8 +261,11 @@ mod link_mapper_tests {
 
     #[test]
     fn check_absolute_link_match_two_files_at_different_pathes_with_extension() {
-        let file_index = vec!["[[path1/note1.md]]".into(), "[[path2/note1.md]]".into()];
-        let dut = ResourceIdLinkMap::new(file_index.iter());
+        let file_index: Vec<ResourceId> =
+            vec!["[[path1/note1.md]]".into(), "[[path2/note1.md]]".into()];
+        let name_index = vec!["note1.md".to_string(), "note1.md".to_string()];
+        let iter = zip(file_index.iter(), name_index);
+        let dut = ResourceIdLinkMap::new(iter);
 
         let result = dut.retrieve(&"[[path2/note1.md]]".into());
 
@@ -258,9 +275,11 @@ mod link_mapper_tests {
 
     #[test]
     fn check_resolve_endpoint_link_path_has_different_utf8_representation() {
-        let file_index = vec!["[[päth1/note1.md]]".into(), "[[päth2/note1.md]]".into()];
-
-        let dut = ResourceIdLinkMap::new(file_index.iter());
+        let file_index: Vec<ResourceId> =
+            vec!["[[päth1/note1.md]]".into(), "[[päth2/note1.md]]".into()];
+        let name_index = vec!["note1.md".to_string(), "note1.md".to_string()];
+        let iter = zip(file_index.iter(), name_index);
+        let dut = ResourceIdLinkMap::new(iter);
 
         // Attention: The "ä" from above is coded differently than the following ä
         let result = dut.retrieve(&"[[päth2/note1.md]]".into());
@@ -271,9 +290,11 @@ mod link_mapper_tests {
 
     #[test]
     fn check_resolve_endpoint_link_name_has_different_utf8_representation() {
-        let file_index = vec!["[[path1/nöte1.md]]".into(), "[[path2/nöte1.md]]".into()];
-
-        let dut = ResourceIdLinkMap::new(file_index.iter());
+        let file_index: Vec<ResourceId> =
+            vec!["[[path1/nöte1.md]]".into(), "[[path2/nöte1.md]]".into()];
+        let name_index = vec!["nöte1.md".to_string(), "nöte1.md".to_string()];
+        let iter = zip(file_index.iter(), name_index);
+        let dut = ResourceIdLinkMap::new(iter);
 
         // Attention: The "ö" from above is coded differently than the following ö
         let result = dut.retrieve(&"[[path2/nöte1.md]]".into());

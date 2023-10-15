@@ -12,7 +12,7 @@ use crate::resources::md_content_cache::MdContentCache;
 use crate::resources::resource_id_endpoint_map::ResourceIdEndPointMap;
 use crate::trafos::{
     filter_markdown_types, trafo_ep_to_rid, trafo_from_content_to_linksrc2tgt,
-    trafo_resource_ids_to_content, trafo_to_filetype_and_resource_id,
+    trafo_resource_id_to_name, trafo_resource_ids_to_content, trafo_to_filetype_and_resource_id,
 };
 use crate::types::{EndPoint, ResourceId};
 use crate::Result;
@@ -89,7 +89,8 @@ impl Emerald {
         );
 
         let start = Instant::now();
-        let resource_id_retriever = ResourceIdLinkMap::new(all_resource_ids.iter());
+        let name_iter = trafo_resource_id_to_name(all_resource_ids.iter());
+        let resource_id_retriever = ResourceIdLinkMap::new(name_iter);
         debug!("Creation of ResourceIdLinkMap took: {:?}", start.elapsed());
 
         let start = Instant::now();
