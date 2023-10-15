@@ -70,14 +70,12 @@ impl Emerald {
         let all_res_ids: Vec<ResourceId> = res_id_iter.collect();
 
         // Transform iter: from (ResourceId) to (FileType, ResourceId)
-        let ft_and_rid_iter = trafos::trafo_to_filetype_and_resource_id(
-            all_res_ids.clone().into_iter(),
-            &meta_data_loader,
-        );
+        let ft_and_rid_iter =
+            trafos::trafo_to_filetype_and_resource_id(all_res_ids.iter(), &meta_data_loader);
 
         // Filter markdown files
         let md_res_ids_iter = trafos::filter_markdown_types(ft_and_rid_iter);
-        let md_res_ids: Vec<ResourceId> = md_res_ids_iter.collect();
+        let md_res_ids: Vec<ResourceId> = md_res_ids_iter.cloned().collect();
 
         debug!(
             "Creation of Resource Id indexes took: {:?}",

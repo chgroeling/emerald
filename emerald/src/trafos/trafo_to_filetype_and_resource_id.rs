@@ -4,15 +4,15 @@ use crate::{
 };
 
 pub fn trafo_to_filetype_and_resource_id<'a>(
-    res_id_iter: impl Iterator<Item = ResourceId> + 'a,
+    res_id_iter: impl Iterator<Item = &'a ResourceId> + 'a,
     meta_data_loader: &'a impl MetaDataLoader,
-) -> impl Iterator<Item = (FileType, ResourceId)> + 'a {
+) -> impl Iterator<Item = (FileType, &'a ResourceId)> + 'a {
     res_id_iter.map(|f| {
         let res_meta_data = meta_data_loader.load(&f);
         if let Ok(meta_data) = res_meta_data {
-            (meta_data.file_type, f.clone())
+            (meta_data.file_type, f)
         } else {
-            (FileType::NoFileType(), f.clone())
+            (FileType::NoFileType(), f)
         }
     })
 }
@@ -46,13 +46,15 @@ mod tests {
         });
 
         // Act
-        let result = trafo_to_filetype_and_resource_id(all_res_ids.into_iter(), &mock_md_loader);
-        let result: Vec<(FileType, ResourceId)> = result.collect();
+        let result = trafo_to_filetype_and_resource_id(all_res_ids.iter(), &mock_md_loader);
+        let result: Vec<(FileType, &ResourceId)> = result.collect();
 
         // Assert
-        let expected: Vec<(FileType, ResourceId)> = vec![
-            (FileType::Unknown("unk".into()), "[[rid1]]".into()),
-            (FileType::Markdown("md".into()), "[[rid2]]".into()),
+        let rid1: ResourceId = "[[rid1]]".into();
+        let rid2: ResourceId = "[[rid2]]".into();
+        let expected: Vec<(FileType, &ResourceId)> = vec![
+            (FileType::Unknown("unk".into()), &rid1),
+            (FileType::Markdown("md".into()), &rid2),
         ];
         assert_eq!(result, expected);
     }

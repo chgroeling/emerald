@@ -7,8 +7,8 @@ use crate::{
 use log::{debug, error, info, trace, warn};
 
 pub fn filter_markdown_types<'a>(
-    iter: impl Iterator<Item = (FileType, ResourceId)> + 'a,
-) -> impl Iterator<Item = ResourceId> + 'a {
+    iter: impl Iterator<Item = (FileType, &'a ResourceId)> + 'a,
+) -> impl Iterator<Item = &'a ResourceId> + 'a {
     iter.filter(|pred| matches!(pred.0, FileType::Markdown(_)))
         .map(|f| f.1)
 }
@@ -38,23 +38,20 @@ mod tests {
 
     #[test]
     fn test_filter_markdown_types_two_but_one_remains() {
+        let rid1: ResourceId = "[[rid1]]".into();
+        let rid2: ResourceId = "[[rid2]]".into();
+
         let all_res_ids = vec![
-            (
-                FileType::Unknown("md".into()),
-                ResourceId("[[rid1]]".into()),
-            ),
-            (
-                FileType::Markdown("md".into()),
-                ResourceId("[[rid2]]".into()),
-            ),
+            (FileType::Unknown("md".into()), &rid1),
+            (FileType::Markdown("md".into()), &rid2),
         ];
 
         // Act
-        let result = filter_markdown_types(all_res_ids.into_iter());
-        let result: Vec<ResourceId> = result.collect();
+        let result: Vec<_> = filter_markdown_types(all_res_ids.into_iter()).collect();
 
         // Assert
-        let expected: Vec<ResourceId> = vec!["[[rid2]]".into()];
+        let rid2_exp: ResourceId = "[[rid2]]".into();
+        let expected: Vec<&ResourceId> = vec![&rid2_exp];
         assert_eq!(result, expected);
     }
 }
