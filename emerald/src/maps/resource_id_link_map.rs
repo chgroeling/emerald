@@ -1,14 +1,9 @@
 use crate::types::Link;
 use crate::types::ResourceId;
 use crate::utils::normalize_string::normalize_str;
+use crate::{EmeraldError::*, Result};
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
-use std::rc::Rc;
-
-use crate::EmeraldError;
-use crate::Result;
-
-use EmeraldError::*;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
@@ -20,38 +15,30 @@ pub type NameToResourceIdList = HashMap<String, Vec<ResourceId>>;
 
 #[derive(Clone)]
 pub struct ResourceIdLinkMap {
-    name_to_resource_id_list: Rc<NameToResourceIdList>,
+    name_to_resource_id_list: NameToResourceIdList,
 }
 
 impl ResourceIdLinkMap {
-    pub fn new<'a>(resource_ids_iter: impl Iterator<Item = &'a ResourceId>) -> Self {
+    pub fn new<'a>(iter: impl Iterator<Item = (&'a ResourceId, String)>) -> Self {
         // Assumption: All resource ids are encoded in utf8 nfc
         let mut name_to_resource_id_list: NameToResourceIdList = NameToResourceIdList::new();
 
-        // Iterator yields (normalized_link, link_to_file)
-        let link_name_iter = resource_ids_iter.map(|resource_id| {
-            let res_id_comp = resource_id.split().unwrap();
-            let normalized_link = res_id_comp.name.to_lowercase();
-
-            (normalized_link, resource_id.clone())
-        });
-
-        for (normalized_link, resource_id) in link_name_iter {
+        for (resource_id, normalized_link) in iter {
             trace!("Insert {:?} -> {:?}", &normalized_link, &resource_id);
 
             // this is an interesting way to mutate an element in a HashMap
             match name_to_resource_id_list.entry(normalized_link) {
                 Entry::Occupied(mut e) => {
-                    e.get_mut().push(resource_id);
+                    e.get_mut().push(resource_id.clone());
                 }
                 Entry::Vacant(e) => {
-                    e.insert(vec![resource_id]);
+                    e.insert(vec![resource_id.clone()]);
                 }
             }
         }
 
         ResourceIdLinkMap {
-            name_to_resource_id_list: Rc::new(name_to_resource_id_list),
+            name_to_resource_id_list,
         }
     }
 }
@@ -66,7 +53,7 @@ impl ResourceIdRetriever for ResourceIdLinkMap {
         let matches_of_exact_name = self.name_to_resource_id_list.get(&link_name_lc);
 
         // no .. then perhaps there are files without adding ".md" that will match
-        let matches: Option<_> = if matches_of_exact_name.is_none() {
+        let matches = if matches_of_exact_name.is_none() {
             // add a .md extension to the link to check if a note with this name exists
             let link_name_lc_md = link_name_lc.clone() + ".md";
 
@@ -118,160 +105,132 @@ impl ResourceIdRetriever for ResourceIdLinkMap {
 
 #[cfg(test)]
 mod link_mapper_tests {
-    use super::EmeraldError::*;
-    use super::ResourceIdLinkMap;
-    use super::ResourceIdRetriever;
+    use super::*;
+    use crate::types::ResourceId;
+    use std::iter::zip;
 
-    #[test]
-    fn check_malformed_link_causes_error() {
-        let file_index = vec!["[[note1.md]]".into()];
-        let dut = ResourceIdLinkMap::new(file_index.iter());
-
-        let result = dut.retrieve(&"[note1]]".into());
-
-        assert!(result.is_err_and(|f| matches!(f, NotAWikiLink)));
+    fn create_dut(res_ids: Vec<ResourceId>, names: Vec<String>) -> ResourceIdLinkMap {
+        let iter = zip(res_ids.iter(), names);
+        ResourceIdLinkMap::new(iter)
     }
 
     #[test]
-    fn check_link_match_without_extension() {
-        let file_index = vec!["[[note1.md]]".into()];
-        let dut = ResourceIdLinkMap::new(file_index.iter());
+    fn test_malformed_link_causes_error() {
+        let dut = create_dut(vec!["[[note1.md]]".into()], vec!["note1.md".to_string()]);
+        let result = dut.retrieve(&"[note1]]".into()).unwrap_err();
+        assert!(matches!(result, NotAWikiLink));
+    }
 
+    #[test]
+    fn test_link_match_without_extension() {
+        let dut = create_dut(vec!["[[note1.md]]".into()], vec!["note1.md".to_string()]);
+        let result = dut.retrieve(&"[[note1]]".into()).unwrap();
+        assert_eq!(result, "[[note1.md]]".into());
+    }
+
+    #[test]
+    fn test_link_match_without_extension_with_spaces() {
+        let dut = create_dut(vec!["[[note1.md]]".into()], vec!["note1.md".to_string()]);
+        let result = dut.retrieve(&"[[note1  ]]".into()).unwrap();
+        assert_eq!(result, "[[note1.md]]".into());
+    }
+
+    #[test]
+    fn test_link_match_without_extension_and_double_dot() {
+        let dut = create_dut(vec!["[[note1..md]]".into()], vec!["note1..md".to_string()]);
+        let result = dut.retrieve(&"[[note1.]]".into()).unwrap();
+        assert_eq!(result, "[[note1..md]]".into());
+    }
+
+    #[test]
+    fn test_link_miss_without_extension_and_double_dot() {
+        let dut = create_dut(vec!["[[note1..md]]".into()], vec!["note1..md".to_string()]);
+        let result = dut.retrieve(&"[[note1]]".into()).unwrap_err();
+        assert!(matches!(result, LinkNotFound(failed_link) if failed_link == "[[note1]]"));
+    }
+
+    #[test]
+    fn test_link_match_with_extension() {
+        let dut = create_dut(vec!["[[note1.md]]".into()], vec!["note1.md".to_string()]);
+        let result = dut.retrieve(&"[[note1.md]]".into()).unwrap();
+        assert_eq!(result, "[[note1.md]]".into());
+    }
+
+    #[test]
+    fn test_link_miss_without_extension() {
+        let dut = create_dut(vec!["[[note1.md]]".into()], vec!["note1.md".to_string()]);
+        let result = dut.retrieve(&"[[missing]]".into()).unwrap_err();
+        assert!(matches!(result, LinkNotFound(failed_link) if failed_link == "[[missing]]"));
+    }
+
+    #[test]
+    fn test_link_miss_with_extension() {
+        let dut = create_dut(vec!["[[note1.md]]".into()], vec!["note1.md".to_string()]);
+        let result = dut.retrieve(&"[[missing.md]]".into()).unwrap_err();
+        assert!(matches!(result, LinkNotFound(failed_link) if failed_link == "[[missing.md]]"));
+    }
+
+    #[test]
+    fn test_link_match_two_files_at_different_pathes() {
+        let dut = create_dut(
+            vec!["[[path1/note1.md]]".into(), "[[path2/note1.md]]".into()],
+            vec!["note1.md".to_string(), "note1.md".to_string()],
+        );
         let result = dut.retrieve(&"[[note1]]".into());
-
-        assert!(result.is_ok_and(|f| f == "[[note1.md]]".into()));
+        assert_eq!(result.unwrap(), "[[path1/note1.md]]".into());
     }
 
     #[test]
-    fn check_link_match_without_extension_with_spaces() {
-        let file_index = vec!["[[note1.md]]".into()];
-        let dut = ResourceIdLinkMap::new(file_index.iter());
-
-        let result = dut.retrieve(&"[[note1  ]]".into());
-
-        assert!(result.is_ok_and(|f| f == "[[note1.md]]".into()));
-    }
-
-    #[test]
-    fn check_link_match_without_extension_and_double_dot() {
-        let file_index = vec!["[[note1..md]]".into()];
-        let dut = ResourceIdLinkMap::new(file_index.iter());
-
-        let result = dut.retrieve(&"[[note1.]]".into());
-
-        assert!(result.is_ok_and(|f| f == "[[note1..md]]".into()));
-    }
-
-    #[test]
-    fn check_link_miss_without_extension_and_double_dot() {
-        let file_index = vec!["[[note1..md]]".into()];
-        let dut = ResourceIdLinkMap::new(file_index.iter());
-
-        let result = dut.retrieve(&"[[note1]]".into());
-
-        assert!(result
-            .is_err_and(|f| matches!(f, LinkNotFound(failed_link) if failed_link == "[[note1]]")));
-    }
-    #[test]
-    fn check_link_match_with_extension() {
-        let file_index = vec!["[[note1.md]]".into()];
-        let dut = ResourceIdLinkMap::new(file_index.iter());
-
-        let result = dut.retrieve(&"[[note1.md]]".into());
-
-        assert!(result.is_ok_and(|f| f == "[[note1.md]]".into()));
-    }
-
-    #[test]
-    fn check_link_miss_without_extension() {
-        let file_index = vec!["[[note1.md]]".into()];
-        let dut = ResourceIdLinkMap::new(file_index.iter());
-
-        let result = dut.retrieve(&"[[missing]]".into());
-
-        assert!(result.is_err_and(
-            |f| matches!(f, LinkNotFound(failed_link) if failed_link == "[[missing]]")
-        ));
-    }
-
-    #[test]
-    fn check_link_miss_with_extension() {
-        let file_index = vec!["[[note1.md]]".into()];
-        let dut = ResourceIdLinkMap::new(file_index.iter());
-
-        let result = dut.retrieve(&"[[missing.md]]".into());
-
-        assert!(result.is_err_and(
-            |f| matches!(f, LinkNotFound(failed_link) if failed_link == "[[missing.md]]")
-        ));
-    }
-
-    #[test]
-    fn check_link_match_two_files_at_different_pathes() {
-        let file_index = vec!["[[path1/note1.md]]".into(), "[[path2/note1.md]]".into()];
-        let dut = ResourceIdLinkMap::new(file_index.iter());
-
-        let result = dut.retrieve(&"[[note1]]".into());
-
-        assert!(result.is_ok_and(|f| f == "[[path1/note1.md]]".into()));
-    }
-
-    #[test]
-    fn check_link_match_two_files_same_name_different_ext() {
-        let file_index = vec!["[[path1/note1]]".into(), "[[path2/note1.md]]".into()];
-        let dut = ResourceIdLinkMap::new(file_index.iter());
-
-        let result = dut.retrieve(&"[[note1]]".into());
+    fn test_link_match_two_files_same_name_different_ext() {
+        let dut = create_dut(
+            vec!["[[path1/note1]]".into(), "[[path2/note1.md]]".into()],
+            vec!["note1".to_string(), "note1.md".to_string()],
+        );
+        let result = dut.retrieve(&"[[note1]]".into()).unwrap();
 
         // always return the exact match even when a md file exists.
-        assert!(result.is_ok_and(|f| f == "[[path1/note1]]".into()));
+        assert_eq!(result, "[[path1/note1]]".into());
     }
 
     #[test]
-    fn check_absolute_link_match_two_files_at_different_pathes() {
-        let file_index = vec!["[[path1/note1.md]]".into(), "[[path2/note1.md]]".into()];
-        let dut = ResourceIdLinkMap::new(file_index.iter());
-
+    fn test_absolute_link_match_two_files_at_different_pathes() {
+        let dut = create_dut(
+            vec!["[[path1/note1.md]]".into(), "[[path2/note1.md]]".into()],
+            vec!["note1.md".to_string(), "note1.md".to_string()],
+        );
         let result = dut.retrieve(&"[[path2/note1]]".into());
-
-        // assert
-        assert!(result.is_ok_and(|f| f == "[[path2/note1.md]]".into()));
+        assert_eq!(result.unwrap(), "[[path2/note1.md]]".into());
     }
 
     #[test]
-    fn check_absolute_link_match_two_files_at_different_pathes_with_extension() {
-        let file_index = vec!["[[path1/note1.md]]".into(), "[[path2/note1.md]]".into()];
-        let dut = ResourceIdLinkMap::new(file_index.iter());
-
-        let result = dut.retrieve(&"[[path2/note1.md]]".into());
-
-        // assert
-        assert!(result.is_ok_and(|f| f == "[[path2/note1.md]]".into()));
+    fn test_absolute_link_match_two_files_at_different_pathes_with_extension() {
+        let dut = create_dut(
+            vec!["[[path1/note1.md]]".into(), "[[path2/note1.md]]".into()],
+            vec!["note1.md".to_string(), "note1.md".to_string()],
+        );
+        let result = dut.retrieve(&"[[path2/note1.md]]".into()).unwrap();
+        assert_eq!(result, "[[path2/note1.md]]".into());
     }
 
     #[test]
-    fn check_resolve_endpoint_link_path_has_different_utf8_representation() {
-        let file_index = vec!["[[päth1/note1.md]]".into(), "[[päth2/note1.md]]".into()];
-
-        let dut = ResourceIdLinkMap::new(file_index.iter());
-
+    fn test_resolve_endpoint_link_path_has_different_utf8_representation() {
+        let dut = create_dut(
+            vec!["[[päth1/note1.md]]".into(), "[[päth2/note1.md]]".into()],
+            vec!["note1.md".to_string(), "note1.md".to_string()],
+        );
         // Attention: The "ä" from above is coded differently than the following ä
-        let result = dut.retrieve(&"[[päth2/note1.md]]".into());
-
-        // assert
-        assert!(result.is_ok_and(|f| f == "[[päth2/note1.md]]".into()));
+        let result = dut.retrieve(&"[[päth2/note1.md]]".into()).unwrap();
+        assert_eq!(result, "[[päth2/note1.md]]".into());
     }
 
     #[test]
-    fn check_resolve_endpoint_link_name_has_different_utf8_representation() {
-        let file_index = vec!["[[path1/nöte1.md]]".into(), "[[path2/nöte1.md]]".into()];
-
-        let dut = ResourceIdLinkMap::new(file_index.iter());
-
+    fn test_resolve_endpoint_link_name_has_different_utf8_representation() {
+        let dut = create_dut(
+            vec!["[[path1/nöte1.md]]".into(), "[[path2/nöte1.md]]".into()],
+            vec!["nöte1.md".to_string(), "nöte1.md".to_string()],
+        );
         // Attention: The "ö" from above is coded differently than the following ö
-        let result = dut.retrieve(&"[[path2/nöte1.md]]".into());
-
-        // assert
-        assert!(result.is_ok_and(|f| f == "[[path2/nöte1.md]]".into()));
+        let result = dut.retrieve(&"[[path2/nöte1.md]]".into()).unwrap();
+        assert_eq!(result, "[[path2/nöte1.md]]".into());
     }
 }

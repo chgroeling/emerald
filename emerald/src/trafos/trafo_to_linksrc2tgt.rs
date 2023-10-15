@@ -17,7 +17,7 @@ use crate::{
 use crate::types::ContentType;
 
 fn extract_links_from_content<'a, I, Iter>(
-    src: ResourceId,
+    src: &'a ResourceId,
     content: &'a Content,
     resource_id_retriever: &'a impl ResourceIdRetriever,
     md_analyzer: &'a I,
@@ -34,7 +34,7 @@ where
 }
 
 fn extract_links_from_content_boxed<'a, I, Iter>(
-    src: ResourceId,
+    src: &'a ResourceId,
     content: &'a Content,
     resource_id_retriever: &'a impl ResourceIdRetriever,
     md_analyzer: &'a I,
@@ -52,7 +52,7 @@ where
 }
 
 pub fn trafo_from_content_to_linksrc2tgt<'a, I, Iter>(
-    iter: impl Iterator<Item = (ResourceId, Result<&'a Content>)> + 'a,
+    iter: impl Iterator<Item = (&'a ResourceId, Result<&'a Content>)> + 'a,
     resource_id_retriever: &'a impl ResourceIdRetriever,
     md_analyzer: &'a I,
 ) -> impl Iterator<Item = (ResourceId, Result<LinkSrc2TgtIterBoxed<'a>>)> + 'a

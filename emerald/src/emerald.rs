@@ -10,10 +10,7 @@ use crate::resources::endpoint_resource_id_map::EndpointResourceIdMap;
 use crate::resources::file_content_loader::FileContentLoader;
 use crate::resources::md_content_cache::MdContentCache;
 use crate::resources::resource_id_endpoint_map::ResourceIdEndPointMap;
-use crate::trafos::{
-    filter_markdown_types, trafo_ep_to_rid, trafo_from_content_to_linksrc2tgt,
-    trafo_resource_ids_to_content, trafo_to_filetype_and_resource_id,
-};
+use crate::trafos;
 use crate::types::{EndPoint, ResourceId};
 use crate::Result;
 #[allow(unused_imports)]
@@ -42,9 +39,8 @@ impl Emerald {
     pub fn new(vault_path: &Path) -> Result<Emerald> {
         // Build dependency root
         let start = Instant::now();
-        let file_list = resources::get_file_list(vault_path)?;
-        let ep_index: Vec<_> = resources::trafo_pathes_to_endpoints(file_list).collect();
-
+        let path_list = resources::get_path_list(vault_path)?;
+        let ep_index: Vec<_> = resources::trafo_from_pathes_to_endpoints(path_list).collect();
         debug!("Creation of EndpointIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
@@ -70,18 +66,16 @@ impl Emerald {
         debug!("Creation of FileMetaDataLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let res_id_iter = trafo_ep_to_rid(ep_index.iter(), &resource_id_resolver);
-        let all_resource_ids: Vec<ResourceId> = res_id_iter.collect();
+        let res_id_iter = trafos::trafo_ep_to_rid(ep_index.iter(), &resource_id_resolver);
+        let all_res_ids: Vec<ResourceId> = res_id_iter.collect();
 
         // Transform iter: from (ResourceId) to (FileType, ResourceId)
-        let ft_and_rid_iter = trafo_to_filetype_and_resource_id(
-            all_resource_ids.clone().into_iter(),
-            &meta_data_loader,
-        );
+        let ft_and_rid_iter =
+            trafos::trafo_to_filetype_and_res_id(all_res_ids.iter(), &meta_data_loader);
 
         // Filter markdown files
-        let md_resource_id_iter = filter_markdown_types(ft_and_rid_iter);
-        let md_resource_ids: Vec<ResourceId> = md_resource_id_iter.collect();
+        let md_res_ids_iter = trafos::filter_markdown_types(ft_and_rid_iter);
+        let md_res_ids: Vec<ResourceId> = md_res_ids_iter.cloned().collect();
 
         debug!(
             "Creation of Resource Id indexes took: {:?}",
@@ -89,23 +83,21 @@ impl Emerald {
         );
 
         let start = Instant::now();
-        let resource_id_retriever = ResourceIdLinkMap::new(all_resource_ids.iter());
+        let name_iter = trafos::trafo_from_res_id_to_name(all_res_ids.iter());
+        let resource_id_retriever = ResourceIdLinkMap::new(name_iter);
         debug!("Creation of ResourceIdLinkMap took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let md_content_cache = MdContentCache::new(md_resource_ids.iter(), &content_loader);
+        let md_content_cache = MdContentCache::new(md_res_ids.iter(), &content_loader);
         debug!("Creation of ContentFullMdCache took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let content_from_vault_iter =
-            trafo_resource_ids_to_content(md_resource_ids.iter(), &md_content_cache);
-
-        let all_links_iter = trafo_from_content_to_linksrc2tgt(
-            content_from_vault_iter,
+        let src_2_tgt_iter = trafos::trafo_from_content_to_linksrc2tgt(
+            trafos::trafo_from_res_ids_to_content(md_res_ids.iter(), &md_content_cache),
             &resource_id_retriever,
             &analyze_markdown,
         );
-        let src_2_tgt_index = Src2TargetIndex::new(all_links_iter);
+        let src_2_tgt_index = Src2TargetIndex::new(src_2_tgt_iter);
 
         debug!("Creation of Src2TargetIndex took: {:?}", start.elapsed());
 
@@ -123,7 +115,7 @@ impl Emerald {
         debug!("Creation of StdProviderFactory took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let vault = Vault::new(md_resource_ids.iter(), provider_factory.clone());
+        let vault = Vault::new(md_res_ids.iter(), provider_factory.clone());
         debug!("Creation of Vault took: {:?}", start.elapsed());
 
         Ok(Emerald {
