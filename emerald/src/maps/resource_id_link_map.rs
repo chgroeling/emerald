@@ -126,69 +126,57 @@ mod link_mapper_tests {
     #[test]
     fn check_malformed_link_causes_error() {
         let dut = create_dut(vec!["[[note1.md]]".into()], vec!["note1.md".to_string()]);
-        let result = dut.retrieve(&"[note1]]".into());
-
-        assert!(result.is_err_and(|f| matches!(f, NotAWikiLink)));
+        let result = dut.retrieve(&"[note1]]".into()).unwrap_err();
+        assert!(matches!(result, NotAWikiLink));
     }
 
     #[test]
     fn check_link_match_without_extension() {
         let dut = create_dut(vec!["[[note1.md]]".into()], vec!["note1.md".to_string()]);
-        let result = dut.retrieve(&"[[note1]]".into());
-
-        assert!(result.is_ok_and(|f| f == "[[note1.md]]".into()));
+        let result = dut.retrieve(&"[[note1]]".into()).unwrap();
+        assert_eq!(result, "[[note1.md]]".into());
     }
 
     #[test]
     fn check_link_match_without_extension_with_spaces() {
         let dut = create_dut(vec!["[[note1.md]]".into()], vec!["note1.md".to_string()]);
-        let result = dut.retrieve(&"[[note1  ]]".into());
-
-        assert!(result.is_ok_and(|f| f == "[[note1.md]]".into()));
+        let result = dut.retrieve(&"[[note1  ]]".into()).unwrap();
+        assert_eq!(result, "[[note1.md]]".into());
     }
 
     #[test]
     fn check_link_match_without_extension_and_double_dot() {
         let dut = create_dut(vec!["[[note1..md]]".into()], vec!["note1..md".to_string()]);
-        let result = dut.retrieve(&"[[note1.]]".into());
-
-        assert!(result.is_ok_and(|f| f == "[[note1..md]]".into()));
+        let result = dut.retrieve(&"[[note1.]]".into()).unwrap();
+        assert_eq!(result, "[[note1..md]]".into());
     }
 
     #[test]
     fn check_link_miss_without_extension_and_double_dot() {
         let dut = create_dut(vec!["[[note1..md]]".into()], vec!["note1..md".to_string()]);
-        let result = dut.retrieve(&"[[note1]]".into());
-
-        assert!(result
-            .is_err_and(|f| matches!(f, LinkNotFound(failed_link) if failed_link == "[[note1]]")));
+        let result = dut.retrieve(&"[[note1]]".into()).unwrap_err();
+        assert!(matches!(result, LinkNotFound(failed_link) if failed_link == "[[note1]]"));
     }
+
     #[test]
     fn check_link_match_with_extension() {
         let dut = create_dut(vec!["[[note1.md]]".into()], vec!["note1.md".to_string()]);
-        let result = dut.retrieve(&"[[note1.md]]".into());
-
-        assert!(result.is_ok_and(|f| f == "[[note1.md]]".into()));
+        let result = dut.retrieve(&"[[note1.md]]".into()).unwrap();
+        assert_eq!(result, "[[note1.md]]".into());
     }
 
     #[test]
     fn check_link_miss_without_extension() {
         let dut = create_dut(vec!["[[note1.md]]".into()], vec!["note1.md".to_string()]);
-        let result = dut.retrieve(&"[[missing]]".into());
-
-        assert!(result.is_err_and(
-            |f| matches!(f, LinkNotFound(failed_link) if failed_link == "[[missing]]")
-        ));
+        let result = dut.retrieve(&"[[missing]]".into()).unwrap_err();
+        assert!(matches!(result, LinkNotFound(failed_link) if failed_link == "[[missing]]"));
     }
 
     #[test]
     fn check_link_miss_with_extension() {
         let dut = create_dut(vec!["[[note1.md]]".into()], vec!["note1.md".to_string()]);
-        let result = dut.retrieve(&"[[missing.md]]".into());
-
-        assert!(result.is_err_and(
-            |f| matches!(f, LinkNotFound(failed_link) if failed_link == "[[missing.md]]")
-        ));
+        let result = dut.retrieve(&"[[missing.md]]".into()).unwrap_err();
+        assert!(matches!(result, LinkNotFound(failed_link) if failed_link == "[[missing.md]]"));
     }
 
     #[test]
@@ -199,7 +187,7 @@ mod link_mapper_tests {
         );
         let result = dut.retrieve(&"[[note1]]".into());
 
-        assert!(result.is_ok_and(|f| f == "[[path1/note1.md]]".into()));
+        assert_eq!(result.unwrap(), "[[path1/note1.md]]".into());
     }
 
     #[test]
@@ -208,10 +196,10 @@ mod link_mapper_tests {
             vec!["[[path1/note1]]".into(), "[[path2/note1.md]]".into()],
             vec!["note1".to_string(), "note1.md".to_string()],
         );
-        let result = dut.retrieve(&"[[note1]]".into());
+        let result = dut.retrieve(&"[[note1]]".into()).unwrap();
 
         // always return the exact match even when a md file exists.
-        assert!(result.is_ok_and(|f| f == "[[path1/note1]]".into()));
+        assert_eq!(result, "[[path1/note1]]".into());
     }
 
     #[test]
@@ -223,7 +211,7 @@ mod link_mapper_tests {
         let result = dut.retrieve(&"[[path2/note1]]".into());
 
         // assert
-        assert!(result.is_ok_and(|f| f == "[[path2/note1.md]]".into()));
+        assert_eq!(result.unwrap(), "[[path2/note1.md]]".into());
     }
 
     #[test]
@@ -232,10 +220,10 @@ mod link_mapper_tests {
             vec!["[[path1/note1.md]]".into(), "[[path2/note1.md]]".into()],
             vec!["note1.md".to_string(), "note1.md".to_string()],
         );
-        let result = dut.retrieve(&"[[path2/note1.md]]".into());
+        let result = dut.retrieve(&"[[path2/note1.md]]".into()).unwrap();
 
         // assert
-        assert!(result.is_ok_and(|f| f == "[[path2/note1.md]]".into()));
+        assert_eq!(result, "[[path2/note1.md]]".into());
     }
 
     #[test]
@@ -245,10 +233,10 @@ mod link_mapper_tests {
             vec!["note1.md".to_string(), "note1.md".to_string()],
         );
         // Attention: The "ä" from above is coded differently than the following ä
-        let result = dut.retrieve(&"[[päth2/note1.md]]".into());
+        let result = dut.retrieve(&"[[päth2/note1.md]]".into()).unwrap();
 
         // assert
-        assert!(result.is_ok_and(|f| f == "[[päth2/note1.md]]".into()));
+        assert_eq!(result, "[[päth2/note1.md]]".into());
     }
 
     #[test]
@@ -258,9 +246,9 @@ mod link_mapper_tests {
             vec!["nöte1.md".to_string(), "nöte1.md".to_string()],
         );
         // Attention: The "ö" from above is coded differently than the following ö
-        let result = dut.retrieve(&"[[path2/nöte1.md]]".into());
+        let result = dut.retrieve(&"[[path2/nöte1.md]]".into()).unwrap();
 
         // assert
-        assert!(result.is_ok_and(|f| f == "[[path2/nöte1.md]]".into()));
+        assert_eq!(result, "[[path2/nöte1.md]]".into());
     }
 }
