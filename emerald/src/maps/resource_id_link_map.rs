@@ -3,6 +3,7 @@ use crate::types::ResourceId;
 use crate::utils::normalize_string::normalize_str;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
+use std::iter::zip;
 use std::rc::Rc;
 
 use crate::EmeraldError;
@@ -23,29 +24,36 @@ pub struct ResourceIdLinkMap {
     name_to_resource_id_list: Rc<NameToResourceIdList>,
 }
 
+fn trafo_resource_id_to_name<'a>(
+    resource_ids_iter: impl Iterator<Item = &'a ResourceId> + 'a,
+) -> impl Iterator<Item = (&'a ResourceId, String)> + 'a {
+    // Assumption: All resource ids are encoded in utf8 nfc
+
+    // Iterator yields (normalized_link, link_to_file)
+    resource_ids_iter.map(|resource_id| {
+        let res_id_comp = resource_id.split().unwrap();
+        let name = res_id_comp.name.to_lowercase();
+        (resource_id, name)
+    })
+}
+
 impl ResourceIdLinkMap {
-    pub fn new<'a>(resource_ids_iter: impl Iterator<Item = &'a ResourceId>) -> Self {
+    pub fn new<'a>(resource_ids_iter: impl Iterator<Item = &'a ResourceId> + 'a) -> Self {
         // Assumption: All resource ids are encoded in utf8 nfc
         let mut name_to_resource_id_list: NameToResourceIdList = NameToResourceIdList::new();
 
-        // Iterator yields (normalized_link, link_to_file)
-        let link_name_iter = resource_ids_iter.map(|resource_id| {
-            let res_id_comp = resource_id.split().unwrap();
-            let normalized_link = res_id_comp.name.to_lowercase();
+        let name_iter = trafo_resource_id_to_name(resource_ids_iter);
 
-            (normalized_link, resource_id.clone())
-        });
-
-        for (normalized_link, resource_id) in link_name_iter {
+        for (resource_id, normalized_link) in name_iter {
             trace!("Insert {:?} -> {:?}", &normalized_link, &resource_id);
 
             // this is an interesting way to mutate an element in a HashMap
             match name_to_resource_id_list.entry(normalized_link) {
                 Entry::Occupied(mut e) => {
-                    e.get_mut().push(resource_id);
+                    e.get_mut().push(resource_id.clone());
                 }
                 Entry::Vacant(e) => {
-                    e.insert(vec![resource_id]);
+                    e.insert(vec![resource_id.clone()]);
                 }
             }
         }
