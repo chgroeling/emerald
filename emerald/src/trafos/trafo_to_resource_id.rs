@@ -7,10 +7,10 @@ use crate::{
 use log::{debug, error, info, trace, warn};
 
 pub fn filter_markdown_types<'a>(
-    iter: impl Iterator<Item = (FileType, &'a ResourceId)> + 'a,
+    iter: impl Iterator<Item = (&'a ResourceId, FileType)> + 'a,
 ) -> impl Iterator<Item = &'a ResourceId> + 'a {
-    iter.filter(|pred| matches!(pred.0, FileType::Markdown(_)))
-        .map(|f| f.1)
+    iter.filter(|pred| matches!(pred.1, FileType::Markdown(_)))
+        .map(|f| f.0)
 }
 
 pub fn trafo_ep_to_rid<'a>(
@@ -42,8 +42,8 @@ mod tests {
         let rid2: ResourceId = "[[rid2]]".into();
 
         let all_res_ids = vec![
-            (FileType::Unknown("md".into()), &rid1),
-            (FileType::Markdown("md".into()), &rid2),
+            (&rid1, FileType::Unknown("md".into())),
+            (&rid2, FileType::Markdown("md".into())),
         ];
 
         // Act
