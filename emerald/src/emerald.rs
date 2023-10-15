@@ -71,7 +71,7 @@ impl Emerald {
 
         // Transform iter: from (ResourceId) to (FileType, ResourceId)
         let ft_and_rid_iter =
-            trafos::trafo_to_filetype_and_resource_id(all_res_ids.iter(), &meta_data_loader);
+            trafos::trafo_to_filetype_and_res_id(all_res_ids.iter(), &meta_data_loader);
 
         // Filter markdown files
         let md_res_ids_iter = trafos::filter_markdown_types(ft_and_rid_iter);
@@ -92,10 +92,8 @@ impl Emerald {
         debug!("Creation of ContentFullMdCache took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let content_iter =
-            trafos::trafo_from_res_ids_to_content(md_res_ids.iter(), &md_content_cache);
         let src_2_tgt_iter = trafos::trafo_from_content_to_linksrc2tgt(
-            content_iter,
+            trafos::trafo_from_res_ids_to_content(md_res_ids.iter(), &md_content_cache),
             &resource_id_retriever,
             &analyze_markdown,
         );
