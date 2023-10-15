@@ -53,7 +53,7 @@ impl ResourceIdRetriever for ResourceIdLinkMap {
         let matches_of_exact_name = self.name_to_resource_id_list.get(&link_name_lc);
 
         // no .. then perhaps there are files without adding ".md" that will match
-        let matches: Option<_> = if matches_of_exact_name.is_none() {
+        let matches = if matches_of_exact_name.is_none() {
             // add a .md extension to the link to check if a note with this name exists
             let link_name_lc_md = link_name_lc.clone() + ".md";
 
