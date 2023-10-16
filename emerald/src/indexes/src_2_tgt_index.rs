@@ -15,38 +15,49 @@ pub struct Src2TargetIndex {
 }
 
 impl Src2TargetIndex {
-    pub fn new<'a>(
-        iter: impl Iterator<Item = (ResourceId, Result<LinkSrc2TgtIterBoxed<'a>>)>,
-    ) -> Self {
+    pub fn new<'a>(iter: impl Iterator<Item = LinkSrc2Tgt>) -> Self {
         let mut valid_backlink_cnt: usize = 0;
         let mut invalid_backlink_cnt: usize = 0;
         let mut src_2_tgt_list = Vec::<LinkSrc2Tgt>::new();
+        let mut last_src: ResourceId = "".into();
+        let mut first_call = true;
+        let mut note_valid_backlink_cnt: usize = 0;
+        let mut note_invalid_backlink_cnt: usize = 0;
 
-        for (src, res_vec) in iter {
-            let mut note_valid_backlink_cnt: usize = 0;
-            let mut note_invalid_backlink_cnt: usize = 0;
-            for s2t in res_vec.unwrap() {
-                match &s2t {
-                    LinkSrc2Tgt {
-                        src: _,
-                        link,
-                        tgt: None,
-                    } => {
-                        note_invalid_backlink_cnt += 1;
-                        warn!("Invalid link '{:?}' found in '{:?}'", &link, &src);
-                    }
-                    _ => note_valid_backlink_cnt += 1,
+        for s2t in iter {
+            if first_call {
+                first_call = false;
+                last_src = s2t.src.clone();
+            }
+            if &last_src != &s2t.src {
+                if note_valid_backlink_cnt == 0 {
+                    trace!("No valid links found in {:?}", &last_src);
                 }
-                src_2_tgt_list.push(s2t);
+                valid_backlink_cnt += note_valid_backlink_cnt;
+                invalid_backlink_cnt += note_invalid_backlink_cnt;
+                note_valid_backlink_cnt = 0;
+                note_invalid_backlink_cnt = 0;
             }
 
-            if note_valid_backlink_cnt == 0 {
-                trace!("No valid links found in {:?}", &src);
+            match &s2t {
+                LinkSrc2Tgt {
+                    src,
+                    link,
+                    tgt: None,
+                } => {
+                    note_invalid_backlink_cnt += 1;
+                    warn!("Invalid link '{:?}' found in '{:?}'", &link, &src);
+                }
+                _ => note_valid_backlink_cnt += 1,
             }
-
-            valid_backlink_cnt += note_valid_backlink_cnt;
-            invalid_backlink_cnt += note_invalid_backlink_cnt;
+            last_src = s2t.src.clone();
+            src_2_tgt_list.push(s2t);
         }
+        if note_valid_backlink_cnt == 0 {
+            trace!("No valid links found in {:?}", &last_src);
+        }
+        valid_backlink_cnt += note_valid_backlink_cnt;
+        invalid_backlink_cnt += note_invalid_backlink_cnt;
 
         Self {
             valid_backlink_cnt,
