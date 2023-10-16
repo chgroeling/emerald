@@ -48,8 +48,6 @@ impl Src2TargetIndex {
                 _ => note_valid_backlink_cnt += 1,
             }
 
-            opt_last_src = Some(s2t.src.clone());
-
             // Check if next element has a different source
             if let Some(next_s2t) = iter_mut.peek() {
                 if next_s2t.src != s2t.src {
@@ -62,6 +60,8 @@ impl Src2TargetIndex {
                     note_invalid_backlink_cnt = 0;
                 }
             }
+
+            opt_last_src = Some(s2t.src.clone());
             src_2_tgt_list.push(s2t);
         }
 
