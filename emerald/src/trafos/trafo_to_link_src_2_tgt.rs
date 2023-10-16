@@ -73,3 +73,20 @@ where
         )
     })
 }
+
+pub fn trafo_from_content_list_to_linksrc2tgt<'a, I, Iter>(
+    iter: impl Iterator<Item = (&'a ResourceId, Result<&'a Content>)> + 'a,
+    resource_id_retriever: &'a impl ResourceIdRetriever,
+    md_analyzer: &'a I,
+) -> impl Iterator<Item = LinkSrc2Tgt> + 'a
+where
+    I: Fn(&'a str) -> Iter,
+    Iter: Iterator<Item = ContentType<'a>> + 'a,
+{
+    let unwrap_iter = iter.map(|f| (f.0, f.1.unwrap()));
+    // iterator yield (a, b)
+    // a: the resource id of the source which was loaded
+    // b: a vector containing the links which were found wrapped in a Result
+    unwrap_iter
+        .flat_map(move |f| extract_links_from_content(f.0, f.1, resource_id_retriever, md_analyzer))
+}

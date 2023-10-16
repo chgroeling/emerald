@@ -11,6 +11,7 @@ mod trafo_to_resource_id;
 
 pub use trafo_to_content::trafo_from_res_ids_to_content;
 pub use trafo_to_filetype_and_resource_id::trafo_to_filetype_and_res_id;
+pub use trafo_to_link_src_2_tgt::trafo_from_content_list_to_linksrc2tgt;
 pub use trafo_to_link_src_2_tgt::trafo_from_content_to_linksrc2tgt;
 pub use trafo_to_name::trafo_from_res_id_to_name;
 pub use trafo_to_resource_id::filter_markdown_types;
