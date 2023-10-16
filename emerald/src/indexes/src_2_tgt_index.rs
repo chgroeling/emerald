@@ -36,6 +36,19 @@ impl Src2TargetIndex {
                 break;
             };
 
+            // Check if this element has a different source than the one before
+            if let Some(last_src) = opt_last_src {
+                if last_src != s2t.src {
+                    if note_valid_backlink_cnt == 0 {
+                        trace!("No valid links found in {:?}", &last_src);
+                    }
+                    valid_backlink_cnt += note_valid_backlink_cnt;
+                    invalid_backlink_cnt += note_invalid_backlink_cnt;
+                    note_valid_backlink_cnt = 0;
+                    note_invalid_backlink_cnt = 0;
+                }
+            }
+
             match &s2t {
                 LinkSrc2Tgt {
                     src,
@@ -46,19 +59,6 @@ impl Src2TargetIndex {
                     warn!("Invalid link '{:?}' found in '{:?}'", &link, &src);
                 }
                 _ => note_valid_backlink_cnt += 1,
-            }
-
-            // Check if next element has a different source
-            if let Some(last_src) = opt_last_src {
-                if last_src != s2t.src {
-                    if note_valid_backlink_cnt == 0 {
-                        trace!("No valid links found in {:?}", &s2t.src);
-                    }
-                    valid_backlink_cnt += note_valid_backlink_cnt;
-                    invalid_backlink_cnt += note_invalid_backlink_cnt;
-                    note_valid_backlink_cnt = 0;
-                    note_invalid_backlink_cnt = 0;
-                }
             }
 
             opt_last_src = Some(s2t.src.clone());
