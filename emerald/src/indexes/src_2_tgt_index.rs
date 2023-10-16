@@ -3,9 +3,7 @@ use std::rc::Rc;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-use crate::trafos::LinkSrc2TgtIterBoxed;
 use crate::types::{LinkSrc2Tgt, ResourceId};
-use crate::Result;
 
 #[derive(Clone)]
 pub struct Src2TargetIndex {
