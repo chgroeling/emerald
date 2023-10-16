@@ -19,29 +19,22 @@ impl Src2TargetIndex {
         let mut valid_backlink_cnt: usize = 0;
         let mut invalid_backlink_cnt: usize = 0;
         let mut src_2_tgt_list = Vec::<LinkSrc2Tgt>::new();
-        let mut last_src: ResourceId = "".into();
-        let mut first_call = true;
         let mut note_valid_backlink_cnt: usize = 0;
         let mut note_invalid_backlink_cnt: usize = 0;
-        let mut iter_mut = iter;
+        let mut iter_mut = iter.peekable();
+        let mut opt_last_src: Option<ResourceId> = None;
         loop {
             let Some(s2t) = iter_mut.next() else {
-                break;
-            };
-
-            if first_call {
-                first_call = false;
-                last_src = s2t.src.clone();
-            }
-            if &last_src != &s2t.src {
-                if note_valid_backlink_cnt == 0 {
-                    trace!("No valid links found in {:?}", &last_src);
+                if let Some(last_src) = opt_last_src {
+                    if note_valid_backlink_cnt == 0 {
+                        trace!("No valid links found in {:?}", &last_src);
+                    }
                 }
                 valid_backlink_cnt += note_valid_backlink_cnt;
                 invalid_backlink_cnt += note_invalid_backlink_cnt;
-                note_valid_backlink_cnt = 0;
-                note_invalid_backlink_cnt = 0;
-            }
+
+                break;
+            };
 
             match &s2t {
                 LinkSrc2Tgt {
@@ -54,14 +47,23 @@ impl Src2TargetIndex {
                 }
                 _ => note_valid_backlink_cnt += 1,
             }
-            last_src = s2t.src.clone();
+
+            opt_last_src = Some(s2t.src.clone());
+
+            // Check if next element has a different source
+            if let Some(next_s2t) = iter_mut.peek() {
+                if next_s2t.src != s2t.src {
+                    if note_valid_backlink_cnt == 0 {
+                        trace!("No valid links found in {:?}", &s2t.src);
+                    }
+                    valid_backlink_cnt += note_valid_backlink_cnt;
+                    invalid_backlink_cnt += note_invalid_backlink_cnt;
+                    note_valid_backlink_cnt = 0;
+                    note_invalid_backlink_cnt = 0;
+                }
+            }
             src_2_tgt_list.push(s2t);
         }
-        if note_valid_backlink_cnt == 0 {
-            trace!("No valid links found in {:?}", &last_src);
-        }
-        valid_backlink_cnt += note_valid_backlink_cnt;
-        invalid_backlink_cnt += note_invalid_backlink_cnt;
 
         Self {
             valid_backlink_cnt,
