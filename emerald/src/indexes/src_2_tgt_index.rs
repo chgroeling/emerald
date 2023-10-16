@@ -23,8 +23,12 @@ impl Src2TargetIndex {
         let mut first_call = true;
         let mut note_valid_backlink_cnt: usize = 0;
         let mut note_invalid_backlink_cnt: usize = 0;
+        let mut iter_mut = iter;
+        loop {
+            let Some(s2t) = iter_mut.next() else {
+                break;
+            };
 
-        for s2t in iter {
             if first_call {
                 first_call = false;
                 last_src = s2t.src.clone();
