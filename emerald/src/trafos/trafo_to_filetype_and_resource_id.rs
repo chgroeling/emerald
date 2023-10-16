@@ -8,7 +8,7 @@ pub fn trafo_to_filetype_and_res_id<'a>(
     meta_data_loader: &'a impl MetaDataLoader,
 ) -> impl Iterator<Item = (&'a ResourceId, FileType)> + 'a {
     res_id_iter.map(|f| {
-        let res_meta_data = meta_data_loader.load(&f);
+        let res_meta_data = meta_data_loader.load(f);
         if let Ok(meta_data) = res_meta_data {
             (f, meta_data.file_type)
         } else {

@@ -13,12 +13,14 @@ pub struct Src2TargetIndex {
 }
 
 impl Src2TargetIndex {
-    pub fn new<'a>(iter: impl Iterator<Item = LinkSrc2Tgt>) -> Self {
+    pub fn new(iter: impl Iterator<Item = LinkSrc2Tgt>) -> Self {
+        let mut src_2_tgt_list = Vec::<LinkSrc2Tgt>::new();
+
         let mut valid_backlink_cnt: usize = 0;
         let mut invalid_backlink_cnt: usize = 0;
-        let mut src_2_tgt_list = Vec::<LinkSrc2Tgt>::new();
         let mut note_valid_backlink_cnt: usize = 0;
         let mut note_invalid_backlink_cnt: usize = 0;
+
         let mut iter_mut = iter.peekable();
         let mut opt_last_src: Option<ResourceId> = None;
         loop {

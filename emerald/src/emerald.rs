@@ -147,7 +147,7 @@ impl Emerald {
     }
 
     pub fn file_count(&self) -> usize {
-        self.ep_index.iter().count()
+        self.ep_index.len()
     }
 
     pub fn md_file_count(&self) -> usize {
