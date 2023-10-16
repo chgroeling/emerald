@@ -92,11 +92,18 @@ impl Emerald {
         debug!("Creation of ContentFullMdCache took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let src_2_tgt_iter = trafos::trafo_from_content_to_linksrc2tgt(
+        /* let src_2_tgt_iter = trafos::trafo_from_content_to_linksrc2tgt(
+            trafos::trafo_from_res_ids_to_content(md_res_ids.iter(), &md_content_cache),
+            &resource_id_retriever,
+            &analyze_markdown,
+        );*/
+
+        let src_2_tgt_iter = trafos::trafo_from_content_list_to_linksrc2tgt(
             trafos::trafo_from_res_ids_to_content(md_res_ids.iter(), &md_content_cache),
             &resource_id_retriever,
             &analyze_markdown,
         );
+
         let src_2_tgt_index = Src2TargetIndex::new(src_2_tgt_iter);
 
         debug!("Creation of Src2TargetIndex took: {:?}", start.elapsed());
@@ -140,7 +147,7 @@ impl Emerald {
     }
 
     pub fn file_count(&self) -> usize {
-        self.ep_index.iter().count()
+        self.ep_index.len()
     }
 
     pub fn md_file_count(&self) -> usize {

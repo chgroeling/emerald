@@ -3,9 +3,7 @@ use std::rc::Rc;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-use crate::trafos::LinkSrc2TgtIterBoxed;
 use crate::types::{LinkSrc2Tgt, ResourceId};
-use crate::Result;
 
 #[derive(Clone)]
 pub struct Src2TargetIndex {
@@ -15,37 +13,56 @@ pub struct Src2TargetIndex {
 }
 
 impl Src2TargetIndex {
-    pub fn new<'a>(
-        iter: impl Iterator<Item = (ResourceId, Result<LinkSrc2TgtIterBoxed<'a>>)>,
-    ) -> Self {
-        let mut valid_backlink_cnt: usize = 0;
-        let mut invalid_backlink_cnt: usize = 0;
+    pub fn new(iter: impl Iterator<Item = LinkSrc2Tgt>) -> Self {
         let mut src_2_tgt_list = Vec::<LinkSrc2Tgt>::new();
 
-        for (src, res_vec) in iter {
-            let mut note_valid_backlink_cnt: usize = 0;
-            let mut note_invalid_backlink_cnt: usize = 0;
-            for s2t in res_vec.unwrap() {
-                match &s2t {
-                    LinkSrc2Tgt {
-                        src: _,
-                        link,
-                        tgt: None,
-                    } => {
-                        note_invalid_backlink_cnt += 1;
-                        warn!("Invalid link '{:?}' found in '{:?}'", &link, &src);
+        let mut valid_backlink_cnt: usize = 0;
+        let mut invalid_backlink_cnt: usize = 0;
+        let mut note_valid_backlink_cnt: usize = 0;
+        let mut note_invalid_backlink_cnt: usize = 0;
+
+        let mut iter_mut = iter;
+        let mut opt_last_src: Option<ResourceId> = None;
+        loop {
+            let Some(s2t) = iter_mut.next() else {
+                if let Some(last_src) = opt_last_src {
+                    if note_valid_backlink_cnt == 0 {
+                        trace!("No valid links found in {:?}", &last_src);
                     }
-                    _ => note_valid_backlink_cnt += 1,
                 }
-                src_2_tgt_list.push(s2t);
+                valid_backlink_cnt += note_valid_backlink_cnt;
+                invalid_backlink_cnt += note_invalid_backlink_cnt;
+
+                break;
+            };
+
+            // Check if this element has a different source than the one before
+            if let Some(last_src) = opt_last_src {
+                if last_src != s2t.src {
+                    if note_valid_backlink_cnt == 0 {
+                        trace!("No valid links found in {:?}", &last_src);
+                    }
+                    valid_backlink_cnt += note_valid_backlink_cnt;
+                    invalid_backlink_cnt += note_invalid_backlink_cnt;
+                    note_valid_backlink_cnt = 0;
+                    note_invalid_backlink_cnt = 0;
+                }
             }
 
-            if note_valid_backlink_cnt == 0 {
-                trace!("No valid links found in {:?}", &src);
+            match &s2t {
+                LinkSrc2Tgt {
+                    src,
+                    link,
+                    tgt: None,
+                } => {
+                    note_invalid_backlink_cnt += 1;
+                    warn!("Invalid link '{:?}' found in '{:?}'", &link, &src);
+                }
+                _ => note_valid_backlink_cnt += 1,
             }
 
-            valid_backlink_cnt += note_valid_backlink_cnt;
-            invalid_backlink_cnt += note_invalid_backlink_cnt;
+            opt_last_src = Some(s2t.src.clone());
+            src_2_tgt_list.push(s2t);
         }
 
         Self {
