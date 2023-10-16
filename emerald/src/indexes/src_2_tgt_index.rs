@@ -21,7 +21,7 @@ impl Src2TargetIndex {
         let mut note_valid_backlink_cnt: usize = 0;
         let mut note_invalid_backlink_cnt: usize = 0;
 
-        let mut iter_mut = iter.peekable();
+        let mut iter_mut = iter;
         let mut opt_last_src: Option<ResourceId> = None;
         loop {
             let Some(s2t) = iter_mut.next() else {
@@ -49,8 +49,8 @@ impl Src2TargetIndex {
             }
 
             // Check if next element has a different source
-            if let Some(next_s2t) = iter_mut.peek() {
-                if next_s2t.src != s2t.src {
+            if let Some(last_src) = opt_last_src {
+                if last_src != s2t.src {
                     if note_valid_backlink_cnt == 0 {
                         trace!("No valid links found in {:?}", &s2t.src);
                     }
