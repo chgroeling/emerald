@@ -44,14 +44,14 @@ impl Emerald {
         debug!("Creation of EndpointIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let resource_id_resolver = ResourceIdEndPointMap::new(ep_index.iter(), vault_path);
+        let resource_id_resolver = ResourceIdEndPointMap::new(&ep_index, vault_path);
         debug!(
             "Creation of ResourceIdEndPointMap took: {:?}",
             start.elapsed()
         );
 
         let start = Instant::now();
-        let endpoint_resolver = EndpointResourceIdMap::new(ep_index.iter(), &resource_id_resolver);
+        let endpoint_resolver = EndpointResourceIdMap::new(&ep_index, &resource_id_resolver);
         debug!(
             "Creation of EndpointResourceIdMap took: {:?}",
             start.elapsed()
@@ -66,12 +66,11 @@ impl Emerald {
         debug!("Creation of FileMetaDataLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let res_id_iter = trafos::trafo_ep_to_rid(ep_index.iter(), &resource_id_resolver);
+        let res_id_iter = trafos::trafo_ep_to_rid(&ep_index, &resource_id_resolver);
         let all_res_ids: Vec<ResourceId> = res_id_iter.collect();
 
         // Transform iter: from (ResourceId) to (FileType, ResourceId)
-        let ft_and_rid_iter =
-            trafos::trafo_to_filetype_and_res_id(all_res_ids.iter(), &meta_data_loader);
+        let ft_and_rid_iter = trafos::trafo_to_res_id_and_filetype(&all_res_ids, &meta_data_loader);
 
         // Filter markdown files
         let md_res_ids_iter = trafos::filter_markdown_types(ft_and_rid_iter);
@@ -83,17 +82,17 @@ impl Emerald {
         );
 
         let start = Instant::now();
-        let name_iter = trafos::trafo_from_res_id_to_name(all_res_ids.iter());
+        let name_iter = trafos::trafo_from_res_id_to_name(&all_res_ids);
         let resource_id_retriever = ResourceIdLinkMap::new(name_iter);
         debug!("Creation of ResourceIdLinkMap took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let md_content_cache = MdContentCache::new(md_res_ids.iter(), &content_loader);
+        let md_content_cache = MdContentCache::new(&md_res_ids, &content_loader);
         debug!("Creation of ContentFullMdCache took: {:?}", start.elapsed());
 
         let start = Instant::now();
         let content_refs: Vec<_> =
-            trafos::trafo_from_res_ids_to_content(md_res_ids.iter(), &md_content_cache).collect();
+            trafos::trafo_from_res_ids_to_content(&md_res_ids, &md_content_cache).collect();
 
         let src_2_tgt_iter = trafos::trafo_from_content_list_to_linksrc2tgt(
             content_refs.into_iter(),
@@ -102,15 +101,14 @@ impl Emerald {
         );
 
         let src_2_tgt_index = Src2TargetIndex::new(src_2_tgt_iter);
-
         debug!("Creation of Src2TargetIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let tgt_iter_retriever = TgtLinksMap::new(src_2_tgt_index.iter());
+        let tgt_iter_retriever = TgtLinksMap::new(&src_2_tgt_index);
         debug!("Creation of TgtLinksMap took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let src_iter_retriever = SrcLinksMap::new(src_2_tgt_index.iter());
+        let src_iter_retriever = SrcLinksMap::new(&src_2_tgt_index);
         debug!("Creation of SrcLinksMap took: {:?}", start.elapsed());
 
         let start = Instant::now();
@@ -119,7 +117,7 @@ impl Emerald {
         debug!("Creation of StdProviderFactory took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let vault = Vault::new(md_res_ids.iter(), provider_factory.clone());
+        let vault = Vault::new(&md_res_ids, provider_factory.clone());
         debug!("Creation of Vault took: {:?}", start.elapsed());
 
         Ok(Emerald {

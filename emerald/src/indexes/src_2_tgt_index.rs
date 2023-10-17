@@ -13,7 +13,7 @@ pub struct Src2TargetIndex {
 }
 
 impl Src2TargetIndex {
-    pub fn new(iter: impl Iterator<Item = LinkSrc2Tgt>) -> Self {
+    pub fn new(it_src: impl IntoIterator<Item = LinkSrc2Tgt>) -> Self {
         let mut src_2_tgt_list = Vec::<LinkSrc2Tgt>::new();
 
         let mut valid_backlink_cnt: usize = 0;
@@ -21,7 +21,7 @@ impl Src2TargetIndex {
         let mut note_valid_backlink_cnt: usize = 0;
         let mut note_invalid_backlink_cnt: usize = 0;
 
-        let mut iter_mut = iter;
+        let mut iter_mut = it_src.into_iter();
         let mut opt_last_src: Option<ResourceId> = None;
         loop {
             let Some(s2t) = iter_mut.next() else {
@@ -79,7 +79,14 @@ impl Src2TargetIndex {
     pub fn get_invalid_backlink_cnt(&self) -> usize {
         self.invalid_backlink_cnt
     }
-    pub fn iter(&self) -> impl Iterator<Item = &'_ LinkSrc2Tgt> {
+}
+
+impl<'a> IntoIterator for &'a Src2TargetIndex {
+    type Item = &'a LinkSrc2Tgt;
+
+    type IntoIter = std::slice::Iter<'a, LinkSrc2Tgt>;
+
+    fn into_iter(self) -> Self::IntoIter {
         self.src_2_tgt_list.iter()
     }
 }

@@ -15,9 +15,9 @@ pub struct SrcLinksMap {
 }
 
 impl SrcLinksMap {
-    pub fn new<'a>(iter: impl Iterator<Item = &'a LinkSrc2Tgt>) -> Self {
+    pub fn new<'a>(it_src: impl IntoIterator<Item = &'a LinkSrc2Tgt>) -> Self {
         let mut src_2_tgt_map = Tgt2LinkFrmSrcMap::new();
-        for s2t in iter {
+        for s2t in it_src.into_iter() {
             let link_from_source = s2t.get_link_from_source();
             let tgt = if let Some(tgt) = s2t.tgt.clone() {
                 tgt
