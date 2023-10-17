@@ -93,7 +93,7 @@ impl Emerald {
 
         let start = Instant::now();
         let content_refs: Vec<_> =
-            trafos::trafo_from_res_ids_to_content(md_res_ids.iter(), &md_content_cache).collect();
+            trafos::trafo_from_res_ids_to_content(&md_res_ids, &md_content_cache).collect();
 
         let src_2_tgt_iter = trafos::trafo_from_content_list_to_linksrc2tgt(
             content_refs.into_iter(),
