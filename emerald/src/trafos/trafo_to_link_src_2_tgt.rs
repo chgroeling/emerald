@@ -10,9 +10,10 @@ use log::{debug, error, info, trace, warn};
 
 fn trafo_from_link_2_tgt_to_link_src_2_tgt<'a>(
     src: &'a ResourceId,
-    iter: impl Iterator<Item = Link2Tgt> + 'a,
+    iter: impl IntoIterator<Item = Link2Tgt> + 'a,
 ) -> impl Iterator<Item = LinkSrc2Tgt> + 'a {
-    iter.map(move |f| LinkSrc2Tgt::from_link_to_target(src.clone(), f))
+    iter.into_iter()
+        .map(move |f| LinkSrc2Tgt::from_link_to_target(src.clone(), f))
 }
 
 fn extract_links_from_content<'a, I, Iter>(
