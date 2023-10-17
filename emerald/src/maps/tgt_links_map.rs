@@ -15,9 +15,9 @@ pub struct TgtLinksMap {
 }
 
 impl TgtLinksMap {
-    pub fn new<'a>(iter: impl Iterator<Item = &'a LinkSrc2Tgt>) -> Self {
+    pub fn new<'a>(iter: impl IntoIterator<Item = &'a LinkSrc2Tgt>) -> Self {
         let mut link_2_tgt_map = Src2Link2TgtMap::new();
-        for s2t in iter {
+        for s2t in iter.into_iter() {
             let link_to_target = s2t.get_link_to_target();
 
             match link_2_tgt_map.entry(s2t.src.clone()) {

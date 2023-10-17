@@ -19,11 +19,11 @@ pub struct ResourceIdLinkMap {
 }
 
 impl ResourceIdLinkMap {
-    pub fn new<'a>(iter: impl Iterator<Item = (&'a ResourceId, String)>) -> Self {
+    pub fn new<'a>(iter: impl IntoIterator<Item = (&'a ResourceId, String)>) -> Self {
         // Assumption: All resource ids are encoded in utf8 nfc
         let mut name_to_resource_id_list: NameToResourceIdList = NameToResourceIdList::new();
 
-        for (resource_id, normalized_link) in iter {
+        for (resource_id, normalized_link) in iter.into_iter() {
             trace!("Insert {:?} -> {:?}", &normalized_link, &resource_id);
 
             // this is an interesting way to mutate an element in a HashMap

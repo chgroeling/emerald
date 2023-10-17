@@ -34,7 +34,7 @@ where
 }
 
 pub fn trafo_from_content_list_to_linksrc2tgt<'a, I, Iter>(
-    iter: impl Iterator<Item = (&'a ResourceId, Result<&'a Content>)> + 'a,
+    iter: impl IntoIterator<Item = (&'a ResourceId, Result<&'a Content>)> + 'a,
     resource_id_retriever: &'a impl ResourceIdRetriever,
     md_analyzer: &'a I,
 ) -> impl Iterator<Item = LinkSrc2Tgt> + 'a
@@ -42,7 +42,7 @@ where
     I: Fn(&'a str) -> Iter,
     Iter: Iterator<Item = ContentType<'a>> + 'a,
 {
-    let unwrap_iter = iter.filter_map(|f| {
+    let unwrap_iter = iter.into_iter().filter_map(|f| {
         if let Ok(content) = f.1 {
             return Some((f.0, content));
         }

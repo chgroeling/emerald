@@ -15,7 +15,7 @@ pub struct EndpointResourceIdMap {
 
 impl EndpointResourceIdMap {
     pub fn new<'a>(
-        iter: impl Iterator<Item = &'a EndPoint>,
+        iter: impl IntoIterator<Item = &'a EndPoint>,
         resource_id_resolver: &impl ResourceIdResolver,
     ) -> Self {
         let mut resource_id_to_endpoint = HashMap::<ResourceId, EndPoint>::new();

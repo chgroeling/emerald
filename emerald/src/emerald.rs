@@ -44,14 +44,14 @@ impl Emerald {
         debug!("Creation of EndpointIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let resource_id_resolver = ResourceIdEndPointMap::new(ep_index.iter(), vault_path);
+        let resource_id_resolver = ResourceIdEndPointMap::new(&ep_index, vault_path);
         debug!(
             "Creation of ResourceIdEndPointMap took: {:?}",
             start.elapsed()
         );
 
         let start = Instant::now();
-        let endpoint_resolver = EndpointResourceIdMap::new(ep_index.iter(), &resource_id_resolver);
+        let endpoint_resolver = EndpointResourceIdMap::new(&ep_index, &resource_id_resolver);
         debug!(
             "Creation of EndpointResourceIdMap took: {:?}",
             start.elapsed()
@@ -87,7 +87,7 @@ impl Emerald {
         debug!("Creation of ResourceIdLinkMap took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let md_content_cache = MdContentCache::new(md_res_ids.iter(), &content_loader);
+        let md_content_cache = MdContentCache::new(&md_res_ids, &content_loader);
         debug!("Creation of ContentFullMdCache took: {:?}", start.elapsed());
 
         let start = Instant::now();
@@ -101,7 +101,6 @@ impl Emerald {
         );
 
         let src_2_tgt_index = Src2TargetIndex::new(src_2_tgt_iter);
-
         debug!("Creation of Src2TargetIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
@@ -118,7 +117,7 @@ impl Emerald {
         debug!("Creation of StdProviderFactory took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let vault = Vault::new(md_res_ids.iter(), provider_factory.clone());
+        let vault = Vault::new(&md_res_ids, provider_factory.clone());
         debug!("Creation of Vault took: {:?}", start.elapsed());
 
         Ok(Emerald {
