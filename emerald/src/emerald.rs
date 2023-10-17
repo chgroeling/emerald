@@ -82,7 +82,7 @@ impl Emerald {
         );
 
         let start = Instant::now();
-        let name_iter = trafos::trafo_from_res_id_to_name(all_res_ids.iter());
+        let name_iter = trafos::trafo_from_res_id_to_name(&all_res_ids);
         let resource_id_retriever = ResourceIdLinkMap::new(name_iter);
         debug!("Creation of ResourceIdLinkMap took: {:?}", start.elapsed());
 
