@@ -66,7 +66,7 @@ impl Emerald {
         debug!("Creation of FileMetaDataLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let res_id_iter = trafos::trafo_ep_to_rid(ep_index.iter(), &resource_id_resolver);
+        let res_id_iter = trafos::trafo_ep_to_rid(&ep_index, &resource_id_resolver);
         let all_res_ids: Vec<ResourceId> = res_id_iter.collect();
 
         // Transform iter: from (ResourceId) to (FileType, ResourceId)
