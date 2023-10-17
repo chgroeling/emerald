@@ -104,11 +104,11 @@ impl Emerald {
         debug!("Creation of Src2TargetIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let tgt_iter_retriever = TgtLinksMap::new(src_2_tgt_index.iter());
+        let tgt_iter_retriever = TgtLinksMap::new(&src_2_tgt_index);
         debug!("Creation of TgtLinksMap took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let src_iter_retriever = SrcLinksMap::new(src_2_tgt_index.iter());
+        let src_iter_retriever = SrcLinksMap::new(&src_2_tgt_index);
         debug!("Creation of SrcLinksMap took: {:?}", start.elapsed());
 
         let start = Instant::now();

@@ -79,7 +79,14 @@ impl Src2TargetIndex {
     pub fn get_invalid_backlink_cnt(&self) -> usize {
         self.invalid_backlink_cnt
     }
-    pub fn iter(&self) -> impl Iterator<Item = &'_ LinkSrc2Tgt> {
+}
+
+impl<'a> IntoIterator for &'a Src2TargetIndex {
+    type Item = &'a LinkSrc2Tgt;
+
+    type IntoIter = std::slice::Iter<'a, LinkSrc2Tgt>;
+
+    fn into_iter(self) -> Self::IntoIter {
         self.src_2_tgt_list.iter()
     }
 }
