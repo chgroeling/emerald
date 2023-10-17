@@ -4,10 +4,10 @@ use crate::{
 };
 
 pub fn trafo_to_filetype_and_res_id<'a>(
-    res_id_iter: impl Iterator<Item = &'a ResourceId> + 'a,
+    res_id_iter: impl IntoIterator<Item = &'a ResourceId> + 'a,
     meta_data_loader: &'a impl MetaDataLoader,
 ) -> impl Iterator<Item = (&'a ResourceId, FileType)> + 'a {
-    res_id_iter.map(|f| {
+    res_id_iter.into_iter().map(|f| {
         let res_meta_data = meta_data_loader.load(f);
         if let Ok(meta_data) = res_meta_data {
             (f, meta_data.file_type)
@@ -45,13 +45,13 @@ mod tests {
         });
 
         // Act
-        let result = trafo_to_filetype_and_res_id(all_res_ids.iter(), &mock_md_loader);
-        let result: Vec<(_, _)> = result.collect();
+        let result = trafo_to_filetype_and_res_id(&all_res_ids, &mock_md_loader);
+        let result: Vec<_> = result.collect();
 
         // Assert
         let rid1: ResourceId = "[[rid1]]".into();
         let rid2: ResourceId = "[[rid2]]".into();
-        let expected: Vec<(_, _)> = vec![
+        let expected: Vec<_> = vec![
             (&rid1, FileType::Unknown("unk".into())),
             (&rid2, FileType::Markdown("md".into())),
         ];
