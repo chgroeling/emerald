@@ -70,7 +70,7 @@ impl Emerald {
         let all_res_ids: Vec<ResourceId> = res_id_iter.collect();
 
         // Transform iter: from (ResourceId) to (FileType, ResourceId)
-        let ft_and_rid_iter = trafos::trafo_to_filetype_and_res_id(&all_res_ids, &meta_data_loader);
+        let ft_and_rid_iter = trafos::trafo_to_res_id_and_filetype(&all_res_ids, &meta_data_loader);
 
         // Filter markdown files
         let md_res_ids_iter = trafos::filter_markdown_types(ft_and_rid_iter);
