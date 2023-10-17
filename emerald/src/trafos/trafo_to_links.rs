@@ -5,7 +5,7 @@ use crate::types::ContentType;
 use crate::types::Link;
 
 pub fn trafo_from_content_type_to_links<'a>(
-    iter: impl IntoIterator<Item = ContentType<'a>> + 'a,
+    it_src: impl IntoIterator<Item = ContentType<'a>> + 'a,
 ) -> impl Iterator<Item = Link> + 'a {
     fn filter_func(pred: &ContentType) -> bool {
         matches!(pred, ContentType::WikiLink(_))
@@ -17,5 +17,5 @@ pub fn trafo_from_content_type_to_links<'a>(
             _ => panic!(),
         }
     }
-    iter.into_iter().filter(filter_func).map(map_func)
+    it_src.into_iter().filter(filter_func).map(map_func)
 }

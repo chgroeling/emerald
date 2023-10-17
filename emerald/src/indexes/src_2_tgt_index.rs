@@ -13,7 +13,7 @@ pub struct Src2TargetIndex {
 }
 
 impl Src2TargetIndex {
-    pub fn new(iter: impl IntoIterator<Item = LinkSrc2Tgt>) -> Self {
+    pub fn new(it_src: impl IntoIterator<Item = LinkSrc2Tgt>) -> Self {
         let mut src_2_tgt_list = Vec::<LinkSrc2Tgt>::new();
 
         let mut valid_backlink_cnt: usize = 0;
@@ -21,7 +21,7 @@ impl Src2TargetIndex {
         let mut note_valid_backlink_cnt: usize = 0;
         let mut note_invalid_backlink_cnt: usize = 0;
 
-        let mut iter_mut = iter.into_iter();
+        let mut iter_mut = it_src.into_iter();
         let mut opt_last_src: Option<ResourceId> = None;
         loop {
             let Some(s2t) = iter_mut.next() else {

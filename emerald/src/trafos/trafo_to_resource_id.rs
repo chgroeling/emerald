@@ -7,18 +7,19 @@ use crate::{
 use log::{debug, error, info, trace, warn};
 
 pub fn filter_markdown_types<'a>(
-    iter: impl IntoIterator<Item = (&'a ResourceId, FileType)> + 'a,
+    it_src: impl IntoIterator<Item = (&'a ResourceId, FileType)> + 'a,
 ) -> impl Iterator<Item = &'a ResourceId> + 'a {
-    iter.into_iter()
+    it_src
+        .into_iter()
         .filter(|pred| matches!(pred.1, FileType::Markdown(_)))
         .map(|f| f.0)
 }
 
 pub fn trafo_ep_to_rid<'a>(
-    iter: impl IntoIterator<Item = &'a EndPoint> + 'a,
+    it_src: impl IntoIterator<Item = &'a EndPoint> + 'a,
     resource_id_resolver: &'a impl ResourceIdResolver,
 ) -> impl Iterator<Item = ResourceId> + 'a {
-    iter.into_iter().filter_map(|ep| {
+    it_src.into_iter().filter_map(|ep| {
         let opt_resource_id = resource_id_resolver.resolve(ep);
         if let Ok(resource_id) = opt_resource_id {
             return Some(resource_id);

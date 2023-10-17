@@ -10,9 +10,10 @@ use log::{debug, error, info, trace, warn};
 
 fn trafo_from_link_2_tgt_to_link_src_2_tgt<'a>(
     src: &'a ResourceId,
-    iter: impl IntoIterator<Item = Link2Tgt> + 'a,
+    it_src: impl IntoIterator<Item = Link2Tgt> + 'a,
 ) -> impl Iterator<Item = LinkSrc2Tgt> + 'a {
-    iter.into_iter()
+    it_src
+        .into_iter()
         .map(move |f| LinkSrc2Tgt::from_link_to_target(src.clone(), f))
 }
 
@@ -34,7 +35,7 @@ where
 }
 
 pub fn trafo_from_content_list_to_linksrc2tgt<'a, I, Iter>(
-    iter: impl IntoIterator<Item = (&'a ResourceId, Result<&'a Content>)> + 'a,
+    it_src: impl IntoIterator<Item = (&'a ResourceId, Result<&'a Content>)> + 'a,
     resource_id_retriever: &'a impl ResourceIdRetriever,
     md_analyzer: &'a I,
 ) -> impl Iterator<Item = LinkSrc2Tgt> + 'a
@@ -42,7 +43,7 @@ where
     I: Fn(&'a str) -> Iter,
     Iter: Iterator<Item = ContentType<'a>> + 'a,
 {
-    let unwrap_iter = iter.into_iter().filter_map(|f| {
+    let unwrap_iter = it_src.into_iter().filter_map(|f| {
         if let Ok(content) = f.1 {
             return Some((f.0, content));
         }

@@ -4,10 +4,10 @@ use crate::{
 };
 
 pub fn trafo_to_res_id_and_filetype<'a>(
-    res_id_iter: impl IntoIterator<Item = &'a ResourceId> + 'a,
+    it_src: impl IntoIterator<Item = &'a ResourceId> + 'a,
     meta_data_loader: &'a impl MetaDataLoader,
 ) -> impl Iterator<Item = (&'a ResourceId, FileType)> + 'a {
-    res_id_iter.into_iter().map(|f| {
+    it_src.into_iter().map(|f| {
         let res_meta_data = meta_data_loader.load(f);
         if let Ok(meta_data) = res_meta_data {
             (f, meta_data.file_type)

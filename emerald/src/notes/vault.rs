@@ -15,8 +15,8 @@ impl<U> Vault<U>
 where
     U: ProviderFactory,
 {
-    pub fn new<'a>(iter: impl IntoIterator<Item = &'a ResourceId>, provider_factory: U) -> Self {
-        let md_resource_ids = iter.into_iter().cloned().collect();
+    pub fn new<'a>(it_src: impl IntoIterator<Item = &'a ResourceId>, provider_factory: U) -> Self {
+        let md_resource_ids = it_src.into_iter().cloned().collect();
         Self {
             md_resource_ids,
             provider_factory,
