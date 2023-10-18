@@ -9,6 +9,24 @@ use crate::{maps::ResourceIdRetriever, types::Content};
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
+trait MyTrait<'a, T, Iter>
+where
+    T: Fn(&'a str) -> Iter,
+    Iter: Iterator<Item = ContentType<'a>> + 'a,
+{
+    fn call(&self, md: &'a str) -> Iter;
+}
+
+impl<'a, T, Iter> MyTrait<'a, T, Iter> for &'a T
+where
+    T: Fn(&'a str) -> Iter,
+    Iter: Iterator<Item = ContentType<'a>> + 'a,
+{
+    fn call(&self, md: &'a str) -> Iter {
+        self(md)
+    }
+}
+
 fn trafo_from_link_2_tgt_to_link_src_2_tgt<'a>(
     src: &'a ResourceId,
     it_src: impl IntoIterator<Item = Link2Tgt> + 'a,
