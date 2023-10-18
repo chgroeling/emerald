@@ -1,8 +1,8 @@
-use super::trafo_to_content_types::trafo_from_content_to_content_type;
 use super::trafo_to_link_2_tgt::trafo_from_links_to_link_2_tgt;
 use super::trafo_to_links::trafo_from_content_type_to_links;
 
-use crate::types::{ContentType, Link2Tgt, LinkSrc2Tgt, ResourceId};
+use crate::markdown::MarkdownAnalyzer;
+use crate::types::{Link2Tgt, LinkSrc2Tgt, ResourceId};
 use crate::Result;
 use crate::{maps::ResourceIdRetriever, types::Content};
 
@@ -18,32 +18,24 @@ fn trafo_from_link_2_tgt_to_link_src_2_tgt<'a>(
         .map(move |f| LinkSrc2Tgt::from_link_to_target(src.clone(), f))
 }
 
-fn extract_links_from_content<'a, I, Iter>(
+fn extract_links_from_content<'a, I: MarkdownAnalyzer<'a>>(
     src: &'a ResourceId,
     content: &'a Content,
     resource_id_retriever: &'a impl ResourceIdRetriever,
-    md_analyzer: &'a I,
-) -> impl Iterator<Item = LinkSrc2Tgt> + 'a
-where
-    I: Fn(&'a str) -> Iter,
-    Iter: Iterator<Item = ContentType<'a>> + 'a,
-{
+    md_analyzer: I,
+) -> impl Iterator<Item = LinkSrc2Tgt> + 'a {
     trace!("Link extraction from {:?} starts", src);
-    let content_type_iter = trafo_from_content_to_content_type(content, md_analyzer);
+    let content_type_iter = md_analyzer.analyze(&content.0);
     let link_iter = trafo_from_content_type_to_links(content_type_iter);
     let link_2_tgt_iter = trafo_from_links_to_link_2_tgt(link_iter, resource_id_retriever);
     trafo_from_link_2_tgt_to_link_src_2_tgt(src, link_2_tgt_iter)
 }
 
-pub fn trafo_from_content_list_to_linksrc2tgt<'a, I, Iter>(
+pub fn trafo_from_content_list_to_linksrc2tgt<'a, I: MarkdownAnalyzer<'a> + 'a + Copy>(
     it_src: impl IntoIterator<Item = (&'a ResourceId, Result<&'a Content>)> + 'a,
     resource_id_retriever: &'a impl ResourceIdRetriever,
-    md_analyzer: &'a I,
-) -> impl Iterator<Item = LinkSrc2Tgt> + 'a
-where
-    I: Fn(&'a str) -> Iter,
-    Iter: Iterator<Item = ContentType<'a>> + 'a,
-{
+    md_analyzer: I,
+) -> impl Iterator<Item = LinkSrc2Tgt> + 'a {
     let uwit = it_src.into_iter().filter_map(|f| {
         if let Ok(content) = f.1 {
             return Some((f.0, content));
