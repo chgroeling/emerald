@@ -1,7 +1,7 @@
 use super::trafo_to_link_2_tgt::trafo_from_links_to_link_2_tgt;
 use super::trafo_to_links::trafo_from_content_type_to_links;
 
-use crate::md_analyzer::MdAnalyzer;
+use crate::markdown::MdAnalyzer;
 use crate::types::{Link2Tgt, LinkSrc2Tgt, ResourceId};
 use crate::Result;
 use crate::{maps::ResourceIdRetriever, types::Content};
