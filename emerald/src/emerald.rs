@@ -2,7 +2,7 @@ use crate::indexes::Src2TargetIndex;
 use crate::maps::resource_id_link_map::ResourceIdLinkMap;
 use crate::maps::src_links_map::SrcLinksMap;
 use crate::maps::tgt_links_map::TgtLinksMap;
-use crate::markdown::MdAnalyzerLocal;
+use crate::markdown::MarkdownAnalyzerLocal;
 use crate::notes::providers::std_provider_factory::StdProviderFactory;
 use crate::notes::vault::Vault;
 use crate::resources;
@@ -97,7 +97,7 @@ impl Emerald {
         let src_2_tgt_iter = trafos::trafo_from_content_list_to_linksrc2tgt(
             content_refs.into_iter(),
             &resource_id_retriever,
-            MdAnalyzerLocal::new(),
+            MarkdownAnalyzerLocal::new(),
         );
 
         let src_2_tgt_index = Src2TargetIndex::new(src_2_tgt_iter);

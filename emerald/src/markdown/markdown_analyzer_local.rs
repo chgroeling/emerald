@@ -1,15 +1,15 @@
-use super::{markdown_analyzer_iter::MarkdownAnalyzerIter, md_analyzer::MdAnalyzer};
+use super::{markdown_analyzer::MarkdownAnalyzer, markdown_analyzer_iter::MarkdownAnalyzerIter};
 
 #[derive(Debug, Clone, Copy, PartialEq, Hash)]
-pub struct MdAnalyzerLocal;
+pub struct MarkdownAnalyzerLocal;
 
-impl MdAnalyzerLocal {
+impl MarkdownAnalyzerLocal {
     pub fn new() -> Self {
         Self {}
     }
 }
 
-impl<'a> MdAnalyzer<'a> for MdAnalyzerLocal {
+impl<'a> MarkdownAnalyzer<'a> for MarkdownAnalyzerLocal {
     type Iterator = MarkdownAnalyzerIter<'a>;
 
     fn analyze(&self, md_str: &'a str) -> Self::Iterator {
