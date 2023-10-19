@@ -1,6 +1,6 @@
 use crate::types::ResourceId;
 
-pub fn trafo_from_res_id_to_name<'a>(
+pub fn adapter_from_rid_to_name<'a>(
     it_src: impl IntoIterator<Item = &'a ResourceId>,
 ) -> impl Iterator<Item = (&'a ResourceId, String)> {
     // Assumption: All resource ids are encoded in utf8 nfc

@@ -1,4 +1,4 @@
-use crate::resources::endpoint_resolver::EndPointResolver;
+use crate::resources::endpoint_retriever::EndpointRetriever;
 use crate::types::Content;
 use crate::types::EndPoint;
 use crate::types::ResourceId;
@@ -13,14 +13,14 @@ use super::content_loader::ContentLoader;
 #[derive(Clone)]
 pub struct FileContentLoader<I>
 where
-    I: EndPointResolver,
+    I: EndpointRetriever,
 {
     ep_retriever: I,
 }
 
 impl<I> FileContentLoader<I>
 where
-    I: EndPointResolver,
+    I: EndpointRetriever,
 {
     pub fn new(ep_retriever: I) -> Self {
         Self { ep_retriever }
@@ -29,10 +29,10 @@ where
 
 impl<I> ContentLoader for FileContentLoader<I>
 where
-    I: EndPointResolver,
+    I: EndpointRetriever,
 {
     fn load(&self, resource_id: &ResourceId) -> Result<Content> {
-        let endpoint = self.ep_retriever.resolve(resource_id)?;
+        let endpoint = self.ep_retriever.retrieve(resource_id)?;
 
         match endpoint {
             EndPoint::FileMarkdown(md_path) => Ok(fs::read_to_string(md_path)?.into()),

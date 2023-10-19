@@ -1,12 +1,12 @@
 use crate::{
-    resources::resource_id_resolver::ResourceIdResolver,
+    resources::resource_id_retriever::ResourceIdRetriever,
     types::{EndPoint, FileType, ResourceId},
 };
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-pub fn filter_markdown_types<'a>(
+pub fn adapter_rid_and_file_type_to_rid<'a>(
     it_src: impl IntoIterator<Item = (&'a ResourceId, FileType)> + 'a,
 ) -> impl Iterator<Item = &'a ResourceId> + 'a {
     it_src
@@ -15,12 +15,12 @@ pub fn filter_markdown_types<'a>(
         .map(|f| f.0)
 }
 
-pub fn trafo_ep_to_rid<'a>(
+pub fn adapter_ep_to_rid<'a>(
     it_src: impl IntoIterator<Item = &'a EndPoint> + 'a,
-    resource_id_resolver: &'a impl ResourceIdResolver,
+    resource_id_resolver: &'a impl ResourceIdRetriever,
 ) -> impl Iterator<Item = ResourceId> + 'a {
     it_src.into_iter().filter_map(|ep| {
-        let opt_resource_id = resource_id_resolver.resolve(ep);
+        let opt_resource_id = resource_id_resolver.retrieve(ep);
         if let Ok(resource_id) = opt_resource_id {
             return Some(resource_id);
         }
@@ -36,7 +36,7 @@ pub fn trafo_ep_to_rid<'a>(
 #[cfg(test)]
 mod tests {
     use super::ResourceId;
-    use crate::{trafos::filter_markdown_types, types::FileType};
+    use crate::{adapters::adapter_rid_and_file_type_to_rid, types::FileType};
 
     #[test]
     fn test_filter_markdown_types_two_but_one_remains() {
@@ -49,7 +49,7 @@ mod tests {
         ];
 
         // Act
-        let result: Vec<_> = filter_markdown_types(all_res_ids.into_iter()).collect();
+        let result: Vec<_> = adapter_rid_and_file_type_to_rid(all_res_ids.into_iter()).collect();
 
         // Assert
         let rid2_exp: ResourceId = "[[rid2]]".into();

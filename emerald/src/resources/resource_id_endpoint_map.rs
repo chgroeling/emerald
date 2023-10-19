@@ -9,7 +9,7 @@ use crate::{
 };
 use EmeraldError::*;
 
-use super::resource_id_resolver::ResourceIdResolver;
+use super::resource_id_retriever::ResourceIdRetriever;
 
 #[derive(Clone)]
 pub struct ResourceIdEndPointMap {
@@ -34,8 +34,8 @@ impl ResourceIdEndPointMap {
     }
 }
 
-impl ResourceIdResolver for ResourceIdEndPointMap {
-    fn resolve(&self, ep: &EndPoint) -> Result<ResourceId> {
+impl ResourceIdRetriever for ResourceIdEndPointMap {
+    fn retrieve(&self, ep: &EndPoint) -> Result<ResourceId> {
         self.ep_to_resource_id
             .get(ep)
             .map_or(Err(EndpointHasNoResourceId(ep.clone())), |f| Ok(f.clone()))
@@ -45,7 +45,7 @@ impl ResourceIdResolver for ResourceIdEndPointMap {
 #[cfg(test)]
 mod tests {
     use crate::resources::resource_id_endpoint_map::ResourceIdEndPointMap;
-    use crate::resources::resource_id_resolver::ResourceIdResolver;
+    use crate::resources::resource_id_retriever::ResourceIdRetriever;
     use crate::types::EndPoint;
     use crate::types::ResourceId;
     use std::path::PathBuf;
@@ -57,7 +57,7 @@ mod tests {
 
         let dut = ResourceIdEndPointMap::new(test_data.iter(), &common_path);
         let ep = dut
-            .resolve(&EndPoint::FileUnknown("testpäth".into()))
+            .retrieve(&EndPoint::FileUnknown("testpäth".into()))
             .unwrap();
         assert_eq!(ep, ResourceId("[[testpäth]]".into()));
     }
@@ -69,7 +69,7 @@ mod tests {
 
         let dut = ResourceIdEndPointMap::new(test_data.iter(), &common_path);
         let ep = dut
-            .resolve(&EndPoint::FileUnknown("testpäth".into()))
+            .retrieve(&EndPoint::FileUnknown("testpäth".into()))
             .unwrap();
         assert_eq!(ep, ResourceId("[[testpäth]]".into()));
     }

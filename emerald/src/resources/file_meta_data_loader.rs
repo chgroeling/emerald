@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use crate::resources::endpoint_resolver::EndPointResolver;
+use crate::resources::endpoint_retriever::EndpointRetriever;
 use crate::types::EndPoint;
 use crate::types::FileType;
 use crate::types::MetaData;
@@ -18,14 +18,14 @@ use super::meta_data_loader::MetaDataLoader;
 #[derive(Clone)]
 pub struct FileMetaDataLoader<I>
 where
-    I: EndPointResolver,
+    I: EndpointRetriever,
 {
     ep_retriever: I,
 }
 
 impl<I> FileMetaDataLoader<I>
 where
-    I: EndPointResolver,
+    I: EndpointRetriever,
 {
     pub fn new(ep_retriever: I) -> Self {
         Self { ep_retriever }
@@ -59,10 +59,10 @@ where
 
 impl<I> MetaDataLoader for FileMetaDataLoader<I>
 where
-    I: EndPointResolver,
+    I: EndpointRetriever,
 {
     fn load(&self, resource_id: &ResourceId) -> Result<MetaData> {
-        let ep = self.ep_retriever.resolve(resource_id)?;
+        let ep = self.ep_retriever.retrieve(resource_id)?;
 
         #[allow(unreachable_patterns)]
         match ep {
