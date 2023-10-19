@@ -11,7 +11,7 @@ use crate::resources::endpoint_resource_id_map::EndpointResourceIdMap;
 use crate::resources::file_content_loader::FileContentLoader;
 use crate::resources::md_content_cache::MdContentCache;
 use crate::resources::resource_id_endpoint_map::ResourceIdEndPointMap;
-use crate::types::{EndPoint, ResourceId};
+use crate::types::EndPoint;
 use crate::Result;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
@@ -65,7 +65,7 @@ impl Emerald {
 
         let start = Instant::now();
         let res_id_iter = adapters::adapter_ep_to_rid(&ep_index, &resource_id_resolver);
-        let all_res_ids: Vec<ResourceId> = res_id_iter.collect();
+        let all_res_ids: Vec<_> = res_id_iter.collect();
 
         // Transform iter: from (ResourceId) to (FileType, ResourceId)
         let ft_and_rid_iter =
@@ -73,7 +73,7 @@ impl Emerald {
 
         // Filter markdown files
         let md_res_ids_iter = adapters::adapter_rid_and_file_type_to_rid(ft_and_rid_iter);
-        let md_res_ids: Vec<ResourceId> = md_res_ids_iter.cloned().collect();
+        let md_res_ids: Vec<_> = md_res_ids_iter.cloned().collect();
         let elapsed = start.elapsed();
         debug!("Creation of Resource Id indexes took: {:?}", elapsed);
 
