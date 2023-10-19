@@ -1,5 +1,5 @@
 use crate::{
-    resources::resource_id_resolver::ResourceIdResolver,
+    resources::resource_id_resolver::ResourceIdRetriever,
     types::{EndPoint, FileType, ResourceId},
 };
 
@@ -17,7 +17,7 @@ pub fn adapter_rid_and_file_type_to_rid<'a>(
 
 pub fn adapter_ep_to_rid<'a>(
     it_src: impl IntoIterator<Item = &'a EndPoint> + 'a,
-    resource_id_resolver: &'a impl ResourceIdResolver,
+    resource_id_resolver: &'a impl ResourceIdRetriever,
 ) -> impl Iterator<Item = ResourceId> + 'a {
     it_src.into_iter().filter_map(|ep| {
         let opt_resource_id = resource_id_resolver.resolve(ep);

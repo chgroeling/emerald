@@ -1,4 +1,4 @@
-use crate::{resources::resource_id_resolver::ResourceIdResolver, EmeraldError, Result};
+use crate::{resources::resource_id_resolver::ResourceIdRetriever, EmeraldError, Result};
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 use std::{collections::HashMap, rc::Rc};
@@ -16,11 +16,11 @@ pub struct EndpointResourceIdMap {
 impl EndpointResourceIdMap {
     pub fn new<'a>(
         it_src: impl IntoIterator<Item = &'a EndPoint>,
-        resource_id_resolver: &impl ResourceIdResolver,
+        resource_id_retriever: &impl ResourceIdRetriever,
     ) -> Self {
         let mut resource_id_to_endpoint = HashMap::<ResourceId, EndPoint>::new();
         for ep in it_src {
-            let opt_resource_id = resource_id_resolver.resolve(ep);
+            let opt_resource_id = resource_id_retriever.resolve(ep);
 
             if let Ok(resource_id) = opt_resource_id {
                 resource_id_to_endpoint.insert(resource_id, ep.clone());

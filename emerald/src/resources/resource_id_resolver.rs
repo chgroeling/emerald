@@ -4,7 +4,7 @@ use crate::Result;
 #[cfg(test)]
 use mockall::{mock, predicate::*};
 
-pub trait ResourceIdResolver {
+pub trait ResourceIdRetriever {
     fn resolve(&self, endpoint: &EndPoint) -> Result<ResourceId>;
 }
 
@@ -13,7 +13,7 @@ mock! {
 
     pub ResourceIdResolver{}
 
-    impl ResourceIdResolver for ResourceIdResolver {
+    impl ResourceIdRetriever for ResourceIdResolver {
         fn resolve(&self, endpoint: &EndPoint) -> Result<ResourceId>;
     }
 
