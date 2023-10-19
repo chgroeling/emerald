@@ -20,7 +20,7 @@ pub fn adapter_ep_to_rid<'a>(
     resource_id_resolver: &'a impl ResourceIdRetriever,
 ) -> impl Iterator<Item = ResourceId> + 'a {
     it_src.into_iter().filter_map(|ep| {
-        let opt_resource_id = resource_id_resolver.resolve(ep);
+        let opt_resource_id = resource_id_resolver.retrieve(ep);
         if let Ok(resource_id) = opt_resource_id {
             return Some(resource_id);
         }

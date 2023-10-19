@@ -35,7 +35,7 @@ impl ResourceIdEndPointMap {
 }
 
 impl ResourceIdRetriever for ResourceIdEndPointMap {
-    fn resolve(&self, ep: &EndPoint) -> Result<ResourceId> {
+    fn retrieve(&self, ep: &EndPoint) -> Result<ResourceId> {
         self.ep_to_resource_id
             .get(ep)
             .map_or(Err(EndpointHasNoResourceId(ep.clone())), |f| Ok(f.clone()))
@@ -57,7 +57,7 @@ mod tests {
 
         let dut = ResourceIdEndPointMap::new(test_data.iter(), &common_path);
         let ep = dut
-            .resolve(&EndPoint::FileUnknown("testpäth".into()))
+            .retrieve(&EndPoint::FileUnknown("testpäth".into()))
             .unwrap();
         assert_eq!(ep, ResourceId("[[testpäth]]".into()));
     }
@@ -69,7 +69,7 @@ mod tests {
 
         let dut = ResourceIdEndPointMap::new(test_data.iter(), &common_path);
         let ep = dut
-            .resolve(&EndPoint::FileUnknown("testpäth".into()))
+            .retrieve(&EndPoint::FileUnknown("testpäth".into()))
             .unwrap();
         assert_eq!(ep, ResourceId("[[testpäth]]".into()));
     }

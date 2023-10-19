@@ -20,7 +20,7 @@ impl EndpointResourceIdMap {
     ) -> Self {
         let mut resource_id_to_endpoint = HashMap::<ResourceId, EndPoint>::new();
         for ep in it_src {
-            let opt_resource_id = resource_id_retriever.resolve(ep);
+            let opt_resource_id = resource_id_retriever.retrieve(ep);
 
             if let Ok(resource_id) = opt_resource_id {
                 resource_id_to_endpoint.insert(resource_id, ep.clone());
@@ -54,7 +54,7 @@ mod tests {
     fn create_dut(test_ep_list: Vec<EndPoint>) -> EndpointResourceIdMap {
         let mut mock_res_id_res = MockResourceIdResolver::new();
         mock_res_id_res
-            .expect_resolve()
+            .expect_retrieve()
             .withf(|f| matches!(f, EndPoint::FileUnknown(path) if path==&PathBuf::from("testpath")))
             .returning(|_f| Ok(ResourceId("[[testpath]]".to_string())));
 
@@ -75,7 +75,7 @@ mod tests {
 
         let mut mock_res_id_res = MockResourceIdResolver::new();
         mock_res_id_res
-            .expect_resolve()
+            .expect_retrieve()
             .returning(|_f| Ok(ResourceId("[[doesnt matter]]".to_string())));
 
         let _dut = EndpointResourceIdMap::new(test_ep_list.iter(), &mock_res_id_res);
@@ -87,7 +87,7 @@ mod tests {
 
         let mut mock_res_id_res = MockResourceIdResolver::new();
         mock_res_id_res
-            .expect_resolve()
+            .expect_retrieve()
             .withf(|f| matches!(f, EndPoint::FileUnknown(path) if path==&PathBuf::from("testpath")))
             .returning(|_f| Ok(ResourceId("[[doesnt matter]]".to_string())));
 

@@ -1,4 +1,4 @@
-pub mod content_loader;
+mod content_loader;
 pub mod endpoint_resolver;
 pub mod endpoint_resource_id_map;
 pub mod file_content_loader;
