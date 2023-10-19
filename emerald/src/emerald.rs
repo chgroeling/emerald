@@ -83,7 +83,7 @@ impl Emerald {
         );
 
         let start = Instant::now();
-        let name_iter = adapters::trafo_from_rid_to_name(&all_res_ids);
+        let name_iter = adapters::adapter_from_rid_to_name(&all_res_ids);
         let resource_id_retriever = ResourceIdLinkMap::new(name_iter);
         debug!("Creation of ResourceIdLinkMap took: {:?}", start.elapsed());
 
@@ -96,7 +96,7 @@ impl Emerald {
             adapters::adapter_from_rids_to_rids_and_content(&md_res_ids, &md_content_cache)
                 .collect();
 
-        let src_2_tgt_iter = adapters::trafo_from_content_list_to_linksrc2tgt(
+        let src_2_tgt_iter = adapters::adapter_from_rid_and_content_to_link_src_2_tgt(
             content_refs.into_iter(),
             &resource_id_retriever,
             MarkdownAnalyzerLocal::new(),
