@@ -5,7 +5,7 @@ pub mod file_content_loader;
 pub mod md_content_cache;
 pub mod md_content_retriever;
 pub mod resource_id_endpoint_map;
-pub mod resource_id_resolver;
+pub mod resource_id_retriever;
 
 mod adapter_pathes_to_endpoints;
 mod get_path_list;

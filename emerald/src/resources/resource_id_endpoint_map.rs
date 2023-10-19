@@ -9,7 +9,7 @@ use crate::{
 };
 use EmeraldError::*;
 
-use super::resource_id_resolver::ResourceIdRetriever;
+use super::resource_id_retriever::ResourceIdRetriever;
 
 #[derive(Clone)]
 pub struct ResourceIdEndPointMap {
@@ -45,7 +45,7 @@ impl ResourceIdRetriever for ResourceIdEndPointMap {
 #[cfg(test)]
 mod tests {
     use crate::resources::resource_id_endpoint_map::ResourceIdEndPointMap;
-    use crate::resources::resource_id_resolver::ResourceIdRetriever;
+    use crate::resources::resource_id_retriever::ResourceIdRetriever;
     use crate::types::EndPoint;
     use crate::types::ResourceId;
     use std::path::PathBuf;

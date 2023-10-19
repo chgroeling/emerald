@@ -1,5 +1,5 @@
 use crate::{
-    resources::resource_id_resolver::ResourceIdRetriever,
+    resources::resource_id_retriever::ResourceIdRetriever,
     types::{EndPoint, FileType, ResourceId},
 };
 
