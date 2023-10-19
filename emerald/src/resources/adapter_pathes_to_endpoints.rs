@@ -2,7 +2,7 @@ use crate::types::EndPoint;
 use std::path::PathBuf;
 use EndPoint::*;
 
-pub fn trafo_from_pathes_to_endpoints(file_list: Vec<PathBuf>) -> impl Iterator<Item = EndPoint> {
+pub fn adapter_from_pathes_to_endpoints(file_list: Vec<PathBuf>) -> impl Iterator<Item = EndPoint> {
     let mut endpoint_list = Vec::<EndPoint>::new();
     for file_path in file_list {
         let endpoint = if file_path
