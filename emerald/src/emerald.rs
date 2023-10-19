@@ -45,25 +45,23 @@ impl Emerald {
 
         let start = Instant::now();
         let resource_id_resolver = ResourceIdEndPointMap::new(&ep_index, vault_path);
-        debug!(
-            "Creation of ResourceIdEndPointMap took: {:?}",
-            start.elapsed()
-        );
+        let elapsed = start.elapsed();
+        debug!("Creation of ResourceIdEndPointMap took: {:?}", elapsed);
 
         let start = Instant::now();
         let endpoint_resolver = EndpointResourceIdMap::new(&ep_index, &resource_id_resolver);
-        debug!(
-            "Creation of EndpointResourceIdMap took: {:?}",
-            start.elapsed()
-        );
+        let elapsed = start.elapsed();
+        debug!("Creation of EndpointResourceIdMap took: {:?}", elapsed);
 
         let start = Instant::now();
         let content_loader = FileContentLoader::new(endpoint_resolver.clone());
-        debug!("Creation of FileContentLoader took: {:?}", start.elapsed());
+        let elapsed = start.elapsed();
+        debug!("Creation of FileContentLoader took: {:?}", elapsed);
 
         let start = Instant::now();
         let meta_data_loader = resources::FileMetaDataLoader::new(endpoint_resolver.clone());
-        debug!("Creation of FileMetaDataLoader took: {:?}", start.elapsed());
+        let elapsed = start.elapsed();
+        debug!("Creation of FileMetaDataLoader took: {:?}", elapsed);
 
         let start = Instant::now();
         let res_id_iter = adapters::adapter_ep_to_rid(&ep_index, &resource_id_resolver);
@@ -76,51 +74,55 @@ impl Emerald {
         // Filter markdown files
         let md_res_ids_iter = adapters::adapter_rid_and_file_type_to_rid(ft_and_rid_iter);
         let md_res_ids: Vec<ResourceId> = md_res_ids_iter.cloned().collect();
-
-        debug!(
-            "Creation of Resource Id indexes took: {:?}",
-            start.elapsed()
-        );
+        let elapsed = start.elapsed();
+        debug!("Creation of Resource Id indexes took: {:?}", elapsed);
 
         let start = Instant::now();
         let name_iter = adapters::adapter_from_rid_to_name(&all_res_ids);
         let resource_id_retriever = ResourceIdLinkMap::new(name_iter);
-        debug!("Creation of ResourceIdLinkMap took: {:?}", start.elapsed());
+        let elapsed = start.elapsed();
+        debug!("Creation of ResourceIdLinkMap took: {:?}", elapsed);
 
         let start = Instant::now();
         let md_content_cache = MdContentCache::new(&md_res_ids, &content_loader);
-        debug!("Creation of ContentFullMdCache took: {:?}", start.elapsed());
+        let elapsed = start.elapsed();
+        debug!("Creation of ContentFullMdCache took: {:?}", elapsed);
 
         let start = Instant::now();
-        let content_refs: Vec<_> =
+        let crefs: Vec<_> =
             adapters::adapter_from_rids_to_rids_and_content(&md_res_ids, &md_content_cache)
                 .collect();
 
         let src_2_tgt_iter = adapters::adapter_from_rid_and_content_to_link_src_2_tgt(
-            content_refs.into_iter(),
+            crefs.into_iter(),
             &resource_id_retriever,
             MarkdownAnalyzerLocal::new(),
         );
 
         let src_2_tgt_index = Src2TargetIndex::new(src_2_tgt_iter);
-        debug!("Creation of Src2TargetIndex took: {:?}", start.elapsed());
+        let elapsed = start.elapsed();
+        debug!("Creation of Src2TargetIndex took: {:?}", elapsed);
 
         let start = Instant::now();
         let tgt_iter_retriever = TgtLinksMap::new(&src_2_tgt_index);
-        debug!("Creation of TgtLinksMap took: {:?}", start.elapsed());
+        let elapsed = start.elapsed();
+        debug!("Creation of TgtLinksMap took: {:?}", elapsed);
 
         let start = Instant::now();
         let src_iter_retriever = SrcLinksMap::new(&src_2_tgt_index);
-        debug!("Creation of SrcLinksMap took: {:?}", start.elapsed());
+        let elapsed = start.elapsed();
+        debug!("Creation of SrcLinksMap took: {:?}", elapsed);
 
         let start = Instant::now();
         let provider_factory =
             StdProviderFactory::new(meta_data_loader.clone(), md_content_cache.clone());
-        debug!("Creation of StdProviderFactory took: {:?}", start.elapsed());
+        let elapsed = start.elapsed();
+        debug!("Creation of StdProviderFactory took: {:?}", elapsed);
 
         let start = Instant::now();
         let vault = Vault::new(&md_res_ids, provider_factory.clone());
-        debug!("Creation of Vault took: {:?}", start.elapsed());
+        let elapsed = start.elapsed();
+        debug!("Creation of Vault took: {:?}", elapsed);
 
         Ok(Emerald {
             resource_id_resolver,
