@@ -4,7 +4,7 @@ use log::{debug, error, info, trace, warn};
 use crate::types::ContentType;
 use crate::types::Link;
 
-pub fn trafo_from_content_type_to_links<'a>(
+pub fn adapter_from_content_type_to_links<'a>(
     it_src: impl IntoIterator<Item = ContentType<'a>> + 'a,
 ) -> impl Iterator<Item = Link> + 'a {
     fn filter_func(pred: &ContentType) -> bool {

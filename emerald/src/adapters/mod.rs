@@ -1,8 +1,8 @@
 mod adapters_to_link_2_tgt;
+mod adapters_to_links;
 mod adapters_to_name;
 mod adapters_to_rids_and_content;
 mod trafo_to_link_src_2_tgt;
-mod trafo_to_links;
 mod trafo_to_resource_id;
 mod trafo_to_resource_id_and_filetype;
 

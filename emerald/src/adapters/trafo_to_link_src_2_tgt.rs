@@ -1,5 +1,5 @@
 use super::adapters_to_link_2_tgt::adapter_from_link_to_link_2_tgt;
-use super::trafo_to_links::trafo_from_content_type_to_links;
+use super::adapters_to_links::adapter_from_content_type_to_links;
 
 use crate::markdown::MarkdownAnalyzer;
 use crate::types::{Link2Tgt, LinkSrc2Tgt, ResourceId};
@@ -26,7 +26,7 @@ fn extract_links_from_content<'a, I: MarkdownAnalyzer<'a>>(
 ) -> impl Iterator<Item = LinkSrc2Tgt> + 'a {
     trace!("Link extraction from {:?} starts", src);
     let content_type_iter = md_analyzer.analyze(&content.0);
-    let link_iter = trafo_from_content_type_to_links(content_type_iter);
+    let link_iter = adapter_from_content_type_to_links(content_type_iter);
     let link_2_tgt_iter = adapter_from_link_to_link_2_tgt(link_iter, resource_id_retriever);
     trafo_from_link_2_tgt_to_link_src_2_tgt(src, link_2_tgt_iter)
 }
