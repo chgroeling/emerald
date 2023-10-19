@@ -20,8 +20,8 @@ pub fn trafo_to_res_id_and_filetype<'a>(
 #[cfg(test)]
 mod tests {
     use crate::{
+        adapters::trafo_to_res_id_and_filetype,
         resources::meta_data_loader::MockMetaDataLoader,
-        trafos::trafo_to_res_id_and_filetype,
         types::{FileType, MetaData, ResourceId},
     };
 

@@ -1,9 +1,9 @@
+mod adapters;
 mod indexes;
 mod maps;
 mod markdown;
 mod notes;
 mod resources;
-mod trafos;
 mod types;
 mod utils;
 

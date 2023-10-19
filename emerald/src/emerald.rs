@@ -1,3 +1,4 @@
+use crate::adapters;
 use crate::indexes::Src2TargetIndex;
 use crate::maps::resource_id_link_map::ResourceIdLinkMap;
 use crate::maps::src_links_map::SrcLinksMap;
@@ -10,7 +11,6 @@ use crate::resources::endpoint_resource_id_map::EndpointResourceIdMap;
 use crate::resources::file_content_loader::FileContentLoader;
 use crate::resources::md_content_cache::MdContentCache;
 use crate::resources::resource_id_endpoint_map::ResourceIdEndPointMap;
-use crate::trafos;
 use crate::types::{EndPoint, ResourceId};
 use crate::Result;
 #[allow(unused_imports)]
@@ -66,14 +66,15 @@ impl Emerald {
         debug!("Creation of FileMetaDataLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let res_id_iter = trafos::trafo_ep_to_rid(&ep_index, &resource_id_resolver);
+        let res_id_iter = adapters::trafo_ep_to_rid(&ep_index, &resource_id_resolver);
         let all_res_ids: Vec<ResourceId> = res_id_iter.collect();
 
         // Transform iter: from (ResourceId) to (FileType, ResourceId)
-        let ft_and_rid_iter = trafos::trafo_to_res_id_and_filetype(&all_res_ids, &meta_data_loader);
+        let ft_and_rid_iter =
+            adapters::trafo_to_res_id_and_filetype(&all_res_ids, &meta_data_loader);
 
         // Filter markdown files
-        let md_res_ids_iter = trafos::filter_markdown_types(ft_and_rid_iter);
+        let md_res_ids_iter = adapters::filter_markdown_types(ft_and_rid_iter);
         let md_res_ids: Vec<ResourceId> = md_res_ids_iter.cloned().collect();
 
         debug!(
@@ -82,7 +83,7 @@ impl Emerald {
         );
 
         let start = Instant::now();
-        let name_iter = trafos::trafo_from_res_id_to_name(&all_res_ids);
+        let name_iter = adapters::trafo_from_res_id_to_name(&all_res_ids);
         let resource_id_retriever = ResourceIdLinkMap::new(name_iter);
         debug!("Creation of ResourceIdLinkMap took: {:?}", start.elapsed());
 
@@ -92,9 +93,9 @@ impl Emerald {
 
         let start = Instant::now();
         let content_refs: Vec<_> =
-            trafos::trafo_from_res_ids_to_content(&md_res_ids, &md_content_cache).collect();
+            adapters::trafo_from_res_ids_to_content(&md_res_ids, &md_content_cache).collect();
 
-        let src_2_tgt_iter = trafos::trafo_from_content_list_to_linksrc2tgt(
+        let src_2_tgt_iter = adapters::trafo_from_content_list_to_linksrc2tgt(
             content_refs.into_iter(),
             &resource_id_retriever,
             MarkdownAnalyzerLocal::new(),
