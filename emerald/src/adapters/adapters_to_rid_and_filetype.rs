@@ -3,7 +3,7 @@ use crate::{
     types::{FileType, ResourceId},
 };
 
-pub fn adapters_to_rid_and_filetype<'a>(
+pub fn adapter_to_rid_and_filetype<'a>(
     it_src: impl IntoIterator<Item = &'a ResourceId> + 'a,
     meta_data_loader: &'a impl MetaDataLoader,
 ) -> impl Iterator<Item = (&'a ResourceId, FileType)> + 'a {
@@ -20,7 +20,7 @@ pub fn adapters_to_rid_and_filetype<'a>(
 #[cfg(test)]
 mod tests {
     use crate::{
-        adapters::adapters_to_rid_and_filetype,
+        adapters::adapter_to_rid_and_filetype,
         resources::meta_data_loader::MockMetaDataLoader,
         types::{FileType, MetaData, ResourceId},
     };
@@ -45,7 +45,7 @@ mod tests {
         });
 
         // Act
-        let result = adapters_to_rid_and_filetype(&all_res_ids, &mock_md_loader);
+        let result = adapter_to_rid_and_filetype(&all_res_ids, &mock_md_loader);
         let result: Vec<_> = result.collect();
 
         // Assert

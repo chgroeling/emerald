@@ -69,7 +69,7 @@ impl Emerald {
 
         // Transform iter: from (ResourceId) to (FileType, ResourceId)
         let ft_and_rid_iter =
-            adapters::adapters_to_rid_and_filetype(&all_res_ids, &meta_data_loader);
+            adapters::adapter_to_rid_and_filetype(&all_res_ids, &meta_data_loader);
 
         // Filter markdown files
         let md_res_ids_iter = adapters::adapter_rid_and_file_type_to_rid(ft_and_rid_iter);
