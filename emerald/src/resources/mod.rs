@@ -1,6 +1,6 @@
 mod content_loader;
-pub mod endpoint_resolver;
 pub mod endpoint_resource_id_map;
+pub mod endpoint_retriever;
 pub mod file_content_loader;
 pub mod md_content_cache;
 pub mod md_content_retriever;

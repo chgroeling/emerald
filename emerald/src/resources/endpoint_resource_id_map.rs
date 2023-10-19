@@ -6,7 +6,7 @@ use std::{collections::HashMap, rc::Rc};
 use crate::types::{EndPoint, ResourceId};
 use EmeraldError::*;
 
-use super::endpoint_resolver::EndPointResolver;
+use super::endpoint_retriever::EndpointRetriever;
 
 #[derive(Clone)]
 pub struct EndpointResourceIdMap {
@@ -34,8 +34,8 @@ impl EndpointResourceIdMap {
     }
 }
 
-impl EndPointResolver for EndpointResourceIdMap {
-    fn resolve(&self, resource_id: &ResourceId) -> Result<EndPoint> {
+impl EndpointRetriever for EndpointResourceIdMap {
+    fn retrieve(&self, resource_id: &ResourceId) -> Result<EndPoint> {
         self.resource_id_to_endpoint
             .get(resource_id)
             .map_or(Err(EndPointNotFound), |f| Ok(f.clone()))
@@ -46,7 +46,7 @@ impl EndPointResolver for EndpointResourceIdMap {
 mod tests {
     use super::EndPoint;
     use super::EndpointResourceIdMap;
-    use crate::resources::endpoint_resolver::EndPointResolver;
+    use crate::resources::endpoint_retriever::EndpointRetriever;
     use crate::resources::resource_id_retriever::MockResourceIdResolver;
     use crate::types::ResourceId;
     use std::path::PathBuf;
@@ -64,7 +64,7 @@ mod tests {
     #[test]
     fn test_resolve_single_entry() {
         let dut = create_dut(vec![EndPoint::FileUnknown("testpath".into())]);
-        let ep = dut.resolve(&"[[testpath]]".into()).unwrap();
+        let ep = dut.retrieve(&"[[testpath]]".into()).unwrap();
 
         assert!(matches!(ep, EndPoint::FileUnknown(path) if path==PathBuf::from("testpath")));
     }
