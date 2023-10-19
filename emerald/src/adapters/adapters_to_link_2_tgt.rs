@@ -6,7 +6,7 @@ use crate::{
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-pub fn trafo_from_links_to_link_2_tgt<'a>(
+pub fn adapter_from_link_to_link_2_tgt<'a>(
     it_src: impl IntoIterator<Item = Link> + 'a,
     resource_id_retriever: &'a impl ResourceIdRetriever,
 ) -> impl Iterator<Item = Link2Tgt> + 'a {
