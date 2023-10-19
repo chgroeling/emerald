@@ -66,7 +66,7 @@ impl Emerald {
         debug!("Creation of FileMetaDataLoader took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let res_id_iter = adapters::trafo_ep_to_rid(&ep_index, &resource_id_resolver);
+        let res_id_iter = adapters::adapter_ep_to_rid(&ep_index, &resource_id_resolver);
         let all_res_ids: Vec<ResourceId> = res_id_iter.collect();
 
         // Transform iter: from (ResourceId) to (FileType, ResourceId)
@@ -74,7 +74,7 @@ impl Emerald {
             adapters::trafo_to_res_id_and_filetype(&all_res_ids, &meta_data_loader);
 
         // Filter markdown files
-        let md_res_ids_iter = adapters::filter_markdown_types(ft_and_rid_iter);
+        let md_res_ids_iter = adapters::adapter_rid_and_file_type_to_rid(ft_and_rid_iter);
         let md_res_ids: Vec<ResourceId> = md_res_ids_iter.cloned().collect();
 
         debug!(
