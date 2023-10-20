@@ -45,30 +45,30 @@ impl Emerald {
         debug!("Creation of EndpointIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let ep_and_res_id: Vec<_> =
-            resources::adapter_ep_to_ep_and_resid(&ep_index, vault_path)?.collect();
+        let ep_and_rid: Vec<_> =
+            resources::adapter_ep_to_ep_and_rid(&ep_index, vault_path)?.collect();
 
-        let resource_id_resolver = ResourceIdEndPointMap::new(&ep_and_res_id)?;
+        let rid_retriever = ResourceIdEndPointMap::new(&ep_and_rid)?;
         let elapsed = start.elapsed();
         debug!("Creation of ResourceIdEndPointMap took: {:?}", elapsed);
 
         let start = Instant::now();
-        let endpoint_resolver = EndpointResourceIdMap::new(&ep_and_res_id)?;
+        let ep_retriever = EndpointResourceIdMap::new(&ep_and_rid)?;
         let elapsed = start.elapsed();
         debug!("Creation of EndpointResourceIdMap took: {:?}", elapsed);
 
         let start = Instant::now();
-        let content_loader = FileContentLoader::new(endpoint_resolver.clone());
+        let content_loader = FileContentLoader::new(ep_retriever.clone());
         let elapsed = start.elapsed();
         debug!("Creation of FileContentLoader took: {:?}", elapsed);
 
         let start = Instant::now();
-        let meta_data_loader = resources::FileMetaDataLoader::new(endpoint_resolver.clone());
+        let meta_data_loader = resources::FileMetaDataLoader::new(ep_retriever.clone());
         let elapsed = start.elapsed();
         debug!("Creation of FileMetaDataLoader took: {:?}", elapsed);
 
         let start = Instant::now();
-        let res_id_iter = adapters::adapter_ep_to_rid(&ep_index, &resource_id_resolver);
+        let res_id_iter = adapters::adapter_ep_to_rid(&ep_index, &rid_retriever);
         let all_res_ids: Vec<_> = res_id_iter.collect();
 
         // Transform iter: from (ResourceId) to (FileType, ResourceId)
@@ -129,8 +129,8 @@ impl Emerald {
         debug!("Creation of Vault took: {:?}", elapsed);
 
         Ok(Emerald {
-            resource_id_resolver,
-            endpoint_resolver,
+            resource_id_resolver: rid_retriever,
+            endpoint_resolver: ep_retriever,
             meta_data_loader,
             resource_id_retriever,
             ep_index,

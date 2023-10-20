@@ -9,7 +9,7 @@ use crate::{
 };
 use EmeraldError::*;
 
-pub fn adapter_ep_to_ep_and_resid<'a>(
+pub fn adapter_ep_to_ep_and_rid<'a>(
     it_src: impl IntoIterator<Item = &'a EndPoint> + 'a,
     common_path: &'a Path,
 ) -> Result<impl Iterator<Item = (EndPoint, ResourceId)> + 'a> {
@@ -35,7 +35,7 @@ pub fn adapter_ep_to_ep_and_resid<'a>(
 
 #[cfg(test)]
 mod tests {
-    use super::adapter_ep_to_ep_and_resid;
+    use super::adapter_ep_to_ep_and_rid;
     use crate::types::EndPoint;
     use crate::types::ResourceId;
     use std::path::PathBuf;
@@ -45,7 +45,7 @@ mod tests {
         let eps: Vec<_> = vec![EndPoint::FileUnknown("testpäth".into())];
         let common_path: PathBuf = "".into();
 
-        let res: Vec<_> = adapter_ep_to_ep_and_resid(eps.iter(), &common_path)
+        let res: Vec<_> = adapter_ep_to_ep_and_rid(eps.iter(), &common_path)
             .unwrap()
             .collect();
 
@@ -63,7 +63,7 @@ mod tests {
         let eps: Vec<_> = vec![EndPoint::FileUnknown("testpäth".into())];
         let common_path: PathBuf = "".into();
 
-        let res: Vec<_> = adapter_ep_to_ep_and_resid(eps.iter(), &common_path)
+        let res: Vec<_> = adapter_ep_to_ep_and_rid(eps.iter(), &common_path)
             .unwrap()
             .collect();
 

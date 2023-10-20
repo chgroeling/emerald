@@ -15,7 +15,7 @@ mod file_meta_data_loader;
 pub mod meta_data_loader;
 
 pub use self::adapter_to_ep::adapter_from_pathes_to_ep;
-pub use self::adapter_to_ep_and_rid::adapter_ep_to_ep_and_resid;
+pub use self::adapter_to_ep_and_rid::adapter_ep_to_ep_and_rid;
 pub use self::file_meta_data_loader::FileMetaDataLoader;
 pub use self::get_path_list::get_path_list;
 pub use self::meta_data_loader::MetaDataLoader;
