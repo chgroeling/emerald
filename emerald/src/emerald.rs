@@ -41,7 +41,7 @@ impl Emerald {
         // Build dependency root
         let start = Instant::now();
         let path_list = resources::get_path_list(vault_path)?;
-        let ep_index: Vec<_> = resources::adapter_from_pathes_to_endpoints(path_list).collect();
+        let ep_index: Vec<_> = resources::adapter_from_pathes_to_ep(path_list).collect();
         debug!("Creation of EndpointIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();

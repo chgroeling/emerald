@@ -2,7 +2,7 @@ use crate::types::EndPoint;
 use std::path::PathBuf;
 use EndPoint::*;
 
-pub fn adapter_from_pathes_to_endpoints(
+pub fn adapter_from_pathes_to_ep(
     it_src: impl IntoIterator<Item = PathBuf>,
 ) -> impl Iterator<Item = EndPoint> {
     let mut endpoint_list = Vec::<EndPoint>::new();
