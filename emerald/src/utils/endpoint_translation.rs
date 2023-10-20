@@ -3,6 +3,9 @@ use std::path::Path;
 use super::normalize_string::normalize_str_iter;
 use crate::types::EndPoint;
 use crate::types::ResourceId;
+use crate::EmeraldError;
+use crate::Result;
+use EmeraldError::*;
 
 const LINK_FRONT: &str = "[[";
 const LINK_BACK: &str = "]]";
@@ -10,22 +13,30 @@ const LINK_BACK: &str = "]]";
 pub fn convert_endpoint_to_resource_id(
     endpoint: &EndPoint,
     common_path: &Path,
-) -> Option<ResourceId> {
+) -> Result<ResourceId> {
     let path = match endpoint {
         EndPoint::FileUnknown(path) => path,
         EndPoint::FileMarkdown(path) => path,
     };
-    let rel_path = path.strip_prefix(common_path).unwrap().to_path_buf();
+    let rel_path = match path.strip_prefix(common_path) {
+        Ok(item) => item.to_path_buf(),
+        Err(_) => return Err(EmeraldError::ValueError),
+    };
+
+    let rel_path_str = match rel_path.to_str() {
+        Some(res) => res,
+        None => return Err(EmeraldError::ValueError),
+    };
 
     // Replace all windows path chars
-    let path_iter = normalize_str_iter(rel_path.to_str()?).map(|ch| match ch {
+    let path_iter = normalize_str_iter(rel_path_str).map(|ch| match ch {
         '\\' => '/',
         _ => ch,
     });
 
     let res_id_iter = LINK_FRONT.chars().chain(path_iter.chain(LINK_BACK.chars()));
     let res_id_str: String = res_id_iter.collect();
-    Some(res_id_str.into())
+    Ok(res_id_str.into())
 }
 
 #[cfg(test)]

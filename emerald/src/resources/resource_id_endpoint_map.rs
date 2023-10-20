@@ -19,17 +19,25 @@ pub struct ResourceIdEndPointMap {
 pub fn adapter_ep_to_ep_and_resid<'a>(
     it_src: impl IntoIterator<Item = &'a EndPoint> + 'a,
     common_path: &'a Path,
-) -> impl Iterator<Item = (&'a EndPoint, ResourceId)> + 'a {
-    it_src.into_iter().filter_map(|ep| {
-        let opt_resource_id = convert_endpoint_to_resource_id(ep, common_path);
+) -> Result<impl Iterator<Item = (&'a EndPoint, ResourceId)> + 'a> {
+    let ret: Result<Vec<_>> = it_src
+        .into_iter()
+        .map(|ep| {
+            let opt_resource_id = convert_endpoint_to_resource_id(ep, common_path);
 
-        if let Some(resource_id) = opt_resource_id {
-            Some((ep, resource_id))
-        } else {
-            warn!("Can't convert Endpoint '{:?}' to ResourceId.", &ep);
-            None
-        }
-    })
+            if let Ok(resource_id) = opt_resource_id {
+                Ok((ep, resource_id))
+            } else {
+                error!("Can't convert Endpoint '{:?}' to ResourceId.", &ep);
+                Err(EmeraldError::ValueError)
+            }
+        })
+        .collect();
+
+    match ret {
+        Ok(vector) => Ok(vector.into_iter()),
+        Err(err) => Err(err),
+    }
 }
 
 impl ResourceIdEndPointMap {
