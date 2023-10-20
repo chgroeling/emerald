@@ -1,7 +1,4 @@
-use crate::{
-    resources::resource_id_retriever::ResourceIdRetriever,
-    types::{EndPoint, FileType, ResourceId},
-};
+use crate::types::{FileType, ResourceId};
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
@@ -13,24 +10,6 @@ pub fn adapter_rid_and_file_type_to_rid<'a>(
         .into_iter()
         .filter(|pred| matches!(pred.1, FileType::Markdown(_)))
         .map(|f| f.0)
-}
-
-pub fn adapter_ep_to_rid<'a>(
-    it_src: impl IntoIterator<Item = &'a EndPoint> + 'a,
-    resource_id_resolver: &'a impl ResourceIdRetriever,
-) -> impl Iterator<Item = ResourceId> + 'a {
-    it_src.into_iter().filter_map(|ep| {
-        let opt_resource_id = resource_id_resolver.retrieve(ep);
-        if let Ok(resource_id) = opt_resource_id {
-            return Some(resource_id);
-        }
-
-        warn!(
-            "Obtaining resource id for endpoint {:?} yielded {:?} ",
-            ep, opt_resource_id
-        );
-        None
-    })
 }
 
 #[cfg(test)]

@@ -27,6 +27,9 @@ pub enum EmeraldError {
     #[error("Wrong value was assigned.")]
     ValueError,
 
+    #[error("Keys are not unique")]
+    NotUnique,
+
     #[error("Failed interpreting a wiki link.")]
     NotAWikiLink,
 

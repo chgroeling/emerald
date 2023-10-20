@@ -61,8 +61,8 @@ impl<I> MetaDataLoader for FileMetaDataLoader<I>
 where
     I: EndpointRetriever,
 {
-    fn load(&self, resource_id: &ResourceId) -> Result<MetaData> {
-        let ep = self.ep_retriever.retrieve(resource_id)?;
+    fn load(&self, rid: &ResourceId) -> Result<MetaData> {
+        let ep = self.ep_retriever.retrieve(rid)?;
 
         #[allow(unreachable_patterns)]
         match ep {
