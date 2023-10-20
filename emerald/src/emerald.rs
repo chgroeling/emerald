@@ -74,7 +74,7 @@ impl Emerald {
         debug!("Creation of FileMetaDataLoader took: {:?}", elapsed);
 
         let start = Instant::now();
-        let res_id_iter = adapters::adapter_ep_to_rid(&ep_and_rid);
+        let res_id_iter = resources::adapter_ep_to_rid(&ep_and_rid);
         let all_res_ids: Vec<_> = res_id_iter.collect();
 
         // Transform iter: from (ResourceId) to (FileType, ResourceId)

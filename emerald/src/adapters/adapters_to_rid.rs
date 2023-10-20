@@ -15,12 +15,6 @@ pub fn adapter_rid_and_file_type_to_rid<'a>(
         .map(|f| f.0)
 }
 
-pub fn adapter_ep_to_rid<'a>(
-    it_src: impl IntoIterator<Item = &'a (EndPoint, ResourceId)> + 'a,
-) -> impl Iterator<Item = ResourceId> + 'a {
-    it_src.into_iter().map(|(_, rid)| rid.clone())
-}
-
 #[cfg(test)]
 mod tests {
     use super::ResourceId;
