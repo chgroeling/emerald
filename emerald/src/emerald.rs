@@ -82,8 +82,8 @@ impl Emerald {
         let ft_and_rid_iter = adapters::adapter_to_rid_and_filetype(&all_rids, &meta_data_loader);
 
         // Filter markdown files
-        let md_res_ids_iter = adapters::adapter_rid_and_file_type_to_rid(ft_and_rid_iter);
-        let md_res_ids: Vec<_> = md_res_ids_iter.cloned().collect();
+        let md_rids_iter = adapters::adapter_rid_and_file_type_to_rid(ft_and_rid_iter);
+        let md_rids: Vec<_> = md_rids_iter.cloned().collect();
         let elapsed = start.elapsed();
         debug!("Creation of Resource Id indexes took: {:?}", elapsed);
 
@@ -94,14 +94,13 @@ impl Emerald {
         debug!("Creation of ResourceIdLinkMap took: {:?}", elapsed);
 
         let start = Instant::now();
-        let md_content_cache = MdContentCache::new(&md_res_ids, &content_loader);
+        let md_content_cache = MdContentCache::new(&md_rids, &content_loader);
         let elapsed = start.elapsed();
         debug!("Creation of ContentFullMdCache took: {:?}", elapsed);
 
         let start = Instant::now();
         let crefs: Vec<_> =
-            adapters::adapter_from_rids_to_rids_and_content(&md_res_ids, &md_content_cache)
-                .collect();
+            adapters::adapter_from_rids_to_rids_and_content(&md_rids, &md_content_cache).collect();
 
         let src_2_tgt_iter = adapters::adapter_from_rid_and_content_to_link_src_2_tgt(
             crefs.into_iter(),
@@ -130,7 +129,7 @@ impl Emerald {
         debug!("Creation of StdProviderFactory took: {:?}", elapsed);
 
         let start = Instant::now();
-        let vault = Vault::new(&md_res_ids, provider_factory.clone());
+        let vault = Vault::new(&md_rids, provider_factory.clone());
         let elapsed = start.elapsed();
         debug!("Creation of Vault took: {:?}", elapsed);
 
