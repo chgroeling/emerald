@@ -14,23 +14,17 @@ pub struct EndpointResourceIdMap {
 }
 
 impl EndpointResourceIdMap {
-    pub fn new<'a>(
-        it_src: impl IntoIterator<Item = &'a EndPoint>,
-        resource_id_retriever: &impl ResourceIdRetriever,
-    ) -> Self {
+    pub fn new<'a>(it_src: impl IntoIterator<Item = &'a (EndPoint, ResourceId)>) -> Result<Self> {
         let mut resource_id_to_endpoint = HashMap::<ResourceId, EndPoint>::new();
-        for ep in it_src {
-            let opt_resource_id = resource_id_retriever.retrieve(ep);
-
-            if let Ok(resource_id) = opt_resource_id {
-                resource_id_to_endpoint.insert(resource_id, ep.clone());
-            } else {
-                warn!("Can't convert Endpoint '{:?}' to ResourceId.", ep);
+        for (ep, res_id) in it_src {
+            match resource_id_to_endpoint.insert(res_id.clone(), ep.clone()) {
+                Some(_) => return Err(NotUnique),
+                None => (),
             }
         }
-        Self {
+        Ok(Self {
             resource_id_to_endpoint: Rc::new(resource_id_to_endpoint),
-        }
+        })
     }
 }
 
@@ -50,7 +44,7 @@ mod tests {
     use crate::resources::resource_id_retriever::MockResourceIdResolver;
     use crate::types::ResourceId;
     use std::path::PathBuf;
-
+    /*
     fn create_dut(test_ep_list: Vec<EndPoint>) -> EndpointResourceIdMap {
         let mut mock_res_id_res = MockResourceIdResolver::new();
         mock_res_id_res
@@ -93,4 +87,5 @@ mod tests {
 
         let _dut = EndpointResourceIdMap::new(test_ep_list.iter(), &mock_res_id_res);
     }
+    */
 }

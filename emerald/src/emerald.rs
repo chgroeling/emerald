@@ -53,7 +53,7 @@ impl Emerald {
         debug!("Creation of ResourceIdEndPointMap took: {:?}", elapsed);
 
         let start = Instant::now();
-        let endpoint_resolver = EndpointResourceIdMap::new(&ep_index, &resource_id_resolver);
+        let endpoint_resolver = EndpointResourceIdMap::new(&ep_and_res_id)?;
         let elapsed = start.elapsed();
         debug!("Creation of EndpointResourceIdMap took: {:?}", elapsed);
 
