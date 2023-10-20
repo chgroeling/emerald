@@ -1,7 +1,7 @@
 use crate::{EmeraldError, Result};
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
-use std::{collections::HashMap, path::Path, rc::Rc};
+use std::path::Path;
 
 use crate::{
     types::{EndPoint, ResourceId},
@@ -22,7 +22,7 @@ pub fn adapter_ep_to_ep_and_resid<'a>(
                 Ok((ep, resource_id))
             } else {
                 error!("Can't convert Endpoint '{:?}' to ResourceId.", &ep);
-                Err(EmeraldError::ValueError)
+                Err(ValueError)
             }
         })
         .collect();
@@ -36,8 +36,6 @@ pub fn adapter_ep_to_ep_and_resid<'a>(
 #[cfg(test)]
 mod tests {
     use super::adapter_ep_to_ep_and_resid;
-    use crate::resources::resource_id_endpoint_map::ResourceIdEndPointMap;
-    use crate::resources::resource_id_retriever::ResourceIdRetriever;
     use crate::types::EndPoint;
     use crate::types::ResourceId;
     use std::path::PathBuf;

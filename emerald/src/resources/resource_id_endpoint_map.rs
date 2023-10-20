@@ -1,12 +1,9 @@
 use crate::{EmeraldError, Result};
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
-use std::{collections::HashMap, path::Path, rc::Rc};
+use std::{collections::HashMap, rc::Rc};
 
-use crate::{
-    types::{EndPoint, ResourceId},
-    utils::endpoint_translation::convert_endpoint_to_resource_id,
-};
+use crate::types::{EndPoint, ResourceId};
 use EmeraldError::*;
 
 use super::resource_id_retriever::ResourceIdRetriever;
