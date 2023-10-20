@@ -16,21 +16,9 @@ pub fn adapter_rid_and_file_type_to_rid<'a>(
 }
 
 pub fn adapter_ep_to_rid<'a>(
-    it_src: impl IntoIterator<Item = &'a EndPoint> + 'a,
-    resource_id_resolver: &'a impl ResourceIdRetriever,
+    it_src: impl IntoIterator<Item = &'a (EndPoint, ResourceId)> + 'a,
 ) -> impl Iterator<Item = ResourceId> + 'a {
-    it_src.into_iter().filter_map(|ep| {
-        let opt_resource_id = resource_id_resolver.retrieve(ep);
-        if let Ok(resource_id) = opt_resource_id {
-            return Some(resource_id);
-        }
-
-        warn!(
-            "Obtaining resource id for endpoint {:?} yielded {:?} ",
-            ep, opt_resource_id
-        );
-        None
-    })
+    it_src.into_iter().map(|(_, rid)| rid.clone())
 }
 
 #[cfg(test)]
