@@ -17,9 +17,11 @@ impl EndpointResourceIdMap {
     pub fn new<'a>(it_src: impl IntoIterator<Item = &'a (EndPoint, ResourceId)>) -> Result<Self> {
         let mut resource_id_to_endpoint = HashMap::<ResourceId, EndPoint>::new();
         for (ep, res_id) in it_src {
-            match resource_id_to_endpoint.insert(res_id.clone(), ep.clone()) {
-                Some(_) => return Err(NotUnique),
-                None => (),
+            if resource_id_to_endpoint
+                .insert(res_id.clone(), ep.clone())
+                .is_some()
+            {
+                return Err(NotUnique);
             }
         }
         Ok(Self {
