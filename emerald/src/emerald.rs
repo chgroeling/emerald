@@ -41,25 +41,29 @@ impl Emerald {
         // Build dependency root
         let start = Instant::now();
         let path_list = resources::get_path_list(vault_path)?;
-        let ep_index: Vec<_> = resources::adapter_from_pathes_to_ep(path_list).collect();
+        let all_eps: Vec<_> = resources::adapter_from_pathes_to_ep(path_list).collect();
         debug!("Creation of EndpointIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let ep_and_rid: Vec<_> =
-            resources::adapter_ep_to_ep_and_rid(&ep_index, vault_path)?.collect();
+        let ep_and_rids: Vec<_> =
+            resources::adapter_ep_to_ep_and_rid(&all_eps, vault_path)?.collect();
+
+        let res_id_iter = resources::adapter_ep_to_rid(&ep_and_rids);
+        let all_rids: Vec<_> = res_id_iter.collect();
+
         let elapsed = start.elapsed();
         debug!(
-            "Creation of Endpoint with Resource Id list took: {:?}",
+            "Creation of Endpoint with Resource Id lists took: {:?}",
             elapsed
         );
 
         let start = Instant::now();
-        let rid_retriever = ResourceIdEndPointMap::new(&ep_and_rid)?;
+        let rid_retriever = ResourceIdEndPointMap::new(&ep_and_rids)?;
         let elapsed = start.elapsed();
         debug!("Creation of ResourceIdEndPointMap took: {:?}", elapsed);
 
         let start = Instant::now();
-        let ep_retriever = EndpointResourceIdMap::new(&ep_and_rid)?;
+        let ep_retriever = EndpointResourceIdMap::new(&ep_and_rids)?;
         let elapsed = start.elapsed();
         debug!("Creation of EndpointResourceIdMap took: {:?}", elapsed);
 
@@ -74,12 +78,8 @@ impl Emerald {
         debug!("Creation of FileMetaDataLoader took: {:?}", elapsed);
 
         let start = Instant::now();
-        let res_id_iter = resources::adapter_ep_to_rid(&ep_and_rid);
-        let all_res_ids: Vec<_> = res_id_iter.collect();
-
         // Transform iter: from (ResourceId) to (FileType, ResourceId)
-        let ft_and_rid_iter =
-            adapters::adapter_to_rid_and_filetype(&all_res_ids, &meta_data_loader);
+        let ft_and_rid_iter = adapters::adapter_to_rid_and_filetype(&all_rids, &meta_data_loader);
 
         // Filter markdown files
         let md_res_ids_iter = adapters::adapter_rid_and_file_type_to_rid(ft_and_rid_iter);
@@ -88,7 +88,7 @@ impl Emerald {
         debug!("Creation of Resource Id indexes took: {:?}", elapsed);
 
         let start = Instant::now();
-        let name_iter = adapters::adapter_from_rid_to_name(&all_res_ids);
+        let name_iter = adapters::adapter_from_rid_to_name(&all_rids);
         let resource_id_retriever = ResourceIdLinkMap::new(name_iter);
         let elapsed = start.elapsed();
         debug!("Creation of ResourceIdLinkMap took: {:?}", elapsed);
@@ -139,7 +139,7 @@ impl Emerald {
             endpoint_resolver: ep_retriever,
             meta_data_loader,
             resource_id_retriever,
-            ep_index,
+            ep_index: all_eps,
             md_content_cache,
             src_2_tgt_index,
             tgt_iter_retriever,

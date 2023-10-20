@@ -1,7 +1,4 @@
-use crate::{
-    resources::resource_id_retriever::ResourceIdRetriever,
-    types::{EndPoint, FileType, ResourceId},
-};
+use crate::types::{EndPoint, ResourceId};
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
