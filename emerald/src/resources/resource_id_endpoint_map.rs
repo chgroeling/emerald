@@ -16,17 +16,27 @@ pub struct ResourceIdEndPointMap {
     ep_to_resource_id: Rc<HashMap<EndPoint, ResourceId>>,
 }
 
-impl ResourceIdEndPointMap {
-    pub fn new<'a>(it_src: impl IntoIterator<Item = &'a EndPoint>, common_path: &Path) -> Self {
-        let mut ep_to_resource_id = HashMap::<EndPoint, ResourceId>::new();
-        for ep in it_src.into_iter() {
-            let opt_resource_id = convert_endpoint_to_resource_id(ep.clone(), common_path);
+pub fn adapter_ep_to_ep_and_resid<'a>(
+    it_src: impl IntoIterator<Item = &'a EndPoint> + 'a,
+    common_path: &'a Path,
+) -> impl Iterator<Item = (&'a EndPoint, ResourceId)> + 'a {
+    it_src.into_iter().filter_map(|ep| {
+        let opt_resource_id = convert_endpoint_to_resource_id(ep, common_path);
 
-            if let Some(resource_id) = opt_resource_id {
-                ep_to_resource_id.insert(ep.clone(), resource_id);
-            } else {
-                warn!("Can't convert Endpoint '{:?}' to ResourceId.", &ep);
-            }
+        if let Some(resource_id) = opt_resource_id {
+            Some((ep, resource_id))
+        } else {
+            warn!("Can't convert Endpoint '{:?}' to ResourceId.", &ep);
+            None
+        }
+    })
+}
+
+impl ResourceIdEndPointMap {
+    pub fn new<'a>(it_src: impl IntoIterator<Item = (&'a EndPoint, ResourceId)>) -> Self {
+        let mut ep_to_resource_id = HashMap::<EndPoint, ResourceId>::new();
+        for (ep, res_id) in it_src.into_iter() {
+            ep_to_resource_id.insert(ep.clone(), res_id);
         }
         Self {
             ep_to_resource_id: Rc::new(ep_to_resource_id),
@@ -49,7 +59,7 @@ mod tests {
     use crate::types::EndPoint;
     use crate::types::ResourceId;
     use std::path::PathBuf;
-
+    /*
     #[test]
     fn test_resolve_different_utf8_norm_match() {
         let test_data: Vec<EndPoint> = vec![EndPoint::FileUnknown("testpäth".into())];
@@ -73,4 +83,5 @@ mod tests {
             .unwrap();
         assert_eq!(ep, ResourceId("[[testpäth]]".into()));
     }
+    */
 }

@@ -8,7 +8,7 @@ const LINK_FRONT: &str = "[[";
 const LINK_BACK: &str = "]]";
 
 pub fn convert_endpoint_to_resource_id(
-    endpoint: EndPoint,
+    endpoint: &EndPoint,
     common_path: &Path,
 ) -> Option<ResourceId> {
     let path = match endpoint {
@@ -40,7 +40,7 @@ mod tests {
     fn test_convert_unix_path_to_endpoint_link() {
         let common_path = PathBuf::from("");
         let endpoint = FileUnknown("a/b/c/note.md".into());
-        let link = convert_endpoint_to_resource_id(endpoint, &common_path);
+        let link = convert_endpoint_to_resource_id(&endpoint, &common_path);
         assert_eq!(link.unwrap(), "[[a/b/c/note.md]]".into())
     }
 
@@ -48,7 +48,7 @@ mod tests {
     fn test_convert_windows_path_to_endpoint_link() {
         let common_path = PathBuf::from("");
         let endpoint = FileUnknown("a\\b\\c\\note.md".into());
-        let link = convert_endpoint_to_resource_id(endpoint, &common_path);
+        let link = convert_endpoint_to_resource_id(&endpoint, &common_path);
         assert_eq!(link.unwrap(), "[[a/b/c/note.md]]".into())
     }
 }
