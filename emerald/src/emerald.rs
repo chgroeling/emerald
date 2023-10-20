@@ -1,3 +1,4 @@
+use crate::adapters;
 use crate::indexes::Src2TargetIndex;
 use crate::maps::resource_id_link_map::ResourceIdLinkMap;
 use crate::maps::src_links_map::SrcLinksMap;
@@ -12,7 +13,7 @@ use crate::resources::md_content_cache::MdContentCache;
 use crate::resources::resource_id_endpoint_map::ResourceIdEndPointMap;
 use crate::types::EndPoint;
 use crate::Result;
-use crate::{adapters, resources::resource_id_endpoint_map::adapter_ep_to_ep_and_resid};
+
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 use std::{path::Path, time::Instant};
@@ -44,7 +45,7 @@ impl Emerald {
         debug!("Creation of EndpointIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let ep_and_res_id = adapter_ep_to_ep_and_resid(&ep_index, vault_path)?;
+        let ep_and_res_id = resources::adapter_ep_to_ep_and_resid(&ep_index, vault_path)?;
         let resource_id_resolver = ResourceIdEndPointMap::new(ep_and_res_id);
         let elapsed = start.elapsed();
         debug!("Creation of ResourceIdEndPointMap took: {:?}", elapsed);

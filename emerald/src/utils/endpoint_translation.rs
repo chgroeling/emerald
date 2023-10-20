@@ -20,12 +20,12 @@ pub fn convert_endpoint_to_resource_id(
     };
     let rel_path = match path.strip_prefix(common_path) {
         Ok(item) => item.to_path_buf(),
-        Err(_) => return Err(EmeraldError::ValueError),
+        Err(_) => return Err(ValueError),
     };
 
     let rel_path_str = match rel_path.to_str() {
         Some(res) => res,
-        None => return Err(EmeraldError::ValueError),
+        None => return Err(ValueError),
     };
 
     // Replace all windows path chars
