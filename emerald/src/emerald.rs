@@ -24,10 +24,10 @@ type StdProviderFactoryImpl = StdProviderFactory<FileMetaDataLoaderImpl, MdConte
 #[allow(dead_code)]
 pub struct Emerald {
     pub ep_index: Vec<EndPoint>,
-    pub resource_id_resolver: ResourceIdEndPointMap,
-    pub endpoint_resolver: EndpointResourceIdMap,
+    pub rid_retriever: ResourceIdEndPointMap,
+    pub ep_retriever: EndpointResourceIdMap,
     pub meta_data_loader: FileMetaDataLoaderImpl,
-    pub resource_id_retriever: ResourceIdLinkMap,
+    pub rid_resolver: ResourceIdLinkMap,
     pub src_2_tgt_index: Src2TargetIndex,
     pub md_content_cache: MdContentCache,
     pub tgt_iter_retriever: TgtLinksMap,
@@ -89,7 +89,7 @@ impl Emerald {
 
         let start = Instant::now();
         let name_iter = adapters::adapter_from_rid_to_name(&all_rids);
-        let resource_id_retriever = ResourceIdLinkMap::new(name_iter);
+        let rid_resolver = ResourceIdLinkMap::new(name_iter);
         let elapsed = start.elapsed();
         debug!("Creation of ResourceIdLinkMap took: {:?}", elapsed);
 
@@ -104,7 +104,7 @@ impl Emerald {
 
         let src_2_tgt_iter = adapters::adapter_from_rid_and_content_to_link_src_2_tgt(
             crefs.into_iter(),
-            &resource_id_retriever,
+            &rid_resolver,
             MarkdownAnalyzerLocal::new(),
         );
 
@@ -134,10 +134,10 @@ impl Emerald {
         debug!("Creation of Vault took: {:?}", elapsed);
 
         Ok(Emerald {
-            resource_id_resolver: rid_retriever,
-            endpoint_resolver: ep_retriever,
+            rid_retriever,
+            ep_retriever,
             meta_data_loader,
-            resource_id_retriever,
+            rid_resolver,
             ep_index: all_eps,
             md_content_cache,
             src_2_tgt_index,
