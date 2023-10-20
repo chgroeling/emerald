@@ -35,34 +35,34 @@ pub fn adapter_ep_to_ep_and_resid<'a>(
 
 #[cfg(test)]
 mod tests {
+    use super::adapter_ep_to_ep_and_resid;
     use crate::resources::resource_id_endpoint_map::ResourceIdEndPointMap;
     use crate::resources::resource_id_retriever::ResourceIdRetriever;
     use crate::types::EndPoint;
     use crate::types::ResourceId;
     use std::path::PathBuf;
-    /*
+
     #[test]
     fn test_resolve_different_utf8_norm_match() {
-        let test_data: Vec<EndPoint> = vec![EndPoint::FileUnknown("testpäth".into())];
+        let eps: Vec<_> = vec![EndPoint::FileUnknown("testpäth".into())];
         let common_path: PathBuf = "".into();
 
-        let dut = ResourceIdEndPointMap::new(test_data.iter(), &common_path);
-        let ep = dut
-            .retrieve(&EndPoint::FileUnknown("testpäth".into()))
-            .unwrap();
-        assert_eq!(ep, ResourceId("[[testpäth]]".into()));
+        let res: Vec<_> = adapter_ep_to_ep_and_resid(eps.iter(), &common_path)
+            .unwrap()
+            .collect();
+
+        assert_eq!(res, vec![(&eps[0], ResourceId("[[testpäth]]".into()))]);
     }
 
     #[test]
     fn test_resolve_with_different_utf8_norm_match_2() {
-        let test_data: Vec<EndPoint> = vec![EndPoint::FileUnknown("testpäth".into())];
+        let eps: Vec<_> = vec![EndPoint::FileUnknown("testpäth".into())];
         let common_path: PathBuf = "".into();
 
-        let dut = ResourceIdEndPointMap::new(test_data.iter(), &common_path);
-        let ep = dut
-            .retrieve(&EndPoint::FileUnknown("testpäth".into()))
-            .unwrap();
-        assert_eq!(ep, ResourceId("[[testpäth]]".into()));
+        let res: Vec<_> = adapter_ep_to_ep_and_resid(eps.iter(), &common_path)
+            .unwrap()
+            .collect();
+
+        assert_eq!(res, vec![(&eps[0], ResourceId("[[testpäth]]".into()))]);
     }
-    */
 }
