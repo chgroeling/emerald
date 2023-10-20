@@ -47,7 +47,13 @@ impl Emerald {
         let start = Instant::now();
         let ep_and_rid: Vec<_> =
             resources::adapter_ep_to_ep_and_rid(&ep_index, vault_path)?.collect();
+        let elapsed = start.elapsed();
+        debug!(
+            "Creation of Endpoint with Resource Id list took: {:?}",
+            elapsed
+        );
 
+        let start = Instant::now();
         let rid_retriever = ResourceIdEndPointMap::new(&ep_and_rid)?;
         let elapsed = start.elapsed();
         debug!("Creation of ResourceIdEndPointMap took: {:?}", elapsed);
