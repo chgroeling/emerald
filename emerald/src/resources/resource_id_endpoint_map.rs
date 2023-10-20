@@ -14,14 +14,17 @@ pub struct ResourceIdEndPointMap {
 }
 
 impl ResourceIdEndPointMap {
-    pub fn new<'a>(it_src: impl IntoIterator<Item = (&'a EndPoint, ResourceId)>) -> Self {
+    pub fn new<'a>(it_src: impl IntoIterator<Item = &'a (EndPoint, ResourceId)>) -> Result<Self> {
         let mut ep_to_resource_id = HashMap::<EndPoint, ResourceId>::new();
         for (ep, res_id) in it_src.into_iter() {
-            ep_to_resource_id.insert(ep.clone(), res_id);
+            match ep_to_resource_id.insert(ep.clone(), res_id.clone()) {
+                Some(_) => return Err(NotUnique),
+                None => (),
+            }
         }
-        Self {
+        Ok(Self {
             ep_to_resource_id: Rc::new(ep_to_resource_id),
-        }
+        })
     }
 }
 
