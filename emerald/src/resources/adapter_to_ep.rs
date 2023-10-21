@@ -5,7 +5,7 @@ use EndPoint::*;
 pub fn adapter_from_pathes_to_ep(
     it_src: impl IntoIterator<Item = PathBuf>,
 ) -> impl Iterator<Item = EndPoint> {
-    let mut endpoint_list = Vec::<EndPoint>::new();
+    let mut ep_list = Vec::<EndPoint>::new();
     for file_path in it_src {
         let endpoint = if file_path
             .extension()
@@ -16,8 +16,8 @@ pub fn adapter_from_pathes_to_ep(
             FileUnknown(file_path)
         };
 
-        endpoint_list.push(endpoint);
+        ep_list.push(endpoint);
     }
 
-    endpoint_list.into_iter()
+    ep_list.into_iter()
 }
