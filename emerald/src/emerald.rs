@@ -88,7 +88,7 @@ impl Emerald {
         debug!("Creation of Resource Id indexes took: {:?}", elapsed);
 
         let start = Instant::now();
-        let name_iter = adapters::adapter_from_rid_to_name(&all_rids);
+        let name_iter = adapters::adapter_from_rid_to_name(&all_rids)?;
         let rid_resolver = ResourceIdLinkMap::new(name_iter);
         let elapsed = start.elapsed();
         debug!("Creation of ResourceIdLinkMap took: {:?}", elapsed);
