@@ -88,7 +88,7 @@ impl Emerald {
         debug!("Creation of Resource Id indexes took: {:?}", elapsed);
 
         let start = Instant::now();
-        let name_iter = adapters::adapter_from_rid_to_name(&all_rids);
+        let name_iter = adapters::adapter_from_rid_to_name(&all_rids)?;
         let rid_resolver = ResourceIdLinkMap::new(name_iter);
         let elapsed = start.elapsed();
         debug!("Creation of ResourceIdLinkMap took: {:?}", elapsed);
@@ -100,7 +100,7 @@ impl Emerald {
 
         let start = Instant::now();
         let crefs: Vec<_> =
-            adapters::adapter_from_rids_to_rids_and_content(&md_rids, &md_content_cache).collect();
+            adapters::adapter_from_rids_to_rids_and_content(&md_rids, &md_content_cache)?.collect();
 
         let src_2_tgt_iter = adapters::adapter_from_rid_and_content_to_link_src_2_tgt(
             crefs.into_iter(),

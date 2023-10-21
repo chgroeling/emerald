@@ -39,10 +39,13 @@ impl ResourceId {
         // Get the full link and path if exists
         let full_link = link_text;
         let link_parts: Vec<&str> = full_link.split('/').collect();
-        let link = link_parts.last().unwrap().to_string();
+        let link = link_parts.last().ok_or(ValueError)?.to_string();
 
         let path: Option<String> = if link_parts.len() > 1 {
-            Some(full_link[0..(full_link.len() - link_parts.last().unwrap().len() - 1)].to_owned())
+            Some(
+                full_link[0..(full_link.len() - link_parts.last().ok_or(ValueError)?.len() - 1)]
+                    .to_owned(),
+            )
         } else {
             None
         };
