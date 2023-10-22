@@ -1,5 +1,5 @@
 use crate::types;
-use crate::Result;
+use types::Result;
 
 pub fn adapter_from_rid_to_name<'a>(
     it_src: impl IntoIterator<Item = &'a types::ResourceId>,

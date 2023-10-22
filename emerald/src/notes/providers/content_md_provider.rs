@@ -1,14 +1,11 @@
-use crate::{
-    resources::{MdContentRetriever, MetaDataLoader},
-    types,
-};
+use crate::{resources, types};
 
 use super::md_provider::MdProvider;
 
 pub struct ContentMdProvider<T, U>
 where
-    T: MdContentRetriever,
-    U: MetaDataLoader,
+    T: resources::MdContentRetriever,
+    U: resources::MetaDataLoader,
 {
     content_loader: T,
     meta_data_loader: U,
@@ -16,8 +13,8 @@ where
 
 impl<I, U> ContentMdProvider<I, U>
 where
-    I: MdContentRetriever,
-    U: MetaDataLoader,
+    I: resources::MdContentRetriever,
+    U: resources::MetaDataLoader,
 {
     pub fn new(content_loader: I, meta_data_loader: U) -> Self {
         Self {
@@ -28,8 +25,8 @@ where
 }
 impl<I, U> MdProvider for ContentMdProvider<I, U>
 where
-    I: MdContentRetriever,
-    U: MetaDataLoader,
+    I: resources::MdContentRetriever,
+    U: resources::MetaDataLoader,
 {
     fn get_markdown(&self, resource_id: &types::ResourceId) -> String {
         let meta_data = self.meta_data_loader.load(resource_id).unwrap();

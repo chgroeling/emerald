@@ -1,11 +1,9 @@
+use super::endpoint_retriever::EndpointRetriever;
 use crate::types;
-use crate::{EmeraldError, Result};
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 use std::{collections::HashMap, rc::Rc};
-use EmeraldError::*;
-
-use super::endpoint_retriever::EndpointRetriever;
+use types::{EmeraldError::*, Result};
 
 #[derive(Clone)]
 pub struct EndpointResourceIdMap {

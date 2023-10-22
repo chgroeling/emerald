@@ -1,13 +1,13 @@
 use super::note::Note;
-use crate::notes::providers::ProviderFactory;
-use crate::types::ResourceId;
+use super::providers::ProviderFactory;
+use crate::types;
 
 #[derive(Clone)]
 pub struct Vault<U>
 where
     U: ProviderFactory,
 {
-    md_resource_ids: Vec<ResourceId>,
+    md_resource_ids: Vec<types::ResourceId>,
     provider_factory: U,
 }
 
@@ -15,7 +15,10 @@ impl<U> Vault<U>
 where
     U: ProviderFactory,
 {
-    pub fn new<'a>(it_src: impl IntoIterator<Item = &'a ResourceId>, provider_factory: U) -> Self {
+    pub fn new<'a>(
+        it_src: impl IntoIterator<Item = &'a types::ResourceId>,
+        provider_factory: U,
+    ) -> Self {
         let md_resource_ids = it_src.into_iter().cloned().collect();
         Self {
             md_resource_ids,

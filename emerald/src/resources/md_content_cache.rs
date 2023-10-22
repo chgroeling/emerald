@@ -1,9 +1,9 @@
 use super::{content_loader::ContentLoader, md_content_retriever::MdContentRetriever};
 use crate::types;
-use crate::Result;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 use std::{collections::HashMap, rc::Rc};
+use types::Result;
 
 #[derive(Clone)]
 pub struct MdContentCache {

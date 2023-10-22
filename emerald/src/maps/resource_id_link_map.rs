@@ -1,5 +1,5 @@
 use crate::types;
-use crate::utils::normalize_str;
+use crate::utils;
 use crate::{EmeraldError::*, Result};
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
@@ -46,7 +46,7 @@ impl ResourceIdResolver for ResourceIdLinkMap {
     fn resolve_with_hint(&self, link: &types::Link, _hint: Hint) -> Result<types::ResourceId> {
         // convert string to internal link format
         let link_comp = link.split()?;
-        let link_name_lc = normalize_str(&link_comp.name.trim().to_lowercase());
+        let link_name_lc = utils::normalize_str(&link_comp.name.trim().to_lowercase());
 
         // check if md files in our hashmap are matching the given link
         let matches_of_exact_name = self.name_to_resource_id_list.get(&link_name_lc);
@@ -72,7 +72,7 @@ impl ResourceIdResolver for ResourceIdLinkMap {
 
             // Check if the given link has a path
             if let Some(link_path) = &link_comp.path {
-                let link_path_norm = normalize_str(link_path);
+                let link_path_norm = utils::normalize_str(link_path);
 
                 // if it has one ... try to match it with the result list.
                 for potential_link in match_list {

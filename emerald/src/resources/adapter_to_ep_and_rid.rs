@@ -1,8 +1,8 @@
-use crate::{types, utils::convert_endpoint_to_resource_id};
-use crate::{EmeraldError, Result};
+use crate::{types, utils};
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 use std::path::Path;
+use types::{EmeraldError, Result};
 use EmeraldError::*;
 
 pub fn adapter_ep_to_ep_and_rid<'a>(
@@ -12,7 +12,7 @@ pub fn adapter_ep_to_ep_and_rid<'a>(
     let ret: Result<Vec<_>> = it_src
         .into_iter()
         .map(|ep| {
-            let opt_resource_id = convert_endpoint_to_resource_id(ep, common_path);
+            let opt_resource_id = utils::convert_endpoint_to_resource_id(ep, common_path);
 
             if let Ok(resource_id) = opt_resource_id {
                 Ok((ep.clone(), resource_id))

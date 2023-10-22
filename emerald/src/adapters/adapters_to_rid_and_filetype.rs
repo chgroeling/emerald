@@ -1,8 +1,8 @@
-use crate::{resources::MetaDataLoader, types};
+use crate::{resources, types};
 
 pub fn adapter_to_rid_and_filetype<'a>(
     it_src: impl IntoIterator<Item = &'a types::ResourceId> + 'a,
-    meta_data_loader: &'a impl MetaDataLoader,
+    meta_data_loader: &'a impl resources::MetaDataLoader,
 ) -> impl Iterator<Item = (&'a types::ResourceId, types::FileType)> + 'a {
     it_src.into_iter().map(|f| {
         let res_meta_data = meta_data_loader.load(f);

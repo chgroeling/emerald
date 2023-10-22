@@ -1,16 +1,15 @@
-use crate::notes::providers::{MdProvider, TitleProvider};
-
-use crate::types::ResourceId;
+use super::providers::{MdProvider, TitleProvider};
+use crate::types;
 
 pub struct Note {
-    resource_id: ResourceId,
+    resource_id: types::ResourceId,
     title_provider: Box<dyn TitleProvider>,
     md_provider: Box<dyn MdProvider>,
 }
 
 impl Note {
     pub fn new(
-        resource_id: ResourceId,
+        resource_id: types::ResourceId,
         title_provider: Box<dyn TitleProvider>,
         md_provider: Box<dyn MdProvider>,
     ) -> Self {

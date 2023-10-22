@@ -1,7 +1,7 @@
 use super::adapters_to_link_2_tgt::adapter_from_link_to_link_2_tgt;
 use super::adapters_to_links::adapter_from_content_type_to_links;
 use crate::maps::ResourceIdResolver;
-use crate::markdown::MarkdownAnalyzer;
+use crate::markdown;
 use crate::types;
 
 #[allow(unused_imports)]
@@ -16,7 +16,7 @@ fn adapter_from_link_2_tgt_to_link_src_2_tgt<'a>(
         .map(move |f| types::LinkSrc2Tgt::from_link_to_target(src.clone(), f))
 }
 
-fn extract_links_from_content<'a, I: MarkdownAnalyzer<'a>>(
+fn extract_links_from_content<'a, I: markdown::MarkdownAnalyzer<'a>>(
     src: &'a types::ResourceId,
     content: &'a types::Content,
     resource_id_retriever: &'a impl ResourceIdResolver,
@@ -29,7 +29,10 @@ fn extract_links_from_content<'a, I: MarkdownAnalyzer<'a>>(
     adapter_from_link_2_tgt_to_link_src_2_tgt(link_2_tgt_iter, src)
 }
 
-pub fn adapter_from_rid_and_content_to_link_src_2_tgt<'a, I: MarkdownAnalyzer<'a> + 'a + Copy>(
+pub fn adapter_from_rid_and_content_to_link_src_2_tgt<
+    'a,
+    I: markdown::MarkdownAnalyzer<'a> + 'a + Copy,
+>(
     it_src: impl IntoIterator<Item = (&'a types::ResourceId, &'a types::Content)> + 'a,
     resource_id_retriever: &'a impl ResourceIdResolver,
     md_analyzer: I,
