@@ -1,9 +1,8 @@
-use crate::resources;
-
 use super::{
     content_md_provider::ContentMdProvider, meta_data_title_provider::MetaDataTitleProvider,
     provider_factory::ProviderFactory,
 };
+use crate::resources;
 
 #[derive(Clone)]
 pub struct StdProviderFactory<I, T>

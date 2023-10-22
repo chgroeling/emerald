@@ -1,14 +1,12 @@
+use super::resource_id_resolver::Hint;
+use super::resource_id_resolver::ResourceIdResolver;
 use crate::types;
 use crate::utils;
 use crate::{EmeraldError::*, Result};
-use std::collections::hash_map::Entry;
-use std::collections::HashMap;
-
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
-
-use super::resource_id_resolver::Hint;
-use super::resource_id_resolver::ResourceIdResolver;
+use std::collections::hash_map::Entry;
+use std::collections::HashMap;
 
 pub type NameToResourceIdList = HashMap<String, Vec<types::ResourceId>>;
 

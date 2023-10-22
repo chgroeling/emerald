@@ -1,6 +1,5 @@
-use crate::{resources, types};
-
 use super::md_provider::MdProvider;
+use crate::{resources, types};
 
 pub struct ContentMdProvider<T, U>
 where

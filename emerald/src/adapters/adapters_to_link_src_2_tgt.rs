@@ -1,6 +1,6 @@
 use super::adapters_to_link_2_tgt::adapter_from_link_to_link_2_tgt;
 use super::adapters_to_links::adapter_from_content_type_to_links;
-use crate::maps::ResourceIdResolver;
+use crate::maps;
 use crate::markdown;
 use crate::types;
 
@@ -19,7 +19,7 @@ fn adapter_from_link_2_tgt_to_link_src_2_tgt<'a>(
 fn extract_links_from_content<'a, I: markdown::MarkdownAnalyzer<'a>>(
     src: &'a types::ResourceId,
     content: &'a types::Content,
-    resource_id_retriever: &'a impl ResourceIdResolver,
+    resource_id_retriever: &'a impl maps::ResourceIdResolver,
     md_analyzer: I,
 ) -> impl Iterator<Item = types::LinkSrc2Tgt> + 'a {
     trace!("Link extraction from {:?} starts", src);
@@ -34,7 +34,7 @@ pub fn adapter_from_rid_and_content_to_link_src_2_tgt<
     I: markdown::MarkdownAnalyzer<'a> + 'a + Copy,
 >(
     it_src: impl IntoIterator<Item = (&'a types::ResourceId, &'a types::Content)> + 'a,
-    resource_id_retriever: &'a impl ResourceIdResolver,
+    resource_id_retriever: &'a impl maps::ResourceIdResolver,
     md_analyzer: I,
 ) -> impl Iterator<Item = types::LinkSrc2Tgt> + 'a {
     // iterator yield (a, b)
