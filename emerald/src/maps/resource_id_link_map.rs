@@ -1,8 +1,8 @@
 use super::resource_id_resolver::Hint;
 use super::resource_id_resolver::ResourceIdResolver;
+use crate::error::{EmeraldError::*, Result};
 use crate::types;
 use crate::utils;
-use crate::{EmeraldError::*, Result};
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 use std::collections::hash_map::Entry;

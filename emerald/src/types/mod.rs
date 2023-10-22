@@ -11,8 +11,6 @@ mod res_and_err;
 mod resource_id;
 mod resource_id_comps;
 
-pub type Result<T> = self::res_and_err::Result<T>;
-
 pub use self::content::Content;
 pub use self::content_type::ContentType;
 pub use self::endpoint::EndPoint;
@@ -22,5 +20,4 @@ pub use self::link_frm_src::LinkFrmSrc;
 pub use self::link_src_2_tgt::LinkSrc2Tgt;
 pub use self::meta_data::FileType;
 pub use self::meta_data::MetaData;
-pub use self::res_and_err::EmeraldError;
 pub use self::resource_id::ResourceId;

@@ -1,7 +1,7 @@
+use crate::error::Result;
 use crate::types;
 #[cfg(test)]
 use mockall::{automock, predicate::*};
-use types::Result;
 
 #[cfg_attr(test, automock)]
 pub trait EndpointRetriever {

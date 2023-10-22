@@ -1,8 +1,8 @@
-use super::EndPoint;
+use crate::types::EndPoint;
 use std::io;
 use std::path::PathBuf;
 use thiserror::Error;
-/*
+
 #[derive(Error, Debug)]
 pub enum EmeraldError {
     #[error("A vault at the specified position could not be found")]
@@ -49,4 +49,3 @@ pub enum EmeraldError {
 }
 
 pub type Result<T> = std::result::Result<T, EmeraldError>;
-*/

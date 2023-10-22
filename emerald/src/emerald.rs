@@ -1,11 +1,11 @@
 use super::adapters;
+use super::error::Result;
 use super::indexes;
 use super::maps;
 use super::markdown;
 use super::notes;
 use super::resources;
 use super::types;
-use super::types::Result;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};

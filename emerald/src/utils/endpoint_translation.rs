@@ -1,7 +1,8 @@
 use super::normalize_string::normalize_str_iter;
+use crate::error;
 use crate::types;
+use error::{EmeraldError::*, Result};
 use std::path::Path;
-use types::{EmeraldError::*, Result};
 
 const LINK_FRONT: &str = "[[";
 const LINK_BACK: &str = "]]";

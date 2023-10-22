@@ -1,10 +1,10 @@
 use super::endpoint_retriever::EndpointRetriever;
 use super::meta_data_loader::MetaDataLoader;
+use crate::error::{EmeraldError::*, Result};
 use crate::types;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 use std::path::Path;
-use types::{EmeraldError::*, Result};
 
 #[derive(Clone)]
 pub struct FileMetaDataLoader<I>

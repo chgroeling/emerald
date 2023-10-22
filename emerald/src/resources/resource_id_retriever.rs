@@ -1,7 +1,7 @@
+use crate::error::Result;
 use crate::types;
 #[cfg(test)]
 use mockall::{mock, predicate::*};
-use types::Result;
 
 pub trait ResourceIdRetriever {
     fn retrieve(&self, endpoint: &types::EndPoint) -> Result<types::ResourceId>;

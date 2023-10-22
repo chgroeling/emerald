@@ -1,9 +1,8 @@
+use crate::error::{EmeraldError::*, Result};
 use crate::{types, utils};
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 use std::path::Path;
-use types::{EmeraldError, Result};
-use EmeraldError::*;
 
 pub fn adapter_ep_to_ep_and_rid<'a>(
     it_src: impl IntoIterator<Item = &'a types::EndPoint> + 'a,

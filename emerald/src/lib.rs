@@ -1,5 +1,6 @@
 mod adapters;
 mod emerald;
+mod error;
 mod indexes;
 mod maps;
 mod markdown;
@@ -9,5 +10,5 @@ mod types;
 mod utils;
 
 pub use emerald::Emerald;
-pub use types::EmeraldError;
-pub use types::Result;
+pub use error::EmeraldError;
+pub use error::Result;

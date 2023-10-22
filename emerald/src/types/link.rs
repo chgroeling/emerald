@@ -1,5 +1,5 @@
-use super::res_and_err::Result;
-use super::{link_comps::LinkComps, EmeraldError::*};
+use super::link_comps::LinkComps;
+use crate::error::{EmeraldError::*, Result};
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct Link(pub String);

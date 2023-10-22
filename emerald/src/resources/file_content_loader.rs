@@ -1,10 +1,10 @@
 use super::content_loader::ContentLoader;
 use super::endpoint_retriever::EndpointRetriever;
+use crate::error::Result;
 use crate::types;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 use std::fs;
-use types::Result;
 
 #[derive(Clone)]
 pub struct FileContentLoader<I>

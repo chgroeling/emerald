@@ -1,5 +1,5 @@
+use crate::error::Result;
 use crate::types;
-use types::Result;
 
 #[cfg(test)]
 use mockall::{automock, predicate::*};
