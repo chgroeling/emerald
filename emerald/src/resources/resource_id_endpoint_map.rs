@@ -33,6 +33,8 @@ impl ResourceIdRetriever for ResourceIdEndPointMap {
     fn retrieve(&self, ep: &types::EndPoint) -> Result<types::ResourceId> {
         self.ep_to_resource_id
             .get(ep)
-            .map_or(Err(EndpointHasNoResourceId(ep.clone())), |f| Ok(f.clone()))
+            .map_or(Err(EndpointHasNoResourceId(format!("{ep:?}"))), |f| {
+                Ok(f.clone())
+            })
     }
 }
