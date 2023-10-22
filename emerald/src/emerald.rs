@@ -1,8 +1,8 @@
 use crate::adapters;
 use crate::indexes::Src2TargetIndex;
-use crate::maps::resource_id_link_map::ResourceIdLinkMap;
-use crate::maps::src_links_map::SrcLinksMap;
-use crate::maps::tgt_links_map::TgtLinksMap;
+use crate::maps::ResourceIdLinkMap;
+use crate::maps::SrcLinksMap;
+use crate::maps::TgtLinksMap;
 use crate::markdown::MarkdownAnalyzerLocal;
 use crate::notes::providers::std_provider_factory::StdProviderFactory;
 use crate::notes::vault::Vault;
