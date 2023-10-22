@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use emerald::emerald::Emerald;
+use emerald::Emerald;
 
 #[test]
 fn test_read_in_test_vault() {

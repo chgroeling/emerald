@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use criterion::{criterion_group, criterion_main, Criterion};
-use emerald::emerald::Emerald;
+use emerald::Emerald;
 
 fn vault_load() {
     let vault_path = PathBuf::from("./tests/test_vault");
