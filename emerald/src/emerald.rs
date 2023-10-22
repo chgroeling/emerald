@@ -1,8 +1,6 @@
 use crate::adapters;
 use crate::indexes::Src2TargetIndex;
-use crate::maps::ResourceIdLinkMap;
-use crate::maps::SrcLinksMap;
-use crate::maps::TgtLinksMap;
+use crate::maps;
 use crate::markdown::MarkdownAnalyzerLocal;
 use crate::notes::providers::std_provider_factory::StdProviderFactory;
 use crate::notes::vault::Vault;
@@ -27,11 +25,11 @@ pub struct Emerald {
     pub rid_retriever: ResourceIdEndPointMap,
     pub ep_retriever: EndpointResourceIdMap,
     pub meta_data_loader: FileMetaDataLoaderImpl,
-    pub rid_resolver: ResourceIdLinkMap,
+    pub rid_resolver: maps::ResourceIdLinkMap,
     pub src_2_tgt_index: Src2TargetIndex,
     pub md_content_cache: MdContentCache,
-    pub tgt_iter_retriever: TgtLinksMap,
-    pub src_iter_retriever: SrcLinksMap,
+    pub tgt_iter_retriever: maps::TgtLinksMap,
+    pub src_iter_retriever: maps::SrcLinksMap,
     pub provider_factory: StdProviderFactoryImpl,
     pub vault: Vault<StdProviderFactoryImpl>,
 }
@@ -89,7 +87,7 @@ impl Emerald {
 
         let start = Instant::now();
         let name_iter = adapters::adapter_from_rid_to_name(&all_rids)?;
-        let rid_resolver = ResourceIdLinkMap::new(name_iter);
+        let rid_resolver = maps::ResourceIdLinkMap::new(name_iter);
         let elapsed = start.elapsed();
         debug!("Creation of ResourceIdLinkMap took: {:?}", elapsed);
 
@@ -113,12 +111,12 @@ impl Emerald {
         debug!("Creation of Src2TargetIndex took: {:?}", elapsed);
 
         let start = Instant::now();
-        let tgt_iter_retriever = TgtLinksMap::new(&src_2_tgt_index);
+        let tgt_iter_retriever = maps::TgtLinksMap::new(&src_2_tgt_index);
         let elapsed = start.elapsed();
         debug!("Creation of TgtLinksMap took: {:?}", elapsed);
 
         let start = Instant::now();
-        let src_iter_retriever = SrcLinksMap::new(&src_2_tgt_index);
+        let src_iter_retriever = maps::SrcLinksMap::new(&src_2_tgt_index);
         let elapsed = start.elapsed();
         debug!("Creation of SrcLinksMap took: {:?}", elapsed);
 
