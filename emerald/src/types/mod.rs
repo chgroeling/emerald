@@ -7,7 +7,6 @@ mod link_comps;
 mod link_frm_src;
 mod link_src_2_tgt;
 mod meta_data;
-mod res_and_err;
 mod resource_id;
 mod resource_id_comps;
 
