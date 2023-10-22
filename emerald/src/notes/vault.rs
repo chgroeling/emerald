@@ -1,5 +1,5 @@
 use super::note::Note;
-use crate::notes::providers::provider_factory::ProviderFactory;
+use crate::notes::providers::ProviderFactory;
 use crate::types::ResourceId;
 
 #[derive(Clone)]

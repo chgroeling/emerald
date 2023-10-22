@@ -1,4 +1,4 @@
-use crate::notes::providers::{md_provider::MdProvider, title_provider::TitleProvider};
+use crate::notes::providers::{MdProvider, TitleProvider};
 
 use crate::types::ResourceId;
 
