@@ -1,6 +1,5 @@
 use super::title_provider::TitleProvider;
-use crate::resources;
-use crate::types;
+use crate::{resources, types};
 
 pub struct MetaDataTitleProvider<I>
 where

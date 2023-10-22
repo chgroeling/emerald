@@ -1,8 +1,6 @@
 use super::adapters_to_link_2_tgt::adapter_from_link_to_link_2_tgt;
 use super::adapters_to_links::adapter_from_content_type_to_links;
-use crate::maps;
-use crate::markdown;
-use crate::types;
+use crate::{maps, markdown, types};
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};

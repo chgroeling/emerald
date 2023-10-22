@@ -1,6 +1,5 @@
 use super::resource_id_comps::ResourceIdComps;
-use crate::error;
-use error::{EmeraldError::*, Result};
+use crate::error::{EmeraldError::*, Result};
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 
