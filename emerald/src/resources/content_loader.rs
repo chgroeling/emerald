@@ -1,7 +1,6 @@
-use crate::types::Content;
-use crate::types::ResourceId;
-use crate::Result;
+use crate::error::Result;
+use crate::types;
 
 pub trait ContentLoader {
-    fn load(&self, resource_id: &ResourceId) -> Result<Content>;
+    fn load(&self, resource_id: &types::ResourceId) -> Result<types::Content>;
 }

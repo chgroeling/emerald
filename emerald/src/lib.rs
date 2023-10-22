@@ -1,4 +1,6 @@
 mod adapters;
+mod emerald;
+mod error;
 mod indexes;
 mod maps;
 mod markdown;
@@ -7,7 +9,6 @@ mod resources;
 mod types;
 mod utils;
 
-pub mod emerald;
-pub use crate::emerald::Emerald;
-pub use crate::types::EmeraldError;
-pub use crate::types::Result;
+pub use emerald::Emerald;
+pub use error::EmeraldError;
+pub use error::Result;

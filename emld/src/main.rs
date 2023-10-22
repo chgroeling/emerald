@@ -1,14 +1,12 @@
 use clap::{Parser, Subcommand};
-use std::path::Path;
-use std::path::PathBuf;
-use std::time::Instant;
-
-#[allow(unused_imports)]
-use log::{debug, error, info, trace, warn};
-
 use emerald::Emerald;
 use emerald::EmeraldError;
 use emerald::Result;
+#[allow(unused_imports)]
+use log::{debug, error, info, trace, warn};
+use std::path::Path;
+use std::path::PathBuf;
+use std::time::Instant;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]

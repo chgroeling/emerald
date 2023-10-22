@@ -1,13 +1,11 @@
+use super::tgt_iter_retriever::TgtIterRetriever;
+use crate::types;
 use std::{
     collections::{hash_map::Entry, HashMap},
     rc::Rc,
 };
 
-use crate::types::{Link2Tgt, LinkSrc2Tgt, ResourceId};
-
-use super::tgt_iter_retriever::TgtIterRetriever;
-
-type Src2Link2TgtMap = HashMap<ResourceId, Vec<Link2Tgt>>;
+type Src2Link2TgtMap = HashMap<types::ResourceId, Vec<types::Link2Tgt>>;
 
 #[derive(Clone)]
 pub struct TgtLinksMap {
@@ -15,7 +13,7 @@ pub struct TgtLinksMap {
 }
 
 impl TgtLinksMap {
-    pub fn new<'a>(it_src: impl IntoIterator<Item = &'a LinkSrc2Tgt>) -> Self {
+    pub fn new<'a>(it_src: impl IntoIterator<Item = &'a types::LinkSrc2Tgt>) -> Self {
         let mut link_2_tgt_map = Src2Link2TgtMap::new();
         for s2t in it_src.into_iter() {
             let link_to_target = s2t.get_link_to_target();
@@ -36,7 +34,7 @@ impl TgtLinksMap {
 }
 
 impl TgtIterRetriever for TgtLinksMap {
-    fn retrieve(&self, src: ResourceId) -> Option<std::vec::IntoIter<Link2Tgt>> {
+    fn retrieve(&self, src: types::ResourceId) -> Option<std::vec::IntoIter<types::Link2Tgt>> {
         self.link_2_tgt_map.get(&src).map(|f| f.clone().into_iter())
     }
 }

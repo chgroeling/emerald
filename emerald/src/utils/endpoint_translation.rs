@@ -1,22 +1,18 @@
-use std::path::Path;
-
 use super::normalize_string::normalize_str_iter;
-use crate::types::EndPoint;
-use crate::types::ResourceId;
-use crate::EmeraldError;
-use crate::Result;
-use EmeraldError::*;
+use crate::error::{EmeraldError::*, Result};
+use crate::types;
+use std::path::Path;
 
 const LINK_FRONT: &str = "[[";
 const LINK_BACK: &str = "]]";
 
 pub fn convert_endpoint_to_resource_id(
-    endpoint: &EndPoint,
+    endpoint: &types::EndPoint,
     common_path: &Path,
-) -> Result<ResourceId> {
+) -> Result<types::ResourceId> {
     let path = match endpoint {
-        EndPoint::FileUnknown(path) => path,
-        EndPoint::FileMarkdown(path) => path,
+        types::EndPoint::FileUnknown(path) => path,
+        types::EndPoint::FileMarkdown(path) => path,
     };
     let rel_path = match path.strip_prefix(common_path) {
         Ok(item) => item.to_path_buf(),
@@ -41,11 +37,10 @@ pub fn convert_endpoint_to_resource_id(
 
 #[cfg(test)]
 mod tests {
-    use std::path::PathBuf;
-
     use super::convert_endpoint_to_resource_id;
-    use super::EndPoint;
-    use EndPoint::*;
+    use super::types;
+    use std::path::PathBuf;
+    use types::EndPoint::*;
 
     #[test]
     fn test_convert_unix_path_to_endpoint_link() {

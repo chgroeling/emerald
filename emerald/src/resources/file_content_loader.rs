@@ -1,14 +1,10 @@
-use crate::resources::endpoint_retriever::EndpointRetriever;
-use crate::types::Content;
-use crate::types::EndPoint;
-use crate::types::ResourceId;
-use crate::Result;
-use std::fs;
-
+use super::content_loader::ContentLoader;
+use super::endpoint_retriever::EndpointRetriever;
+use crate::error::Result;
+use crate::types;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
-
-use super::content_loader::ContentLoader;
+use std::fs;
 
 #[derive(Clone)]
 pub struct FileContentLoader<I>
@@ -31,12 +27,12 @@ impl<I> ContentLoader for FileContentLoader<I>
 where
     I: EndpointRetriever,
 {
-    fn load(&self, resource_id: &ResourceId) -> Result<Content> {
+    fn load(&self, resource_id: &types::ResourceId) -> Result<types::Content> {
         let endpoint = self.ep_retriever.retrieve(resource_id)?;
 
         match endpoint {
-            EndPoint::FileMarkdown(md_path) => Ok(fs::read_to_string(md_path)?.into()),
-            EndPoint::FileUnknown(path) => Ok(fs::read_to_string(path)?.into()),
+            types::EndPoint::FileMarkdown(md_path) => Ok(fs::read_to_string(md_path)?.into()),
+            types::EndPoint::FileUnknown(path) => Ok(fs::read_to_string(path)?.into()),
         }
     }
 }

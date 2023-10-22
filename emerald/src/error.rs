@@ -2,8 +2,6 @@ use std::io;
 use std::path::PathBuf;
 use thiserror::Error;
 
-use super::EndPoint;
-
 #[derive(Error, Debug)]
 pub enum EmeraldError {
     #[error("A vault at the specified position could not be found")]
@@ -42,8 +40,8 @@ pub enum EmeraldError {
     #[error("Tried to handle something as a file which was none")]
     NotAFile,
 
-    #[error("The endpoint {0:?}  has no assigned resource id")]
-    EndpointHasNoResourceId(EndPoint),
+    #[error("The endpoint {0}  has no assigned resource id")]
+    EndpointHasNoResourceId(String),
 
     #[error("unknown error")]
     Unknown,

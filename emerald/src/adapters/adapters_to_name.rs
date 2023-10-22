@@ -1,9 +1,9 @@
-use crate::types::ResourceId;
-use crate::Result;
+use crate::error::Result;
+use crate::types;
 
 pub fn adapter_from_rid_to_name<'a>(
-    it_src: impl IntoIterator<Item = &'a ResourceId>,
-) -> Result<impl Iterator<Item = (&'a ResourceId, String)>> {
+    it_src: impl IntoIterator<Item = &'a types::ResourceId>,
+) -> Result<impl Iterator<Item = (&'a types::ResourceId, String)>> {
     // Assumption: All resource ids are encoded in utf8 nfc
 
     // Iterator yields (ResourceId, NameOfResourceId)

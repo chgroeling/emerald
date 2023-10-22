@@ -1,9 +1,8 @@
 use super::markdown_iterator_state::MarkdownIteratorState;
-use crate::types::ContentType;
-use std::{iter::Peekable, str::CharIndices};
-
+use crate::types;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
+use std::{iter::Peekable, str::CharIndices};
 
 #[derive(Debug)]
 pub struct MarkdownAnalyzerIter<'a> {
@@ -215,10 +214,10 @@ impl<'a> MarkdownAnalyzerIter<'a> {
     }
 }
 impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
-    type Item = ContentType<'a>;
+    type Item = types::ContentType<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        use ContentType::*;
+        use types::ContentType::*;
         use MarkdownIteratorState::*;
 
         let mut next_element = self.iter.next();
@@ -250,8 +249,8 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
 
 #[cfg(test)]
 mod tests {
-    use super::{ContentType, MarkdownAnalyzerIter};
-    use ContentType::*;
+    use super::types::ContentType::*;
+    use super::MarkdownAnalyzerIter;
 
     #[test]
     fn test_content_iter_empty_string_empty() {

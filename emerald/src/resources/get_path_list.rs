@@ -1,4 +1,4 @@
-use crate::Result;
+use crate::error::Result;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 use std::fs;

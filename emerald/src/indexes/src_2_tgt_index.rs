@@ -1,20 +1,18 @@
-use std::rc::Rc;
-
+use crate::types;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
-
-use crate::types::{LinkSrc2Tgt, ResourceId};
+use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct Src2TargetIndex {
     valid_backlink_cnt: usize,
     invalid_backlink_cnt: usize,
-    src_2_tgt_list: Rc<Vec<LinkSrc2Tgt>>,
+    src_2_tgt_list: Rc<Vec<types::LinkSrc2Tgt>>,
 }
 
 impl Src2TargetIndex {
-    pub fn new(it_src: impl IntoIterator<Item = LinkSrc2Tgt>) -> Self {
-        let mut src_2_tgt_list = Vec::<LinkSrc2Tgt>::new();
+    pub fn new(it_src: impl IntoIterator<Item = types::LinkSrc2Tgt>) -> Self {
+        let mut src_2_tgt_list = Vec::<types::LinkSrc2Tgt>::new();
 
         let mut valid_backlink_cnt: usize = 0;
         let mut invalid_backlink_cnt: usize = 0;
@@ -22,7 +20,7 @@ impl Src2TargetIndex {
         let mut note_invalid_backlink_cnt: usize = 0;
 
         let mut iter_mut = it_src.into_iter();
-        let mut opt_last_src: Option<ResourceId> = None;
+        let mut opt_last_src: Option<types::ResourceId> = None;
         loop {
             let Some(s2t) = iter_mut.next() else {
                 if let Some(last_src) = opt_last_src {
@@ -50,7 +48,7 @@ impl Src2TargetIndex {
             }
 
             match &s2t {
-                LinkSrc2Tgt {
+                types::LinkSrc2Tgt {
                     src,
                     link,
                     tgt: None,
@@ -82,9 +80,9 @@ impl Src2TargetIndex {
 }
 
 impl<'a> IntoIterator for &'a Src2TargetIndex {
-    type Item = &'a LinkSrc2Tgt;
+    type Item = &'a types::LinkSrc2Tgt;
 
-    type IntoIter = std::slice::Iter<'a, LinkSrc2Tgt>;
+    type IntoIter = std::slice::Iter<'a, types::LinkSrc2Tgt>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.src_2_tgt_list.iter()

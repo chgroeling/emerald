@@ -7,14 +7,10 @@ mod link_comps;
 mod link_frm_src;
 mod link_src_2_tgt;
 mod meta_data;
-mod res_and_err;
 mod resource_id;
-pub mod resource_id_comps;
+mod resource_id_comps;
 
 pub use self::content::Content;
-pub use self::res_and_err::EmeraldError;
-
-pub type Result<T> = self::res_and_err::Result<T>;
 pub use self::content_type::ContentType;
 pub use self::endpoint::EndPoint;
 pub use self::link::Link;

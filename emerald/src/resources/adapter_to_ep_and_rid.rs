@@ -1,22 +1,17 @@
-use crate::{EmeraldError, Result};
+use crate::error::{EmeraldError::*, Result};
+use crate::{types, utils};
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 use std::path::Path;
 
-use crate::{
-    types::{EndPoint, ResourceId},
-    utils::endpoint_translation::convert_endpoint_to_resource_id,
-};
-use EmeraldError::*;
-
 pub fn adapter_ep_to_ep_and_rid<'a>(
-    it_src: impl IntoIterator<Item = &'a EndPoint> + 'a,
+    it_src: impl IntoIterator<Item = &'a types::EndPoint> + 'a,
     common_path: &'a Path,
-) -> Result<impl Iterator<Item = (EndPoint, ResourceId)> + 'a> {
+) -> Result<impl Iterator<Item = (types::EndPoint, types::ResourceId)> + 'a> {
     let ret: Result<Vec<_>> = it_src
         .into_iter()
         .map(|ep| {
-            let opt_resource_id = convert_endpoint_to_resource_id(ep, common_path);
+            let opt_resource_id = utils::convert_endpoint_to_resource_id(ep, common_path);
 
             if let Ok(resource_id) = opt_resource_id {
                 Ok((ep.clone(), resource_id))

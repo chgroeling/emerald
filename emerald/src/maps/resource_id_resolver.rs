@@ -1,4 +1,4 @@
-use crate::types::{Link, ResourceId};
+use crate::types;
 use crate::Result;
 
 pub enum Hint {
@@ -7,9 +7,9 @@ pub enum Hint {
 }
 pub trait ResourceIdResolver {
     // This is a resolver instead of a Retriever because the link is interpreted
-    fn resolve(&self, link: &Link) -> Result<ResourceId> {
+    fn resolve(&self, link: &types::Link) -> Result<types::ResourceId> {
         self.resolve_with_hint(link, Hint::NoHint)
     }
 
-    fn resolve_with_hint(&self, link: &Link, hint: Hint) -> Result<ResourceId>;
+    fn resolve_with_hint(&self, link: &types::Link, hint: Hint) -> Result<types::ResourceId>;
 }
