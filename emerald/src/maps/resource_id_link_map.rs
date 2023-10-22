@@ -1,6 +1,6 @@
 use crate::types::Link;
 use crate::types::ResourceId;
-use crate::utils::normalize_string::normalize_str;
+use crate::utils::normalize_str;
 use crate::{EmeraldError::*, Result};
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;

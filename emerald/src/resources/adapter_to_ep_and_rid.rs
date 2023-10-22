@@ -5,7 +5,7 @@ use std::path::Path;
 
 use crate::{
     types::{EndPoint, ResourceId},
-    utils::endpoint_translation::convert_endpoint_to_resource_id,
+    utils::convert_endpoint_to_resource_id,
 };
 use EmeraldError::*;
 
