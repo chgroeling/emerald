@@ -1,4 +1,4 @@
-use crate::resources::md_content_retriever::MdContentRetriever;
+use crate::resources::MdContentRetriever;
 use crate::types::{Content, ResourceId};
 use crate::Result;
 

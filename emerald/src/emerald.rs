@@ -4,10 +4,10 @@ use crate::maps;
 use crate::markdown::MarkdownAnalyzerLocal;
 use crate::notes;
 use crate::resources;
-use crate::resources::endpoint_resource_id_map::EndpointResourceIdMap;
-use crate::resources::file_content_loader::FileContentLoader;
-use crate::resources::md_content_cache::MdContentCache;
-use crate::resources::resource_id_endpoint_map::ResourceIdEndPointMap;
+use crate::resources::EndpointResourceIdMap;
+use crate::resources::FileContentLoader;
+use crate::resources::MdContentCache;
+use crate::resources::ResourceIdEndPointMap;
 use crate::types::EndPoint;
 use crate::Result;
 

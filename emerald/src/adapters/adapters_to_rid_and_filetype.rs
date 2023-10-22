@@ -21,7 +21,7 @@ pub fn adapter_to_rid_and_filetype<'a>(
 mod tests {
     use crate::{
         adapters::adapter_to_rid_and_filetype,
-        resources::meta_data_loader::MockMetaDataLoader,
+        resources::MockMetaDataLoader,
         types::{FileType, MetaData, ResourceId},
     };
 
