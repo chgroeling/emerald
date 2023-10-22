@@ -1,32 +1,29 @@
 use crate::adapters;
-use crate::indexes::Src2TargetIndex;
+use crate::indexes;
 use crate::maps;
-use crate::markdown::MarkdownAnalyzerLocal;
+use crate::markdown;
 use crate::notes;
 use crate::resources;
-use crate::resources::EndpointResourceIdMap;
-use crate::resources::FileContentLoader;
-use crate::resources::MdContentCache;
-use crate::resources::ResourceIdEndPointMap;
-use crate::types::EndPoint;
+use crate::types;
 use crate::Result;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 use std::{path::Path, time::Instant};
 
-type FileMetaDataLoaderImpl = resources::FileMetaDataLoader<EndpointResourceIdMap>;
-type StdProviderFactoryImpl = notes::StdProviderFactory<FileMetaDataLoaderImpl, MdContentCache>;
+type FileMetaDataLoaderImpl = resources::FileMetaDataLoader<resources::EndpointResourceIdMap>;
+type StdProviderFactoryImpl =
+    notes::StdProviderFactory<FileMetaDataLoaderImpl, resources::MdContentCache>;
 
 #[allow(dead_code)]
 pub struct Emerald {
-    pub ep_index: Vec<EndPoint>,
-    pub rid_retriever: ResourceIdEndPointMap,
-    pub ep_retriever: EndpointResourceIdMap,
+    pub ep_index: Vec<types::EndPoint>,
+    pub rid_retriever: resources::ResourceIdEndPointMap,
+    pub ep_retriever: resources::EndpointResourceIdMap,
     pub meta_data_loader: FileMetaDataLoaderImpl,
     pub rid_resolver: maps::ResourceIdLinkMap,
-    pub src_2_tgt_index: Src2TargetIndex,
-    pub md_content_cache: MdContentCache,
+    pub src_2_tgt_index: indexes::Src2TargetIndex,
+    pub md_content_cache: resources::MdContentCache,
     pub tgt_iter_retriever: maps::TgtLinksMap,
     pub src_iter_retriever: maps::SrcLinksMap,
     pub provider_factory: StdProviderFactoryImpl,
@@ -55,17 +52,17 @@ impl Emerald {
         );
 
         let start = Instant::now();
-        let rid_retriever = ResourceIdEndPointMap::new(&ep_and_rids)?;
+        let rid_retriever = resources::ResourceIdEndPointMap::new(&ep_and_rids)?;
         let elapsed = start.elapsed();
         debug!("Creation of ResourceIdEndPointMap took: {:?}", elapsed);
 
         let start = Instant::now();
-        let ep_retriever = EndpointResourceIdMap::new(&ep_and_rids)?;
+        let ep_retriever = resources::EndpointResourceIdMap::new(&ep_and_rids)?;
         let elapsed = start.elapsed();
         debug!("Creation of EndpointResourceIdMap took: {:?}", elapsed);
 
         let start = Instant::now();
-        let content_loader = FileContentLoader::new(ep_retriever.clone());
+        let content_loader = resources::FileContentLoader::new(ep_retriever.clone());
         let elapsed = start.elapsed();
         debug!("Creation of FileContentLoader took: {:?}", elapsed);
 
@@ -91,7 +88,7 @@ impl Emerald {
         debug!("Creation of ResourceIdLinkMap took: {:?}", elapsed);
 
         let start = Instant::now();
-        let md_content_cache = MdContentCache::new(&md_rids, &content_loader);
+        let md_content_cache = resources::MdContentCache::new(&md_rids, &content_loader);
         let elapsed = start.elapsed();
         debug!("Creation of ContentFullMdCache took: {:?}", elapsed);
 
@@ -102,10 +99,10 @@ impl Emerald {
         let src_2_tgt_iter = adapters::adapter_from_rid_and_content_to_link_src_2_tgt(
             crefs.into_iter(),
             &rid_resolver,
-            MarkdownAnalyzerLocal::new(),
+            markdown::MarkdownAnalyzerLocal::new(),
         );
 
-        let src_2_tgt_index = Src2TargetIndex::new(src_2_tgt_iter);
+        let src_2_tgt_index = indexes::Src2TargetIndex::new(src_2_tgt_iter);
         let elapsed = start.elapsed();
         debug!("Creation of Src2TargetIndex took: {:?}", elapsed);
 
@@ -158,7 +155,7 @@ impl Emerald {
     pub fn md_file_count(&self) -> usize {
         self.ep_index
             .iter()
-            .filter(|pred| matches!(pred, EndPoint::FileMarkdown(_)))
+            .filter(|pred| matches!(pred, types::EndPoint::FileMarkdown(_)))
             .count()
     }
 
