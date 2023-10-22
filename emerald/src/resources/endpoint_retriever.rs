@@ -1,10 +1,9 @@
-use crate::types::{EndPoint, ResourceId};
-use crate::Result;
-
+use crate::types;
 #[cfg(test)]
 use mockall::{automock, predicate::*};
+use types::Result;
 
 #[cfg_attr(test, automock)]
 pub trait EndpointRetriever {
-    fn retrieve(&self, resource_id: &ResourceId) -> Result<EndPoint>;
+    fn retrieve(&self, resource_id: &types::ResourceId) -> Result<types::EndPoint>;
 }

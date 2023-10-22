@@ -1,23 +1,21 @@
+use super::{content_loader::ContentLoader, md_content_retriever::MdContentRetriever};
+use crate::types;
 use crate::Result;
-use std::{collections::HashMap, rc::Rc};
-
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
-
-use super::{content_loader::ContentLoader, md_content_retriever::MdContentRetriever};
-use crate::types::{Content, ResourceId};
+use std::{collections::HashMap, rc::Rc};
 
 #[derive(Clone)]
 pub struct MdContentCache {
-    res_id_to_content: Rc<HashMap<ResourceId, Content>>,
+    res_id_to_content: Rc<HashMap<types::ResourceId, types::Content>>,
 }
 
 impl MdContentCache {
     pub fn new<'a>(
-        it_src: impl IntoIterator<Item = &'a ResourceId>,
+        it_src: impl IntoIterator<Item = &'a types::ResourceId>,
         content_loader: &'a impl ContentLoader,
     ) -> Self {
-        let mut res_id_to_content = HashMap::<ResourceId, Content>::new();
+        let mut res_id_to_content = HashMap::<types::ResourceId, types::Content>::new();
 
         for md_res_id in it_src.into_iter() {
             let read_note = content_loader.load(md_res_id);
@@ -40,7 +38,7 @@ impl MdContentCache {
 }
 
 impl MdContentRetriever for MdContentCache {
-    fn retrieve(&self, resource_id: &ResourceId) -> Result<&Content> {
+    fn retrieve(&self, resource_id: &types::ResourceId) -> Result<&types::Content> {
         let cached = self.res_id_to_content.get(resource_id);
 
         match cached {

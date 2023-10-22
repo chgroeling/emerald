@@ -1,6 +1,6 @@
 use crate::{
     resources::{MdContentRetriever, MetaDataLoader},
-    types::{FileType, ResourceId},
+    types,
 };
 
 use super::md_provider::MdProvider;
@@ -31,11 +31,11 @@ where
     I: MdContentRetriever,
     U: MetaDataLoader,
 {
-    fn get_markdown(&self, resource_id: &ResourceId) -> String {
+    fn get_markdown(&self, resource_id: &types::ResourceId) -> String {
         let meta_data = self.meta_data_loader.load(resource_id).unwrap();
 
         // do not allow anything other than markdown files pass this point
-        let FileType::Markdown(_) = meta_data.file_type else {
+        let types::FileType::Markdown(_) = meta_data.file_type else {
             panic!("Not a markdown file {:?}", meta_data)
         };
 

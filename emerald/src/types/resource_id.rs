@@ -1,6 +1,5 @@
 use super::res_and_err::Result;
 use super::{resource_id_comps::ResourceIdComps, EmeraldError};
-
 use EmeraldError::*;
 
 #[derive(Debug, Clone, PartialEq, Hash)]

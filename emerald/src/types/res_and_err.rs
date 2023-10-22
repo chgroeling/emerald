@@ -1,8 +1,7 @@
+use super::EndPoint;
 use std::io;
 use std::path::PathBuf;
 use thiserror::Error;
-
-use super::EndPoint;
 
 #[derive(Error, Debug)]
 pub enum EmeraldError {

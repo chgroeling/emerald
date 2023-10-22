@@ -1,10 +1,7 @@
 use std::path::Path;
 
 use crate::resources::endpoint_retriever::EndpointRetriever;
-use crate::types::EndPoint;
-use crate::types::FileType;
-use crate::types::MetaData;
-use crate::types::ResourceId;
+use crate::types;
 use crate::EmeraldError;
 use crate::Result;
 
@@ -31,13 +28,13 @@ where
         Self { ep_retriever }
     }
 
-    fn get_file_type(&self, path: &Path) -> Result<FileType> {
+    fn get_file_type(&self, path: &Path) -> Result<types::FileType> {
         let os_ext = path.extension().ok_or(NotAFile)?;
         let ext = os_ext.to_str().ok_or(ValueError)?;
         match ext {
-            "md" => Ok(FileType::Markdown(ext.to_string())),
-            "markdown" => Ok(FileType::Markdown(ext.to_string())),
-            _ => Ok(FileType::Unknown(ext.to_string())),
+            "md" => Ok(types::FileType::Markdown(ext.to_string())),
+            "markdown" => Ok(types::FileType::Markdown(ext.to_string())),
+            _ => Ok(types::FileType::Unknown(ext.to_string())),
         }
     }
 
@@ -47,10 +44,10 @@ where
         Ok(file_stem)
     }
 
-    fn get_file_meta_data(&self, path: &Path) -> Result<MetaData> {
+    fn get_file_meta_data(&self, path: &Path) -> Result<types::MetaData> {
         let file_stem = self.get_file_stem(path)?;
         let file_type = self.get_file_type(path)?;
-        Ok(MetaData {
+        Ok(types::MetaData {
             file_stem,
             file_type,
         })
@@ -61,13 +58,13 @@ impl<I> MetaDataLoader for FileMetaDataLoader<I>
 where
     I: EndpointRetriever,
 {
-    fn load(&self, rid: &ResourceId) -> Result<MetaData> {
+    fn load(&self, rid: &types::ResourceId) -> Result<types::MetaData> {
         let ep = self.ep_retriever.retrieve(rid)?;
 
         #[allow(unreachable_patterns)]
         match ep {
-            EndPoint::FileMarkdown(path) => self.get_file_meta_data(&path),
-            EndPoint::FileUnknown(path) => self.get_file_meta_data(&path),
+            types::EndPoint::FileMarkdown(path) => self.get_file_meta_data(&path),
+            types::EndPoint::FileUnknown(path) => self.get_file_meta_data(&path),
             _ => Err(NoMetaData),
         }
     }

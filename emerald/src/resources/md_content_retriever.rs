@@ -1,7 +1,6 @@
-use crate::types::Content;
-use crate::types::ResourceId;
-use crate::Result;
+use crate::types;
+use types::Result;
 
 pub trait MdContentRetriever {
-    fn retrieve(&self, resource_id: &ResourceId) -> Result<&Content>;
+    fn retrieve(&self, resource_id: &types::ResourceId) -> Result<&types::Content>;
 }

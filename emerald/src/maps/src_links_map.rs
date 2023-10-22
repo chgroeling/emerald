@@ -1,13 +1,11 @@
+use super::src_iter_retriever::SrcIterRetriever;
+use crate::types;
 use std::{
     collections::{hash_map::Entry, HashMap},
     rc::Rc,
 };
 
-use crate::types::{LinkFrmSrc, LinkSrc2Tgt, ResourceId};
-
-use super::src_iter_retriever::SrcIterRetriever;
-
-type Tgt2LinkFrmSrcMap = HashMap<ResourceId, Vec<LinkFrmSrc>>;
+type Tgt2LinkFrmSrcMap = HashMap<types::ResourceId, Vec<types::LinkFrmSrc>>;
 
 #[derive(Clone)]
 pub struct SrcLinksMap {
@@ -15,7 +13,7 @@ pub struct SrcLinksMap {
 }
 
 impl SrcLinksMap {
-    pub fn new<'a>(it_src: impl IntoIterator<Item = &'a LinkSrc2Tgt>) -> Self {
+    pub fn new<'a>(it_src: impl IntoIterator<Item = &'a types::LinkSrc2Tgt>) -> Self {
         let mut src_2_tgt_map = Tgt2LinkFrmSrcMap::new();
         for s2t in it_src.into_iter() {
             let link_from_source = s2t.get_link_from_source();
@@ -40,14 +38,14 @@ impl SrcLinksMap {
 }
 
 impl SrcIterRetriever for SrcLinksMap {
-    fn retrieve(&self, tgt: ResourceId) -> Option<std::vec::IntoIter<LinkFrmSrc>> {
+    fn retrieve(&self, tgt: types::ResourceId) -> Option<std::vec::IntoIter<types::LinkFrmSrc>> {
         self.src_2_tgt_map.get(&tgt).map(|f| f.clone().into_iter())
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::LinkFrmSrc;
+    use super::types;
     use super::SrcIterRetriever;
     use super::SrcLinksMap;
     use crate::types::LinkSrc2Tgt;
@@ -57,9 +55,12 @@ mod tests {
         let test_data: Vec<LinkSrc2Tgt> = vec![("o1", "o1->d1", "d1").into()];
 
         let dut = SrcLinksMap::new(test_data.iter());
-        let res: Vec<LinkFrmSrc> = dut.retrieve("d1".into()).unwrap().collect();
+        let res: Vec<types::LinkFrmSrc> = dut.retrieve("d1".into()).unwrap().collect();
 
-        assert_eq!(res, vec![LinkFrmSrc::new("o1->d1".into(), "o1".into())]);
+        assert_eq!(
+            res,
+            vec![types::LinkFrmSrc::new("o1->d1".into(), "o1".into())]
+        );
     }
 
     #[test]
@@ -68,9 +69,12 @@ mod tests {
             vec![("o1", "o1->d1", "d1").into(), ("o1", "o1->d2", "d2").into()];
 
         let dut = SrcLinksMap::new(test_data.iter());
-        let res: Vec<LinkFrmSrc> = dut.retrieve("d1".into()).unwrap().collect();
+        let res: Vec<types::LinkFrmSrc> = dut.retrieve("d1".into()).unwrap().collect();
 
-        assert_eq!(res, vec![LinkFrmSrc::new("o1->d1".into(), "o1".into())]);
+        assert_eq!(
+            res,
+            vec![types::LinkFrmSrc::new("o1->d1".into(), "o1".into())]
+        );
     }
 
     #[test]
@@ -84,8 +88,11 @@ mod tests {
         ];
 
         let dut = SrcLinksMap::new(test_data.iter());
-        let res: Vec<LinkFrmSrc> = dut.retrieve("d1".into()).unwrap().collect();
+        let res: Vec<types::LinkFrmSrc> = dut.retrieve("d1".into()).unwrap().collect();
 
-        assert_eq!(res, vec![LinkFrmSrc::new("o1->d1".into(), "o1".into(),)]);
+        assert_eq!(
+            res,
+            vec![types::LinkFrmSrc::new("o1->d1".into(), "o1".into(),)]
+        );
     }
 }

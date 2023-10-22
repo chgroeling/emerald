@@ -1,11 +1,11 @@
 use crate::resources::MdContentRetriever;
-use crate::types::{Content, ResourceId};
+use crate::types;
 use crate::Result;
 
 pub fn adapter_from_rids_to_rids_and_content<'a>(
-    it_src: impl IntoIterator<Item = &'a ResourceId>,
+    it_src: impl IntoIterator<Item = &'a types::ResourceId>,
     content_retriever: &'a impl MdContentRetriever,
-) -> Result<impl Iterator<Item = (&'a ResourceId, &'a Content)>> {
+) -> Result<impl Iterator<Item = (&'a types::ResourceId, &'a types::Content)>> {
     // load content into Iterator. Iterator yields (ResourceId, Result<Content>)
 
     let ret: Result<Vec<_>> = it_src

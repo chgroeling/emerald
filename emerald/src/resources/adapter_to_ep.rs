@@ -1,19 +1,18 @@
-use crate::types::EndPoint;
+use crate::types;
 use std::path::PathBuf;
-use EndPoint::*;
 
 pub fn adapter_from_pathes_to_ep(
     it_src: impl IntoIterator<Item = PathBuf>,
-) -> impl Iterator<Item = EndPoint> {
-    let mut ep_list = Vec::<EndPoint>::new();
+) -> impl Iterator<Item = types::EndPoint> {
+    let mut ep_list = Vec::<types::EndPoint>::new();
     for file_path in it_src {
         let endpoint = if file_path
             .extension()
             .is_some_and(|ext| ext == "md" || ext == "markdown")
         {
-            FileMarkdown(file_path)
+            types::EndPoint::FileMarkdown(file_path)
         } else {
-            FileUnknown(file_path)
+            types::EndPoint::FileUnknown(file_path)
         };
 
         ep_list.push(endpoint);

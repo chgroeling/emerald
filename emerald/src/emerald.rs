@@ -1,11 +1,11 @@
-use crate::adapters;
-use crate::indexes;
-use crate::maps;
-use crate::markdown;
-use crate::notes;
-use crate::resources;
-use crate::types;
-use crate::Result;
+use super::adapters;
+use super::indexes;
+use super::maps;
+use super::markdown;
+use super::notes;
+use super::resources;
+use super::types;
+use super::types::Result;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
