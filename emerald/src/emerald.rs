@@ -2,8 +2,7 @@ use crate::adapters;
 use crate::indexes::Src2TargetIndex;
 use crate::maps;
 use crate::markdown::MarkdownAnalyzerLocal;
-use crate::notes::providers::std_provider_factory::StdProviderFactory;
-use crate::notes::vault::Vault;
+use crate::notes;
 use crate::resources;
 use crate::resources::endpoint_resource_id_map::EndpointResourceIdMap;
 use crate::resources::file_content_loader::FileContentLoader;
@@ -17,7 +16,7 @@ use log::{debug, error, info, trace, warn};
 use std::{path::Path, time::Instant};
 
 type FileMetaDataLoaderImpl = resources::FileMetaDataLoader<EndpointResourceIdMap>;
-type StdProviderFactoryImpl = StdProviderFactory<FileMetaDataLoaderImpl, MdContentCache>;
+type StdProviderFactoryImpl = notes::StdProviderFactory<FileMetaDataLoaderImpl, MdContentCache>;
 
 #[allow(dead_code)]
 pub struct Emerald {
@@ -31,7 +30,7 @@ pub struct Emerald {
     pub tgt_iter_retriever: maps::TgtLinksMap,
     pub src_iter_retriever: maps::SrcLinksMap,
     pub provider_factory: StdProviderFactoryImpl,
-    pub vault: Vault<StdProviderFactoryImpl>,
+    pub vault: notes::Vault<StdProviderFactoryImpl>,
 }
 
 impl Emerald {
@@ -122,12 +121,12 @@ impl Emerald {
 
         let start = Instant::now();
         let provider_factory =
-            StdProviderFactory::new(meta_data_loader.clone(), md_content_cache.clone());
+            notes::StdProviderFactory::new(meta_data_loader.clone(), md_content_cache.clone());
         let elapsed = start.elapsed();
         debug!("Creation of StdProviderFactory took: {:?}", elapsed);
 
         let start = Instant::now();
-        let vault = Vault::new(&md_rids, provider_factory.clone());
+        let vault = notes::Vault::new(&md_rids, provider_factory.clone());
         let elapsed = start.elapsed();
         debug!("Creation of Vault took: {:?}", elapsed);
 
@@ -148,7 +147,7 @@ impl Emerald {
 }
 
 impl Emerald {
-    pub fn get_vault(&self) -> Vault<StdProviderFactoryImpl> {
+    pub fn get_vault(&self) -> notes::Vault<StdProviderFactoryImpl> {
         self.vault.clone()
     }
 
