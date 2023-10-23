@@ -32,8 +32,7 @@ where
         let endpoint = self.ep_retriever.retrieve(resource_id)?;
 
         match endpoint {
-            ResourceObject::FileMarkdown(md_path) => Ok(fs::read_to_string(md_path)?.into()),
-            ResourceObject::FileUnknown(path) => Ok(fs::read_to_string(path)?.into()),
+            ResourceObject::File(md_path) => Ok(fs::read_to_string(md_path)?.into()),
         }
     }
 }

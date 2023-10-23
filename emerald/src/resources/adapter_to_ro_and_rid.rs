@@ -38,7 +38,7 @@ mod tests {
 
     #[test]
     fn test_resolve_different_utf8_norm_match() {
-        let ros: Vec<_> = vec![ResourceObject::FileUnknown("testpäth".into())];
+        let ros: Vec<_> = vec![ResourceObject::File("testpäth".into())];
         let common_path: PathBuf = "".into();
 
         let res: Vec<_> = adapter_ro_to_ro_and_rid(ros.iter(), &common_path)
@@ -48,7 +48,7 @@ mod tests {
         assert_eq!(
             res,
             vec![(
-                ResourceObject::FileUnknown("testpäth".into()),
+                ResourceObject::File("testpäth".into()),
                 ResourceId("[[testpäth]]".into())
             )]
         );
@@ -56,7 +56,7 @@ mod tests {
 
     #[test]
     fn test_resolve_with_different_utf8_norm_match_2() {
-        let ros: Vec<_> = vec![ResourceObject::FileUnknown("testpäth".into())];
+        let ros: Vec<_> = vec![ResourceObject::File("testpäth".into())];
         let common_path: PathBuf = "".into();
 
         let res: Vec<_> = adapter_ro_to_ro_and_rid(ros.iter(), &common_path)
@@ -66,7 +66,7 @@ mod tests {
         assert_eq!(
             res,
             vec![(
-                ResourceObject::FileUnknown("testpäth".into()),
+                ResourceObject::File("testpäth".into()),
                 ResourceId("[[testpäth]]".into())
             )]
         );

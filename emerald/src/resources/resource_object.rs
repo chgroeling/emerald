@@ -2,8 +2,7 @@ use std::path::PathBuf;
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub enum ResourceObject {
-    FileUnknown(PathBuf),
-    FileMarkdown(PathBuf),
+    File(PathBuf),
 }
 
 impl Eq for ResourceObject {}

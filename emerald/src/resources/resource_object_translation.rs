@@ -7,13 +7,9 @@ use std::path::Path;
 const LINK_FRONT: &str = "[[";
 const LINK_BACK: &str = "]]";
 
-pub fn convert_ro_to_rid(
-    endpoint: &ResourceObject,
-    common_path: &Path,
-) -> Result<types::ResourceId> {
-    let path = match endpoint {
-        ResourceObject::FileUnknown(path) => path,
-        ResourceObject::FileMarkdown(path) => path,
+pub fn convert_ro_to_rid(ro: &ResourceObject, common_path: &Path) -> Result<types::ResourceId> {
+    let path = match ro {
+        ResourceObject::File(path) => path,
     };
     let rel_path = match path.strip_prefix(common_path) {
         Ok(item) => item.to_path_buf(),
@@ -45,7 +41,7 @@ mod tests {
     #[test]
     fn test_convert_unix_path_to_rid() {
         let common_path = PathBuf::from("");
-        let endpoint = FileUnknown("a/b/c/note.md".into());
+        let endpoint = File("a/b/c/note.md".into());
         let link = convert_ro_to_rid(&endpoint, &common_path);
         assert_eq!(link.unwrap(), "[[a/b/c/note.md]]".into())
     }
@@ -53,7 +49,7 @@ mod tests {
     #[test]
     fn test_convert_windows_path_to_rid() {
         let common_path = PathBuf::from("");
-        let endpoint = FileUnknown("a\\b\\c\\note.md".into());
+        let endpoint = File("a\\b\\c\\note.md".into());
         let link = convert_ro_to_rid(&endpoint, &common_path);
         assert_eq!(link.unwrap(), "[[a/b/c/note.md]]".into())
     }
