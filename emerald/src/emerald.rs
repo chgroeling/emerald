@@ -156,7 +156,7 @@ impl Emerald {
     }
 
     pub fn md_file_count(&self) -> usize {
-        self.md_index.iter().count()
+        self.md_index.len()
     }
 
     pub fn valid_backlink_count(&self) -> usize {

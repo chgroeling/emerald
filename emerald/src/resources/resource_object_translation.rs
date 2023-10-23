@@ -8,6 +8,7 @@ const LINK_FRONT: &str = "[[";
 const LINK_BACK: &str = "]]";
 
 pub fn convert_ro_to_rid(ro: &ResourceObject, common_path: &Path) -> Result<types::ResourceId> {
+    #[allow(clippy::infallible_destructuring_match)]
     let path = match ro {
         ResourceObject::File(path) => path,
     };
