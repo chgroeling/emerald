@@ -1,5 +1,6 @@
 use super::content_loader::ContentLoader;
 use super::endpoint_retriever::EndpointRetriever;
+use super::resource_object::ResourceObject;
 use crate::error::Result;
 use crate::types;
 #[allow(unused_imports)]
@@ -31,8 +32,8 @@ where
         let endpoint = self.ep_retriever.retrieve(resource_id)?;
 
         match endpoint {
-            types::ResourceObject::FileMarkdown(md_path) => Ok(fs::read_to_string(md_path)?.into()),
-            types::ResourceObject::FileUnknown(path) => Ok(fs::read_to_string(path)?.into()),
+            ResourceObject::FileMarkdown(md_path) => Ok(fs::read_to_string(md_path)?.into()),
+            ResourceObject::FileUnknown(path) => Ok(fs::read_to_string(path)?.into()),
         }
     }
 }

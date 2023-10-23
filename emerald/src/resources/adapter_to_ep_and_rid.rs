@@ -1,4 +1,4 @@
-use super::resource_object_translation;
+use super::{resource_object::ResourceObject, resource_object_translation::convert_ro_to_rid};
 use crate::error::{EmeraldError::*, Result};
 use crate::types;
 #[allow(unused_imports)]
@@ -6,13 +6,13 @@ use log::{debug, error, info, trace, warn};
 use std::path::Path;
 
 pub fn adapter_ep_to_ep_and_rid<'a>(
-    it_src: impl IntoIterator<Item = &'a types::ResourceObject> + 'a,
+    it_src: impl IntoIterator<Item = &'a ResourceObject> + 'a,
     common_path: &'a Path,
-) -> Result<impl Iterator<Item = (types::ResourceObject, types::ResourceId)> + 'a> {
+) -> Result<impl Iterator<Item = (ResourceObject, types::ResourceId)> + 'a> {
     let ret: Result<Vec<_>> = it_src
         .into_iter()
         .map(|ep| {
-            let opt_resource_id = resource_object_translation::convert_ro_to_rid(ep, common_path);
+            let opt_resource_id = convert_ro_to_rid(ep, common_path);
 
             if let Ok(resource_id) = opt_resource_id {
                 Ok((ep.clone(), resource_id))
@@ -32,8 +32,8 @@ pub fn adapter_ep_to_ep_and_rid<'a>(
 #[cfg(test)]
 mod tests {
     use super::adapter_ep_to_ep_and_rid;
+    use super::ResourceObject;
     use crate::types::ResourceId;
-    use crate::types::ResourceObject;
     use std::path::PathBuf;
 
     #[test]

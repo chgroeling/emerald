@@ -8,7 +8,6 @@ mod link_src_2_tgt;
 mod meta_data;
 mod resource_id;
 mod resource_id_comps;
-mod resource_object;
 
 pub use self::content::Content;
 pub use self::content_type::ContentType;
@@ -19,4 +18,3 @@ pub use self::link_src_2_tgt::LinkSrc2Tgt;
 pub use self::meta_data::FileType;
 pub use self::meta_data::MetaData;
 pub use self::resource_id::ResourceId;
-pub use self::resource_object::ResourceObject;

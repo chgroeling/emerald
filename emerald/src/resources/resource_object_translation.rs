@@ -1,3 +1,4 @@
+use super::resource_object::ResourceObject;
 use crate::error::{EmeraldError::*, Result};
 use crate::types;
 use crate::utils;
@@ -7,12 +8,12 @@ const LINK_FRONT: &str = "[[";
 const LINK_BACK: &str = "]]";
 
 pub fn convert_ro_to_rid(
-    endpoint: &types::ResourceObject,
+    endpoint: &ResourceObject,
     common_path: &Path,
 ) -> Result<types::ResourceId> {
     let path = match endpoint {
-        types::ResourceObject::FileUnknown(path) => path,
-        types::ResourceObject::FileMarkdown(path) => path,
+        ResourceObject::FileUnknown(path) => path,
+        ResourceObject::FileMarkdown(path) => path,
     };
     let rel_path = match path.strip_prefix(common_path) {
         Ok(item) => item.to_path_buf(),
@@ -38,9 +39,8 @@ pub fn convert_ro_to_rid(
 #[cfg(test)]
 mod tests {
     use super::convert_ro_to_rid;
-    use super::types;
+    use super::ResourceObject::*;
     use std::path::PathBuf;
-    use types::ResourceObject::*;
 
     #[test]
     fn test_convert_unix_path_to_rid() {

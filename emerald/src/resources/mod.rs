@@ -12,6 +12,7 @@ mod md_content_retriever;
 mod meta_data_loader;
 mod resource_id_endpoint_map;
 mod resource_id_retriever;
+mod resource_object;
 mod resource_object_translation;
 
 pub use adapter_to_ep::adapter_from_pathes_to_ep;

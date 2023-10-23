@@ -1,22 +1,22 @@
-use crate::types;
+use super::resource_object::ResourceObject;
 use std::path::PathBuf;
 
 pub fn adapter_from_pathes_to_ep(
     it_src: impl IntoIterator<Item = PathBuf>,
-) -> impl Iterator<Item = types::ResourceObject> {
-    let mut ep_list = Vec::<types::ResourceObject>::new();
+) -> impl Iterator<Item = ResourceObject> {
+    let mut ro_list = Vec::<ResourceObject>::new();
     for file_path in it_src {
-        let endpoint = if file_path
+        let ro = if file_path
             .extension()
             .is_some_and(|ext| ext == "md" || ext == "markdown")
         {
-            types::ResourceObject::FileMarkdown(file_path)
+            ResourceObject::FileMarkdown(file_path)
         } else {
-            types::ResourceObject::FileUnknown(file_path)
+            ResourceObject::FileUnknown(file_path)
         };
 
-        ep_list.push(endpoint);
+        ro_list.push(ro);
     }
 
-    ep_list.into_iter()
+    ro_list.into_iter()
 }

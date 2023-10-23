@@ -1,5 +1,6 @@
 use super::endpoint_retriever::EndpointRetriever;
 use super::meta_data_loader::MetaDataLoader;
+use super::resource_object::ResourceObject;
 use crate::error::{EmeraldError::*, Result};
 use crate::types;
 #[allow(unused_imports)]
@@ -57,8 +58,8 @@ where
 
         #[allow(unreachable_patterns)]
         match ep {
-            types::ResourceObject::FileMarkdown(path) => self.get_file_meta_data(&path),
-            types::ResourceObject::FileUnknown(path) => self.get_file_meta_data(&path),
+            ResourceObject::FileMarkdown(path) => self.get_file_meta_data(&path),
+            ResourceObject::FileUnknown(path) => self.get_file_meta_data(&path),
             _ => Err(NoMetaData),
         }
     }
