@@ -1,6 +1,6 @@
-use super::endpoint_retriever::EndpointRetriever;
 use super::meta_data_loader::MetaDataLoader;
 use super::resource_object::ResourceObject;
+use super::resource_object_retriever::ResourceObjectRetriever;
 use crate::error::{EmeraldError::*, Result};
 use crate::types;
 #[allow(unused_imports)]
@@ -10,14 +10,14 @@ use std::path::Path;
 #[derive(Clone)]
 pub struct FileMetaDataLoader<I>
 where
-    I: EndpointRetriever,
+    I: ResourceObjectRetriever,
 {
     ep_retriever: I,
 }
 
 impl<I> FileMetaDataLoader<I>
 where
-    I: EndpointRetriever,
+    I: ResourceObjectRetriever,
 {
     pub fn new(ep_retriever: I) -> Self {
         Self { ep_retriever }
@@ -51,7 +51,7 @@ where
 
 impl<I> MetaDataLoader for FileMetaDataLoader<I>
 where
-    I: EndpointRetriever,
+    I: ResourceObjectRetriever,
 {
     fn load(&self, rid: &types::ResourceId) -> Result<types::MetaData> {
         let ep = self.ep_retriever.retrieve(rid)?;

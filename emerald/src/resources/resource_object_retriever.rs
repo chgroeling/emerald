@@ -5,6 +5,6 @@ use crate::types;
 use mockall::{automock, predicate::*};
 
 #[cfg_attr(test, automock)]
-pub trait EndpointRetriever {
+pub trait ResourceObjectRetriever {
     fn retrieve(&self, resource_id: &types::ResourceId) -> Result<ResourceObject>;
 }

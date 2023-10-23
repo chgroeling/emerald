@@ -1,6 +1,6 @@
 use super::content_loader::ContentLoader;
-use super::endpoint_retriever::EndpointRetriever;
 use super::resource_object::ResourceObject;
+use super::resource_object_retriever::ResourceObjectRetriever;
 use crate::error::Result;
 use crate::types;
 #[allow(unused_imports)]
@@ -10,14 +10,14 @@ use std::fs;
 #[derive(Clone)]
 pub struct FileContentLoader<I>
 where
-    I: EndpointRetriever,
+    I: ResourceObjectRetriever,
 {
     ep_retriever: I,
 }
 
 impl<I> FileContentLoader<I>
 where
-    I: EndpointRetriever,
+    I: ResourceObjectRetriever,
 {
     pub fn new(ep_retriever: I) -> Self {
         Self { ep_retriever }
@@ -26,7 +26,7 @@ where
 
 impl<I> ContentLoader for FileContentLoader<I>
 where
-    I: EndpointRetriever,
+    I: ResourceObjectRetriever,
 {
     fn load(&self, resource_id: &types::ResourceId) -> Result<types::Content> {
         let endpoint = self.ep_retriever.retrieve(resource_id)?;

@@ -1,5 +1,5 @@
-use super::endpoint_retriever::EndpointRetriever;
 use super::resource_object::ResourceObject;
+use super::resource_object_retriever::ResourceObjectRetriever;
 use crate::error::{EmeraldError::*, Result};
 use crate::types;
 #[allow(unused_imports)]
@@ -7,11 +7,11 @@ use log::{debug, error, info, trace, warn};
 use std::{collections::HashMap, rc::Rc};
 
 #[derive(Clone)]
-pub struct EndpointResourceIdMap {
-    resource_id_to_endpoint: Rc<HashMap<types::ResourceId, ResourceObject>>,
+pub struct ResourceObjectMap {
+    rid_to_ro: Rc<HashMap<types::ResourceId, ResourceObject>>,
 }
 
-impl EndpointResourceIdMap {
+impl ResourceObjectMap {
     pub fn new<'a>(
         it_src: impl IntoIterator<Item = &'a (ResourceObject, types::ResourceId)>,
     ) -> Result<Self> {
@@ -25,14 +25,14 @@ impl EndpointResourceIdMap {
             }
         }
         Ok(Self {
-            resource_id_to_endpoint: Rc::new(resource_id_to_endpoint),
+            rid_to_ro: Rc::new(resource_id_to_endpoint),
         })
     }
 }
 
-impl EndpointRetriever for EndpointResourceIdMap {
+impl ResourceObjectRetriever for ResourceObjectMap {
     fn retrieve(&self, resource_id: &types::ResourceId) -> Result<ResourceObject> {
-        self.resource_id_to_endpoint
+        self.rid_to_ro
             .get(resource_id)
             .map_or(Err(EndPointNotFound), |f| Ok(f.clone()))
     }

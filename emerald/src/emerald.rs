@@ -11,7 +11,7 @@ use super::types;
 use log::{debug, error, info, trace, warn};
 use std::{path::Path, time::Instant};
 
-type FileMetaDataLoaderImpl = resources::FileMetaDataLoader<resources::EndpointResourceIdMap>;
+type FileMetaDataLoaderImpl = resources::FileMetaDataLoader<resources::ResourceObjectMap>;
 type StdProviderFactoryImpl =
     notes::StdProviderFactory<FileMetaDataLoaderImpl, resources::MdContentCache>;
 
@@ -19,8 +19,8 @@ type StdProviderFactoryImpl =
 pub struct Emerald {
     pub all_index: Vec<types::ResourceId>,
     pub md_index: Vec<types::ResourceId>,
-    pub rid_retriever: resources::ResourceIdEndPointMap,
-    pub ep_retriever: resources::EndpointResourceIdMap,
+    pub rid_retriever: resources::ResourceIdMap,
+    pub ro_retriever: resources::ResourceObjectMap,
     pub meta_data_loader: FileMetaDataLoaderImpl,
     pub rid_resolver: maps::ResourceIdLinkMap,
     pub src_2_tgt_index: indexes::Src2TargetIndex,
@@ -53,12 +53,12 @@ impl Emerald {
         );
 
         let start = Instant::now();
-        let rid_retriever = resources::ResourceIdEndPointMap::new(&ros_and_rids)?;
+        let rid_retriever = resources::ResourceIdMap::new(&ros_and_rids)?;
         let elapsed = start.elapsed();
         debug!("Creation of ResourceIdEndPointMap took: {:?}", elapsed);
 
         let start = Instant::now();
-        let ep_retriever = resources::EndpointResourceIdMap::new(&ros_and_rids)?;
+        let ep_retriever = resources::ResourceObjectMap::new(&ros_and_rids)?;
         let elapsed = start.elapsed();
         debug!("Creation of EndpointResourceIdMap took: {:?}", elapsed);
 
@@ -131,7 +131,7 @@ impl Emerald {
 
         Ok(Emerald {
             rid_retriever,
-            ep_retriever,
+            ro_retriever: ep_retriever,
             meta_data_loader,
             rid_resolver,
             md_index,
