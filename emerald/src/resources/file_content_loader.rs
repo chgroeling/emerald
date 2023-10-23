@@ -12,15 +12,15 @@ pub struct FileContentLoader<I>
 where
     I: ResourceObjectRetriever,
 {
-    ep_retriever: I,
+    ro_retriever: I,
 }
 
 impl<I> FileContentLoader<I>
 where
     I: ResourceObjectRetriever,
 {
-    pub fn new(ep_retriever: I) -> Self {
-        Self { ep_retriever }
+    pub fn new(ro_retriever: I) -> Self {
+        Self { ro_retriever }
     }
 }
 
@@ -29,7 +29,7 @@ where
     I: ResourceObjectRetriever,
 {
     fn load(&self, resource_id: &types::ResourceId) -> Result<types::Content> {
-        let endpoint = self.ep_retriever.retrieve(resource_id)?;
+        let endpoint = self.ro_retriever.retrieve(resource_id)?;
 
         match endpoint {
             ResourceObject::File(md_path) => Ok(fs::read_to_string(md_path)?.into()),

@@ -12,15 +12,15 @@ pub struct FileMetaDataLoader<I>
 where
     I: ResourceObjectRetriever,
 {
-    ep_retriever: I,
+    ro_retriever: I,
 }
 
 impl<I> FileMetaDataLoader<I>
 where
     I: ResourceObjectRetriever,
 {
-    pub fn new(ep_retriever: I) -> Self {
-        Self { ep_retriever }
+    pub fn new(ro_retriever: I) -> Self {
+        Self { ro_retriever }
     }
 
     fn get_file_type(&self, path: &Path) -> Result<types::FileType> {
@@ -54,10 +54,10 @@ where
     I: ResourceObjectRetriever,
 {
     fn load(&self, rid: &types::ResourceId) -> Result<types::MetaData> {
-        let ep = self.ep_retriever.retrieve(rid)?;
+        let ro = self.ro_retriever.retrieve(rid)?;
 
         #[allow(unreachable_patterns)]
-        match ep {
+        match ro {
             ResourceObject::File(path) => self.get_file_meta_data(&path),
             _ => Err(NoMetaData),
         }

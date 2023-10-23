@@ -15,7 +15,7 @@ mod resource_object_map;
 mod resource_object_retriever;
 mod resource_object_translation;
 
-pub use adapter_to_rid::adapter_ep_to_rid;
+pub use adapter_to_rid::adapter_ro_to_rid;
 pub use adapter_to_ro::adapter_from_pathes_to_ro;
 pub use adapter_to_ro_and_rid::adapter_ro_to_ro_and_rid;
 pub use file_content_loader::FileContentLoader;

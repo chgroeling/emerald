@@ -16,9 +16,9 @@ impl ResourceObjectMap {
         it_src: impl IntoIterator<Item = &'a (ResourceObject, types::ResourceId)>,
     ) -> Result<Self> {
         let mut resource_id_to_endpoint = HashMap::<types::ResourceId, ResourceObject>::new();
-        for (ep, res_id) in it_src {
+        for (ro, res_id) in it_src {
             if resource_id_to_endpoint
-                .insert(res_id.clone(), ep.clone())
+                .insert(res_id.clone(), ro.clone())
                 .is_some()
             {
                 return Err(NotUnique);

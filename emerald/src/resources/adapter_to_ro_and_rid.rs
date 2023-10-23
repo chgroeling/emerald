@@ -11,13 +11,13 @@ pub fn adapter_ro_to_ro_and_rid<'a>(
 ) -> Result<impl Iterator<Item = (ResourceObject, types::ResourceId)> + 'a> {
     let ret: Result<Vec<_>> = it_src
         .into_iter()
-        .map(|ep| {
-            let opt_resource_id = convert_ro_to_rid(ep, common_path);
+        .map(|ro| {
+            let opt_resource_id = convert_ro_to_rid(ro, common_path);
 
             if let Ok(resource_id) = opt_resource_id {
-                Ok((ep.clone(), resource_id))
+                Ok((ro.clone(), resource_id))
             } else {
-                error!("Can't convert Endpoint '{:?}' to ResourceId.", &ep);
+                error!("Can't convert Endpoint '{:?}' to ResourceId.", &ro);
                 Err(ValueError)
             }
         })

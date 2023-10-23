@@ -43,7 +43,7 @@ impl Emerald {
         let ros_and_rids: Vec<_> =
             resources::adapter_ro_to_ro_and_rid(&all_ros, vault_path)?.collect();
 
-        let res_id_iter = resources::adapter_ep_to_rid(&ros_and_rids);
+        let res_id_iter = resources::adapter_ro_to_rid(&ros_and_rids);
         let all_index: Vec<_> = res_id_iter.collect();
 
         let elapsed = start.elapsed();
@@ -58,17 +58,17 @@ impl Emerald {
         debug!("Creation of ResourceIdEndPointMap took: {:?}", elapsed);
 
         let start = Instant::now();
-        let ep_retriever = resources::ResourceObjectMap::new(&ros_and_rids)?;
+        let ro_retriever = resources::ResourceObjectMap::new(&ros_and_rids)?;
         let elapsed = start.elapsed();
         debug!("Creation of EndpointResourceIdMap took: {:?}", elapsed);
 
         let start = Instant::now();
-        let content_loader = resources::FileContentLoader::new(ep_retriever.clone());
+        let content_loader = resources::FileContentLoader::new(ro_retriever.clone());
         let elapsed = start.elapsed();
         debug!("Creation of FileContentLoader took: {:?}", elapsed);
 
         let start = Instant::now();
-        let meta_data_loader = resources::FileMetaDataLoader::new(ep_retriever.clone());
+        let meta_data_loader = resources::FileMetaDataLoader::new(ro_retriever.clone());
         let elapsed = start.elapsed();
         debug!("Creation of FileMetaDataLoader took: {:?}", elapsed);
 
@@ -131,7 +131,7 @@ impl Emerald {
 
         Ok(Emerald {
             rid_retriever,
-            ro_retriever: ep_retriever,
+            ro_retriever,
             meta_data_loader,
             rid_resolver,
             md_index,
