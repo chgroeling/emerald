@@ -6,7 +6,7 @@ use std::path::Path;
 const LINK_FRONT: &str = "[[";
 const LINK_BACK: &str = "]]";
 
-pub fn convert_endpoint_to_resource_id(
+pub fn convert_ro_to_rid(
     endpoint: &types::ResourceObject,
     common_path: &Path,
 ) -> Result<types::ResourceId> {
@@ -37,24 +37,24 @@ pub fn convert_endpoint_to_resource_id(
 
 #[cfg(test)]
 mod tests {
-    use super::convert_endpoint_to_resource_id;
+    use super::convert_ro_to_rid;
     use super::types;
     use std::path::PathBuf;
     use types::ResourceObject::*;
 
     #[test]
-    fn test_convert_unix_path_to_endpoint_link() {
+    fn test_convert_unix_path_to_rid() {
         let common_path = PathBuf::from("");
         let endpoint = FileUnknown("a/b/c/note.md".into());
-        let link = convert_endpoint_to_resource_id(&endpoint, &common_path);
+        let link = convert_ro_to_rid(&endpoint, &common_path);
         assert_eq!(link.unwrap(), "[[a/b/c/note.md]]".into())
     }
 
     #[test]
-    fn test_convert_windows_path_to_endpoint_link() {
+    fn test_convert_windows_path_to_rid() {
         let common_path = PathBuf::from("");
         let endpoint = FileUnknown("a\\b\\c\\note.md".into());
-        let link = convert_endpoint_to_resource_id(&endpoint, &common_path);
+        let link = convert_ro_to_rid(&endpoint, &common_path);
         assert_eq!(link.unwrap(), "[[a/b/c/note.md]]".into())
     }
 }
