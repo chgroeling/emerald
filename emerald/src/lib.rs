@@ -9,6 +9,5 @@ mod resources;
 mod types;
 mod utils;
 
-pub use emerald::Emerald;
-pub use error::EmeraldError;
-pub use error::Result;
+pub use crate::emerald::Emerald;
+pub use crate::error::{EmeraldError, Result};
