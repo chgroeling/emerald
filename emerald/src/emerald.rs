@@ -36,14 +36,14 @@ impl Emerald {
         // Build dependency root
         let start = Instant::now();
         let path_list = resources::get_path_list(vault_path)?;
-        let all_eps: Vec<_> = resources::adapter_from_pathes_to_ro(path_list).collect();
+        let all_ros: Vec<_> = resources::adapter_from_pathes_to_ro(path_list).collect();
         debug!("Creation of EndpointIndex took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let ep_and_rids: Vec<_> =
-            resources::adapter_ro_to_ro_and_rid(&all_eps, vault_path)?.collect();
+        let ros_and_rids: Vec<_> =
+            resources::adapter_ro_to_ro_and_rid(&all_ros, vault_path)?.collect();
 
-        let res_id_iter = resources::adapter_ep_to_rid(&ep_and_rids);
+        let res_id_iter = resources::adapter_ep_to_rid(&ros_and_rids);
         let all_index: Vec<_> = res_id_iter.collect();
 
         let elapsed = start.elapsed();
@@ -53,12 +53,12 @@ impl Emerald {
         );
 
         let start = Instant::now();
-        let rid_retriever = resources::ResourceIdEndPointMap::new(&ep_and_rids)?;
+        let rid_retriever = resources::ResourceIdEndPointMap::new(&ros_and_rids)?;
         let elapsed = start.elapsed();
         debug!("Creation of ResourceIdEndPointMap took: {:?}", elapsed);
 
         let start = Instant::now();
-        let ep_retriever = resources::EndpointResourceIdMap::new(&ep_and_rids)?;
+        let ep_retriever = resources::EndpointResourceIdMap::new(&ros_and_rids)?;
         let elapsed = start.elapsed();
         debug!("Creation of EndpointResourceIdMap took: {:?}", elapsed);
 
