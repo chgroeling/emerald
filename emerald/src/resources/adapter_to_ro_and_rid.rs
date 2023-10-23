@@ -5,7 +5,7 @@ use crate::types;
 use log::{debug, error, info, trace, warn};
 use std::path::Path;
 
-pub fn adapter_ep_to_ep_and_rid<'a>(
+pub fn adapter_ro_to_ro_and_rid<'a>(
     it_src: impl IntoIterator<Item = &'a ResourceObject> + 'a,
     common_path: &'a Path,
 ) -> Result<impl Iterator<Item = (ResourceObject, types::ResourceId)> + 'a> {
@@ -31,17 +31,17 @@ pub fn adapter_ep_to_ep_and_rid<'a>(
 
 #[cfg(test)]
 mod tests {
-    use super::adapter_ep_to_ep_and_rid;
+    use super::adapter_ro_to_ro_and_rid;
     use super::ResourceObject;
     use crate::types::ResourceId;
     use std::path::PathBuf;
 
     #[test]
     fn test_resolve_different_utf8_norm_match() {
-        let eps: Vec<_> = vec![ResourceObject::FileUnknown("testpäth".into())];
+        let ros: Vec<_> = vec![ResourceObject::FileUnknown("testpäth".into())];
         let common_path: PathBuf = "".into();
 
-        let res: Vec<_> = adapter_ep_to_ep_and_rid(eps.iter(), &common_path)
+        let res: Vec<_> = adapter_ro_to_ro_and_rid(ros.iter(), &common_path)
             .unwrap()
             .collect();
 
@@ -56,10 +56,10 @@ mod tests {
 
     #[test]
     fn test_resolve_with_different_utf8_norm_match_2() {
-        let eps: Vec<_> = vec![ResourceObject::FileUnknown("testpäth".into())];
+        let ros: Vec<_> = vec![ResourceObject::FileUnknown("testpäth".into())];
         let common_path: PathBuf = "".into();
 
-        let res: Vec<_> = adapter_ep_to_ep_and_rid(eps.iter(), &common_path)
+        let res: Vec<_> = adapter_ro_to_ro_and_rid(ros.iter(), &common_path)
             .unwrap()
             .collect();
 
