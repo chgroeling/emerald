@@ -7,12 +7,12 @@ const LINK_FRONT: &str = "[[";
 const LINK_BACK: &str = "]]";
 
 pub fn convert_endpoint_to_resource_id(
-    endpoint: &types::EndPoint,
+    endpoint: &types::ResourceObject,
     common_path: &Path,
 ) -> Result<types::ResourceId> {
     let path = match endpoint {
-        types::EndPoint::FileUnknown(path) => path,
-        types::EndPoint::FileMarkdown(path) => path,
+        types::ResourceObject::FileUnknown(path) => path,
+        types::ResourceObject::FileMarkdown(path) => path,
     };
     let rel_path = match path.strip_prefix(common_path) {
         Ok(item) => item.to_path_buf(),
@@ -40,7 +40,7 @@ mod tests {
     use super::convert_endpoint_to_resource_id;
     use super::types;
     use std::path::PathBuf;
-    use types::EndPoint::*;
+    use types::ResourceObject::*;
 
     #[test]
     fn test_convert_unix_path_to_endpoint_link() {

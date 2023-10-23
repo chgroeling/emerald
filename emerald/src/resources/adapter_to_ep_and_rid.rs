@@ -5,9 +5,9 @@ use log::{debug, error, info, trace, warn};
 use std::path::Path;
 
 pub fn adapter_ep_to_ep_and_rid<'a>(
-    it_src: impl IntoIterator<Item = &'a types::EndPoint> + 'a,
+    it_src: impl IntoIterator<Item = &'a types::ResourceObject> + 'a,
     common_path: &'a Path,
-) -> Result<impl Iterator<Item = (types::EndPoint, types::ResourceId)> + 'a> {
+) -> Result<impl Iterator<Item = (types::ResourceObject, types::ResourceId)> + 'a> {
     let ret: Result<Vec<_>> = it_src
         .into_iter()
         .map(|ep| {
@@ -31,13 +31,13 @@ pub fn adapter_ep_to_ep_and_rid<'a>(
 #[cfg(test)]
 mod tests {
     use super::adapter_ep_to_ep_and_rid;
-    use crate::types::EndPoint;
     use crate::types::ResourceId;
+    use crate::types::ResourceObject;
     use std::path::PathBuf;
 
     #[test]
     fn test_resolve_different_utf8_norm_match() {
-        let eps: Vec<_> = vec![EndPoint::FileUnknown("testpäth".into())];
+        let eps: Vec<_> = vec![ResourceObject::FileUnknown("testpäth".into())];
         let common_path: PathBuf = "".into();
 
         let res: Vec<_> = adapter_ep_to_ep_and_rid(eps.iter(), &common_path)
@@ -47,7 +47,7 @@ mod tests {
         assert_eq!(
             res,
             vec![(
-                EndPoint::FileUnknown("testpäth".into()),
+                ResourceObject::FileUnknown("testpäth".into()),
                 ResourceId("[[testpäth]]".into())
             )]
         );
@@ -55,7 +55,7 @@ mod tests {
 
     #[test]
     fn test_resolve_with_different_utf8_norm_match_2() {
-        let eps: Vec<_> = vec![EndPoint::FileUnknown("testpäth".into())];
+        let eps: Vec<_> = vec![ResourceObject::FileUnknown("testpäth".into())];
         let common_path: PathBuf = "".into();
 
         let res: Vec<_> = adapter_ep_to_ep_and_rid(eps.iter(), &common_path)
@@ -65,7 +65,7 @@ mod tests {
         assert_eq!(
             res,
             vec![(
-                EndPoint::FileUnknown("testpäth".into()),
+                ResourceObject::FileUnknown("testpäth".into()),
                 ResourceId("[[testpäth]]".into())
             )]
         );

@@ -17,7 +17,7 @@ type StdProviderFactoryImpl =
 
 #[allow(dead_code)]
 pub struct Emerald {
-    pub ep_index: Vec<types::EndPoint>,
+    pub ep_index: Vec<types::ResourceObject>,
     pub rid_retriever: resources::ResourceIdEndPointMap,
     pub ep_retriever: resources::EndpointResourceIdMap,
     pub meta_data_loader: FileMetaDataLoaderImpl,
@@ -155,7 +155,7 @@ impl Emerald {
     pub fn md_file_count(&self) -> usize {
         self.ep_index
             .iter()
-            .filter(|pred| matches!(pred, types::EndPoint::FileMarkdown(_)))
+            .filter(|pred| matches!(pred, types::ResourceObject::FileMarkdown(_)))
             .count()
     }
 

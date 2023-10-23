@@ -1,9 +1,9 @@
 use std::path::PathBuf;
 
 #[derive(Debug, Clone, PartialEq, Hash)]
-pub enum EndPoint {
+pub enum ResourceObject {
     FileUnknown(PathBuf),
     FileMarkdown(PathBuf),
 }
 
-impl Eq for EndPoint {}
+impl Eq for ResourceObject {}

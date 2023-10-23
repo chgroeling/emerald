@@ -57,8 +57,8 @@ where
 
         #[allow(unreachable_patterns)]
         match ep {
-            types::EndPoint::FileMarkdown(path) => self.get_file_meta_data(&path),
-            types::EndPoint::FileUnknown(path) => self.get_file_meta_data(&path),
+            types::ResourceObject::FileMarkdown(path) => self.get_file_meta_data(&path),
+            types::ResourceObject::FileUnknown(path) => self.get_file_meta_data(&path),
             _ => Err(NoMetaData),
         }
     }
