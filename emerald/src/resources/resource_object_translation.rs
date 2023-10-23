@@ -1,6 +1,6 @@
-use super::normalize_string::normalize_str_iter;
 use crate::error::{EmeraldError::*, Result};
 use crate::types;
+use crate::utils;
 use std::path::Path;
 
 const LINK_FRONT: &str = "[[";
@@ -25,7 +25,7 @@ pub fn convert_ro_to_rid(
     };
 
     // Replace all windows path chars
-    let path_iter = normalize_str_iter(rel_path_str).map(|ch| match ch {
+    let path_iter = utils::normalize_str_iter(rel_path_str).map(|ch| match ch {
         '\\' => '/',
         _ => ch,
     });

@@ -1,5 +1,6 @@
+use super::resource_object_translation;
 use crate::error::{EmeraldError::*, Result};
-use crate::{types, utils};
+use crate::types;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 use std::path::Path;
@@ -11,7 +12,7 @@ pub fn adapter_ep_to_ep_and_rid<'a>(
     let ret: Result<Vec<_>> = it_src
         .into_iter()
         .map(|ep| {
-            let opt_resource_id = utils::convert_ro_to_rid(ep, common_path);
+            let opt_resource_id = resource_object_translation::convert_ro_to_rid(ep, common_path);
 
             if let Ok(resource_id) = opt_resource_id {
                 Ok((ep.clone(), resource_id))
