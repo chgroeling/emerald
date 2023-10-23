@@ -48,7 +48,7 @@ impl Emerald {
 
         let elapsed = start.elapsed();
         debug!(
-            "Creation of Endpoint with Resource Id lists took: {:?}",
+            "Creation of ResourceObject and ResourceId lists took: {:?}",
             elapsed
         );
 

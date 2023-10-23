@@ -5,7 +5,7 @@ use crate::types;
 use mockall::{mock, predicate::*};
 
 pub trait ResourceIdRetriever {
-    fn retrieve(&self, endpoint: &ResourceObject) -> Result<types::ResourceId>;
+    fn retrieve(&self, ro: &ResourceObject) -> Result<types::ResourceId>;
 }
 
 #[cfg(test)]
@@ -14,7 +14,7 @@ mock! {
     pub ResourceIdResolver{}
 
     impl ResourceIdRetriever for ResourceIdResolver {
-        fn retrieve(&self, endpoint: &ResourceObject) -> Result<types::ResourceId>;
+        fn retrieve(&self, ro: &ResourceObject) -> Result<types::ResourceId>;
     }
 
     impl Clone for ResourceIdResolver {

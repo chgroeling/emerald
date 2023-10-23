@@ -31,7 +31,7 @@ impl ResourceIdRetriever for ResourceIdMap {
     fn retrieve(&self, ro: &ResourceObject) -> Result<types::ResourceId> {
         self.ro_to_rid
             .get(ro)
-            .map_or(Err(EndpointHasNoResourceId(format!("{ro:?}"))), |f| {
+            .map_or(Err(ResourceObjectHasNoResourceId(format!("{ro:?}"))), |f| {
                 Ok(f.clone())
             })
     }

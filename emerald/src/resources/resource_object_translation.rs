@@ -41,16 +41,16 @@ mod tests {
     #[test]
     fn test_convert_unix_path_to_rid() {
         let common_path = PathBuf::from("");
-        let endpoint = File("a/b/c/note.md".into());
-        let link = convert_ro_to_rid(&endpoint, &common_path);
+        let ro = File("a/b/c/note.md".into());
+        let link = convert_ro_to_rid(&ro, &common_path);
         assert_eq!(link.unwrap(), "[[a/b/c/note.md]]".into())
     }
 
     #[test]
     fn test_convert_windows_path_to_rid() {
         let common_path = PathBuf::from("");
-        let endpoint = File("a\\b\\c\\note.md".into());
-        let link = convert_ro_to_rid(&endpoint, &common_path);
+        let ro = File("a\\b\\c\\note.md".into());
+        let link = convert_ro_to_rid(&ro, &common_path);
         assert_eq!(link.unwrap(), "[[a/b/c/note.md]]".into())
     }
 }

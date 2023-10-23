@@ -31,9 +31,9 @@ impl ResourceObjectMap {
 }
 
 impl ResourceObjectRetriever for ResourceObjectMap {
-    fn retrieve(&self, resource_id: &types::ResourceId) -> Result<ResourceObject> {
+    fn retrieve(&self, rid: &types::ResourceId) -> Result<ResourceObject> {
         self.rid_to_ro
-            .get(resource_id)
-            .map_or(Err(EndPointNotFound), |f| Ok(f.clone()))
+            .get(rid)
+            .map_or(Err(ResourceObjectNotFound), |f| Ok(f.clone()))
     }
 }

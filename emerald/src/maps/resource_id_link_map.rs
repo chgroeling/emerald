@@ -19,16 +19,16 @@ impl ResourceIdLinkMap {
         // Assumption: All resource ids are encoded in utf8 nfc
         let mut name_to_resource_id_list: NameToResourceIdList = NameToResourceIdList::new();
 
-        for (resource_id, normalized_link) in it_src.into_iter() {
-            trace!("Insert {:?} -> {:?}", &normalized_link, &resource_id);
+        for (rid, normalized_link) in it_src.into_iter() {
+            trace!("Insert {:?} -> {:?}", &normalized_link, &rid);
 
             // this is an interesting way to mutate an element in a HashMap
             match name_to_resource_id_list.entry(normalized_link) {
                 Entry::Occupied(mut e) => {
-                    e.get_mut().push(resource_id.clone());
+                    e.get_mut().push(rid.clone());
                 }
                 Entry::Vacant(e) => {
-                    e.insert(vec![resource_id.clone()]);
+                    e.insert(vec![rid.clone()]);
                 }
             }
         }

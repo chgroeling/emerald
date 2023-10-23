@@ -28,10 +28,10 @@ impl<I> ContentLoader for FileContentLoader<I>
 where
     I: ResourceObjectRetriever,
 {
-    fn load(&self, resource_id: &types::ResourceId) -> Result<types::Content> {
-        let endpoint = self.ro_retriever.retrieve(resource_id)?;
+    fn load(&self, rid: &types::ResourceId) -> Result<types::Content> {
+        let ro = self.ro_retriever.retrieve(rid)?;
 
-        match endpoint {
+        match ro {
             ResourceObject::File(md_path) => Ok(fs::read_to_string(md_path)?.into()),
         }
     }

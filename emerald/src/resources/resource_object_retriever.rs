@@ -6,5 +6,5 @@ use mockall::{automock, predicate::*};
 
 #[cfg_attr(test, automock)]
 pub trait ResourceObjectRetriever {
-    fn retrieve(&self, resource_id: &types::ResourceId) -> Result<ResourceObject>;
+    fn retrieve(&self, rid: &types::ResourceId) -> Result<ResourceObject>;
 }

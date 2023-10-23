@@ -12,12 +12,12 @@ pub fn adapter_ro_to_ro_and_rid<'a>(
     let ret: Result<Vec<_>> = it_src
         .into_iter()
         .map(|ro| {
-            let opt_resource_id = convert_ro_to_rid(ro, common_path);
+            let opt_rid = convert_ro_to_rid(ro, common_path);
 
-            if let Ok(resource_id) = opt_resource_id {
-                Ok((ro.clone(), resource_id))
+            if let Ok(rid) = opt_rid {
+                Ok((ro.clone(), rid))
             } else {
-                error!("Can't convert Endpoint '{:?}' to ResourceId.", &ro);
+                error!("Can't convert ResourceObject '{:?}' to ResourceId.", &ro);
                 Err(ValueError)
             }
         })
