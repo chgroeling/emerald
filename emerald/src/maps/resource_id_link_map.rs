@@ -11,19 +11,19 @@ pub type NameToResourceIdList = HashMap<String, Vec<types::ResourceId>>;
 
 #[derive(Clone)]
 pub struct ResourceIdLinkMap {
-    name_to_resource_id_list: NameToResourceIdList,
+    name_to_rid_list: NameToResourceIdList,
 }
 
 impl ResourceIdLinkMap {
     pub fn new<'a>(it_src: impl IntoIterator<Item = (&'a types::ResourceId, String)>) -> Self {
         // Assumption: All resource ids are encoded in utf8 nfc
-        let mut name_to_resource_id_list: NameToResourceIdList = NameToResourceIdList::new();
+        let mut name_to_rid_list: NameToResourceIdList = NameToResourceIdList::new();
 
         for (rid, normalized_link) in it_src.into_iter() {
             trace!("Insert {:?} -> {:?}", &normalized_link, &rid);
 
             // this is an interesting way to mutate an element in a HashMap
-            match name_to_resource_id_list.entry(normalized_link) {
+            match name_to_rid_list.entry(normalized_link) {
                 Entry::Occupied(mut e) => {
                     e.get_mut().push(rid.clone());
                 }
@@ -33,9 +33,7 @@ impl ResourceIdLinkMap {
             }
         }
 
-        ResourceIdLinkMap {
-            name_to_resource_id_list,
-        }
+        ResourceIdLinkMap { name_to_rid_list }
     }
 }
 
@@ -46,14 +44,14 @@ impl ResourceIdResolver for ResourceIdLinkMap {
         let link_name_lc = utils::normalize_str(&link_comp.name.trim().to_lowercase());
 
         // check if md files in our hashmap are matching the given link
-        let matches_of_exact_name = self.name_to_resource_id_list.get(&link_name_lc);
+        let matches_of_exact_name = self.name_to_rid_list.get(&link_name_lc);
 
         // no .. then perhaps there are files without adding ".md" that will match
         let matches = if matches_of_exact_name.is_none() {
             // add a .md extension to the link to check if a note with this name exists
             let link_name_lc_md = link_name_lc.clone() + ".md";
 
-            self.name_to_resource_id_list.get(&link_name_lc_md)
+            self.name_to_rid_list.get(&link_name_lc_md)
         } else {
             matches_of_exact_name
         };

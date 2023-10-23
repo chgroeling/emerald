@@ -15,17 +15,14 @@ impl ResourceObjectMap {
     pub fn new<'a>(
         it_src: impl IntoIterator<Item = &'a (ResourceObject, types::ResourceId)>,
     ) -> Result<Self> {
-        let mut resource_id_to_endpoint = HashMap::<types::ResourceId, ResourceObject>::new();
+        let mut rid_to_ro = HashMap::<types::ResourceId, ResourceObject>::new();
         for (ro, res_id) in it_src {
-            if resource_id_to_endpoint
-                .insert(res_id.clone(), ro.clone())
-                .is_some()
-            {
+            if rid_to_ro.insert(res_id.clone(), ro.clone()).is_some() {
                 return Err(NotUnique);
             }
         }
         Ok(Self {
-            rid_to_ro: Rc::new(resource_id_to_endpoint),
+            rid_to_ro: Rc::new(rid_to_ro),
         })
     }
 }
