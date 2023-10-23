@@ -27,15 +27,15 @@ where
     I: resources::MdContentRetriever,
     U: resources::MetaDataLoader,
 {
-    fn get_markdown(&self, resource_id: &types::ResourceId) -> String {
-        let meta_data = self.meta_data_loader.load(resource_id).unwrap();
+    fn get_markdown(&self, rid: &types::ResourceId) -> String {
+        let meta_data = self.meta_data_loader.load(rid).unwrap();
 
         // do not allow anything other than markdown files pass this point
         let types::FileType::Markdown(_) = meta_data.file_type else {
             panic!("Not a markdown file {:?}", meta_data)
         };
 
-        let res = self.content_loader.retrieve(resource_id).unwrap();
+        let res = self.content_loader.retrieve(rid).unwrap();
         res.into()
     }
 }

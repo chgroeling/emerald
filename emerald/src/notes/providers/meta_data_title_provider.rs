@@ -20,8 +20,8 @@ impl<I> TitleProvider for MetaDataTitleProvider<I>
 where
     I: resources::MetaDataLoader,
 {
-    fn get_title(&self, resource_id: &types::ResourceId) -> String {
-        let meta_data = self.meta_data_loader.load(resource_id).unwrap();
+    fn get_title(&self, rid: &types::ResourceId) -> String {
+        let meta_data = self.meta_data_loader.load(rid).unwrap();
         meta_data.file_stem
     }
 }

@@ -6,5 +6,5 @@ use mockall::{automock, predicate::*};
 
 #[cfg_attr(test, automock)]
 pub trait MetaDataLoader {
-    fn load(&self, resource_id: &types::ResourceId) -> Result<types::MetaData>;
+    fn load(&self, rid: &types::ResourceId) -> Result<types::MetaData>;
 }

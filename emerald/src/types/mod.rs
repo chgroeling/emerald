@@ -1,6 +1,5 @@
 mod content;
 mod content_type;
-mod endpoint;
 mod link;
 mod link_2_tgt;
 mod link_comps;
@@ -12,7 +11,6 @@ mod resource_id_comps;
 
 pub use self::content::Content;
 pub use self::content_type::ContentType;
-pub use self::endpoint::EndPoint;
 pub use self::link::Link;
 pub use self::link_2_tgt::Link2Tgt;
 pub use self::link_frm_src::LinkFrmSrc;

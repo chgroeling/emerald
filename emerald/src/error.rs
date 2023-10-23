@@ -10,8 +10,8 @@ pub enum EmeraldError {
     #[error("General io Error")]
     IoError(#[from] io::Error),
 
-    #[error("No endpoint was found.")]
-    EndPointNotFound,
+    #[error("No Resource Object was found.")]
+    ResourceObjectNotFound,
 
     #[error("No meta data is available.")]
     NoMetaData,
@@ -40,8 +40,8 @@ pub enum EmeraldError {
     #[error("Tried to handle something as a file which was none")]
     NotAFile,
 
-    #[error("The endpoint {0}  has no assigned resource id")]
-    EndpointHasNoResourceId(String),
+    #[error("The ResourceObject {0} has no assigned ResourceId")]
+    ResourceObjectHasNoResourceId(String),
 
     #[error("unknown error")]
     Unknown,

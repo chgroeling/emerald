@@ -1,5 +1,5 @@
 use crate::types;
 
 pub trait TitleProvider {
-    fn get_title(&self, resource_id: &types::ResourceId) -> String;
+    fn get_title(&self, rid: &types::ResourceId) -> String;
 }

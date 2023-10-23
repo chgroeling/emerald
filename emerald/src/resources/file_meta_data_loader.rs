@@ -1,5 +1,6 @@
-use super::endpoint_retriever::EndpointRetriever;
 use super::meta_data_loader::MetaDataLoader;
+use super::resource_object::ResourceObject;
+use super::resource_object_retriever::ResourceObjectRetriever;
 use crate::error::{EmeraldError::*, Result};
 use crate::types;
 #[allow(unused_imports)]
@@ -9,17 +10,17 @@ use std::path::Path;
 #[derive(Clone)]
 pub struct FileMetaDataLoader<I>
 where
-    I: EndpointRetriever,
+    I: ResourceObjectRetriever,
 {
-    ep_retriever: I,
+    ro_retriever: I,
 }
 
 impl<I> FileMetaDataLoader<I>
 where
-    I: EndpointRetriever,
+    I: ResourceObjectRetriever,
 {
-    pub fn new(ep_retriever: I) -> Self {
-        Self { ep_retriever }
+    pub fn new(ro_retriever: I) -> Self {
+        Self { ro_retriever }
     }
 
     fn get_file_type(&self, path: &Path) -> Result<types::FileType> {
@@ -50,15 +51,14 @@ where
 
 impl<I> MetaDataLoader for FileMetaDataLoader<I>
 where
-    I: EndpointRetriever,
+    I: ResourceObjectRetriever,
 {
     fn load(&self, rid: &types::ResourceId) -> Result<types::MetaData> {
-        let ep = self.ep_retriever.retrieve(rid)?;
+        let ro = self.ro_retriever.retrieve(rid)?;
 
         #[allow(unreachable_patterns)]
-        match ep {
-            types::EndPoint::FileMarkdown(path) => self.get_file_meta_data(&path),
-            types::EndPoint::FileUnknown(path) => self.get_file_meta_data(&path),
+        match ro {
+            ResourceObject::File(path) => self.get_file_meta_data(&path),
             _ => Err(NoMetaData),
         }
     }

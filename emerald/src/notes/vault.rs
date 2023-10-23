@@ -7,7 +7,7 @@ pub struct Vault<U>
 where
     U: ProviderFactory,
 {
-    md_resource_ids: Vec<types::ResourceId>,
+    md_rids: Vec<types::ResourceId>,
     provider_factory: U,
 }
 
@@ -19,9 +19,9 @@ where
         it_src: impl IntoIterator<Item = &'a types::ResourceId>,
         provider_factory: U,
     ) -> Self {
-        let md_resource_ids = it_src.into_iter().cloned().collect();
+        let md_rids = it_src.into_iter().cloned().collect();
         Self {
-            md_resource_ids,
+            md_rids,
             provider_factory,
         }
     }
@@ -30,7 +30,7 @@ where
         let create_title_p = || self.provider_factory.create_title_provider();
         let create_content_p = || self.provider_factory.create_markdown_provider();
         let note_vec: Vec<Note> = self
-            .md_resource_ids
+            .md_rids
             .iter()
             .map(move |f| Note::new(f.clone(), create_title_p(), create_content_p()))
             .collect();

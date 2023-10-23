@@ -38,8 +38,8 @@ impl MdContentCache {
 }
 
 impl MdContentRetriever for MdContentCache {
-    fn retrieve(&self, resource_id: &types::ResourceId) -> Result<&types::Content> {
-        let cached = self.res_id_to_content.get(resource_id);
+    fn retrieve(&self, rid: &types::ResourceId) -> Result<&types::Content> {
+        let cached = self.res_id_to_content.get(rid);
 
         match cached {
             Some(entry) => Ok(entry),

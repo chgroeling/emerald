@@ -1,18 +1,15 @@
-use super::normalize_string::normalize_str_iter;
+use super::resource_object::ResourceObject;
 use crate::error::{EmeraldError::*, Result};
 use crate::types;
+use crate::utils;
 use std::path::Path;
 
 const LINK_FRONT: &str = "[[";
 const LINK_BACK: &str = "]]";
 
-pub fn convert_endpoint_to_resource_id(
-    endpoint: &types::EndPoint,
-    common_path: &Path,
-) -> Result<types::ResourceId> {
-    let path = match endpoint {
-        types::EndPoint::FileUnknown(path) => path,
-        types::EndPoint::FileMarkdown(path) => path,
+pub fn convert_ro_to_rid(ro: &ResourceObject, common_path: &Path) -> Result<types::ResourceId> {
+    let path = match ro {
+        ResourceObject::File(path) => path,
     };
     let rel_path = match path.strip_prefix(common_path) {
         Ok(item) => item.to_path_buf(),
@@ -25,7 +22,7 @@ pub fn convert_endpoint_to_resource_id(
     };
 
     // Replace all windows path chars
-    let path_iter = normalize_str_iter(rel_path_str).map(|ch| match ch {
+    let path_iter = utils::normalize_str_iter(rel_path_str).map(|ch| match ch {
         '\\' => '/',
         _ => ch,
     });
@@ -37,24 +34,23 @@ pub fn convert_endpoint_to_resource_id(
 
 #[cfg(test)]
 mod tests {
-    use super::convert_endpoint_to_resource_id;
-    use super::types;
+    use super::convert_ro_to_rid;
+    use super::ResourceObject::*;
     use std::path::PathBuf;
-    use types::EndPoint::*;
 
     #[test]
-    fn test_convert_unix_path_to_endpoint_link() {
+    fn test_convert_unix_path_to_rid() {
         let common_path = PathBuf::from("");
-        let endpoint = FileUnknown("a/b/c/note.md".into());
-        let link = convert_endpoint_to_resource_id(&endpoint, &common_path);
+        let ro = File("a/b/c/note.md".into());
+        let link = convert_ro_to_rid(&ro, &common_path);
         assert_eq!(link.unwrap(), "[[a/b/c/note.md]]".into())
     }
 
     #[test]
-    fn test_convert_windows_path_to_endpoint_link() {
+    fn test_convert_windows_path_to_rid() {
         let common_path = PathBuf::from("");
-        let endpoint = FileUnknown("a\\b\\c\\note.md".into());
-        let link = convert_endpoint_to_resource_id(&endpoint, &common_path);
+        let ro = File("a\\b\\c\\note.md".into());
+        let link = convert_ro_to_rid(&ro, &common_path);
         assert_eq!(link.unwrap(), "[[a/b/c/note.md]]".into())
     }
 }

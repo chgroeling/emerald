@@ -14,10 +14,10 @@ impl Link2Tgt {
     pub fn new_without_target(link: Link) -> Self {
         Self { link, tgt: None }
     }
-    pub fn new_with_target(link: Link, tgt_resource_id: ResourceId) -> Self {
+    pub fn new_with_target(link: Link, tgt_rid: ResourceId) -> Self {
         Self {
             link,
-            tgt: Some(tgt_resource_id),
+            tgt: Some(tgt_rid),
         }
     }
 }
