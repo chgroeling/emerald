@@ -1,4 +1,6 @@
 use super::md_provider::MdProvider;
+use crate::error::EmeraldError::*;
+use crate::error::Result;
 use crate::{resources, types};
 
 pub struct ContentMdProvider<T, U>
@@ -27,15 +29,15 @@ where
     I: resources::MdContentRetriever,
     U: resources::MetaDataLoader,
 {
-    fn get_markdown(&self, rid: &types::ResourceId) -> String {
-        let meta_data = self.meta_data_loader.load(rid).unwrap();
+    fn get_markdown(&self, rid: &types::ResourceId) -> Result<String> {
+        let meta_data = self.meta_data_loader.load(rid)?;
 
         // do not allow anything other than markdown files pass this point
         let types::FileType::Markdown(_) = meta_data.file_type else {
-            panic!("Not a markdown file {:?}", meta_data)
+            return Err(NotAMarkdownFile);
         };
 
-        let res = self.content_loader.retrieve(rid).unwrap();
-        res.into()
+        let res = self.content_loader.retrieve(rid)?;
+        Ok(res.into())
     }
 }

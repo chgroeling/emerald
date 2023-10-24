@@ -1,4 +1,5 @@
 use super::title_provider::TitleProvider;
+use crate::error::Result;
 use crate::{resources, types};
 
 pub struct MetaDataTitleProvider<I>
@@ -20,8 +21,8 @@ impl<I> TitleProvider for MetaDataTitleProvider<I>
 where
     I: resources::MetaDataLoader,
 {
-    fn get_title(&self, rid: &types::ResourceId) -> String {
-        let meta_data = self.meta_data_loader.load(rid).unwrap();
-        meta_data.file_stem
+    fn get_title(&self, rid: &types::ResourceId) -> Result<String> {
+        let meta_data = self.meta_data_loader.load(rid)?;
+        Ok(meta_data.file_stem)
     }
 }
