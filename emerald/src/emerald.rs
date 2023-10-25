@@ -101,7 +101,7 @@ impl Emerald {
         let src_2_tgt_iter = adapters::adapter_from_rid_and_content_to_link_src_2_tgt(
             crefs,
             &rid_resolver,
-            markdown::MarkdownAnalyzerLocal::new(),
+            markdown::MarkdownAnalyzerImpl::new(),
         );
 
         let src_2_tgt_index = indexes::Src2TargetIndex::new(src_2_tgt_iter);
