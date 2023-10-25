@@ -79,45 +79,35 @@ mod tests {
     #[test]
     fn test_simple_resource_id() {
         let test_rid: ResourceId = "[[test_res_id]]".into();
-
         let res = test_rid.split().unwrap();
-
         assert_eq!(res.name, "test_res_id");
     }
 
     #[test]
     fn test_resource_id_with_ext() {
         let test_rid: ResourceId = "[[test_res_id.md]]".into();
-
         let res = test_rid.split().unwrap();
-
         assert_eq!(res.name, "test_res_id.md");
     }
 
     #[test]
     fn test_none_path_from_simple_resource_id() {
         let test_rid: ResourceId = "[[test_res_id]]".into();
-
         let res = test_rid.split().unwrap();
-
         assert!(res.has_path() == false);
     }
 
     #[test]
     fn test_resource_id_with_path_1() {
         let test_rid: ResourceId = "[[a/b/c/test_res_id]]".into();
-
         let res = test_rid.split().unwrap();
-
         assert_eq!(res.name, "test_res_id");
     }
 
     #[test]
     fn test_resource_id_with_path_2() {
         let test_rid: ResourceId = "[[a/b/c/test_res_id]]".into();
-
         let res = test_rid.split().unwrap();
-
         let path = res.path.unwrap();
         assert_eq!(path, "a/b/c");
     }

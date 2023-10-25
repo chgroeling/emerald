@@ -92,18 +92,14 @@ mod tests {
     #[test]
     fn test_fmt_bare_link() {
         let dut = LinkComps::new_bare_link("my_link".into());
-
         let res = dut.to_string();
-
         assert_eq!(res, "[[my_link]]")
     }
 
     #[test]
     fn test_fmt_link_with_path() {
         let dut = LinkComps::new_link_with_path("my_link".into(), "a/b/c".into());
-
         let res = dut.to_string();
-
         assert_eq!(res, "[[a/b/c/my_link]]")
     }
 
@@ -116,18 +112,14 @@ mod tests {
             None,
             None,
         );
-
         let res = dut.to_string();
-
         assert_eq!(res, "[[a/b/c/my_link|my_label]]")
     }
 
     #[test]
     fn test_fmt_link_with_label() {
         let dut = LinkComps::new("my_link".into(), None, Some("my_label".into()), None, None);
-
         let res = dut.to_string();
-
         assert_eq!(res, "[[my_link|my_label]]")
     }
 
@@ -140,9 +132,7 @@ mod tests {
             Some("my_section".into()),
             None,
         );
-
         let res = dut.to_string();
-
         assert_eq!(res, "[[my_link|my_label#my_section]]")
     }
 
@@ -155,9 +145,7 @@ mod tests {
             Some("my_section".into()),
             Some("my_anchor".into()),
         );
-
         let res = dut.to_string();
-
         assert_eq!(res, "[[a/b/c/my_link|my_label#my_section^my_anchor]]")
     }
 }

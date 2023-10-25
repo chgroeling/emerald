@@ -111,89 +111,72 @@ mod tests {
     #[test]
     fn test_simple_link() {
         let test_link: Link = "[[test_link]]".into();
-
-        let res = test_link.split();
-
-        assert!(res.is_ok_and(|link| link.name == "test_link"));
+        let res = test_link.split().unwrap();
+        assert_eq!(res.name, "test_link");
     }
 
     #[test]
     fn test_simple_link_with_ext() {
         let test_link: Link = "[[test_link.md]]".into();
-
-        let res = test_link.split();
-
-        assert!(res.is_ok_and(|link| link.name == "test_link.md"));
+        let res = test_link.split().unwrap();
+        assert_eq!(res.name, "test_link.md");
     }
 
     #[test]
     fn test_no_path_from_simple_link() {
         let test_link: Link = "[[test_link]]".into();
-
-        let res = test_link.split();
-
-        assert!(res.is_ok_and(|link| link.has_path() == false));
+        let res = test_link.split().unwrap();
+        assert!(res.has_path() == false);
     }
 
     #[test]
     fn test_link_out_off_simple_link_with_name() {
         let test_link: Link = "[[test_link|link_name]]".into();
-
-        let res = test_link.split();
-
-        assert!(res.is_ok_and(|link| link.name == "test_link"));
+        let res = test_link.split().unwrap();
+        assert_eq!(res.name, "test_link");
     }
 
     #[test]
     fn test_link_out_off_link_with_path() {
         let test_link: Link = "[[a/b/c/test_link]]".into();
-
-        let res = test_link.split();
-
-        assert!(res.is_ok_and(|link| link.name == "test_link"));
+        let res = test_link.split().unwrap();
+        assert_eq!(res.name, "test_link");
     }
 
     #[test]
     fn test_link_out_off_link_with_path_and_section_link() {
         let test_link: Link = "[[a/b/c/test_link#section_link]]".into();
-
-        let res = test_link.split();
-
-        assert!(res.is_ok_and(|link| link.name == "test_link"));
+        let res = test_link.split().unwrap();
+        assert_eq!(res.name, "test_link");
     }
 
     #[test]
     fn test_link_out_off_link_with_path_and_section_link_and_name() {
         let test_link: Link = "[[a/b/c/test_link#section_link|link_name]]".into();
-
-        let res = test_link.split();
-
-        assert!(res.is_ok_and(|link| link.name == "test_link"));
+        let res = test_link.split().unwrap();
+        assert_eq!(res.name, "test_link");
     }
 
     #[test]
     fn test_path_out_off_link_with_short_path_and_section_link_and_name() {
         let test_link: Link = "[[abc/test_link#section_link|link_name]]".into();
-
-        let res = test_link.split();
-
-        assert!(res.is_ok_and(|link| link.path.is_some_and(|path| path == "abc")));
+        let res = test_link.split().unwrap();
+        let path = res.path.unwrap();
+        assert_eq!(path, "abc");
     }
 
     #[test]
     fn test_path_out_off_link_with_long_path_and_section_link_and_name() {
         let test_link: Link = "[[a/b/c/test_link#section_link|link_name]]".into();
-
-        let res = test_link.split();
-
-        assert!(res.is_ok_and(|link| link.path.is_some_and(|path| path == "a/b/c")));
+        let res = test_link.split().unwrap();
+        let path = res.path.unwrap();
+        assert_eq!(path, "a/b/c");
     }
 
     #[test]
     fn test_path_out_off_link_with_long_absolute_path_and_section_link_and_name() {
         let test_link: Link = "[[/a/b/c/test_link#section_link|link_name]]".into();
         let res = test_link.split().unwrap();
-
         let path = res.path.unwrap();
         assert_eq!(path, "/a/b/c");
     }
@@ -202,7 +185,6 @@ mod tests {
     fn test_illegal_link_handling_front_space() {
         let test_link: Link = " [[test_link]]".into();
         let res = test_link.split();
-
         assert!(res.is_err());
     }
 
