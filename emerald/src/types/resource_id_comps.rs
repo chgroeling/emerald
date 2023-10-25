@@ -55,18 +55,14 @@ mod tests {
     #[test]
     fn test_fmt_bare_resource_id() {
         let dut = ResourceIdComps::new_without_path("my_resource_id".into());
-
         let res = dut.to_string();
-
         assert_eq!(res, "[[my_resource_id]]")
     }
 
     #[test]
     fn test_fmt_full_resource_id() {
         let dut = ResourceIdComps::new_with_path("my_resource_id".into(), "a/b/c".into());
-
         let res = dut.to_string();
-
         assert_eq!(res, "[[a/b/c/my_resource_id]]")
     }
 }
