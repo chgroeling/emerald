@@ -1,29 +1,31 @@
 use super::markdown_iterator_state::MarkdownIteratorState;
 use crate::types;
+use std::{iter::Peekable, str::CharIndices};
+use MarkdownIteratorState::*;
+
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
-use std::{iter::Peekable, str::CharIndices};
 
 #[derive(Debug)]
 pub struct MarkdownAnalyzerIter<'a> {
-    md_str: &'a str,
-    iter: Peekable<CharIndices<'a>>,
+    buf: &'a str,
+    it: Peekable<CharIndices<'a>>,
 }
 
 impl<'a> MarkdownAnalyzerIter<'a> {
-    pub fn new(md_str: &'a str) -> Self {
+    pub fn new(buf: &'a str) -> Self {
         Self {
-            md_str,
-            iter: md_str.char_indices().peekable(),
+            buf,
+            it: buf.char_indices().peekable(),
         }
     }
 
     fn expect_then_consume(&mut self, expected_char: char) -> bool {
-        let next_element = self.iter.peek();
+        let next_element = self.it.peek();
 
-        if let Some(current_char) = next_element {
-            if current_char.1 == expected_char {
-                self.iter.next(); // consume
+        if let Some(next_char) = next_element {
+            if next_char.1 == expected_char {
+                self.it.next(); // consume
                 return true;
             }
         }
@@ -39,11 +41,11 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         }
 
         loop {
-            let peek_element = self.iter.peek();
+            let peek_element = self.it.peek();
             if let Some((_, ch)) = peek_element {
                 if ch == &consume_char {
                     cnt += 1;
-                    self.iter.next();
+                    self.it.next();
 
                     if limit.is_some_and(|l| cnt >= l) {
                         break;
@@ -55,20 +57,17 @@ impl<'a> MarkdownAnalyzerIter<'a> {
                 break;
             }
         }
-
         cnt
     }
 
     fn sm_inline_code_block(&mut self, start_idx: usize) -> MarkdownIteratorState {
-        use MarkdownIteratorState::*;
-
         let open_cnt = 1 + self.consume_char(' ', None);
 
         if open_cnt < 4 {
             return IllegalFormat;
         }
 
-        let mut next_element = self.iter.next();
+        let mut next_element = self.it.next();
         if next_element.is_none() {
             // special case... inline code block at end of file
             return InlCodeBlockFound(start_idx, start_idx + open_cnt as usize);
@@ -78,7 +77,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         let mut iter_state = InlCodeBlockStart(start_idx);
         let mut act_idx = 0usize;
         while let Some((idx, _)) = next_element {
-            let i_peek_opt = self.iter.peek();
+            let i_peek_opt = self.it.peek();
 
             if let Some((idx_peek, i_peek)) = i_peek_opt {
                 // determine new state
@@ -92,12 +91,12 @@ impl<'a> MarkdownAnalyzerIter<'a> {
             act_idx = idx;
 
             // action for new state
-            next_element = self.iter.next();
+            next_element = self.it.next();
         }
         InlCodeBlockFound(start_idx, act_idx + 1)
     }
+
     fn sm_inline_code_block_after_nl(&mut self, start_idx: usize) -> MarkdownIteratorState {
-        use MarkdownIteratorState::*;
         // Is that an inline code block?
         if self.expect_then_consume(' ') {
             self.sm_inline_code_block(start_idx + 1)
@@ -107,11 +106,8 @@ impl<'a> MarkdownAnalyzerIter<'a> {
     }
 
     fn sm_code_block(&mut self, start_idx: usize) -> MarkdownIteratorState {
-        use MarkdownIteratorState::*;
-
         let open_cnt = 1 + self.consume_char('`', None);
-
-        let mut next_element = self.iter.next();
+        let mut next_element = self.it.next();
         if next_element.is_none() {
             return IllegalFormat;
         }
@@ -138,15 +134,13 @@ impl<'a> MarkdownAnalyzerIter<'a> {
             };
 
             // action for new state
-            next_element = self.iter.next()
+            next_element = self.it.next()
         }
         IllegalFormat
     }
 
     fn sm_wiki_link(&mut self, start_idx: usize) -> MarkdownIteratorState {
-        use MarkdownIteratorState::*;
-
-        let mut next_element = self.iter.next();
+        let mut next_element = self.it.next();
         if next_element.is_none() {
             return IllegalFormat;
         }
@@ -169,14 +163,13 @@ impl<'a> MarkdownAnalyzerIter<'a> {
             };
 
             // action for new state
-            next_element = self.iter.next()
+            next_element = self.it.next()
         }
         IllegalFormat
     }
 
     fn sm_link(&mut self, start_idx: usize) -> MarkdownIteratorState {
-        use MarkdownIteratorState::*;
-        let mut next_element = self.iter.next();
+        let mut next_element = self.it.next();
 
         // Opening of an internal link was detected
         let mut iter_state = LinkStart(start_idx);
@@ -197,7 +190,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
                 _ => iter_state,
             };
 
-            next_element = self.iter.next();
+            next_element = self.it.next();
         }
 
         IllegalFormat
@@ -213,15 +206,12 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         }
     }
 }
+
 impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
     type Item = types::ContentType<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        use types::ContentType::*;
-        use MarkdownIteratorState::*;
-
-        let mut next_element = self.iter.next();
-
+        let mut next_element = self.it.next();
         while let Some((idx, i)) = next_element {
             let iter_state = match i {
                 '[' => self.sm_wiki_link_or_link(idx),
@@ -231,16 +221,16 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                 _ => IllegalFormat,
             };
 
+            use types::ContentType as ct; // short hand for the following code
             match iter_state {
-                WikiLinkFound(s1, e1) => return Some(WikiLink(&self.md_str[s1..e1])),
-                LinkFound(s1, e1) => return Some(Link(&self.md_str[s1..e1])),
-                CodeBlockFound(s1, e1) => return Some(CodeBlock(&self.md_str[s1..e1])),
-                InlCodeBlockFound(s1, e1) => return Some(CodeBlock(&self.md_str[s1..e1])),
-                // this also matches IllegalFormat
-                _ => next_element = self.iter.next(),
+                WikiLinkFound(s1, e1) => return Some(ct::WikiLink(&self.buf[s1..e1])),
+                LinkFound(s1, e1) => return Some(ct::Link(&self.buf[s1..e1])),
+                CodeBlockFound(s1, e1) => return Some(ct::CodeBlock(&self.buf[s1..e1])),
+                InlCodeBlockFound(s1, e1) => return Some(ct::CodeBlock(&self.buf[s1..e1])),
+                IllegalFormat => next_element = self.it.next(), // search for next valid md
+                _ => panic!("State is not expected here"),
             };
         }
-
         None
     }
 }
