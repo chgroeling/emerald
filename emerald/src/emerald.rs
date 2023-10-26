@@ -1,6 +1,5 @@
 use super::adapters;
 use super::error::Result;
-use super::indexes;
 use super::maps;
 use super::markdown;
 use super::notes;
@@ -24,7 +23,6 @@ pub struct Emerald {
     pub ro_retriever: resources::ResourceObjectMap,
     pub meta_data_loader: FileMetaDataLoaderImpl,
     pub rid_resolver: maps::ResourceIdLinkMap,
-    pub src_2_tgt_index: indexes::Src2TargetIndex,
     pub md_content_cache: resources::MdContentCache,
     pub tgt_iter_retriever: maps::TgtLinksMap,
     pub src_iter_retriever: maps::SrcLinksMap,
@@ -100,24 +98,23 @@ impl Emerald {
             adapters::adapter_from_rids_to_rids_and_content(&md_index, &md_content_cache)?
                 .collect();
 
-        let src_2_tgt: Vec<_> = adapters::adapter_from_rid_and_content_to_link_src_2_tgt(
+        let src_2_tgt_idx: Vec<_> = adapters::adapter_from_rid_and_content_to_link_src_2_tgt(
             crefs,
             &rid_resolver,
             markdown::MarkdownAnalyzerImpl::new(),
         )
         .collect();
-        let link_stats = stats::extract_link_stats(&src_2_tgt);
-        let src_2_tgt_index = indexes::Src2TargetIndex::new(&src_2_tgt);
+        let link_stats = stats::extract_link_stats(&src_2_tgt_idx);
         let elapsed = start.elapsed();
         debug!("Creation of Src2TargetIndex took: {:?}", elapsed);
 
         let start = Instant::now();
-        let tgt_iter_retriever = maps::TgtLinksMap::new(&src_2_tgt_index);
+        let tgt_iter_retriever = maps::TgtLinksMap::new(&src_2_tgt_idx);
         let elapsed = start.elapsed();
         debug!("Creation of TgtLinksMap took: {:?}", elapsed);
 
         let start = Instant::now();
-        let src_iter_retriever = maps::SrcLinksMap::new(&src_2_tgt_index);
+        let src_iter_retriever = maps::SrcLinksMap::new(&src_2_tgt_idx);
         let elapsed = start.elapsed();
         debug!("Creation of SrcLinksMap took: {:?}", elapsed);
 
@@ -141,7 +138,6 @@ impl Emerald {
             md_index,
             all_index,
             md_content_cache,
-            src_2_tgt_index,
             tgt_iter_retriever,
             src_iter_retriever,
             provider_factory,
@@ -165,10 +161,10 @@ impl Emerald {
     }
 
     pub fn valid_backlink_count(&self) -> usize {
-        self.vault_stats.link_stats.valid_backlink_cnt
+        self.vault_stats.link_stats.valid_backlinks
     }
 
     pub fn invalid_backlink_count(&self) -> usize {
-        self.vault_stats.link_stats.invalid_backlink_cnt
+        self.vault_stats.link_stats.invalid_backlinks
     }
 }

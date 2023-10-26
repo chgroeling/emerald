@@ -1,7 +1,6 @@
 mod adapters;
 mod emerald;
 mod error;
-mod indexes;
 mod maps;
 mod markdown;
 mod notes;
