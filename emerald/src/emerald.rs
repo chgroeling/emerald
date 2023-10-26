@@ -107,7 +107,7 @@ impl Emerald {
         )
         .collect();
         let link_stats = stats::extract_link_stats(&src_2_tgt);
-        let src_2_tgt_index = indexes::Src2TargetIndex::new(src_2_tgt);
+        let src_2_tgt_index = indexes::Src2TargetIndex::new(&src_2_tgt);
         let elapsed = start.elapsed();
         debug!("Creation of Src2TargetIndex took: {:?}", elapsed);
 

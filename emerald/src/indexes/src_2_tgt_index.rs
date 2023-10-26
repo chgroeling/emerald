@@ -9,9 +9,9 @@ pub struct Src2TargetIndex {
 }
 
 impl Src2TargetIndex {
-    pub fn new(it_src: impl IntoIterator<Item = types::LinkSrc2Tgt>) -> Self {
+    pub fn new<'a>(it_src: impl IntoIterator<Item = &'a types::LinkSrc2Tgt>) -> Self {
         Self {
-            src_2_tgt_list: Rc::new(it_src.into_iter().collect()),
+            src_2_tgt_list: Rc::new(it_src.into_iter().cloned().collect()),
         }
     }
 }
