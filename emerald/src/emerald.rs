@@ -94,12 +94,9 @@ impl Emerald {
         debug!("Creation of ContentFullMdCache took: {:?}", elapsed);
 
         let start = Instant::now();
-        let crefs: Vec<_> =
-            adapters::adapter_from_rids_to_rids_and_content(&md_index, &md_content_cache)?
-                .collect();
-
+        let c_it = adapters::adapter_from_rids_to_rids_and_content(&md_index, &md_content_cache)?;
         let src_2_tgt_idx: Vec<_> = adapters::adapter_from_rid_and_content_to_link_src_2_tgt(
-            crefs,
+            c_it,
             &rid_resolver,
             markdown::MarkdownAnalyzerImpl::new(),
         )
