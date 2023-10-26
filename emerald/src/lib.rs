@@ -1,11 +1,11 @@
 mod adapters;
 mod emerald;
 mod error;
-mod indexes;
 mod maps;
 mod markdown;
 mod notes;
 mod resources;
+mod stats;
 mod types;
 mod utils;
 
