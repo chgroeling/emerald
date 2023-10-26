@@ -5,6 +5,7 @@ use super::maps;
 use super::markdown;
 use super::notes;
 use super::resources;
+use super::stats;
 use super::types;
 
 #[allow(unused_imports)]
@@ -29,6 +30,7 @@ pub struct Emerald {
     pub src_iter_retriever: maps::SrcLinksMap,
     pub provider_factory: StdProviderFactoryImpl,
     pub vault: notes::Vault<StdProviderFactoryImpl>,
+    pub vault_stats: stats::VaultStats,
 }
 
 impl Emerald {
@@ -98,13 +100,14 @@ impl Emerald {
             adapters::adapter_from_rids_to_rids_and_content(&md_index, &md_content_cache)?
                 .collect();
 
-        let src_2_tgt_iter = adapters::adapter_from_rid_and_content_to_link_src_2_tgt(
+        let src_2_tgt: Vec<_> = adapters::adapter_from_rid_and_content_to_link_src_2_tgt(
             crefs,
             &rid_resolver,
             markdown::MarkdownAnalyzerImpl::new(),
-        );
-
-        let src_2_tgt_index = indexes::Src2TargetIndex::new(src_2_tgt_iter);
+        )
+        .collect();
+        let link_stats = stats::extract_link_stats(&src_2_tgt);
+        let src_2_tgt_index = indexes::Src2TargetIndex::new(src_2_tgt);
         let elapsed = start.elapsed();
         debug!("Creation of Src2TargetIndex took: {:?}", elapsed);
 
@@ -129,6 +132,7 @@ impl Emerald {
         let elapsed = start.elapsed();
         debug!("Creation of Vault took: {:?}", elapsed);
 
+        let vault_stats = stats::VaultStats { link_stats };
         Ok(Emerald {
             rid_retriever,
             ro_retriever,
@@ -142,6 +146,7 @@ impl Emerald {
             src_iter_retriever,
             provider_factory,
             vault,
+            vault_stats,
         })
     }
 }
@@ -160,10 +165,10 @@ impl Emerald {
     }
 
     pub fn valid_backlink_count(&self) -> usize {
-        self.src_2_tgt_index.get_valid_backlink_cnt()
+        self.vault_stats.link_stats.valid_backlink_cnt
     }
 
     pub fn invalid_backlink_count(&self) -> usize {
-        self.src_2_tgt_index.get_invalid_backlink_cnt()
+        self.vault_stats.link_stats.invalid_backlink_cnt
     }
 }

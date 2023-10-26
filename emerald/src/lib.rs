@@ -6,6 +6,7 @@ mod maps;
 mod markdown;
 mod notes;
 mod resources;
+mod stats;
 mod types;
 mod utils;
 
