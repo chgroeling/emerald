@@ -106,7 +106,7 @@ impl Emerald {
         .collect();
         let link_stats = stats::extract_link_stats(&src_2_tgt_idx);
         let elapsed = start.elapsed();
-        debug!("Creation of Src2TargetIndex took: {:?}", elapsed);
+        debug!("Creation of sources to target index took: {:?}", elapsed);
 
         let start = Instant::now();
         let tgt_iter_retriever = maps::TgtLinksMap::new(&src_2_tgt_idx);
