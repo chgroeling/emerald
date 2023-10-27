@@ -6,6 +6,7 @@ mod adapters_to_rid;
 mod adapters_to_rid_and_content;
 mod adapters_to_rid_and_filetype;
 
+pub use adapters_to_link_src_2_tgt::adapter_analyze_md;
 pub use adapters_to_link_src_2_tgt::adapter_from_rid_and_content_to_link_src_2_tgt;
 pub use adapters_to_name::adapter_from_rid_to_name;
 pub use adapters_to_rid::adapter_rid_and_file_type_to_rid;

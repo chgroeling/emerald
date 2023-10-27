@@ -3,17 +3,13 @@ use crate::types;
 use log::{debug, error, info, trace, warn};
 
 pub fn adapter_from_content_type_to_links<'a>(
-    it_src: impl IntoIterator<Item = types::ContentType<'a>> + 'a,
-) -> impl Iterator<Item = types::Link> + 'a {
-    fn filter_func(pred: &types::ContentType) -> bool {
-        matches!(pred, types::ContentType::WikiLink(_))
-    }
-
-    fn map_func(x: types::ContentType) -> types::Link {
-        match x {
-            types::ContentType::WikiLink(link) => types::Link(link.to_owned()),
+    it_src: impl IntoIterator<Item = (&'a types::ResourceId, types::ContentType<'a>)> + 'a,
+) -> impl Iterator<Item = (&'a types::ResourceId, types::Link)> + 'a {
+    it_src
+        .into_iter()
+        .filter(|(_, content_type)| matches!(content_type, types::ContentType::WikiLink(_)))
+        .map(|(rid, content_type)| match content_type {
+            types::ContentType::WikiLink(link) => (rid, types::Link(link.to_owned())),
             _ => panic!(),
-        }
-    }
-    it_src.into_iter().filter(filter_func).map(map_func)
+        })
 }
