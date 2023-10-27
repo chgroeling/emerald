@@ -1,5 +1,3 @@
-use crate::markdown::MarkdownAnalyzer;
-
 use super::adapters;
 use super::error::Result;
 use super::maps;
