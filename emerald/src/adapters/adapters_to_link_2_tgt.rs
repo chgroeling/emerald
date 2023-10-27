@@ -3,14 +3,14 @@ use crate::{maps, types};
 use log::{debug, error, info, trace, warn};
 
 pub fn adapter_from_link_to_link_2_tgt<'a>(
-    it_src: impl IntoIterator<Item = types::Link> + 'a,
+    it_src: impl IntoIterator<Item = (&'a types::ResourceId, types::Link)> + 'a,
     rid_resolver: &'a impl maps::ResourceIdResolver,
-) -> impl Iterator<Item = types::Link2Tgt> + 'a {
-    it_src.into_iter().map(|f| {
-        if let Ok(rid) = rid_resolver.resolve(&f) {
-            types::Link2Tgt::new(f, Some(rid))
+) -> impl Iterator<Item = (&'a types::ResourceId, types::Link2Tgt)> + 'a {
+    it_src.into_iter().map(|(rid, f)| {
+        if let Ok(tgt_rid) = rid_resolver.resolve(&f) {
+            (rid, types::Link2Tgt::new(f, Some(tgt_rid)))
         } else {
-            types::Link2Tgt::new(f, None)
+            (rid, types::Link2Tgt::new(f, None))
         }
     })
 }

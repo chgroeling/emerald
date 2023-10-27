@@ -95,12 +95,14 @@ impl Emerald {
 
         let start = Instant::now();
         let c_it = adapters::adapter_from_rids_to_rids_and_content(&md_index, &md_content_cache)?;
-        let src_2_tgt_idx: Vec<_> = adapters::adapter_from_rid_and_content_to_link_src_2_tgt(
+        let ct_it = adapters::adapter_from_rid_and_content_to_rid_and_content_type(
             c_it,
-            &rid_resolver,
             markdown::MarkdownAnalyzerImpl::new(),
-        )
-        .collect();
+        );
+
+        let src_2_tgt_idx: Vec<_> =
+            adapters::adapter_from_rid_and_content_to_link_src_2_tgt(ct_it, &rid_resolver)
+                .collect();
         let link_stats = stats::extract_link_stats(&src_2_tgt_idx);
         let elapsed = start.elapsed();
         debug!("Creation of sources to target index took: {:?}", elapsed);
