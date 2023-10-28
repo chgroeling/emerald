@@ -1,7 +1,6 @@
+use super::meta_data_retriever::MetaDataRetriever;
 use crate::types;
 use std::collections::{hash_map::Entry, HashMap};
-
-use super::meta_data_retriever::MetaDataRetriever;
 
 #[derive(Clone)]
 pub struct MetaDataMap {

@@ -1,6 +1,6 @@
+use super::file_count::FileCount;
+use super::files_iter_src::FilesIterSrc;
 use crate::types;
-
-use super::{files_iter_src::FilesIterSrc, FileCount};
 
 pub struct DefaultFileModel {
     file_index: Vec<types::ResourceId>,
