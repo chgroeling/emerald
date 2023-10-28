@@ -1,5 +1,3 @@
-use crate::types;
-
 use super::links_iter_src::LinksIterSrc;
 use super::meta_data_map::MetaDataMap;
 use super::meta_data_retriever::MetaDataRetriever;
@@ -7,6 +5,7 @@ use super::note_count::NoteCount;
 use super::notes_iter_src::NotesIterSrc;
 use super::src_links_map::SrcLinksMap;
 use super::tgt_links_map::TgtLinksMap;
+use crate::types;
 
 #[allow(dead_code)]
 pub struct DefaultNoteModel {
