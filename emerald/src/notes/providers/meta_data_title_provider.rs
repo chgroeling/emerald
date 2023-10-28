@@ -3,7 +3,7 @@ use std::rc::Rc;
 use super::title_provider::TitleProvider;
 use crate::error::Result;
 use crate::model;
-use crate::{resources, types};
+use crate::types;
 
 pub struct MetaDataTitleProvider {
     meta_data_retriever: Rc<dyn model::MetaDataRetriever>,

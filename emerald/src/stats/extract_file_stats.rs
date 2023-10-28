@@ -1,7 +1,4 @@
-use crate::{
-    model::{FilesIterSrc, NotesIterSrc},
-    types,
-};
+use crate::model;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
@@ -9,8 +6,8 @@ use log::{debug, error, info, trace, warn};
 use super::vault_file_stats::VaultFileStats;
 
 pub fn extract_file_stats<'a>(
-    all_res_ids: &impl FilesIterSrc,
-    md_res_ids: &impl NotesIterSrc,
+    all_res_ids: &impl model::FilesIterSrc,
+    md_res_ids: &impl model::NotesIterSrc,
 ) -> VaultFileStats {
     VaultFileStats {
         file_count: all_res_ids.create_iter().count(),

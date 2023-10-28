@@ -1,7 +1,3 @@
-use crate::model::DefaultNoteModel;
-use crate::model::NotesIterSrc;
-use crate::types;
-
 use super::adapters;
 use super::error::Result;
 use super::maps;
@@ -27,7 +23,10 @@ pub struct Emerald {
     pub rid_resolver: maps::ResourceIdLinkMap,
     pub md_content_cache: resources::MdContentCache,
     pub provider_factory: StdProviderFactoryImpl,
-    pub vault: notes::Vault<StdProviderFactoryImpl, <DefaultNoteModel as NotesIterSrc>::Iter>,
+    pub vault: notes::Vault<
+        StdProviderFactoryImpl,
+        <model::DefaultNoteModel as model::NotesIterSrc>::Iter,
+    >,
     pub vault_stats: stats::VaultStats,
 }
 
@@ -159,7 +158,8 @@ impl Emerald {
 impl Emerald {
     pub fn get_vault(
         &self,
-    ) -> notes::Vault<StdProviderFactoryImpl, <DefaultNoteModel as NotesIterSrc>::Iter> {
+    ) -> notes::Vault<StdProviderFactoryImpl, <model::DefaultNoteModel as model::NotesIterSrc>::Iter>
+    {
         self.vault.clone()
     }
 
