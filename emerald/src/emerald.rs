@@ -89,7 +89,7 @@ impl Emerald {
         debug!("Creation of DefaultFileModel took: {:?}", elapsed);
 
         let start = Instant::now();
-        let c_it = adapters::adapter_to_rids_and_content(&md_index, &md_content_cache)?;
+        let c_it = adapters::adapter_to_rids_and_content(&md_index, &md_content_cache);
         let md_analyzer = markdown::MarkdownAnalyzerImpl::new();
         let ct_it = adapters::adapter_to_rid_and_content_type(c_it, md_analyzer);
         let s2t_idx: Vec<_> =

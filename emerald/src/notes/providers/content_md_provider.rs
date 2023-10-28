@@ -38,7 +38,7 @@ where
             return Err(NotAMarkdownFile);
         };
 
-        let res = self.content_loader.retrieve(rid)?;
+        let res = self.content_loader.retrieve(rid);
         Ok(res.into())
     }
 }

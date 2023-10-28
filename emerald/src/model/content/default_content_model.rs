@@ -16,7 +16,7 @@ impl DefaultContentModel {
 }
 
 impl MdContentRetriever for DefaultContentModel {
-    fn retrieve(&self, rid: &types::ResourceId) -> crate::Result<&types::Content> {
+    fn retrieve(&self, rid: &types::ResourceId) -> &types::Content {
         self.content_map.retrieve(rid)
     }
 }

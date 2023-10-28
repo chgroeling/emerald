@@ -1,5 +1,4 @@
 use super::md_content_retriever::MdContentRetriever;
-use crate::error::Result;
 use crate::types;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
@@ -27,12 +26,12 @@ impl MdContentMap {
 }
 
 impl MdContentRetriever for MdContentMap {
-    fn retrieve(&self, rid: &types::ResourceId) -> Result<&types::Content> {
+    fn retrieve(&self, rid: &types::ResourceId) -> &types::Content {
         let cached = self.res_id_to_content.get(rid);
 
         match cached {
-            Some(entry) => Ok(entry),
-            _ => Err(crate::EmeraldError::NotAMarkdownFile),
+            Some(entry) => entry,
+            _ => panic!("This should not happen. Requested non existant resource id."),
         }
     }
 }
