@@ -1,6 +1,7 @@
 use crate::types;
 
 use super::meta_data_map::MetaDataMap;
+use super::meta_data_retriever::MetaDataRetriever;
 use super::src_links_map::SrcLinksMap;
 use super::tgt_links_map::TgtLinksMap;
 
@@ -39,5 +40,12 @@ impl<'a> IntoIterator for &'a DefaultNoteModel {
     fn into_iter(self) -> Self::IntoIter {
         let note_idx = &self.note_index;
         note_idx.into_iter()
+    }
+}
+
+impl MetaDataRetriever for DefaultNoteModel {
+    fn retrieve(&self, md: types::ResourceId) -> &types::MetaData {
+        // Option is not returned because meta data should be consistent at this point
+        self.meta_data_map.retrieve(md)
     }
 }

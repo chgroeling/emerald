@@ -19,7 +19,7 @@ impl MetaDataMap {
         for (rid, meta_data) in it_src.into_iter() {
             match meta_data_map.entry(rid.clone()) {
                 Entry::Occupied(mut _e) => {
-                    panic!("No duplicate entries allowed")
+                    panic!("This should not happen. No duplicate entries allowed")
                 }
                 Entry::Vacant(e) => {
                     e.insert(meta_data.clone());

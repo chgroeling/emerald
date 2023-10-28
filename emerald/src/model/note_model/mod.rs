@@ -7,3 +7,4 @@ mod tgt_iter_retriever;
 mod tgt_links_map;
 
 pub use default_note_model::DefaultNoteModel;
+pub use meta_data_map::MetaDataMap;
