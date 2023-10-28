@@ -1,5 +1,6 @@
-use super::{content_loader::ContentLoader, md_content_retriever::MdContentRetriever};
+use super::md_content_retriever::MdContentRetriever;
 use crate::error::Result;
+use crate::resources;
 use crate::types;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
@@ -13,7 +14,7 @@ pub struct MdContentCache {
 impl MdContentCache {
     pub fn new<'a>(
         it_src: impl IntoIterator<Item = &'a types::ResourceId>,
-        content_loader: &'a impl ContentLoader,
+        content_loader: &'a impl resources::ContentLoader,
     ) -> Self {
         let mut res_id_to_content = HashMap::<types::ResourceId, types::Content>::new();
 

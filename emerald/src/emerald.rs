@@ -1,6 +1,7 @@
 use super::adapters;
 use super::error::Result;
 use super::markdown;
+use super::model::content;
 use super::model::file;
 use super::model::link;
 use super::model::note;
@@ -13,7 +14,7 @@ use log::{debug, error, info, trace, warn};
 use std::rc::Rc;
 use std::{path::Path, time::Instant};
 
-type StdProviderFactoryImpl = notes::StdProviderFactory<resources::MdContentCache>;
+type StdProviderFactoryImpl = notes::StdProviderFactory<content::DefaultContentModel>;
 
 #[allow(dead_code)]
 pub struct Emerald {
@@ -71,7 +72,7 @@ impl Emerald {
         debug!("Creation of Resource Id indexes took: {:?}", elapsed);
 
         let start = Instant::now();
-        let md_content_cache = resources::MdContentCache::new(&md_index, &content_loader);
+        let md_content_cache = content::DefaultContentModel::new(&md_index, &content_loader);
         let elapsed = start.elapsed();
         debug!("Creation of ContentFullMdCache took: {:?}", elapsed);
 

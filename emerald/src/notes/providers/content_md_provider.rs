@@ -3,12 +3,13 @@ use std::rc::Rc;
 use super::md_provider::MdProvider;
 use crate::error::EmeraldError::*;
 use crate::error::Result;
+use crate::model::content;
 use crate::model::note;
-use crate::{resources, types};
+use crate::types;
 
 pub struct ContentMdProvider<T>
 where
-    T: resources::MdContentRetriever,
+    T: content::MdContentRetriever,
 {
     content_loader: T,
     meta_data_retriever: Rc<dyn note::MetaDataRetriever>,
@@ -16,7 +17,7 @@ where
 
 impl<I> ContentMdProvider<I>
 where
-    I: resources::MdContentRetriever,
+    I: content::MdContentRetriever,
 {
     pub fn new(content_loader: I, meta_data_retriever: Rc<dyn note::MetaDataRetriever>) -> Self {
         Self {
@@ -27,7 +28,7 @@ where
 }
 impl<I> MdProvider for ContentMdProvider<I>
 where
-    I: resources::MdContentRetriever,
+    I: content::MdContentRetriever,
 {
     fn get_markdown(&self, rid: &types::ResourceId) -> Result<String> {
         let meta_data = self.meta_data_retriever.retrieve(rid);

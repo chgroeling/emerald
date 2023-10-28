@@ -4,12 +4,12 @@ use super::{
     content_md_provider::ContentMdProvider, meta_data_title_provider::MetaDataTitleProvider,
     provider_factory::ProviderFactory,
 };
-use crate::{model::note, resources};
+use crate::{model::content, model::note};
 
 #[derive(Clone)]
 pub struct StdProviderFactory<T>
 where
-    T: resources::MdContentRetriever + Clone,
+    T: content::MdContentRetriever + Clone,
 {
     meta_data_retriever: Rc<dyn note::MetaDataRetriever>,
     content_loader: T,
@@ -17,7 +17,7 @@ where
 
 impl<T> StdProviderFactory<T>
 where
-    T: resources::MdContentRetriever + Clone,
+    T: content::MdContentRetriever + Clone,
 {
     pub fn new(meta_data_retriever: Rc<dyn note::MetaDataRetriever>, content_loader: T) -> Self {
         Self {
@@ -29,7 +29,7 @@ where
 
 impl<T> ProviderFactory for StdProviderFactory<T>
 where
-    T: resources::MdContentRetriever + 'static + Clone,
+    T: content::MdContentRetriever + 'static + Clone,
 {
     fn create_title_provider(&self) -> Box<dyn super::title_provider::TitleProvider> {
         Box::new(MetaDataTitleProvider::new(self.meta_data_retriever.clone()))
