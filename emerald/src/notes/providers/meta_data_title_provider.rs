@@ -2,15 +2,15 @@ use std::rc::Rc;
 
 use super::title_provider::TitleProvider;
 use crate::error::Result;
-use crate::model;
+use crate::model::note_model;
 use crate::types;
 
 pub struct MetaDataTitleProvider {
-    meta_data_retriever: Rc<dyn model::MetaDataRetriever>,
+    meta_data_retriever: Rc<dyn note_model::MetaDataRetriever>,
 }
 
 impl MetaDataTitleProvider {
-    pub fn new(meta_data_retriever: Rc<dyn model::MetaDataRetriever>) -> Self {
+    pub fn new(meta_data_retriever: Rc<dyn note_model::MetaDataRetriever>) -> Self {
         Self {
             meta_data_retriever,
         }
