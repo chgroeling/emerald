@@ -2,5 +2,5 @@ use crate::types;
 
 pub trait NotesIterSrc {
     type Iter: Iterator<Item = types::ResourceId>;
-    fn iter(&self) -> Self::Iter;
+    fn create_iter(&self) -> Self::Iter;
 }

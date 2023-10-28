@@ -13,7 +13,7 @@ pub fn extract_file_stats<'a>(
     md_res_ids: &impl NotesIterSrc,
 ) -> VaultFileStats {
     VaultFileStats {
-        file_count: all_res_ids.iter().count(),
-        md_file_count: md_res_ids.iter().count(),
+        file_count: all_res_ids.create_iter().count(),
+        md_file_count: md_res_ids.create_iter().count(),
     }
 }

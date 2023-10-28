@@ -19,7 +19,7 @@ impl DefaultFileModel {
 impl FilesIterSrc for DefaultFileModel {
     type Iter = std::vec::IntoIter<types::ResourceId>;
 
-    fn iter(&self) -> Self::Iter {
+    fn create_iter(&self) -> Self::Iter {
         self.file_index.clone().into_iter()
     }
 }

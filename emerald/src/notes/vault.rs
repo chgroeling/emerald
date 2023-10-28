@@ -35,7 +35,7 @@ where
         let create_content_p = || self.provider_factory.create_markdown_provider();
         let note_vec: Vec<Note> = self
             .md_rids
-            .iter()
+            .create_iter()
             .map(move |f| Note::new(f.clone(), create_title_p(), create_content_p()))
             .collect();
 

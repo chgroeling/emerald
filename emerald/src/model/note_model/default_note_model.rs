@@ -57,7 +57,7 @@ impl MetaDataRetriever for DefaultNoteModel {
 impl NotesIterSrc for DefaultNoteModel {
     type Iter = std::vec::IntoIter<types::ResourceId>;
 
-    fn iter(&self) -> Self::Iter {
+    fn create_iter(&self) -> Self::Iter {
         self.note_index.clone().into_iter()
     }
 }
