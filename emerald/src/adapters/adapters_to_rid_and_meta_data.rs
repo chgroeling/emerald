@@ -2,13 +2,13 @@ use crate::error::Result;
 use crate::{resources, types};
 
 pub fn adapter_to_rid_and_meta_data<'a>(
-    it_src: impl IntoIterator<Item = &'a types::ResourceId> + 'a,
+    it_src: impl IntoIterator<Item = types::ResourceId> + 'a,
     meta_data_loader: &'a impl resources::MetaDataLoader,
-) -> Result<impl Iterator<Item = (&'a types::ResourceId, types::MetaData)> + 'a> {
+) -> Result<impl Iterator<Item = (types::ResourceId, types::MetaData)> + 'a> {
     let ret: Result<Vec<_>> = it_src
         .into_iter()
-        .map(|f| -> Result<(&types::ResourceId, types::MetaData)> {
-            let res_meta_data = meta_data_loader.load(f)?;
+        .map(|f| -> Result<(types::ResourceId, types::MetaData)> {
+            let res_meta_data = meta_data_loader.load(&f)?;
             Ok((f, res_meta_data))
         })
         .collect();

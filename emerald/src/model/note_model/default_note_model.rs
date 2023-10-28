@@ -19,24 +19,19 @@ pub struct DefaultNoteModel {
 
 impl DefaultNoteModel {
     pub fn new<'a>(
-        it_note_meta_data: impl IntoIterator<Item = (&'a types::ResourceId, &'a types::MetaData)>
-            + Clone,
-        it_links_src_2_tgt: impl IntoIterator<Item = &'a types::LinkSrc2Tgt>,
+        it_note_meta_data: impl IntoIterator<Item = (types::ResourceId, types::MetaData)>,
+        it_links_src_2_tgt: impl IntoIterator<Item = types::LinkSrc2Tgt>,
     ) -> DefaultNoteModel {
-        let link_index: Vec<_> = it_links_src_2_tgt.into_iter().cloned().collect();
+        let link_index: Vec<_> = it_links_src_2_tgt.into_iter().collect();
         let src_links_map = SrcLinksMap::new(link_index.iter());
         let tgt_links_map = TgtLinksMap::new(link_index.iter());
+        let it_note_meta: Vec<_> = it_note_meta_data.into_iter().collect();
         DefaultNoteModel {
-            note_index: it_note_meta_data
-                .clone()
-                .into_iter()
-                .map(|f| f.0)
-                .cloned()
-                .collect(),
+            note_index: it_note_meta.iter().map(|f| f.0.clone()).collect(),
             link_index,
             src_links_map,
             tgt_links_map,
-            meta_data_map: MetaDataMap::new(it_note_meta_data),
+            meta_data_map: MetaDataMap::new(it_note_meta),
         }
     }
 
