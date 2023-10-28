@@ -13,16 +13,10 @@ use log::{debug, error, info, trace, warn};
 use std::rc::Rc;
 use std::{path::Path, time::Instant};
 
-type FileMetaDataLoaderImpl = resources::FileMetaDataLoader<resources::ResourceObjectMap>;
 type StdProviderFactoryImpl = notes::StdProviderFactory<resources::MdContentCache>;
 
 #[allow(dead_code)]
 pub struct Emerald {
-    pub rid_retriever: resources::ResourceIdMap,
-    pub ro_retriever: resources::ResourceObjectMap,
-    pub meta_data_loader: FileMetaDataLoaderImpl,
-    pub md_content_cache: resources::MdContentCache,
-    pub provider_factory: StdProviderFactoryImpl,
     pub vault: notes::Vault<
         StdProviderFactoryImpl,
         <note_model::DefaultNoteModel as note_model::NotesIterSrc>::Iter,
@@ -52,14 +46,14 @@ impl Emerald {
         );
 
         let start = Instant::now();
-        let rid_retriever = resources::ResourceIdMap::new(&ros_and_rids)?;
+        let _rid_retriever = resources::ResourceIdMap::new(&ros_and_rids)?;
         let elapsed = start.elapsed();
-        debug!("Creation of ResourceIdEndPointMap took: {:?}", elapsed);
+        debug!("Creation of ResourceIdMap took: {:?}", elapsed);
 
         let start = Instant::now();
         let ro_retriever = resources::ResourceObjectMap::new(&ros_and_rids)?;
         let elapsed = start.elapsed();
-        debug!("Creation of EndpointResourceIdMap took: {:?}", elapsed);
+        debug!("Creation of ResourceObjectMap took: {:?}", elapsed);
 
         let start = Instant::now();
         let content_loader = resources::FileContentLoader::new(ro_retriever.clone());
@@ -133,15 +127,7 @@ impl Emerald {
             link_stats,
         };
         // -------
-        Ok(Emerald {
-            rid_retriever,
-            ro_retriever,
-            meta_data_loader,
-            md_content_cache,
-            provider_factory,
-            vault,
-            vault_stats,
-        })
+        Ok(Emerald { vault, vault_stats })
     }
 }
 
