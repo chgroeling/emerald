@@ -102,7 +102,7 @@ impl Emerald {
         let elapsed = start.elapsed();
         debug!("Creation of sources to target index took: {:?}", elapsed);
 
-        let dmodel = data_model::DefaultDataModel::new(&md_index, &src_2_tgt_idx);
+        let dmodel = data_model::DefaultDataModel::new(&md_index, &all_index, &src_2_tgt_idx);
 
         let start = Instant::now();
         let provider_factory =
