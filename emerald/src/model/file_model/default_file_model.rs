@@ -1,6 +1,6 @@
 use crate::types;
 
-use super::files_iter_src::FilesIterSrc;
+use super::{files_iter_src::FilesIterSrc, FileCount};
 
 pub struct DefaultFileModel {
     file_index: Vec<types::ResourceId>,
@@ -18,5 +18,11 @@ impl FilesIterSrc for DefaultFileModel {
 
     fn create_iter(&self) -> Self::Iter {
         self.file_index.clone().into_iter()
+    }
+}
+
+impl FileCount for DefaultFileModel {
+    fn count(&self) -> usize {
+        self.file_index.len()
     }
 }

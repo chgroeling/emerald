@@ -6,6 +6,7 @@ use super::meta_data_retriever::MetaDataRetriever;
 use super::notes_iter_src::NotesIterSrc;
 use super::src_links_map::SrcLinksMap;
 use super::tgt_links_map::TgtLinksMap;
+use super::NoteCount;
 
 #[allow(dead_code)]
 pub struct DefaultNoteModel {
@@ -56,6 +57,12 @@ impl NotesIterSrc for DefaultNoteModel {
 
     fn create_iter(&self) -> Self::Iter {
         self.note_index.clone().into_iter()
+    }
+}
+
+impl NoteCount for DefaultNoteModel {
+    fn count(&self) -> usize {
+        self.note_index.len()
     }
 }
 
