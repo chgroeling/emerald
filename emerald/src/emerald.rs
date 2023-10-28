@@ -72,7 +72,7 @@ impl Emerald {
         debug!("Creation of Resource Id indexes took: {:?}", elapsed);
 
         let start = Instant::now();
-        let md_content_idx = content::adapter_to_rid_and_content(&md_index, &content_loader)?;
+        let md_content_idx = resources::adapter_to_rid_and_content(&md_index, &content_loader)?;
         let md_content_cache = content::DefaultContentModel::new(md_content_idx);
         let elapsed = start.elapsed();
         debug!("Creation of ContentFullMdCache took: {:?}", elapsed);

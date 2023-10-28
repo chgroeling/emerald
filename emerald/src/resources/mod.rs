@@ -6,6 +6,7 @@ mod file_content_loader;
 mod file_meta_data_loader;
 mod get_path_list;
 
+mod adapter_to_rid_and_content;
 mod meta_data_loader;
 mod resource_id_map;
 mod resource_id_retriever;
@@ -15,6 +16,7 @@ mod resource_object_retriever;
 mod resource_object_translation;
 
 pub use adapter_to_rid::adapter_ro_to_rid;
+pub use adapter_to_rid_and_content::adapter_to_rid_and_content;
 pub use adapter_to_ro::adapter_from_pathes_to_ro;
 pub use adapter_to_ro_and_rid::adapter_ro_to_ro_and_rid;
 pub use content_loader::ContentLoader;

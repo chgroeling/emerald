@@ -1,6 +1,6 @@
-use crate::{resources, types};
-
-use super::{md_content_map::MdContentMap, MdContentRetriever};
+use super::md_content_map::MdContentMap;
+use super::md_content_retriever::MdContentRetriever;
+use crate::types;
 
 #[derive(Clone)]
 pub struct DefaultContentModel {
