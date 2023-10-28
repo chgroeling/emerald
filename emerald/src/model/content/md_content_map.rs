@@ -2,11 +2,11 @@ use super::md_content_retriever::MdContentRetriever;
 use crate::types;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
-use std::{collections::HashMap, rc::Rc};
+use std::collections::HashMap;
 
 #[derive(Clone)]
 pub struct MdContentMap {
-    res_id_to_content: Rc<HashMap<types::ResourceId, types::Content>>,
+    res_id_to_content: HashMap<types::ResourceId, types::Content>,
 }
 
 impl MdContentMap {
@@ -20,9 +20,7 @@ impl MdContentMap {
             }
         }
 
-        Self {
-            res_id_to_content: Rc::new(res_id_to_content),
-        }
+        Self { res_id_to_content }
     }
 }
 
