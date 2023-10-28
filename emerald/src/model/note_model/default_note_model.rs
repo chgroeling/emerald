@@ -21,9 +21,9 @@ impl DefaultNoteModel {
             + Clone,
         it_links_src_2_tgt: impl IntoIterator<Item = &'a types::LinkSrc2Tgt>,
     ) -> DefaultNoteModel {
-        let all_links: Vec<_> = it_links_src_2_tgt.into_iter().cloned().collect();
-        let src_links_map = SrcLinksMap::new(all_links.iter());
-        let tgt_links_map = TgtLinksMap::new(all_links.iter());
+        let link_index: Vec<_> = it_links_src_2_tgt.into_iter().cloned().collect();
+        let src_links_map = SrcLinksMap::new(link_index.iter());
+        let tgt_links_map = TgtLinksMap::new(link_index.iter());
         DefaultNoteModel {
             note_index: it_note_meta_data
                 .clone()
@@ -31,7 +31,7 @@ impl DefaultNoteModel {
                 .map(|f| f.0)
                 .cloned()
                 .collect(),
-            link_index: all_links,
+            link_index,
             src_links_map,
             tgt_links_map,
             meta_data_map: MetaDataMap::new(it_note_meta_data),
