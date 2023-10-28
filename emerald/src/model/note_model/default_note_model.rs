@@ -13,12 +13,17 @@ pub struct DefaultNoteModel {
 
 impl DefaultNoteModel {
     pub fn new<'a>(
-        it_notes: impl IntoIterator<Item = &'a types::ResourceId>,
-        it_note_meta_data: impl IntoIterator<Item = (&'a types::ResourceId, &'a types::MetaData)>,
+        it_note_meta_data: impl IntoIterator<Item = (&'a types::ResourceId, &'a types::MetaData)>
+            + Clone,
         it_links_src_2_tgt: impl IntoIterator<Item = &'a types::LinkSrc2Tgt> + Clone,
     ) -> DefaultNoteModel {
         DefaultNoteModel {
-            note_index: it_notes.into_iter().cloned().collect(),
+            note_index: it_note_meta_data
+                .clone()
+                .into_iter()
+                .map(|f| f.0)
+                .cloned()
+                .collect(),
             tgt_links_map: TgtLinksMap::new(it_links_src_2_tgt.clone()),
             src_links_map: SrcLinksMap::new(it_links_src_2_tgt),
             meta_data_map: MetaDataMap::new(it_note_meta_data),

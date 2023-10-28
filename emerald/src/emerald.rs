@@ -107,7 +107,7 @@ impl Emerald {
             adapters::adapter_to_rid_and_meta_data(&md_index, &meta_data_loader)?.collect();
         let md_meta_data_ref = md_meta_data.iter().map(|f| (f.0, &f.1));
 
-        let nmod = model::DefaultNoteModel::new(&md_index, md_meta_data_ref, &src_2_tgt_idx);
+        let nmod = model::DefaultNoteModel::new(md_meta_data_ref, &src_2_tgt_idx);
         let fmod = model::DefaultFileModel::new(&all_index);
 
         let start = Instant::now();
