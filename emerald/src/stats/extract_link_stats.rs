@@ -1,10 +1,10 @@
 use super::vault_link_stats::VaultLinkStats;
-use crate::{model::note_model, types};
+use crate::{model::note, types};
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-pub fn extract_link_stats(it_src: &impl note_model::LinksIterSrc) -> VaultLinkStats {
+pub fn extract_link_stats(it_src: &impl note::LinksIterSrc) -> VaultLinkStats {
     let mut valid_backlink_cnt: usize = 0;
     let mut invalid_backlink_cnt: usize = 0;
     let mut note_valid_backlink_cnt: usize = 0;
@@ -62,14 +62,14 @@ pub fn extract_link_stats(it_src: &impl note_model::LinksIterSrc) -> VaultLinkSt
 #[cfg(test)]
 mod link_mapper_tests {
     use super::extract_link_stats;
-    use crate::model::note_model;
+    use crate::model::note;
     use crate::types;
     use types::LinkSrc2Tgt;
 
     #[rustfmt::skip]
-    fn create_test_data() -> note_model::MockLinksIterSrc {
+    fn create_test_data() -> note::MockLinksIterSrc {
 
-        let mut ret = note_model::MockLinksIterSrc::new();
+        let mut ret = note::MockLinksIterSrc::new();
         ret.expect_create_iter().returning(||
             vec![
                 LinkSrc2Tgt::new("resource_id_0".into(), "link_0".into(), None),

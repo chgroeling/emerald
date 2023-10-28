@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use super::note::Note;
 use super::providers::ProviderFactory;
-use crate::model::note_model;
+use crate::model::note;
 use crate::types;
 
 #[derive(Clone)]
@@ -11,7 +11,7 @@ where
     U: ProviderFactory,
     I: Iterator<Item = types::ResourceId>,
 {
-    notes_iter_src: Rc<dyn note_model::NotesIterSrc<Iter = I>>,
+    notes_iter_src: Rc<dyn note::NotesIterSrc<Iter = I>>,
     provider_factory: U,
 }
 
@@ -20,10 +20,7 @@ where
     U: ProviderFactory,
     I: Iterator<Item = types::ResourceId>,
 {
-    pub fn new(
-        notes_iter_src: Rc<dyn note_model::NotesIterSrc<Iter = I>>,
-        provider_factory: U,
-    ) -> Self
+    pub fn new(notes_iter_src: Rc<dyn note::NotesIterSrc<Iter = I>>, provider_factory: U) -> Self
     where
         I: Iterator<Item = types::ResourceId>,
     {

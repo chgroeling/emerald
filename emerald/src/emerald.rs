@@ -1,9 +1,9 @@
 use super::adapters;
 use super::error::Result;
 use super::markdown;
-use super::model::file_model;
-use super::model::link_model;
-use super::model::note_model;
+use super::model::file;
+use super::model::link;
+use super::model::note;
 use super::notes;
 use super::resources;
 use super::stats;
@@ -17,10 +17,8 @@ type StdProviderFactoryImpl = notes::StdProviderFactory<resources::MdContentCach
 
 #[allow(dead_code)]
 pub struct Emerald {
-    pub vault: notes::Vault<
-        StdProviderFactoryImpl,
-        <note_model::DefaultNoteModel as note_model::NotesIterSrc>::Iter,
-    >,
+    pub vault:
+        notes::Vault<StdProviderFactoryImpl, <note::DefaultNoteModel as note::NotesIterSrc>::Iter>,
     pub vault_stats: stats::VaultStats,
 }
 
@@ -79,7 +77,7 @@ impl Emerald {
 
         let start = Instant::now();
         let name_iter = adapters::adapter_from_rid_to_name(&all_index)?;
-        let link_model = Rc::new(link_model::DefaultLinkModel::new(name_iter));
+        let link_model = Rc::new(link::DefaultLinkModel::new(name_iter));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultLinkModel took: {:?}", elapsed);
 
@@ -93,14 +91,14 @@ impl Emerald {
         debug!("Creation of sources to target index took: {:?}", elapsed);
 
         let start = Instant::now();
-        let fmod = Rc::new(file_model::DefaultFileModel::new(all_index));
+        let fmod = Rc::new(file::DefaultFileModel::new(all_index));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultFileModel took: {:?}", elapsed);
 
         let start = Instant::now();
         // load all meta data and ensure that there were no errors
         let md_meta_data = adapters::adapter_to_rid_and_meta_data(md_index, &meta_data_loader)?;
-        let nmod = Rc::new(note_model::DefaultNoteModel::new(md_meta_data, src2tgt_idx));
+        let nmod = Rc::new(note::DefaultNoteModel::new(md_meta_data, src2tgt_idx));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultNoteModel took: {:?}", elapsed);
 
@@ -131,10 +129,8 @@ impl Emerald {
 impl Emerald {
     pub fn get_vault(
         &self,
-    ) -> notes::Vault<
-        StdProviderFactoryImpl,
-        <note_model::DefaultNoteModel as note_model::NotesIterSrc>::Iter,
-    > {
+    ) -> notes::Vault<StdProviderFactoryImpl, <note::DefaultNoteModel as note::NotesIterSrc>::Iter>
+    {
         self.vault.clone()
     }
 
