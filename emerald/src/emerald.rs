@@ -1,8 +1,8 @@
 use super::adapters;
+use super::data_model;
 use super::error::Result;
 use super::maps;
 use super::markdown;
-use super::model;
 use super::notes;
 use super::resources;
 use super::stats;
@@ -102,7 +102,7 @@ impl Emerald {
         let elapsed = start.elapsed();
         debug!("Creation of sources to target index took: {:?}", elapsed);
 
-        let dmodel = model::LinksAndBacklinks::new(&md_index, &src_2_tgt_idx);
+        let dmodel = data_model::DefaultDataModel::new(&md_index, &src_2_tgt_idx);
 
         let start = Instant::now();
         let provider_factory =
