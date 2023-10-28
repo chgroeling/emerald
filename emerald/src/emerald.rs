@@ -75,6 +75,7 @@ impl Emerald {
         // Filter markdown files
         let md_rids_iter = adapters::adapter_rid_and_file_type_to_rid(ft_and_rid_iter);
         let md_index: Vec<_> = md_rids_iter.cloned().collect();
+
         let elapsed = start.elapsed();
         debug!("Creation of Resource Id indexes took: {:?}", elapsed);
 
@@ -102,7 +103,11 @@ impl Emerald {
         let elapsed = start.elapsed();
         debug!("Creation of sources to target index took: {:?}", elapsed);
 
-        let dmodel = data_model::DefaultDataModel::new(&md_index, &all_index, &src_2_tgt_idx);
+        let rid_and_meta_data: Vec<_> =
+            adapters::adapter_to_rid_and_meta_data(&md_index, &meta_data_loader)?.collect();
+
+        let dmodel =
+            data_model::DefaultDataModel::new(&md_index, &rid_and_meta_data, &src_2_tgt_idx);
 
         let start = Instant::now();
         let provider_factory =
