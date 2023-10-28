@@ -102,7 +102,7 @@ impl Emerald {
         let src_2_tgt_idx: Vec<_> =
             adapters::adapter_from_rid_and_content_to_link_src_2_tgt(ct_it, &rid_resolver)
                 .collect();
-        let link_stats = stats::extract_link_stats(&src_2_tgt_idx);
+
         let elapsed = start.elapsed();
         debug!("Creation of sources to target index took: {:?}", elapsed);
 
@@ -127,7 +127,15 @@ impl Emerald {
         let elapsed = start.elapsed();
         debug!("Creation of Vault took: {:?}", elapsed);
 
-        let vault_stats = stats::VaultStats { link_stats };
+        // -----
+        // Aquire stats
+        let link_stats = stats::extract_link_stats(&src_2_tgt_idx);
+        let file_stats = stats::extract_file_stats(&all_index, &md_index);
+        let vault_stats = stats::VaultStats {
+            file_stats,
+            link_stats,
+        };
+        // -------
         Ok(Emerald {
             rid_retriever,
             ro_retriever,
@@ -151,11 +159,11 @@ impl Emerald {
     }
 
     pub fn file_count(&self) -> usize {
-        self.all_index.len()
+        self.vault_stats.file_stats.file_count
     }
 
     pub fn md_file_count(&self) -> usize {
-        self.md_index.len()
+        self.vault_stats.file_stats.md_file_count
     }
 
     pub fn valid_backlink_count(&self) -> usize {

@@ -6,7 +6,7 @@ pub fn adapter_from_rid_and_content_to_link_src_2_tgt<'a>(
     it_src: impl IntoIterator<Item = (&'a types::ResourceId, types::ContentType<'a>)> + 'a,
     rid_resolver: &'a impl maps::ResourceIdResolver,
 ) -> impl Iterator<Item = types::LinkSrc2Tgt> + 'a {
-    let it1 = adapter_from_content_type_to_links(it_src.into_iter());
+    let it1 = adapter_from_content_type_to_links(it_src);
     let it2 = adapter_from_link_to_link_2_tgt(it1, rid_resolver);
 
     it2.into_iter()
