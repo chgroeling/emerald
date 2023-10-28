@@ -116,14 +116,14 @@ impl Emerald {
         debug!("Creation of StdProviderFactory took: {:?}", elapsed);
 
         let start = Instant::now();
-        let vault = notes::Vault::new(&md_index, provider_factory.clone());
+        let vault = notes::Vault::new(&nmod, provider_factory.clone());
         let elapsed = start.elapsed();
         debug!("Creation of Vault took: {:?}", elapsed);
 
         // -----
         // Aquire stats
         let link_stats = stats::extract_link_stats(&src_2_tgt_idx);
-        let file_stats = stats::extract_file_stats(&all_index, &md_index);
+        let file_stats = stats::extract_file_stats(&fmod, &nmod);
         let vault_stats = stats::VaultStats {
             file_stats,
             link_stats,

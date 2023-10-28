@@ -11,3 +11,14 @@ impl DefaultFileModel {
         }
     }
 }
+
+impl<'a> IntoIterator for &'a DefaultFileModel {
+    type Item = &'a types::ResourceId;
+
+    type IntoIter = std::slice::Iter<'a, types::ResourceId>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        let file_idx = &self.file_index;
+        file_idx.into_iter()
+    }
+}

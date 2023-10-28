@@ -22,3 +22,14 @@ impl DefaultNoteModel {
         }
     }
 }
+
+impl<'a> IntoIterator for &'a DefaultNoteModel {
+    type Item = &'a types::ResourceId;
+
+    type IntoIter = std::slice::Iter<'a, types::ResourceId>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        let note_idx = &self.note_index;
+        note_idx.into_iter()
+    }
+}
