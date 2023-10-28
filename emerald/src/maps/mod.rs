@@ -1,9 +1,5 @@
 mod resource_id_link_map;
 mod resource_id_resolver;
-mod src_iter_retriever;
-mod src_links_map;
-mod tgt_iter_retriever;
-mod tgt_links_map;
 
 pub use resource_id_link_map::ResourceIdLinkMap;
 pub use resource_id_resolver::ResourceIdResolver;

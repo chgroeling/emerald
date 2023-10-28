@@ -1,13 +1,13 @@
-use crate::{
-    maps,
-    types::{self, Link},
-};
+use crate::types;
+
+use super::src_links_map::SrcLinksMap;
+use super::tgt_links_map::TgtLinksMap;
 
 pub struct DefaultDataModel {
     note_index: Vec<types::ResourceId>,
     file_index: Vec<types::ResourceId>,
-    tgt_links_map: maps::TgtLinksMap,
-    src_links_map: maps::SrcLinksMap,
+    tgt_links_map: TgtLinksMap,
+    src_links_map: SrcLinksMap,
 }
 
 impl DefaultDataModel {
@@ -19,8 +19,8 @@ impl DefaultDataModel {
         DefaultDataModel {
             note_index: it_notes.into_iter().cloned().collect(),
             file_index: it_files.into_iter().cloned().collect(),
-            tgt_links_map: maps::TgtLinksMap::new(it_links_src_2_tgt.clone()),
-            src_links_map: maps::SrcLinksMap::new(it_links_src_2_tgt),
+            tgt_links_map: TgtLinksMap::new(it_links_src_2_tgt.clone()),
+            src_links_map: SrcLinksMap::new(it_links_src_2_tgt),
         }
     }
 }
