@@ -1,5 +1,6 @@
 mod default_note_model;
 mod meta_data_map;
+mod meta_data_retriever;
 mod src_iter_retriever;
 mod src_links_map;
 mod tgt_iter_retriever;

@@ -4,6 +4,8 @@ use std::{
     rc::Rc,
 };
 
+use super::meta_data_retriever::MetaDataRetriever;
+
 #[derive(Clone)]
 pub struct MetaDataMap {
     meta_data_map: Rc<HashMap<types::ResourceId, types::MetaData>>,
@@ -27,5 +29,11 @@ impl MetaDataMap {
         Self {
             meta_data_map: Rc::new(meta_data_map),
         }
+    }
+}
+
+impl MetaDataRetriever for MetaDataMap {
+    fn retrieve(&self, md: types::ResourceId) -> Option<&types::MetaData> {
+        self.meta_data_map.get(&md)
     }
 }
