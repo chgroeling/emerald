@@ -106,7 +106,7 @@ impl Emerald {
         let md_meta_data: Vec<_> =
             adapters::adapter_to_rid_and_meta_data(&md_index, &meta_data_loader)?.collect();
 
-        let dmodel = model::NoteModel::new(&md_index, &md_meta_data, &src_2_tgt_idx);
+        let dmodel = model::DefaultNoteModel::new(&md_index, &md_meta_data, &src_2_tgt_idx);
 
         let start = Instant::now();
         let provider_factory =
