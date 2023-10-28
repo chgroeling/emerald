@@ -7,8 +7,9 @@ use super::tgt_links_map::TgtLinksMap;
 
 pub struct DefaultNoteModel {
     note_index: Vec<types::ResourceId>,
-    tgt_links_map: TgtLinksMap,
+    all_links: Vec<types::LinkSrc2Tgt>,
     src_links_map: SrcLinksMap,
+    tgt_links_map: TgtLinksMap,
     meta_data_map: MetaDataMap,
 }
 
@@ -16,8 +17,11 @@ impl DefaultNoteModel {
     pub fn new<'a>(
         it_note_meta_data: impl IntoIterator<Item = (&'a types::ResourceId, &'a types::MetaData)>
             + Clone,
-        it_links_src_2_tgt: impl IntoIterator<Item = &'a types::LinkSrc2Tgt> + Clone,
+        it_links_src_2_tgt: impl IntoIterator<Item = &'a types::LinkSrc2Tgt>,
     ) -> DefaultNoteModel {
+        let all_links: Vec<_> = it_links_src_2_tgt.into_iter().cloned().collect();
+        let src_links_map = SrcLinksMap::new(all_links.iter());
+        let tgt_links_map = TgtLinksMap::new(all_links.iter());
         DefaultNoteModel {
             note_index: it_note_meta_data
                 .clone()
@@ -25,8 +29,9 @@ impl DefaultNoteModel {
                 .map(|f| f.0)
                 .cloned()
                 .collect(),
-            tgt_links_map: TgtLinksMap::new(it_links_src_2_tgt.clone()),
-            src_links_map: SrcLinksMap::new(it_links_src_2_tgt),
+            all_links: all_links,
+            src_links_map: src_links_map,
+            tgt_links_map: tgt_links_map,
             meta_data_map: MetaDataMap::new(it_note_meta_data),
         }
     }

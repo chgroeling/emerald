@@ -102,7 +102,9 @@ impl Emerald {
 
         let elapsed = start.elapsed();
         debug!("Creation of sources to target index took: {:?}", elapsed);
+        let start = Instant::now();
 
+        // load meta data and ensure the loading was complete
         let md_meta_data: Vec<_> =
             adapters::adapter_to_rid_and_meta_data(&md_index, &meta_data_loader)?.collect();
         let md_meta_data_ref = md_meta_data.iter().map(|f| (f.0, &f.1));
@@ -113,6 +115,9 @@ impl Emerald {
         ));
 
         let fmod = Rc::new(model::DefaultFileModel::new(&all_index));
+
+        let elapsed = start.elapsed();
+        debug!("Creation of Models took: {:?}", elapsed);
 
         let start = Instant::now();
         let provider_factory =
