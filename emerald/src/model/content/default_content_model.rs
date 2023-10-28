@@ -1,19 +1,16 @@
 use crate::{resources, types};
 
-use super::{md_content_cache::MdContentCache, MdContentRetriever};
+use super::{md_content_map::MdContentMap, MdContentRetriever};
 
 #[derive(Clone)]
 pub struct DefaultContentModel {
-    content_map: MdContentCache,
+    content_map: MdContentMap,
 }
 
 impl DefaultContentModel {
-    pub fn new<'a>(
-        it_src: impl IntoIterator<Item = &'a types::ResourceId>,
-        content_loader: &'a impl resources::ContentLoader,
-    ) -> Self {
+    pub fn new<'a>(it_src: impl IntoIterator<Item = (types::ResourceId, types::Content)>) -> Self {
         Self {
-            content_map: MdContentCache::new(it_src, content_loader),
+            content_map: MdContentMap::new(it_src),
         }
     }
 }
