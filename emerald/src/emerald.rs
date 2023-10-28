@@ -28,24 +28,24 @@ impl Emerald {
         // Build dependency root
         let start = Instant::now();
         let path_list = resources::get_path_list(vault_path)?;
-        let all_ros: Vec<_> = resources::adapter_from_pathes_to_ro(path_list).collect();
+        let all_ros_vec: Vec<_> = resources::adapter_from_pathes_to_ro(path_list).collect();
         debug!("Creation of ResourceObject vec took: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let ros_and_rids: Vec<_> =
-            resources::adapter_ro_to_ro_and_rid(all_ros, vault_path)?.collect();
+        let ros_rids: Vec<_> =
+            resources::adapter_ro_to_ro_and_rid(all_ros_vec, vault_path)?.collect();
 
-        let all_index: Vec<_> = resources::adapter_ro_to_rid(&ros_and_rids).collect();
+        let all_vec: Vec<_> = resources::adapter_ro_to_rid(&ros_rids).collect();
         let elapsed = start.elapsed();
         debug!("Creation of ResourceId vec took: {:?}", elapsed);
 
         let start = Instant::now();
-        let _rid_retriever = resources::ResourceIdMap::new(&ros_and_rids);
+        let _rid_retriever = resources::ResourceIdMap::new(&ros_rids);
         let elapsed = start.elapsed();
         debug!("Creation of ResourceIdMap took: {:?}", elapsed);
 
         let start = Instant::now();
-        let ro_retriever = resources::ResourceObjectMap::new(&ros_and_rids);
+        let ro_retriever = resources::ResourceObjectMap::new(&ros_rids);
         let elapsed = start.elapsed();
         debug!("Creation of ResourceObjectMap took: {:?}", elapsed);
 
@@ -61,37 +61,37 @@ impl Emerald {
 
         let start = Instant::now();
         // Transform iter: from (ResourceId) to (FileType, ResourceId)
-        let ft_and_rid_iter = adapters::adapter_to_rid_and_filetype(&all_index, &meta_data_loader);
-        let md_index: Vec<_> = adapters::adapter_to_rid(ft_and_rid_iter).collect();
+        let ft_and_rid_iter = adapters::adapter_to_rid_and_filetype(&all_vec, &meta_data_loader);
+        let md_vec: Vec<_> = adapters::adapter_to_rid(ft_and_rid_iter).collect();
         let elapsed = start.elapsed();
-        debug!("Creation of Resource Id md vec took: {:?}", elapsed);
+        debug!("Creation of ResourceId md vec took: {:?}", elapsed);
 
         let start = Instant::now();
-        let md_content_idx = resources::adapter_to_rid_and_content(&md_index, &content_loader)?;
-        let content_model = Rc::new(content::DefaultContentModel::new(md_content_idx));
+        let md_content_vec = resources::adapter_to_rid_and_content(&md_vec, &content_loader)?;
+        let content_model = Rc::new(content::DefaultContentModel::new(md_content_vec));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultContentModel took: {:?}", elapsed);
 
         let start = Instant::now();
-        let name_iter = adapters::adapter_from_rid_to_name(&all_index)?;
+        let name_iter = adapters::adapter_from_rid_to_name(&all_vec)?;
         let link_model = Rc::new(link::DefaultLinkModel::new(name_iter));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultLinkModel took: {:?}", elapsed);
 
         let start = Instant::now();
-        let fmod = Rc::new(file::DefaultFileModel::new(all_index));
+        let fmod = Rc::new(file::DefaultFileModel::new(all_vec));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultFileModel took: {:?}", elapsed);
 
         let start = Instant::now();
-        let c_it = adapters::adapter_to_rids_and_content(&md_index, content_model.as_ref());
+        let c_it = adapters::adapter_to_rids_and_content(&md_vec, content_model.as_ref());
         let md_analyzer = markdown::MarkdownAnalyzerImpl::new();
         let ct_it = adapters::adapter_to_rid_and_content_type(c_it, md_analyzer);
         let s2t_idx: Vec<_> =
             adapters::adapter_to_link_src_2_tgt(ct_it, link_model.as_ref()).collect();
 
         // load all meta data and ensure that there were no errors
-        let md_meta_data = adapters::adapter_to_rid_and_meta_data(md_index, &meta_data_loader)?;
+        let md_meta_data = adapters::adapter_to_rid_and_meta_data(md_vec, &meta_data_loader)?;
         let nmod = Rc::new(note::DefaultNoteModel::new(md_meta_data, s2t_idx));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultNoteModel took: {:?}", elapsed);
