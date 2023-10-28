@@ -22,8 +22,6 @@ pub struct Emerald {
     pub meta_data_loader: FileMetaDataLoaderImpl,
     pub rid_resolver: maps::ResourceIdLinkMap,
     pub md_content_cache: resources::MdContentCache,
-    pub tgt_iter_retriever: maps::TgtLinksMap,
-    pub src_iter_retriever: maps::SrcLinksMap,
     pub provider_factory: StdProviderFactoryImpl,
     pub vault: notes::Vault<StdProviderFactoryImpl>,
     pub vault_stats: stats::VaultStats,
@@ -107,16 +105,6 @@ impl Emerald {
         let dmodel = model::LinksAndBacklinks::new(&md_index, &src_2_tgt_idx);
 
         let start = Instant::now();
-        let tgt_iter_retriever = maps::TgtLinksMap::new(&src_2_tgt_idx);
-        let elapsed = start.elapsed();
-        debug!("Creation of TgtLinksMap took: {:?}", elapsed);
-
-        let start = Instant::now();
-        let src_iter_retriever = maps::SrcLinksMap::new(&src_2_tgt_idx);
-        let elapsed = start.elapsed();
-        debug!("Creation of SrcLinksMap took: {:?}", elapsed);
-
-        let start = Instant::now();
         let provider_factory =
             notes::StdProviderFactory::new(meta_data_loader.clone(), md_content_cache.clone());
         let elapsed = start.elapsed();
@@ -142,8 +130,6 @@ impl Emerald {
             meta_data_loader,
             rid_resolver,
             md_content_cache,
-            tgt_iter_retriever,
-            src_iter_retriever,
             provider_factory,
             vault,
             vault_stats,
