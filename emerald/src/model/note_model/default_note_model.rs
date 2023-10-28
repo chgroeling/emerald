@@ -39,6 +39,11 @@ impl DefaultNoteModel {
     pub fn get_note_iterator<'a>(&'a self) -> impl Iterator<Item = &'a types::ResourceId> {
         self.note_index.iter()
     }
+    pub fn get_links_src_2_tgt_iterator<'a>(
+        &'a self,
+    ) -> impl Iterator<Item = &'a types::LinkSrc2Tgt> {
+        self.all_links.iter()
+    }
 }
 
 impl MetaDataRetriever for DefaultNoteModel {
