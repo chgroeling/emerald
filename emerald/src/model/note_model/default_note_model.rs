@@ -1,5 +1,6 @@
 use crate::types;
 
+use super::links_iter_src::LinksIterSrc;
 use super::meta_data_map::MetaDataMap;
 use super::meta_data_retriever::MetaDataRetriever;
 use super::notes_iter_src::NotesIterSrc;
@@ -55,5 +56,13 @@ impl NotesIterSrc for DefaultNoteModel {
 
     fn create_iter(&self) -> Self::Iter {
         self.note_index.clone().into_iter()
+    }
+}
+
+impl LinksIterSrc for DefaultNoteModel {
+    type Iter = std::vec::IntoIter<types::LinkSrc2Tgt>;
+
+    fn create_iter(&self) -> Self::Iter {
+        self.link_index.clone().into_iter()
     }
 }
