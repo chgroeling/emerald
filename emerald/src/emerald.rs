@@ -2,6 +2,7 @@ use super::adapters;
 use super::error::Result;
 use super::maps;
 use super::markdown;
+use super::model;
 use super::notes;
 use super::resources;
 use super::stats;
@@ -102,6 +103,8 @@ impl Emerald {
 
         let elapsed = start.elapsed();
         debug!("Creation of sources to target index took: {:?}", elapsed);
+
+        let dmodel = model::LinksAndBacklinks::new(&md_index, &src_2_tgt_idx);
 
         let start = Instant::now();
         let tgt_iter_retriever = maps::TgtLinksMap::new(&src_2_tgt_idx);
