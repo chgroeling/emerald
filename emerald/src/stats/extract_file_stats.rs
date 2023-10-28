@@ -5,7 +5,7 @@ use log::{debug, error, info, trace, warn};
 
 use super::vault_file_stats::VaultFileStats;
 
-pub fn extract_file_stats<'a>(
+pub fn extract_file_stats(
     all_res_ids: &impl model::FilesIterSrc,
     md_res_ids: &impl model::NotesIterSrc,
 ) -> VaultFileStats {

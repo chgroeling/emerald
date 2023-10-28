@@ -11,7 +11,7 @@ where
     U: ProviderFactory,
     I: Iterator<Item = types::ResourceId>,
 {
-    md_rids: Rc<dyn model::NotesIterSrc<Iter = I>>,
+    notes_iter_src: Rc<dyn model::NotesIterSrc<Iter = I>>,
     provider_factory: U,
 }
 
@@ -20,12 +20,12 @@ where
     U: ProviderFactory,
     I: Iterator<Item = types::ResourceId>,
 {
-    pub fn new<'a>(md_rids: Rc<dyn model::NotesIterSrc<Iter = I>>, provider_factory: U) -> Self
+    pub fn new(notes_iter_src: Rc<dyn model::NotesIterSrc<Iter = I>>, provider_factory: U) -> Self
     where
         I: Iterator<Item = types::ResourceId>,
     {
         Self {
-            md_rids,
+            notes_iter_src,
             provider_factory,
         }
     }
@@ -34,7 +34,7 @@ where
         let create_title_p = || self.provider_factory.create_title_provider();
         let create_content_p = || self.provider_factory.create_markdown_provider();
         let note_vec: Vec<Note> = self
-            .md_rids
+            .notes_iter_src
             .create_iter()
             .map(move |f| Note::new(f.clone(), create_title_p(), create_content_p()))
             .collect();
