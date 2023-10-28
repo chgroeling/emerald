@@ -40,12 +40,12 @@ impl Emerald {
         debug!("Creation of ResourceId vec took: {:?}", elapsed);
 
         let start = Instant::now();
-        let _rid_retriever = resources::ResourceIdMap::new(&ros_and_rids)?;
+        let _rid_retriever = resources::ResourceIdMap::new(&ros_and_rids);
         let elapsed = start.elapsed();
         debug!("Creation of ResourceIdMap took: {:?}", elapsed);
 
         let start = Instant::now();
-        let ro_retriever = resources::ResourceObjectMap::new(&ros_and_rids)?;
+        let ro_retriever = resources::ResourceObjectMap::new(&ros_and_rids);
         let elapsed = start.elapsed();
         debug!("Creation of ResourceObjectMap took: {:?}", elapsed);
 
