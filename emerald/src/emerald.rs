@@ -1,6 +1,5 @@
 use super::adapters;
 use super::error::Result;
-use super::maps;
 use super::markdown;
 use super::model;
 use super::notes;
@@ -20,7 +19,6 @@ pub struct Emerald {
     pub rid_retriever: resources::ResourceIdMap,
     pub ro_retriever: resources::ResourceObjectMap,
     pub meta_data_loader: FileMetaDataLoaderImpl,
-    pub rid_resolver: maps::ResourceIdLinkMap,
     pub md_content_cache: resources::MdContentCache,
     pub provider_factory: StdProviderFactoryImpl,
     pub vault: notes::Vault<
@@ -78,15 +76,8 @@ impl Emerald {
         // Filter markdown files
         let md_rids_iter = adapters::adapter_rid_and_file_type_to_rid(ft_and_rid_iter);
         let md_index: Vec<_> = md_rids_iter.cloned().collect();
-
         let elapsed = start.elapsed();
         debug!("Creation of Resource Id indexes took: {:?}", elapsed);
-
-        let start = Instant::now();
-        let name_iter = adapters::adapter_from_rid_to_name(&all_index)?;
-        let rid_resolver = maps::ResourceIdLinkMap::new(name_iter);
-        let elapsed = start.elapsed();
-        debug!("Creation of ResourceIdLinkMap took: {:?}", elapsed);
 
         let start = Instant::now();
         let md_content_cache = resources::MdContentCache::new(&md_index, &content_loader);
@@ -94,26 +85,30 @@ impl Emerald {
         debug!("Creation of ContentFullMdCache took: {:?}", elapsed);
 
         let start = Instant::now();
+        let name_iter = adapters::adapter_from_rid_to_name(&all_index)?;
+        let link_model = model::DefaultLinkModel::new(name_iter);
+        let elapsed = start.elapsed();
+        debug!("Creation of DefaultLinkModel took: {:?}", elapsed);
+
+        let start = Instant::now();
         let c_it = adapters::adapter_from_rids_to_rids_and_content(&md_index, &md_content_cache)?;
         let md_analyzer = markdown::MarkdownAnalyzerImpl::new();
-        let ct_it =
-            adapters::adapter_from_rid_and_content_to_rid_and_content_type(c_it, md_analyzer);
-
-        let src_2_tgt_idx: Vec<_> =
-            adapters::adapter_from_rid_and_content_to_link_src_2_tgt(ct_it, &rid_resolver)
-                .collect();
-
+        let ct_it = adapters::adapter_to_rid_and_content_type(c_it, md_analyzer);
+        let src2tgt_idx: Vec<_> = adapters::adapter_to_link_src_2_tgt(ct_it, &link_model).collect();
         let elapsed = start.elapsed();
         debug!("Creation of sources to target index took: {:?}", elapsed);
+
         let start = Instant::now();
-
-        // load meta data and ensure the loading was complete
-        let md_meta_data = adapters::adapter_to_rid_and_meta_data(md_index, &meta_data_loader)?;
-        let nmod = Rc::new(model::DefaultNoteModel::new(md_meta_data, src_2_tgt_idx));
         let fmod = Rc::new(model::DefaultFileModel::new(all_index));
-
         let elapsed = start.elapsed();
-        debug!("Creation of Models took: {:?}", elapsed);
+        debug!("Creation of DefaultFileModel took: {:?}", elapsed);
+
+        let start = Instant::now();
+        // load all meta data and ensure that there were no errors
+        let md_meta_data = adapters::adapter_to_rid_and_meta_data(md_index, &meta_data_loader)?;
+        let nmod = Rc::new(model::DefaultNoteModel::new(md_meta_data, src2tgt_idx));
+        let elapsed = start.elapsed();
+        debug!("Creation of DefaultNoteModel took: {:?}", elapsed);
 
         let start = Instant::now();
         let provider_factory =
@@ -139,7 +134,6 @@ impl Emerald {
             rid_retriever,
             ro_retriever,
             meta_data_loader,
-            rid_resolver,
             md_content_cache,
             provider_factory,
             vault,

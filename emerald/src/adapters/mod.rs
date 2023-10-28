@@ -8,10 +8,10 @@ mod adapters_to_rid_and_content_type;
 mod adapters_to_rid_and_filetype;
 mod adapters_to_rid_and_meta_data;
 
-pub use adapters_to_link_src_2_tgt::adapter_from_rid_and_content_to_link_src_2_tgt;
+pub use adapters_to_link_src_2_tgt::adapter_to_link_src_2_tgt;
 pub use adapters_to_name::adapter_from_rid_to_name;
 pub use adapters_to_rid::adapter_rid_and_file_type_to_rid;
 pub use adapters_to_rid_and_content::adapter_from_rids_to_rids_and_content;
-pub use adapters_to_rid_and_content_type::adapter_from_rid_and_content_to_rid_and_content_type;
+pub use adapters_to_rid_and_content_type::adapter_to_rid_and_content_type;
 pub use adapters_to_rid_and_filetype::adapter_to_rid_and_filetype;
 pub use adapters_to_rid_and_meta_data::adapter_to_rid_and_meta_data;
