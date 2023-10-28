@@ -33,7 +33,10 @@ impl MetaDataMap {
 }
 
 impl MetaDataRetriever for MetaDataMap {
-    fn retrieve(&self, md: types::ResourceId) -> Option<&types::MetaData> {
-        self.meta_data_map.get(&md)
+    fn retrieve(&self, md: types::ResourceId) -> &types::MetaData {
+        // Option is not returned because meta data should be consistent at this point
+        self.meta_data_map
+            .get(&md)
+            .expect("Meta data was not stored. This should not happen")
     }
 }
