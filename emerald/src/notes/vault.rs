@@ -1,5 +1,6 @@
 use super::note::Note;
 use super::providers::ProviderFactory;
+use crate::model;
 use crate::types;
 
 #[derive(Clone)]
@@ -15,11 +16,8 @@ impl<U> Vault<U>
 where
     U: ProviderFactory,
 {
-    pub fn new<'a>(
-        it_src: impl IntoIterator<Item = &'a types::ResourceId>,
-        provider_factory: U,
-    ) -> Self {
-        let md_rids = it_src.into_iter().cloned().collect();
+    pub fn new<'a>(it_src: &'a impl model::NotesIterSrc, provider_factory: U) -> Self {
+        let md_rids = it_src.iter().collect();
         Self {
             md_rids,
             provider_factory,

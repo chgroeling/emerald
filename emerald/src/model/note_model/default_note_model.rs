@@ -54,10 +54,10 @@ impl MetaDataRetriever for DefaultNoteModel {
     }
 }
 
-impl<'a> NotesIterSrc<'a> for DefaultNoteModel {
-    type Iter = std::slice::Iter<'a, types::ResourceId>;
+impl NotesIterSrc for DefaultNoteModel {
+    type Iter = std::vec::IntoIter<types::ResourceId>;
 
-    fn iter(&'a self) -> Self::Iter {
-        self.note_index.iter()
+    fn iter(&self) -> Self::Iter {
+        self.note_index.clone().into_iter()
     }
 }

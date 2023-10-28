@@ -9,3 +9,4 @@ mod tgt_links_map;
 
 pub use default_note_model::DefaultNoteModel;
 pub use meta_data_retriever::MetaDataRetriever;
+pub use notes_iter_src::NotesIterSrc;
