@@ -5,7 +5,6 @@ use super::markdown;
 use super::notes;
 use super::resources;
 use super::stats;
-use super::types;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
@@ -17,8 +16,6 @@ type StdProviderFactoryImpl =
 
 #[allow(dead_code)]
 pub struct Emerald {
-    pub all_index: Vec<types::ResourceId>,
-    pub md_index: Vec<types::ResourceId>,
     pub rid_retriever: resources::ResourceIdMap,
     pub ro_retriever: resources::ResourceObjectMap,
     pub meta_data_loader: FileMetaDataLoaderImpl,
@@ -141,8 +138,6 @@ impl Emerald {
             ro_retriever,
             meta_data_loader,
             rid_resolver,
-            md_index,
-            all_index,
             md_content_cache,
             tgt_iter_retriever,
             src_iter_retriever,
