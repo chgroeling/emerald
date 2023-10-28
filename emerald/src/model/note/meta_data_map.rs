@@ -1,6 +1,6 @@
 use super::meta_data_retriever::MetaDataRetriever;
 use crate::types;
-use std::collections::{hash_map::Entry, HashMap};
+use std::collections::HashMap;
 
 #[derive(Clone)]
 pub struct MetaDataMap {
@@ -11,13 +11,8 @@ impl MetaDataMap {
     pub fn new(it_src: impl IntoIterator<Item = (types::ResourceId, types::MetaData)>) -> Self {
         let mut meta_data_map = HashMap::<types::ResourceId, types::MetaData>::new();
         for (rid, meta_data) in it_src.into_iter() {
-            match meta_data_map.entry(rid.clone()) {
-                Entry::Occupied(mut _e) => {
-                    panic!("This should not happen. No duplicate entries allowed")
-                }
-                Entry::Vacant(e) => {
-                    e.insert(meta_data.clone());
-                }
+            if meta_data_map.insert(rid, meta_data).is_some() {
+                panic!("This should not happen. No duplicate entries allowed")
             }
         }
         Self { meta_data_map }

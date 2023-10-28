@@ -33,7 +33,7 @@ impl Emerald {
 
         let start = Instant::now();
         let ros_and_rids: Vec<_> =
-            resources::adapter_ro_to_ro_and_rid(&all_ros, vault_path)?.collect();
+            resources::adapter_ro_to_ro_and_rid(all_ros, vault_path)?.collect();
 
         let res_id_iter = resources::adapter_ro_to_rid(&ros_and_rids);
         let all_index: Vec<_> = res_id_iter.collect();
