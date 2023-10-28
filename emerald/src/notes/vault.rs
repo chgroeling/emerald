@@ -1,23 +1,29 @@
+use std::rc::Rc;
+
 use super::note::Note;
 use super::providers::ProviderFactory;
 use crate::model;
 use crate::types;
 
 #[derive(Clone)]
-pub struct Vault<U>
+pub struct Vault<U, I>
 where
     U: ProviderFactory,
+    I: Iterator<Item = types::ResourceId>,
 {
-    md_rids: Vec<types::ResourceId>,
+    md_rids: Rc<dyn model::NotesIterSrc<Iter = I>>,
     provider_factory: U,
 }
 
-impl<U> Vault<U>
+impl<U, I> Vault<U, I>
 where
     U: ProviderFactory,
+    I: Iterator<Item = types::ResourceId>,
 {
-    pub fn new<'a>(it_src: &'a impl model::NotesIterSrc, provider_factory: U) -> Self {
-        let md_rids = it_src.iter().collect();
+    pub fn new<'a>(md_rids: Rc<dyn model::NotesIterSrc<Iter = I>>, provider_factory: U) -> Self
+    where
+        I: Iterator<Item = types::ResourceId>,
+    {
         Self {
             md_rids,
             provider_factory,

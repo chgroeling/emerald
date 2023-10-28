@@ -1,3 +1,7 @@
+use crate::model::DefaultNoteModel;
+use crate::model::NotesIterSrc;
+use crate::types;
+
 use super::adapters;
 use super::error::Result;
 use super::maps;
@@ -23,7 +27,7 @@ pub struct Emerald {
     pub rid_resolver: maps::ResourceIdLinkMap,
     pub md_content_cache: resources::MdContentCache,
     pub provider_factory: StdProviderFactoryImpl,
-    pub vault: notes::Vault<StdProviderFactoryImpl>,
+    pub vault: notes::Vault<StdProviderFactoryImpl, <DefaultNoteModel as NotesIterSrc>::Iter>,
     pub vault_stats: stats::VaultStats,
 }
 
@@ -126,7 +130,7 @@ impl Emerald {
         debug!("Creation of StdProviderFactory took: {:?}", elapsed);
 
         let start = Instant::now();
-        let vault = notes::Vault::new(nmod.as_ref(), provider_factory.clone());
+        let vault = notes::Vault::new(nmod.clone(), provider_factory.clone());
         let elapsed = start.elapsed();
         debug!("Creation of Vault took: {:?}", elapsed);
 
@@ -154,7 +158,9 @@ impl Emerald {
 }
 
 impl Emerald {
-    pub fn get_vault(&self) -> notes::Vault<StdProviderFactoryImpl> {
+    pub fn get_vault(
+        &self,
+    ) -> notes::Vault<StdProviderFactoryImpl, <DefaultNoteModel as NotesIterSrc>::Iter> {
         self.vault.clone()
     }
 
