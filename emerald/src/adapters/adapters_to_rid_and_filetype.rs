@@ -3,13 +3,13 @@ use crate::{resources, types};
 pub fn adapter_to_rid_and_filetype<'a>(
     it_src: impl IntoIterator<Item = &'a types::ResourceId> + 'a,
     meta_data_loader: &'a impl resources::MetaDataLoader,
-) -> impl Iterator<Item = (&'a types::ResourceId, types::FileType)> + 'a {
+) -> impl Iterator<Item = (types::ResourceId, types::FileType)> + 'a {
     it_src.into_iter().map(|f| {
         let res_meta_data = meta_data_loader.load(f);
         if let Ok(meta_data) = res_meta_data {
-            (f, meta_data.file_type)
+            (f.clone(), meta_data.file_type)
         } else {
-            (f, types::FileType::NoFileType())
+            (f.clone(), types::FileType::NoFileType())
         }
     })
 }
@@ -48,8 +48,8 @@ mod tests {
         let rid1: types::ResourceId = "[[rid1]]".into();
         let rid2: types::ResourceId = "[[rid2]]".into();
         let expected: Vec<_> = vec![
-            (&rid1, types::FileType::Unknown("unk".into())),
-            (&rid2, types::FileType::Markdown("md".into())),
+            (rid1, types::FileType::Unknown("unk".into())),
+            (rid2, types::FileType::Markdown("md".into())),
         ];
         assert_eq!(result, expected);
     }

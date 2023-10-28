@@ -53,8 +53,8 @@ mod tests {
         let rid1: types::ResourceId = "[[rid1]]".into();
         let rid2: types::ResourceId = "[[rid2]]".into();
         let expected: Vec<_> = vec![
-            (&rid1, types::FileType::Unknown("unk".into())),
-            (&rid2, types::FileType::Markdown("md".into())),
+            (rid1, types::FileType::Unknown("unk".into())),
+            (rid2, types::FileType::Markdown("md".into())),
         ];
         assert_eq!(result, expected);
     }

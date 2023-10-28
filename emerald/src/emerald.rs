@@ -68,10 +68,7 @@ impl Emerald {
         let start = Instant::now();
         // Transform iter: from (ResourceId) to (FileType, ResourceId)
         let ft_and_rid_iter = adapters::adapter_to_rid_and_filetype(&all_index, &meta_data_loader);
-
-        // Filter markdown files
-        let md_rids_iter = adapters::adapter_rid_and_file_type_to_rid(ft_and_rid_iter);
-        let md_index: Vec<_> = md_rids_iter.cloned().collect();
+        let md_index: Vec<_> = adapters::adapter_to_rid(ft_and_rid_iter).collect();
         let elapsed = start.elapsed();
         debug!("Creation of Resource Id indexes took: {:?}", elapsed);
 
