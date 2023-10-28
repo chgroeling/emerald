@@ -1,11 +1,8 @@
-use std::rc::Rc;
-
 use super::md_provider::MdProvider;
-use crate::error::EmeraldError::*;
-use crate::error::Result;
 use crate::model::content;
 use crate::model::note;
 use crate::types;
+use std::rc::Rc;
 
 pub struct ContentMdProvider {
     content_retriever: Rc<dyn content::MdContentRetriever>,

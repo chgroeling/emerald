@@ -1,9 +1,7 @@
-use std::rc::Rc;
-
 use super::title_provider::TitleProvider;
-use crate::error::Result;
 use crate::model::note;
 use crate::types;
+use std::rc::Rc;
 
 pub struct MetaDataTitleProvider {
     meta_data_retriever: Rc<dyn note::MetaDataRetriever>,
@@ -17,8 +15,8 @@ impl MetaDataTitleProvider {
     }
 }
 impl TitleProvider for MetaDataTitleProvider {
-    fn get_title(&self, rid: &types::ResourceId) -> Result<String> {
-        let meta_data = self.meta_data_retriever.retrieve(rid).clone();
-        Ok(meta_data.file_stem)
+    fn get_title(&self, rid: &types::ResourceId) -> String {
+        let meta_data = self.meta_data_retriever.retrieve(rid);
+        meta_data.file_stem.clone()
     }
 }

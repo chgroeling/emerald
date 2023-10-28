@@ -8,7 +8,7 @@ pub struct DefaultContentModel {
 }
 
 impl DefaultContentModel {
-    pub fn new<'a>(it_src: impl IntoIterator<Item = (types::ResourceId, types::Content)>) -> Self {
+    pub fn new(it_src: impl IntoIterator<Item = (types::ResourceId, types::Content)>) -> Self {
         Self {
             content_map: MdContentMap::new(it_src),
         }

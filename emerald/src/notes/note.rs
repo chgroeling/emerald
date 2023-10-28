@@ -1,5 +1,4 @@
 use super::providers::{MdProvider, TitleProvider};
-use crate::error::Result;
 use crate::types;
 
 pub struct Note {
@@ -21,7 +20,7 @@ impl Note {
         }
     }
 
-    pub fn title(&self) -> Result<String> {
+    pub fn title(&self) -> String {
         self.title_provider.get_title(&self.rid)
     }
 

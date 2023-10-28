@@ -10,12 +10,12 @@ pub struct MdContentMap {
 }
 
 impl MdContentMap {
-    pub fn new<'a>(it_src: impl IntoIterator<Item = (types::ResourceId, types::Content)>) -> Self {
+    pub fn new(it_src: impl IntoIterator<Item = (types::ResourceId, types::Content)>) -> Self {
         // I assume that all resource ids are existent
         let mut res_id_to_content = HashMap::<types::ResourceId, types::Content>::new();
 
         for (res_id, content) in it_src.into_iter() {
-            if let Some(_) = res_id_to_content.insert(res_id, content) {
+            if res_id_to_content.insert(res_id, content).is_some() {
                 panic!("Unique resource ids required")
             }
         }
