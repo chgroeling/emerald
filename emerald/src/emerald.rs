@@ -14,7 +14,7 @@ use log::{debug, error, info, trace, warn};
 use std::rc::Rc;
 use std::{path::Path, time::Instant};
 
-type StdProviderFactoryImpl = notes::StdProviderFactory<content::DefaultContentModel>;
+type StdProviderFactoryImpl = notes::StdProviderFactory;
 
 #[allow(dead_code)]
 pub struct Emerald {
@@ -69,7 +69,7 @@ impl Emerald {
 
         let start = Instant::now();
         let md_content_idx = resources::adapter_to_rid_and_content(&md_index, &content_loader)?;
-        let content_model = content::DefaultContentModel::new(md_content_idx);
+        let content_model = Rc::new(content::DefaultContentModel::new(md_content_idx));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultContentModel took: {:?}", elapsed);
 
@@ -85,7 +85,7 @@ impl Emerald {
         debug!("Creation of DefaultFileModel took: {:?}", elapsed);
 
         let start = Instant::now();
-        let c_it = adapters::adapter_to_rids_and_content(&md_index, &content_model);
+        let c_it = adapters::adapter_to_rids_and_content(&md_index, content_model.as_ref());
         let md_analyzer = markdown::MarkdownAnalyzerImpl::new();
         let ct_it = adapters::adapter_to_rid_and_content_type(c_it, md_analyzer);
         let s2t_idx: Vec<_> =

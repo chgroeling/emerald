@@ -25,7 +25,7 @@ impl Note {
         self.title_provider.get_title(&self.rid)
     }
 
-    pub fn markdown(&self) -> Result<String> {
+    pub fn markdown(&self) -> String {
         self.md_provider.get_markdown(&self.rid)
     }
 }
