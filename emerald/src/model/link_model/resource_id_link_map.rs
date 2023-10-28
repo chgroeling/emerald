@@ -15,7 +15,7 @@ pub struct ResourceIdLinkMap {
 }
 
 impl ResourceIdLinkMap {
-    pub fn new<'a>(it_src: impl IntoIterator<Item = (types::ResourceId, String)>) -> Self {
+    pub fn new(it_src: impl IntoIterator<Item = (types::ResourceId, String)>) -> Self {
         // Assumption: All resource ids are encoded in utf8 nfc
         let mut name_to_rid_list: NameToResourceIdList = NameToResourceIdList::new();
 
@@ -25,10 +25,10 @@ impl ResourceIdLinkMap {
             // this is an interesting way to mutate an element in a HashMap
             match name_to_rid_list.entry(normalized_link) {
                 Entry::Occupied(mut e) => {
-                    e.get_mut().push(rid.clone());
+                    e.get_mut().push(rid);
                 }
                 Entry::Vacant(e) => {
-                    e.insert(vec![rid.clone()]);
+                    e.insert(vec![rid]);
                 }
             }
         }

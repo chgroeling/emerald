@@ -4,7 +4,7 @@ use crate::{model, types};
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-pub fn extract_link_stats<'a>(it_src: &'a impl model::LinksIterSrc) -> VaultLinkStats {
+pub fn extract_link_stats(it_src: &impl model::LinksIterSrc) -> VaultLinkStats {
     let mut valid_backlink_cnt: usize = 0;
     let mut invalid_backlink_cnt: usize = 0;
     let mut note_valid_backlink_cnt: usize = 0;

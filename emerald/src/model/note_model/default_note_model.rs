@@ -18,7 +18,7 @@ pub struct DefaultNoteModel {
 }
 
 impl DefaultNoteModel {
-    pub fn new<'a>(
+    pub fn new(
         it_note_meta_data: impl IntoIterator<Item = (types::ResourceId, types::MetaData)>,
         it_links_src_2_tgt: impl IntoIterator<Item = types::LinkSrc2Tgt>,
     ) -> DefaultNoteModel {

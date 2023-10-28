@@ -9,7 +9,7 @@ pub struct MetaDataMap {
 }
 
 impl MetaDataMap {
-    pub fn new<'a>(it_src: impl IntoIterator<Item = (types::ResourceId, types::MetaData)>) -> Self {
+    pub fn new(it_src: impl IntoIterator<Item = (types::ResourceId, types::MetaData)>) -> Self {
         let mut meta_data_map = HashMap::<types::ResourceId, types::MetaData>::new();
         for (rid, meta_data) in it_src.into_iter() {
             match meta_data_map.entry(rid.clone()) {
