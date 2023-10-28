@@ -1,7 +1,7 @@
 use crate::error::Result;
 use crate::{resources, types};
 
-pub fn adapter_from_rids_to_rids_and_content<'a>(
+pub fn adapter_to_rids_and_content<'a>(
     it_src: impl IntoIterator<Item = &'a types::ResourceId>,
     content_retriever: &'a impl resources::MdContentRetriever,
 ) -> Result<impl Iterator<Item = (&'a types::ResourceId, &'a types::Content)>> {
