@@ -137,7 +137,7 @@ impl Emerald {
         // -----
         // Aquire stats
         let link_stats = stats::extract_link_stats(nmod.get_links_src_2_tgt_iterator());
-        let file_stats = stats::extract_file_stats(fmod.get_file_iterator(), nmod.as_ref());
+        let file_stats = stats::extract_file_stats(fmod.as_ref(), nmod.as_ref());
         let vault_stats = stats::VaultStats {
             file_stats,
             link_stats,
