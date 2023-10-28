@@ -1,45 +1,44 @@
+use std::rc::Rc;
+
 use super::{
     content_md_provider::ContentMdProvider, meta_data_title_provider::MetaDataTitleProvider,
     provider_factory::ProviderFactory,
 };
-use crate::resources;
+use crate::{model::MetaDataRetriever, resources};
 
 #[derive(Clone)]
-pub struct StdProviderFactory<I, T>
+pub struct StdProviderFactory<T>
 where
-    I: resources::MetaDataLoader + Clone,
     T: resources::MdContentRetriever + Clone,
 {
-    meta_data_loader: I,
+    meta_data_retriever: Rc<dyn MetaDataRetriever>,
     content_loader: T,
 }
 
-impl<I, T> StdProviderFactory<I, T>
+impl<T> StdProviderFactory<T>
 where
-    I: resources::MetaDataLoader + Clone,
     T: resources::MdContentRetriever + Clone,
 {
-    pub fn new(meta_data_loader: I, content_loader: T) -> Self {
+    pub fn new(meta_data_retriever: Rc<dyn MetaDataRetriever>, content_loader: T) -> Self {
         Self {
-            meta_data_loader,
+            meta_data_retriever,
             content_loader,
         }
     }
 }
 
-impl<I, T> ProviderFactory for StdProviderFactory<I, T>
+impl<T> ProviderFactory for StdProviderFactory<T>
 where
-    I: resources::MetaDataLoader + 'static + Clone,
     T: resources::MdContentRetriever + 'static + Clone,
 {
     fn create_title_provider(&self) -> Box<dyn super::title_provider::TitleProvider> {
-        Box::new(MetaDataTitleProvider::new(self.meta_data_loader.clone()))
+        Box::new(MetaDataTitleProvider::new(self.meta_data_retriever.clone()))
     }
 
     fn create_markdown_provider(&self) -> Box<dyn super::md_provider::MdProvider> {
         Box::new(ContentMdProvider::new(
             self.content_loader.clone(),
-            self.meta_data_loader.clone(),
+            self.meta_data_retriever.clone(),
         ))
     }
 }

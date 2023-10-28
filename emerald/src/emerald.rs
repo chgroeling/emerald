@@ -9,11 +9,11 @@ use super::stats;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
+use std::rc::Rc;
 use std::{path::Path, time::Instant};
 
 type FileMetaDataLoaderImpl = resources::FileMetaDataLoader<resources::ResourceObjectMap>;
-type StdProviderFactoryImpl =
-    notes::StdProviderFactory<FileMetaDataLoaderImpl, resources::MdContentCache>;
+type StdProviderFactoryImpl = notes::StdProviderFactory<resources::MdContentCache>;
 
 #[allow(dead_code)]
 pub struct Emerald {
@@ -107,24 +107,28 @@ impl Emerald {
             adapters::adapter_to_rid_and_meta_data(&md_index, &meta_data_loader)?.collect();
         let md_meta_data_ref = md_meta_data.iter().map(|f| (f.0, &f.1));
 
-        let nmod = model::DefaultNoteModel::new(md_meta_data_ref, &src_2_tgt_idx);
-        let fmod = model::DefaultFileModel::new(&all_index);
+        let nmod = Rc::new(model::DefaultNoteModel::new(
+            md_meta_data_ref,
+            &src_2_tgt_idx,
+        ));
+
+        let fmod = Rc::new(model::DefaultFileModel::new(&all_index));
 
         let start = Instant::now();
         let provider_factory =
-            notes::StdProviderFactory::new(meta_data_loader.clone(), md_content_cache.clone());
+            notes::StdProviderFactory::new(nmod.clone(), md_content_cache.clone());
         let elapsed = start.elapsed();
         debug!("Creation of StdProviderFactory took: {:?}", elapsed);
 
         let start = Instant::now();
-        let vault = notes::Vault::new(&nmod, provider_factory.clone());
+        let vault = notes::Vault::new(nmod.as_ref(), provider_factory.clone());
         let elapsed = start.elapsed();
         debug!("Creation of Vault took: {:?}", elapsed);
 
         // -----
         // Aquire stats
         let link_stats = stats::extract_link_stats(&src_2_tgt_idx);
-        let file_stats = stats::extract_file_stats(&fmod, &nmod);
+        let file_stats = stats::extract_file_stats(fmod.as_ref(), nmod.as_ref());
         let vault_stats = stats::VaultStats {
             file_stats,
             link_stats,

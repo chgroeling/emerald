@@ -1,28 +1,24 @@
+use std::rc::Rc;
+
 use super::title_provider::TitleProvider;
 use crate::error::Result;
+use crate::model;
 use crate::{resources, types};
 
-pub struct MetaDataTitleProvider<I>
-where
-    I: resources::MetaDataLoader,
-{
-    meta_data_loader: I,
+pub struct MetaDataTitleProvider {
+    meta_data_retriever: Rc<dyn model::MetaDataRetriever>,
 }
 
-impl<I> MetaDataTitleProvider<I>
-where
-    I: resources::MetaDataLoader,
-{
-    pub fn new(meta_data_loader: I) -> Self {
-        Self { meta_data_loader }
+impl MetaDataTitleProvider {
+    pub fn new(meta_data_retriever: Rc<dyn model::MetaDataRetriever>) -> Self {
+        Self {
+            meta_data_retriever,
+        }
     }
 }
-impl<I> TitleProvider for MetaDataTitleProvider<I>
-where
-    I: resources::MetaDataLoader,
-{
+impl TitleProvider for MetaDataTitleProvider {
     fn get_title(&self, rid: &types::ResourceId) -> Result<String> {
-        let meta_data = self.meta_data_loader.load(rid)?;
+        let meta_data = self.meta_data_retriever.retrieve(rid.clone()).clone();
         Ok(meta_data.file_stem)
     }
 }

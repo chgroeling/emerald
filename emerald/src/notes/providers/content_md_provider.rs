@@ -1,36 +1,36 @@
+use std::rc::Rc;
+
 use super::md_provider::MdProvider;
 use crate::error::EmeraldError::*;
 use crate::error::Result;
+use crate::model::MetaDataRetriever;
 use crate::{resources, types};
 
-pub struct ContentMdProvider<T, U>
+pub struct ContentMdProvider<T>
 where
     T: resources::MdContentRetriever,
-    U: resources::MetaDataLoader,
 {
     content_loader: T,
-    meta_data_loader: U,
+    meta_data_retriever: Rc<dyn MetaDataRetriever>,
 }
 
-impl<I, U> ContentMdProvider<I, U>
+impl<I> ContentMdProvider<I>
 where
     I: resources::MdContentRetriever,
-    U: resources::MetaDataLoader,
 {
-    pub fn new(content_loader: I, meta_data_loader: U) -> Self {
+    pub fn new(content_loader: I, meta_data_retriever: Rc<dyn MetaDataRetriever>) -> Self {
         Self {
             content_loader,
-            meta_data_loader,
+            meta_data_retriever,
         }
     }
 }
-impl<I, U> MdProvider for ContentMdProvider<I, U>
+impl<I> MdProvider for ContentMdProvider<I>
 where
     I: resources::MdContentRetriever,
-    U: resources::MetaDataLoader,
 {
     fn get_markdown(&self, rid: &types::ResourceId) -> Result<String> {
-        let meta_data = self.meta_data_loader.load(rid)?;
+        let meta_data = self.meta_data_retriever.retrieve(rid.clone());
 
         // do not allow anything other than markdown files pass this point
         let types::FileType::Markdown(_) = meta_data.file_type else {

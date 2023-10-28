@@ -3,4 +3,4 @@ mod note_model;
 
 pub use file_model::DefaultFileModel;
 pub use note_model::DefaultNoteModel;
-pub use note_model::MetaDataMap;
+pub use note_model::MetaDataRetriever;
