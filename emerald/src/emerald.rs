@@ -29,7 +29,7 @@ impl Emerald {
         let start = Instant::now();
         let path_list = resources::get_path_list(vault_path)?;
         let all_ros: Vec<_> = resources::adapter_from_pathes_to_ro(path_list).collect();
-        debug!("Creation of EndpointIndex took: {:?}", start.elapsed());
+        debug!("Creation of ResourceObject vec took: {:?}", start.elapsed());
 
         let start = Instant::now();
         let ros_and_rids: Vec<_> =
@@ -37,12 +37,8 @@ impl Emerald {
 
         let res_id_iter = resources::adapter_ro_to_rid(&ros_and_rids);
         let all_index: Vec<_> = res_id_iter.collect();
-
         let elapsed = start.elapsed();
-        debug!(
-            "Creation of ResourceObject and ResourceId lists took: {:?}",
-            elapsed
-        );
+        debug!("Creation of ResourceId vec took: {:?}", elapsed);
 
         let start = Instant::now();
         let _rid_retriever = resources::ResourceIdMap::new(&ros_and_rids)?;
@@ -69,13 +65,13 @@ impl Emerald {
         let ft_and_rid_iter = adapters::adapter_to_rid_and_filetype(&all_index, &meta_data_loader);
         let md_index: Vec<_> = adapters::adapter_to_rid(ft_and_rid_iter).collect();
         let elapsed = start.elapsed();
-        debug!("Creation of Resource Id indexes took: {:?}", elapsed);
+        debug!("Creation of Resource Id md vec took: {:?}", elapsed);
 
         let start = Instant::now();
         let md_content_idx = resources::adapter_to_rid_and_content(&md_index, &content_loader)?;
-        let md_content_cache = content::DefaultContentModel::new(md_content_idx);
+        let content_model = content::DefaultContentModel::new(md_content_idx);
         let elapsed = start.elapsed();
-        debug!("Creation of ContentFullMdCache took: {:?}", elapsed);
+        debug!("Creation of DefaultContentModel took: {:?}", elapsed);
 
         let start = Instant::now();
         let name_iter = adapters::adapter_from_rid_to_name(&all_index)?;
@@ -89,7 +85,7 @@ impl Emerald {
         debug!("Creation of DefaultFileModel took: {:?}", elapsed);
 
         let start = Instant::now();
-        let c_it = adapters::adapter_to_rids_and_content(&md_index, &md_content_cache);
+        let c_it = adapters::adapter_to_rids_and_content(&md_index, &content_model);
         let md_analyzer = markdown::MarkdownAnalyzerImpl::new();
         let ct_it = adapters::adapter_to_rid_and_content_type(c_it, md_analyzer);
         let s2t_idx: Vec<_> =
@@ -102,8 +98,7 @@ impl Emerald {
         debug!("Creation of DefaultNoteModel took: {:?}", elapsed);
 
         let start = Instant::now();
-        let provider_factory =
-            notes::StdProviderFactory::new(nmod.clone(), md_content_cache.clone());
+        let provider_factory = notes::StdProviderFactory::new(nmod.clone(), content_model.clone());
         let elapsed = start.elapsed();
         debug!("Creation of StdProviderFactory took: {:?}", elapsed);
 
