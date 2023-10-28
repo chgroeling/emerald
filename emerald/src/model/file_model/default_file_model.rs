@@ -10,15 +10,7 @@ impl DefaultFileModel {
             file_index: it_files.into_iter().cloned().collect(),
         }
     }
-}
-
-impl<'a> IntoIterator for &'a DefaultFileModel {
-    type Item = &'a types::ResourceId;
-
-    type IntoIter = std::slice::Iter<'a, types::ResourceId>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        let file_idx = &self.file_index;
-        file_idx.into_iter()
+    pub fn get_file_iterator<'a>(&'a self) -> impl Iterator<Item = &'a types::ResourceId> {
+        self.file_index.iter()
     }
 }

@@ -35,16 +35,9 @@ impl DefaultNoteModel {
             meta_data_map: MetaDataMap::new(it_note_meta_data),
         }
     }
-}
 
-impl<'a> IntoIterator for &'a DefaultNoteModel {
-    type Item = &'a types::ResourceId;
-
-    type IntoIter = std::slice::Iter<'a, types::ResourceId>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        let note_idx = &self.note_index;
-        note_idx.into_iter()
+    pub fn get_note_iterator<'a>(&'a self) -> impl Iterator<Item = &'a types::ResourceId> {
+        self.note_index.iter()
     }
 }
 
