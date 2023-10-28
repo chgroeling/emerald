@@ -3,7 +3,7 @@ use crate::types;
 
 pub fn adapter_from_rid_to_name<'a>(
     it_src: impl IntoIterator<Item = &'a types::ResourceId>,
-) -> Result<impl Iterator<Item = (&'a types::ResourceId, String)>> {
+) -> Result<impl Iterator<Item = (types::ResourceId, String)>> {
     // Assumption: All resource ids are encoded in utf8 nfc
 
     // Iterator yields (ResourceId, NameOfResourceId)
@@ -12,7 +12,7 @@ pub fn adapter_from_rid_to_name<'a>(
         .map(|rid| {
             let res_id_comp = rid.split()?;
             let name = res_id_comp.name.to_lowercase();
-            Ok((rid, name))
+            Ok((rid.clone(), name))
         })
         .collect();
 

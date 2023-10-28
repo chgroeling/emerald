@@ -1,15 +1,12 @@
 use super::src_iter_retriever::SrcIterRetriever;
 use crate::types;
-use std::{
-    collections::{hash_map::Entry, HashMap},
-    rc::Rc,
-};
+use std::collections::{hash_map::Entry, HashMap};
 
 type Tgt2LinkFrmSrcMap = HashMap<types::ResourceId, Vec<types::LinkFrmSrc>>;
 
 #[derive(Clone)]
 pub struct SrcLinksMap {
-    src_2_tgt_map: Rc<Tgt2LinkFrmSrcMap>,
+    src_2_tgt_map: Tgt2LinkFrmSrcMap,
 }
 
 impl SrcLinksMap {
@@ -31,15 +28,13 @@ impl SrcLinksMap {
                 }
             }
         }
-        Self {
-            src_2_tgt_map: Rc::new(src_2_tgt_map),
-        }
+        Self { src_2_tgt_map }
     }
 }
 
 impl SrcIterRetriever for SrcLinksMap {
-    fn retrieve(&self, tgt: types::ResourceId) -> Option<std::vec::IntoIter<types::LinkFrmSrc>> {
-        self.src_2_tgt_map.get(&tgt).map(|f| f.clone().into_iter())
+    fn retrieve(&self, tgt: &types::ResourceId) -> Option<std::vec::IntoIter<types::LinkFrmSrc>> {
+        self.src_2_tgt_map.get(tgt).map(|f| f.clone().into_iter())
     }
 }
 
@@ -55,7 +50,7 @@ mod tests {
         let test_data: Vec<LinkSrc2Tgt> = vec![("o1", "o1->d1", "d1").into()];
 
         let dut = SrcLinksMap::new(test_data.iter());
-        let res: Vec<types::LinkFrmSrc> = dut.retrieve("d1".into()).unwrap().collect();
+        let res: Vec<types::LinkFrmSrc> = dut.retrieve(&("d1".into())).unwrap().collect();
 
         assert_eq!(
             res,
@@ -69,7 +64,7 @@ mod tests {
             vec![("o1", "o1->d1", "d1").into(), ("o1", "o1->d2", "d2").into()];
 
         let dut = SrcLinksMap::new(test_data.iter());
-        let res: Vec<types::LinkFrmSrc> = dut.retrieve("d1".into()).unwrap().collect();
+        let res: Vec<types::LinkFrmSrc> = dut.retrieve(&("d1".into())).unwrap().collect();
 
         assert_eq!(
             res,
@@ -88,7 +83,7 @@ mod tests {
         ];
 
         let dut = SrcLinksMap::new(test_data.iter());
-        let res: Vec<types::LinkFrmSrc> = dut.retrieve("d1".into()).unwrap().collect();
+        let res: Vec<types::LinkFrmSrc> = dut.retrieve(&("d1".into())).unwrap().collect();
 
         assert_eq!(
             res,

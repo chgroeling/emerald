@@ -1,19 +1,17 @@
 use super::vault_link_stats::VaultLinkStats;
-use crate::types;
+use crate::{model::note, types};
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-pub fn extract_link_stats<'a>(
-    it_src: impl IntoIterator<Item = &'a types::LinkSrc2Tgt>,
-) -> VaultLinkStats {
+pub fn extract_link_stats(it_src: &impl note::LinksIterSrc) -> VaultLinkStats {
     let mut valid_backlink_cnt: usize = 0;
     let mut invalid_backlink_cnt: usize = 0;
     let mut note_valid_backlink_cnt: usize = 0;
     let mut note_invalid_backlink_cnt: usize = 0;
 
-    let mut iter_mut = it_src.into_iter();
-    let mut opt_last_src: Option<&types::ResourceId> = None;
+    let mut iter_mut = it_src.create_iter();
+    let mut opt_last_src: Option<types::ResourceId> = None;
     loop {
         let Some(s2t) = iter_mut.next() else {
             if let Some(last_src) = opt_last_src {
@@ -29,7 +27,7 @@ pub fn extract_link_stats<'a>(
 
         // Check if this element has a different source than the one before
         if let Some(last_src) = opt_last_src {
-            if last_src != &s2t.src {
+            if last_src != s2t.src {
                 if note_valid_backlink_cnt == 0 {
                     trace!("No valid links found in {:?}", &last_src);
                 }
@@ -52,7 +50,7 @@ pub fn extract_link_stats<'a>(
             _ => note_valid_backlink_cnt += 1,
         }
 
-        opt_last_src = Some(&s2t.src);
+        opt_last_src = Some(s2t.src);
     }
 
     VaultLinkStats {
@@ -64,20 +62,26 @@ pub fn extract_link_stats<'a>(
 #[cfg(test)]
 mod link_mapper_tests {
     use super::extract_link_stats;
+    use crate::model::note;
     use crate::types;
     use types::LinkSrc2Tgt;
 
     #[rustfmt::skip]
-    fn create_test_data() -> Vec<LinkSrc2Tgt> {
-        vec![
-            LinkSrc2Tgt::new("resource_id_0".into(), "link_0".into(), None),
-            LinkSrc2Tgt::new("resource_id_0".into(), "link_1".into(), None),
-            LinkSrc2Tgt::new("resource_id_0".into(), "link_2".into(), Some("resource_id_a".into())),
-            LinkSrc2Tgt::new("resource_id_1".into(), "link_3".into(), Some("resource_id_a".into())),
-            LinkSrc2Tgt::new("resource_id_1".into(), "link_4".into(), Some("resource_id_b".into())),
-            LinkSrc2Tgt::new("resource_id_2".into(), "link_5".into(), None),
-            LinkSrc2Tgt::new("resource_id_2".into(), "link_6".into(), Some("resource_id_b".into())),
-        ]
+    fn create_test_data() -> note::MockLinksIterSrc {
+
+        let mut ret = note::MockLinksIterSrc::new();
+        ret.expect_create_iter().returning(||
+            vec![
+                LinkSrc2Tgt::new("resource_id_0".into(), "link_0".into(), None),
+                LinkSrc2Tgt::new("resource_id_0".into(), "link_1".into(), None),
+                LinkSrc2Tgt::new("resource_id_0".into(), "link_2".into(), Some("resource_id_a".into())),
+                LinkSrc2Tgt::new("resource_id_1".into(), "link_3".into(), Some("resource_id_a".into())),
+                LinkSrc2Tgt::new("resource_id_1".into(), "link_4".into(), Some("resource_id_b".into())),
+                LinkSrc2Tgt::new("resource_id_2".into(), "link_5".into(), None),
+                LinkSrc2Tgt::new("resource_id_2".into(), "link_6".into(), Some("resource_id_b".into())),
+            ].into_iter()
+        );
+        ret
     }
 
     #[test]

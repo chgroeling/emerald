@@ -1,15 +1,12 @@
 use super::tgt_iter_retriever::TgtIterRetriever;
 use crate::types;
-use std::{
-    collections::{hash_map::Entry, HashMap},
-    rc::Rc,
-};
+use std::collections::{hash_map::Entry, HashMap};
 
 type Src2Link2TgtMap = HashMap<types::ResourceId, Vec<types::Link2Tgt>>;
 
 #[derive(Clone)]
 pub struct TgtLinksMap {
-    link_2_tgt_map: Rc<Src2Link2TgtMap>,
+    link_2_tgt_map: Src2Link2TgtMap,
 }
 
 impl TgtLinksMap {
@@ -27,15 +24,13 @@ impl TgtLinksMap {
                 }
             }
         }
-        Self {
-            link_2_tgt_map: Rc::new(link_2_tgt_map),
-        }
+        Self { link_2_tgt_map }
     }
 }
 
 impl TgtIterRetriever for TgtLinksMap {
-    fn retrieve(&self, src: types::ResourceId) -> Option<std::vec::IntoIter<types::Link2Tgt>> {
-        self.link_2_tgt_map.get(&src).map(|f| f.clone().into_iter())
+    fn retrieve(&self, src: &types::ResourceId) -> Option<std::vec::IntoIter<types::Link2Tgt>> {
+        self.link_2_tgt_map.get(src).map(|f| f.clone().into_iter())
     }
 }
 
@@ -50,7 +45,7 @@ mod tests {
     fn test_one_match() {
         let test_data: Vec<LinkSrc2Tgt> = vec![("o1", "o1->d1", "d1").into()];
         let dut = TgtLinksMap::new(test_data.iter());
-        let res: Vec<Link2Tgt> = dut.retrieve("o1".into()).unwrap().collect();
+        let res: Vec<Link2Tgt> = dut.retrieve(&("o1".into())).unwrap().collect();
 
         assert_eq!(res, vec![Link2Tgt::new("o1->d1".into(), Some("d1".into()))]);
     }
@@ -61,7 +56,7 @@ mod tests {
             vec![("o1", "o1->d1", "d1").into(), ("o1", "o1->d2", "d2").into()];
 
         let dut = TgtLinksMap::new(test_data.iter());
-        let res: Vec<Link2Tgt> = dut.retrieve("o1".into()).unwrap().collect();
+        let res: Vec<Link2Tgt> = dut.retrieve(&("o1".into())).unwrap().collect();
 
         assert_eq!(
             res,
@@ -83,7 +78,7 @@ mod tests {
         ];
 
         let dut = TgtLinksMap::new(test_data.iter());
-        let res: Vec<Link2Tgt> = dut.retrieve("o1".into()).unwrap().collect();
+        let res: Vec<Link2Tgt> = dut.retrieve(&("o1".into())).unwrap().collect();
 
         assert_eq!(
             res,

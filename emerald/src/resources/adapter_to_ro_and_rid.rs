@@ -6,16 +6,15 @@ use log::{debug, error, info, trace, warn};
 use std::path::Path;
 
 pub fn adapter_ro_to_ro_and_rid<'a>(
-    it_src: impl IntoIterator<Item = &'a ResourceObject> + 'a,
+    it_src: impl IntoIterator<Item = ResourceObject> + 'a,
     common_path: &'a Path,
 ) -> Result<impl Iterator<Item = (ResourceObject, types::ResourceId)> + 'a> {
     let ret: Result<Vec<_>> = it_src
         .into_iter()
         .map(|ro| {
-            let opt_rid = convert_ro_to_rid(ro, common_path);
-
+            let opt_rid = convert_ro_to_rid(&ro, common_path);
             if let Ok(rid) = opt_rid {
-                Ok((ro.clone(), rid))
+                Ok((ro, rid))
             } else {
                 error!("Can't convert ResourceObject '{:?}' to ResourceId.", &ro);
                 Err(ValueError)
@@ -41,7 +40,7 @@ mod tests {
         let ros: Vec<_> = vec![ResourceObject::File("testpäth".into())];
         let common_path: PathBuf = "".into();
 
-        let res: Vec<_> = adapter_ro_to_ro_and_rid(ros.iter(), &common_path)
+        let res: Vec<_> = adapter_ro_to_ro_and_rid(ros.into_iter(), &common_path)
             .unwrap()
             .collect();
 
@@ -59,7 +58,7 @@ mod tests {
         let ros: Vec<_> = vec![ResourceObject::File("testpäth".into())];
         let common_path: PathBuf = "".into();
 
-        let res: Vec<_> = adapter_ro_to_ro_and_rid(ros.iter(), &common_path)
+        let res: Vec<_> = adapter_ro_to_ro_and_rid(ros.into_iter(), &common_path)
             .unwrap()
             .collect();
 

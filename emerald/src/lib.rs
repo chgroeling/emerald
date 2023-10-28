@@ -1,8 +1,8 @@
 mod adapters;
 mod emerald;
 mod error;
-mod maps;
 mod markdown;
+mod model;
 mod notes;
 mod resources;
 mod stats;
