@@ -90,12 +90,12 @@ impl Emerald {
         let c_it = adapters::adapter_from_rids_to_rids_and_content(&md_index, &md_content_cache)?;
         let md_analyzer = markdown::MarkdownAnalyzerImpl::new();
         let ct_it = adapters::adapter_to_rid_and_content_type(c_it, md_analyzer);
-        let src2tgt_idx: Vec<_> =
+        let s2t_idx: Vec<_> =
             adapters::adapter_to_link_src_2_tgt(ct_it, link_model.as_ref()).collect();
 
         // load all meta data and ensure that there were no errors
         let md_meta_data = adapters::adapter_to_rid_and_meta_data(md_index, &meta_data_loader)?;
-        let nmod = Rc::new(note::DefaultNoteModel::new(md_meta_data, src2tgt_idx));
+        let nmod = Rc::new(note::DefaultNoteModel::new(md_meta_data, s2t_idx));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultNoteModel took: {:?}", elapsed);
 
