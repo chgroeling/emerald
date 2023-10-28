@@ -1,14 +1,11 @@
 use crate::types;
-use std::{
-    collections::{hash_map::Entry, HashMap},
-    rc::Rc,
-};
+use std::collections::{hash_map::Entry, HashMap};
 
 use super::meta_data_retriever::MetaDataRetriever;
 
 #[derive(Clone)]
 pub struct MetaDataMap {
-    meta_data_map: Rc<HashMap<types::ResourceId, types::MetaData>>,
+    meta_data_map: HashMap<types::ResourceId, types::MetaData>,
 }
 
 impl MetaDataMap {
@@ -26,9 +23,7 @@ impl MetaDataMap {
                 }
             }
         }
-        Self {
-            meta_data_map: Rc::new(meta_data_map),
-        }
+        Self { meta_data_map }
     }
 }
 

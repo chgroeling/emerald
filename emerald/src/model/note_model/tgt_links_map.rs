@@ -1,15 +1,12 @@
 use super::tgt_iter_retriever::TgtIterRetriever;
 use crate::types;
-use std::{
-    collections::{hash_map::Entry, HashMap},
-    rc::Rc,
-};
+use std::collections::{hash_map::Entry, HashMap};
 
 type Src2Link2TgtMap = HashMap<types::ResourceId, Vec<types::Link2Tgt>>;
 
 #[derive(Clone)]
 pub struct TgtLinksMap {
-    link_2_tgt_map: Rc<Src2Link2TgtMap>,
+    link_2_tgt_map: Src2Link2TgtMap,
 }
 
 impl TgtLinksMap {
@@ -27,9 +24,7 @@ impl TgtLinksMap {
                 }
             }
         }
-        Self {
-            link_2_tgt_map: Rc::new(link_2_tgt_map),
-        }
+        Self { link_2_tgt_map }
     }
 }
 

@@ -1,15 +1,12 @@
 use super::src_iter_retriever::SrcIterRetriever;
 use crate::types;
-use std::{
-    collections::{hash_map::Entry, HashMap},
-    rc::Rc,
-};
+use std::collections::{hash_map::Entry, HashMap};
 
 type Tgt2LinkFrmSrcMap = HashMap<types::ResourceId, Vec<types::LinkFrmSrc>>;
 
 #[derive(Clone)]
 pub struct SrcLinksMap {
-    src_2_tgt_map: Rc<Tgt2LinkFrmSrcMap>,
+    src_2_tgt_map: Tgt2LinkFrmSrcMap,
 }
 
 impl SrcLinksMap {
@@ -31,9 +28,7 @@ impl SrcLinksMap {
                 }
             }
         }
-        Self {
-            src_2_tgt_map: Rc::new(src_2_tgt_map),
-        }
+        Self { src_2_tgt_map }
     }
 }
 
