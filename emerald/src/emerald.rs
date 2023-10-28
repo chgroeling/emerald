@@ -29,59 +29,59 @@ impl Emerald {
         let start = Instant::now();
         let path_list = resources::get_path_list(vault_path)?;
         let all_ros_vec: Vec<_> = resources::adapter_from_pathes_to_ro(path_list).collect();
-        debug!("Creation of ResourceObject vec took: {:?}", start.elapsed());
+        debug!("Creation of ResourceObject vec: {:?}", start.elapsed());
 
         let start = Instant::now();
         let ros_rids: Vec<_> =
             resources::adapter_ro_to_ro_and_rid(all_ros_vec, vault_path)?.collect();
 
-        let all_vec: Vec<_> = resources::adapter_ro_to_rid(&ros_rids).collect();
+        let all_vec: Vec<_> = resources::adapter_to_rid(&ros_rids).collect();
         let elapsed = start.elapsed();
-        debug!("Creation of ResourceId vec took: {:?}", elapsed);
+        debug!("Creation of ResourceId vec: {:?}", elapsed);
 
         let start = Instant::now();
         let _rid_retriever = resources::ResourceIdMap::new(&ros_rids);
         let elapsed = start.elapsed();
-        debug!("Creation of ResourceIdMap took: {:?}", elapsed);
+        debug!("Creation of ResourceIdMap: {:?}", elapsed);
 
         let start = Instant::now();
         let ro_retriever = resources::ResourceObjectMap::new(&ros_rids);
         let elapsed = start.elapsed();
-        debug!("Creation of ResourceObjectMap took: {:?}", elapsed);
+        debug!("Creation of ResourceObjectMap: {:?}", elapsed);
 
         let start = Instant::now();
         let content_loader = resources::FileContentLoader::new(ro_retriever.clone());
         let elapsed = start.elapsed();
-        debug!("Creation of FileContentLoader took: {:?}", elapsed);
+        debug!("Creation of FileContentLoader: {:?}", elapsed);
 
         let start = Instant::now();
         let meta_data_loader = resources::FileMetaDataLoader::new(ro_retriever.clone());
         let elapsed = start.elapsed();
-        debug!("Creation of FileMetaDataLoader took: {:?}", elapsed);
+        debug!("Creation of FileMetaDataLoader: {:?}", elapsed);
 
         let start = Instant::now();
         // Transform iter: from (ResourceId) to (FileType, ResourceId)
         let ft_and_rid_iter = adapters::adapter_to_rid_and_filetype(&all_vec, &meta_data_loader);
         let md_vec: Vec<_> = adapters::adapter_to_rid(ft_and_rid_iter).collect();
         let elapsed = start.elapsed();
-        debug!("Creation of ResourceId md vec took: {:?}", elapsed);
+        debug!("Creation of ResourceId md vec: {:?}", elapsed);
 
         let start = Instant::now();
         let md_content_vec = resources::adapter_to_rid_and_content(&md_vec, &content_loader)?;
         let content_model = Rc::new(content::DefaultContentModel::new(md_content_vec));
         let elapsed = start.elapsed();
-        debug!("Creation of DefaultContentModel took: {:?}", elapsed);
+        debug!("Creation of DefaultContentModel: {:?}", elapsed);
 
         let start = Instant::now();
         let name_iter = adapters::adapter_from_rid_to_name(&all_vec)?;
         let link_model = Rc::new(link::DefaultLinkModel::new(name_iter));
         let elapsed = start.elapsed();
-        debug!("Creation of DefaultLinkModel took: {:?}", elapsed);
+        debug!("Creation of DefaultLinkModel: {:?}", elapsed);
 
         let start = Instant::now();
         let fmod = Rc::new(file::DefaultFileModel::new(all_vec));
         let elapsed = start.elapsed();
-        debug!("Creation of DefaultFileModel took: {:?}", elapsed);
+        debug!("Creation of DefaultFileModel: {:?}", elapsed);
 
         let start = Instant::now();
         let c_it = adapters::adapter_to_rids_and_content(&md_vec, content_model.as_ref());
@@ -94,17 +94,17 @@ impl Emerald {
         let md_meta_data = adapters::adapter_to_rid_and_meta_data(md_vec, &meta_data_loader)?;
         let nmod = Rc::new(note::DefaultNoteModel::new(md_meta_data, s2t_idx));
         let elapsed = start.elapsed();
-        debug!("Creation of DefaultNoteModel took: {:?}", elapsed);
+        debug!("Creation of DefaultNoteModel: {:?}", elapsed);
 
         let start = Instant::now();
         let provider_factory = notes::StdProviderFactory::new(nmod.clone(), content_model.clone());
         let elapsed = start.elapsed();
-        debug!("Creation of StdProviderFactory took: {:?}", elapsed);
+        debug!("Creation of StdProviderFactory: {:?}", elapsed);
 
         let start = Instant::now();
         let vault = notes::Vault::new(nmod.clone(), provider_factory.clone());
         let elapsed = start.elapsed();
-        debug!("Creation of Vault took: {:?}", elapsed);
+        debug!("Creation of Vault: {:?}", elapsed);
 
         // -----
         // Aquire stats
