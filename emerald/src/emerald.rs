@@ -5,7 +5,6 @@ use super::markdown;
 use super::notes;
 use super::resources;
 use super::stats;
-use super::types;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
@@ -17,8 +16,6 @@ type StdProviderFactoryImpl =
 
 #[allow(dead_code)]
 pub struct Emerald {
-    pub all_index: Vec<types::ResourceId>,
-    pub md_index: Vec<types::ResourceId>,
     pub rid_retriever: resources::ResourceIdMap,
     pub ro_retriever: resources::ResourceObjectMap,
     pub meta_data_loader: FileMetaDataLoaderImpl,
@@ -95,15 +92,14 @@ impl Emerald {
 
         let start = Instant::now();
         let c_it = adapters::adapter_from_rids_to_rids_and_content(&md_index, &md_content_cache)?;
-        let ct_it = adapters::adapter_from_rid_and_content_to_rid_and_content_type(
-            c_it,
-            markdown::MarkdownAnalyzerImpl::new(),
-        );
+        let md_analyzer = markdown::MarkdownAnalyzerImpl::new();
+        let ct_it =
+            adapters::adapter_from_rid_and_content_to_rid_and_content_type(c_it, md_analyzer);
 
         let src_2_tgt_idx: Vec<_> =
             adapters::adapter_from_rid_and_content_to_link_src_2_tgt(ct_it, &rid_resolver)
                 .collect();
-        let link_stats = stats::extract_link_stats(&src_2_tgt_idx);
+
         let elapsed = start.elapsed();
         debug!("Creation of sources to target index took: {:?}", elapsed);
 
@@ -128,14 +124,20 @@ impl Emerald {
         let elapsed = start.elapsed();
         debug!("Creation of Vault took: {:?}", elapsed);
 
-        let vault_stats = stats::VaultStats { link_stats };
+        // -----
+        // Aquire stats
+        let link_stats = stats::extract_link_stats(&src_2_tgt_idx);
+        let file_stats = stats::extract_file_stats(&all_index, &md_index);
+        let vault_stats = stats::VaultStats {
+            file_stats,
+            link_stats,
+        };
+        // -------
         Ok(Emerald {
             rid_retriever,
             ro_retriever,
             meta_data_loader,
             rid_resolver,
-            md_index,
-            all_index,
             md_content_cache,
             tgt_iter_retriever,
             src_iter_retriever,
@@ -152,11 +154,11 @@ impl Emerald {
     }
 
     pub fn file_count(&self) -> usize {
-        self.all_index.len()
+        self.vault_stats.file_stats.file_count
     }
 
     pub fn md_file_count(&self) -> usize {
-        self.md_index.len()
+        self.vault_stats.file_stats.md_file_count
     }
 
     pub fn valid_backlink_count(&self) -> usize {
