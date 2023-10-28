@@ -103,11 +103,10 @@ impl Emerald {
         let elapsed = start.elapsed();
         debug!("Creation of sources to target index took: {:?}", elapsed);
 
-        let rid_and_meta_data: Vec<_> =
+        let md_meta_data: Vec<_> =
             adapters::adapter_to_rid_and_meta_data(&md_index, &meta_data_loader)?.collect();
 
-        let dmodel =
-            data_model::DefaultDataModel::new(&md_index, &rid_and_meta_data, &src_2_tgt_idx);
+        let dmodel = data_model::NoteDataModel::new(&md_index, &md_meta_data, &src_2_tgt_idx);
 
         let start = Instant::now();
         let provider_factory =

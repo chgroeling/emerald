@@ -1,7 +1,7 @@
-mod default_data_model;
+mod note_data_model;
 mod src_iter_retriever;
 mod src_links_map;
 mod tgt_iter_retriever;
 mod tgt_links_map;
 
-pub use default_data_model::DefaultDataModel;
+pub use note_data_model::NoteDataModel;
