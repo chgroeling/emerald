@@ -62,14 +62,14 @@ pub fn extract_link_stats(it_src: &impl note_model::LinksIterSrc) -> VaultLinkSt
 #[cfg(test)]
 mod link_mapper_tests {
     use super::extract_link_stats;
-    use crate::model;
+    use crate::model::note_model;
     use crate::types;
     use types::LinkSrc2Tgt;
 
     #[rustfmt::skip]
-    fn create_test_data() -> model::MockLinksIterSrc {
+    fn create_test_data() -> note_model::MockLinksIterSrc {
 
-        let mut ret = model::MockLinksIterSrc::new();
+        let mut ret = note_model::MockLinksIterSrc::new();
         ret.expect_create_iter().returning(||
             vec![
                 LinkSrc2Tgt::new("resource_id_0".into(), "link_0".into(), None),
