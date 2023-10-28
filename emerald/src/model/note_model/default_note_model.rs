@@ -9,7 +9,7 @@ use super::tgt_links_map::TgtLinksMap;
 #[allow(dead_code)]
 pub struct DefaultNoteModel {
     note_index: Vec<types::ResourceId>,
-    all_links: Vec<types::LinkSrc2Tgt>,
+    link_index: Vec<types::LinkSrc2Tgt>,
     src_links_map: SrcLinksMap,
     tgt_links_map: TgtLinksMap,
     meta_data_map: MetaDataMap,
@@ -31,7 +31,7 @@ impl DefaultNoteModel {
                 .map(|f| f.0)
                 .cloned()
                 .collect(),
-            all_links,
+            link_index: all_links,
             src_links_map,
             tgt_links_map,
             meta_data_map: MetaDataMap::new(it_note_meta_data),
@@ -39,7 +39,7 @@ impl DefaultNoteModel {
     }
 
     pub fn get_links_src_2_tgt_iterator(&self) -> impl Iterator<Item = &types::LinkSrc2Tgt> {
-        self.all_links.iter()
+        self.link_index.iter()
     }
 }
 
