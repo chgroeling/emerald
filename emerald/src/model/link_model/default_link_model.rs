@@ -7,7 +7,7 @@ pub struct DefaultLinkModel {
 }
 
 impl DefaultLinkModel {
-    pub fn new<'a>(it_src: impl IntoIterator<Item = (&'a types::ResourceId, String)>) -> Self {
+    pub fn new<'a>(it_src: impl IntoIterator<Item = (types::ResourceId, String)>) -> Self {
         Self {
             link_map: ResourceIdLinkMap::new(it_src),
         }

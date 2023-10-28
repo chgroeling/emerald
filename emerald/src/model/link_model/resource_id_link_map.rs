@@ -15,7 +15,7 @@ pub struct ResourceIdLinkMap {
 }
 
 impl ResourceIdLinkMap {
-    pub fn new<'a>(it_src: impl IntoIterator<Item = (&'a types::ResourceId, String)>) -> Self {
+    pub fn new<'a>(it_src: impl IntoIterator<Item = (types::ResourceId, String)>) -> Self {
         // Assumption: All resource ids are encoded in utf8 nfc
         let mut name_to_rid_list: NameToResourceIdList = NameToResourceIdList::new();
 
@@ -104,7 +104,7 @@ mod link_mapper_tests {
     use std::iter::zip;
 
     fn create_dut(res_ids: Vec<ResourceId>, names: Vec<String>) -> ResourceIdLinkMap {
-        let iter = zip(res_ids.iter(), names);
+        let iter = zip(res_ids.into_iter(), names);
         ResourceIdLinkMap::new(iter)
     }
 

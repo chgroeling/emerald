@@ -86,7 +86,7 @@ impl Emerald {
 
         let start = Instant::now();
         let name_iter = adapters::adapter_from_rid_to_name(&all_index)?;
-        let link_model = model::DefaultLinkModel::new(name_iter);
+        let link_model = Rc::new(model::DefaultLinkModel::new(name_iter));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultLinkModel took: {:?}", elapsed);
 
@@ -94,7 +94,8 @@ impl Emerald {
         let c_it = adapters::adapter_from_rids_to_rids_and_content(&md_index, &md_content_cache)?;
         let md_analyzer = markdown::MarkdownAnalyzerImpl::new();
         let ct_it = adapters::adapter_to_rid_and_content_type(c_it, md_analyzer);
-        let src2tgt_idx: Vec<_> = adapters::adapter_to_link_src_2_tgt(ct_it, &link_model).collect();
+        let src2tgt_idx: Vec<_> =
+            adapters::adapter_to_link_src_2_tgt(ct_it, link_model.as_ref()).collect();
         let elapsed = start.elapsed();
         debug!("Creation of sources to target index took: {:?}", elapsed);
 
