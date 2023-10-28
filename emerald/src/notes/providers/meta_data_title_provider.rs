@@ -18,7 +18,7 @@ impl MetaDataTitleProvider {
 }
 impl TitleProvider for MetaDataTitleProvider {
     fn get_title(&self, rid: &types::ResourceId) -> Result<String> {
-        let meta_data = self.meta_data_retriever.retrieve(rid.clone()).clone();
+        let meta_data = self.meta_data_retriever.retrieve(rid).clone();
         Ok(meta_data.file_stem)
     }
 }

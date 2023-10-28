@@ -30,7 +30,7 @@ where
     I: resources::MdContentRetriever,
 {
     fn get_markdown(&self, rid: &types::ResourceId) -> Result<String> {
-        let meta_data = self.meta_data_retriever.retrieve(rid.clone());
+        let meta_data = self.meta_data_retriever.retrieve(rid);
 
         // do not allow anything other than markdown files pass this point
         let types::FileType::Markdown(_) = meta_data.file_type else {

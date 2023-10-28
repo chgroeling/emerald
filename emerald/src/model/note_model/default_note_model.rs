@@ -42,7 +42,7 @@ impl DefaultNoteModel {
 }
 
 impl MetaDataRetriever for DefaultNoteModel {
-    fn retrieve(&self, md: types::ResourceId) -> &types::MetaData {
+    fn retrieve(&self, md: &types::ResourceId) -> &types::MetaData {
         // Option is not returned because meta data should be consistent at this point
         self.meta_data_map.retrieve(md)
     }
