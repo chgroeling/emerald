@@ -2,6 +2,7 @@ use crate::types;
 
 use super::meta_data_map::MetaDataMap;
 use super::meta_data_retriever::MetaDataRetriever;
+use super::notes_iter_src::NotesIterSrc;
 use super::src_links_map::SrcLinksMap;
 use super::tgt_links_map::TgtLinksMap;
 
@@ -50,5 +51,13 @@ impl MetaDataRetriever for DefaultNoteModel {
     fn retrieve(&self, md: &types::ResourceId) -> &types::MetaData {
         // Option is not returned because meta data should be consistent at this point
         self.meta_data_map.retrieve(md)
+    }
+}
+
+impl<'a> NotesIterSrc<'a> for DefaultNoteModel {
+    type Iter = std::slice::Iter<'a, types::ResourceId>;
+
+    fn iter(&'a self) -> Self::Iter {
+        self.note_index.iter()
     }
 }
