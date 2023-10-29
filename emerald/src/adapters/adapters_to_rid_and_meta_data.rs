@@ -21,7 +21,18 @@ pub fn adapter_to_rid_and_meta_data<'a>(
 
 #[cfg(test)]
 mod tests {
-    use crate::{adapters::adapter_to_rid_and_filetype, resources::MockMetaDataLoader, types};
+    use crate::types::FileType;
+    use crate::{adapters::adapter_to_rid_and_meta_data, resources::MockMetaDataLoader, types};
+
+    fn create_test_data(rid: &str, file_type: FileType) -> (types::ResourceId, types::MetaData) {
+        (
+            rid.into(),
+            types::MetaData {
+                file_stem: "".into(),
+                file_type: file_type,
+            },
+        )
+    }
 
     #[test]
     fn test_trafo_to_filetype_and_resource_id() {
@@ -46,15 +57,13 @@ mod tests {
         });
 
         // Act
-        let result = adapter_to_rid_and_filetype(&all_res_ids, &mock_md_loader);
-        let result: Vec<_> = result.collect();
+        let result = adapter_to_rid_and_meta_data(all_res_ids, &mock_md_loader);
+        let result: Vec<_> = result.unwrap().collect();
 
         // Assert
-        let rid1: types::ResourceId = "[[rid1]]".into();
-        let rid2: types::ResourceId = "[[rid2]]".into();
         let expected: Vec<_> = vec![
-            (rid1, types::FileType::Unknown("unk".into())),
-            (rid2, types::FileType::Markdown("md".into())),
+            create_test_data("[[rid1]]", types::FileType::Unknown("unk".into())),
+            create_test_data("[[rid2]]", types::FileType::Markdown("md".into())),
         ];
         assert_eq!(result, expected);
     }

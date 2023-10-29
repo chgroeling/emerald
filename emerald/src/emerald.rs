@@ -65,7 +65,7 @@ impl Emerald {
         let all_meta_data: Vec<_> =
             adapters::adapter_to_rid_and_meta_data(all_vec.clone(), &meta_data_loader)?.collect();
 
-        let md_vec_md: Vec<_> = adapters::adapter_to_rid(all_meta_data).collect();
+        let md_vec_md: Vec<_> = adapters::filter_rid_and_meta_data(all_meta_data).collect();
         let md_it = md_vec_md.iter().map(|f| &f.0);
 
         let elapsed = start.elapsed();

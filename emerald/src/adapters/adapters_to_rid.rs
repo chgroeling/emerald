@@ -2,7 +2,7 @@ use crate::types;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-pub fn adapter_to_rid<'a>(
+pub fn filter_rid_and_meta_data<'a>(
     it_src: impl IntoIterator<Item = (types::ResourceId, types::MetaData)> + 'a,
 ) -> impl Iterator<Item = (types::ResourceId, types::MetaData)> + 'a {
     it_src
@@ -13,7 +13,7 @@ pub fn adapter_to_rid<'a>(
 #[cfg(test)]
 mod tests {
     use super::types;
-    use crate::{adapters::adapter_to_rid, types::FileType};
+    use crate::{adapters::filter_rid_and_meta_data, types::FileType};
 
     fn create_test_data(rid: &str, file_type: FileType) -> (types::ResourceId, types::MetaData) {
         (
@@ -32,7 +32,7 @@ mod tests {
         ];
 
         // Act
-        let result: Vec<_> = adapter_to_rid(all_res_ids.into_iter()).collect();
+        let result: Vec<_> = filter_rid_and_meta_data(all_res_ids.into_iter()).collect();
 
         // Assert
         let expected: Vec<_> = vec![create_test_data(
