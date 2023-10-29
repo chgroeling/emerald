@@ -17,8 +17,8 @@ mod resource_object_translation;
 
 pub use adapter_to_rid::adapter_to_rid;
 pub use adapter_to_rid_and_content::adapter_to_rid_and_content;
-pub use adapter_to_ro::adapter_from_pathes_to_ro;
-pub use adapter_to_ro_and_rid::adapter_ro_to_ro_and_rid;
+pub use adapter_to_ro::adapter_to_ro;
+pub use adapter_to_ro_and_rid::adapter_to_ro_and_rid;
 pub use content_loader::ContentLoader;
 pub use file_content_loader::FileContentLoader;
 pub use file_meta_data_loader::FileMetaDataLoader;

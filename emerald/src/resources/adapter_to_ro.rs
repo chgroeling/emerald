@@ -1,7 +1,7 @@
 use super::resource_object::ResourceObject;
 use std::path::PathBuf;
 
-pub fn adapter_from_pathes_to_ro(
+pub fn adapter_to_ro(
     it_src: impl IntoIterator<Item = PathBuf>,
 ) -> impl Iterator<Item = ResourceObject> {
     let mut ro_list = Vec::<ResourceObject>::new();
