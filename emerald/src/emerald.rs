@@ -79,8 +79,8 @@ impl Emerald {
         debug!("Creation of DefaultLinkModel: {:?}", elapsed);
 
         let start = Instant::now();
-        let all_meta_data =
-            adapters::adapter_to_rid_and_meta_data(all_vec.clone(), &meta_data_loader)?;
+        // let all_meta_data =
+        //     adapters::adapter_to_rid_and_meta_data(all_vec.clone(), &meta_data_loader)?;
         let fmod = Rc::new(file::DefaultFileModel::new(all_vec));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultFileModel: {:?}", elapsed);

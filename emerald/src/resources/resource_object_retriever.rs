@@ -1,6 +1,7 @@
 use super::resource_object::ResourceObject;
 use crate::error::Result;
 use crate::types;
+
 #[cfg(test)]
 use mockall::{automock, predicate::*};
 

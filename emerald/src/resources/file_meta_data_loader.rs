@@ -65,4 +65,24 @@ where
 }
 
 #[cfg(test)]
-mod tests {}
+mod tests {
+    use super::FileMetaDataLoader;
+    use crate::resources::resource_object::ResourceObject;
+    use crate::resources::{MetaDataLoader, MockResourceObjectRetriever};
+    use crate::types::{self, FileType};
+    use std::path::PathBuf;
+
+    fn create_test_case(path: PathBuf) -> FileMetaDataLoader<MockResourceObjectRetriever> {
+        let mut mock = MockResourceObjectRetriever::new();
+        mock.expect_retrieve()
+            .returning(move |_f| Ok(ResourceObject::File(path.clone())));
+        FileMetaDataLoader::new(mock)
+    }
+
+    #[test]
+    fn test_get_file_type() {
+        let dut = create_test_case("test.md".into());
+        let res = dut.load(&types::ResourceId::from("resid0")).unwrap();
+        assert_eq!(res.file_type, types::FileType::Markdown("md".into()))
+    }
+}

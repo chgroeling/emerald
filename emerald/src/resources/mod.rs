@@ -29,3 +29,6 @@ pub use resource_object_map::ResourceObjectMap;
 
 #[cfg(test)]
 pub use meta_data_loader::MockMetaDataLoader;
+
+#[cfg(test)]
+pub use resource_object_retriever::MockResourceObjectRetriever;
