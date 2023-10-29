@@ -13,10 +13,4 @@ pub struct MetaData {
 
 impl MetaData {
     // builder pattern could work wonders here
-    pub fn new_empty_stem(file_type: FileType) -> Self {
-        MetaData {
-            file_stem: "".into(),
-            file_type,
-        }
-    }
 }
