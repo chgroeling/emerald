@@ -3,11 +3,12 @@ use crate::types;
 use log::{debug, error, info, trace, warn};
 
 pub fn filter_rid_and_meta_data<'a>(
-    it_src: impl IntoIterator<Item = (types::ResourceId, types::MetaData)> + 'a,
+    it_src: impl IntoIterator<Item = &'a (types::ResourceId, types::MetaData)> + 'a,
 ) -> impl Iterator<Item = (types::ResourceId, types::MetaData)> + 'a {
     it_src
         .into_iter()
         .filter(|pred| matches!(pred.1.file_type, types::FileType::Markdown(_)))
+        .cloned()
 }
 
 #[cfg(test)]
@@ -32,7 +33,7 @@ mod tests {
         ];
 
         // Act
-        let result: Vec<_> = filter_rid_and_meta_data(all_res_ids.into_iter()).collect();
+        let result: Vec<_> = filter_rid_and_meta_data(all_res_ids.iter()).collect();
 
         // Assert
         let expected: Vec<_> = vec![create_test_data(

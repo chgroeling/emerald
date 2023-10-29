@@ -63,10 +63,10 @@ impl Emerald {
 
         // load all meta data and ensure that there were no errors
         let all_meta_data: Vec<_> =
-            adapters::adapter_to_rid_and_meta_data(all_vec.clone(), &meta_data_loader)?.collect();
+            adapters::adapter_to_rid_and_meta_data(&all_vec, &meta_data_loader)?.collect();
 
-        let md_vec_md: Vec<_> = adapters::filter_rid_and_meta_data(all_meta_data).collect();
-        let md_it = md_vec_md.iter().map(|f| &f.0);
+        let md_meta_data: Vec<_> = adapters::filter_rid_and_meta_data(&all_meta_data).collect();
+        let md_it = md_meta_data.iter().map(|f| &f.0);
 
         let elapsed = start.elapsed();
         debug!("Creation of ResourceId md vec: {:?}", elapsed);
@@ -85,7 +85,7 @@ impl Emerald {
 
         let start = Instant::now();
 
-        let fmod = Rc::new(file::DefaultFileModel::new(all_vec));
+        let fmod = Rc::new(file::DefaultFileModel::new(all_meta_data));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultFileModel: {:?}", elapsed);
 
@@ -96,7 +96,7 @@ impl Emerald {
         let s2t_idx: Vec<_> =
             adapters::adapter_to_link_src_2_tgt(ct_it, link_model.as_ref()).collect();
 
-        let nmod = Rc::new(note::DefaultNoteModel::new(md_vec_md, s2t_idx));
+        let nmod = Rc::new(note::DefaultNoteModel::new(md_meta_data, s2t_idx));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultNoteModel: {:?}", elapsed);
 

@@ -16,7 +16,7 @@ impl MetaData {
     pub fn new_empty_stem(file_type: FileType) -> Self {
         MetaData {
             file_stem: "".into(),
-            file_type: file_type,
+            file_type,
         }
     }
 }
