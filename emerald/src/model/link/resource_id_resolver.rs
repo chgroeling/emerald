@@ -1,5 +1,5 @@
+use crate::error::Result;
 use crate::types;
-use crate::Result;
 
 pub enum Hint {
     #[allow(dead_code)]
