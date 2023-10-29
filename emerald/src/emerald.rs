@@ -33,10 +33,8 @@ impl Emerald {
 
         let start = Instant::now();
         let ros_rids: Vec<_> = resources::adapter_to_ro_and_rid(all_ros_vec, vault_path)?.collect();
-
-        let all_vec: Vec<_> = resources::adapter_to_rid(&ros_rids).collect();
         let elapsed = start.elapsed();
-        debug!("Creation of ResourceId vec: {:?}", elapsed);
+        debug!("Creation of ResourceObject vec: {:?}", elapsed);
 
         let start = Instant::now();
         let _rid_retriever = resources::ResourceIdMap::new(&ros_rids);
@@ -47,6 +45,11 @@ impl Emerald {
         let ro_retriever = resources::ResourceObjectMap::new(&ros_rids);
         let elapsed = start.elapsed();
         debug!("Creation of ResourceObjectMap: {:?}", elapsed);
+
+        let start = Instant::now();
+        let all_vec: Vec<_> = resources::adapter_to_rid(&ros_rids).collect();
+        let elapsed = start.elapsed();
+        debug!("Creation of ResourceId vec: {:?}", elapsed);
 
         let start = Instant::now();
         let content_loader = resources::FileContentLoader::new(ro_retriever.clone());
