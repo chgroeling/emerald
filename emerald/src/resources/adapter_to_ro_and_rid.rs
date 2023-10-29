@@ -5,7 +5,7 @@ use crate::types;
 use log::{debug, error, info, trace, warn};
 use std::path::Path;
 
-pub fn adapter_ro_to_ro_and_rid<'a>(
+pub fn adapter_to_ro_and_rid<'a>(
     it_src: impl IntoIterator<Item = ResourceObject> + 'a,
     common_path: &'a Path,
 ) -> Result<impl Iterator<Item = (ResourceObject, types::ResourceId)> + 'a> {
@@ -30,7 +30,7 @@ pub fn adapter_ro_to_ro_and_rid<'a>(
 
 #[cfg(test)]
 mod tests {
-    use super::adapter_ro_to_ro_and_rid;
+    use super::adapter_to_ro_and_rid;
     use super::ResourceObject;
     use crate::types::ResourceId;
     use std::path::PathBuf;
@@ -40,7 +40,7 @@ mod tests {
         let ros: Vec<_> = vec![ResourceObject::File("testpäth".into())];
         let common_path: PathBuf = "".into();
 
-        let res: Vec<_> = adapter_ro_to_ro_and_rid(ros.into_iter(), &common_path)
+        let res: Vec<_> = adapter_to_ro_and_rid(ros.into_iter(), &common_path)
             .unwrap()
             .collect();
 
@@ -58,7 +58,7 @@ mod tests {
         let ros: Vec<_> = vec![ResourceObject::File("testpäth".into())];
         let common_path: PathBuf = "".into();
 
-        let res: Vec<_> = adapter_ro_to_ro_and_rid(ros.into_iter(), &common_path)
+        let res: Vec<_> = adapter_to_ro_and_rid(ros.into_iter(), &common_path)
             .unwrap()
             .collect();
 

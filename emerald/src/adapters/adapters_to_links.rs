@@ -2,7 +2,7 @@ use crate::types;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-pub fn adapter_from_content_type_to_links<'a>(
+pub fn adapter_to_rid_and_links<'a>(
     it_src: impl IntoIterator<Item = (&'a types::ResourceId, types::ContentType<'a>)> + 'a,
 ) -> impl Iterator<Item = (&'a types::ResourceId, types::Link)> + 'a {
     it_src

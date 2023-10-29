@@ -28,12 +28,11 @@ impl Emerald {
         // Build dependency root
         let start = Instant::now();
         let path_list = resources::get_path_list(vault_path)?;
-        let all_ros_vec: Vec<_> = resources::adapter_from_pathes_to_ro(path_list).collect();
+        let all_ros_vec: Vec<_> = resources::adapter_to_ro(path_list).collect();
         debug!("Creation of ResourceObject vec: {:?}", start.elapsed());
 
         let start = Instant::now();
-        let ros_rids: Vec<_> =
-            resources::adapter_ro_to_ro_and_rid(all_ros_vec, vault_path)?.collect();
+        let ros_rids: Vec<_> = resources::adapter_to_ro_and_rid(all_ros_vec, vault_path)?.collect();
 
         let all_vec: Vec<_> = resources::adapter_to_rid(&ros_rids).collect();
         let elapsed = start.elapsed();
@@ -78,7 +77,7 @@ impl Emerald {
         debug!("Creation of DefaultContentModel: {:?}", elapsed);
 
         let start = Instant::now();
-        let name_iter = adapters::adapter_from_rid_to_name(&all_vec)?;
+        let name_iter = adapters::adapter_to_rid_and_name(&all_vec)?;
         let link_model = Rc::new(link::DefaultLinkModel::new(name_iter));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultLinkModel: {:?}", elapsed);
