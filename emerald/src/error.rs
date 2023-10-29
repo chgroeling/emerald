@@ -38,7 +38,7 @@ pub enum EmeraldError {
     NotAMarkdownFile,
 
     #[error("Tried to handle something as a file which was none")]
-    NotAFile,
+    NotAFile(PathBuf),
 
     #[error("The ResourceObject {0} has no assigned ResourceId")]
     ResourceObjectHasNoResourceId(String),

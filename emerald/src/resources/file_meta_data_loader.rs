@@ -24,7 +24,7 @@ where
     }
 
     fn get_file_type(&self, path: &Path) -> Result<types::FileType> {
-        let os_ext = path.extension().ok_or(NotAFile)?;
+        let os_ext = path.extension().ok_or(NotAFile(path.into()))?;
         let ext = os_ext.to_str().ok_or(ValueError)?;
         match ext {
             "md" => Ok(types::FileType::Markdown(ext.to_string())),
@@ -34,7 +34,7 @@ where
     }
 
     fn get_file_stem(&self, path: &Path) -> Result<String> {
-        let os_filename = path.file_stem().ok_or(NotAFile)?;
+        let os_filename = path.file_stem().ok_or(NotAFile(path.into()))?;
         let file_stem = os_filename.to_str().ok_or(ValueError)?.to_string();
         Ok(file_stem)
     }
