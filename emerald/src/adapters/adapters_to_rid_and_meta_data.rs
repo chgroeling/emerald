@@ -24,14 +24,11 @@ mod tests {
     use crate::types::FileType;
     use crate::{adapters::adapter_to_rid_and_meta_data, resources::MockMetaDataLoader, types};
 
-    fn create_test_data(rid: &str, file_type: FileType) -> (types::ResourceId, types::MetaData) {
-        (
-            rid.into(),
-            types::MetaData {
-                file_stem: "".into(),
-                file_type: file_type,
-            },
-        )
+    fn create_test_rid_and_meta_data(
+        rid: &str,
+        file_type: FileType,
+    ) -> (types::ResourceId, types::MetaData) {
+        (rid.into(), types::MetaData::new_empty_stem(file_type))
     }
 
     #[test]
@@ -43,16 +40,12 @@ mod tests {
         let mut count = 0;
         let mut mock_md_loader = MockMetaDataLoader::new();
         mock_md_loader.expect_load().returning(move |_| {
+            use types::{FileType, MetaData};
             count += 1;
-            let file_type = match count {
-                1 => types::FileType::Unknown("unk".into()),
-                2 => types::FileType::Markdown("md".into()),
-                _ => types::FileType::Unknown("unk".into()),
-            };
-
-            Ok(types::MetaData {
-                file_stem: "".into(),
-                file_type,
+            Ok(match count {
+                1 => MetaData::new_empty_stem(FileType::Unknown("unk".into())),
+                2 => MetaData::new_empty_stem(FileType::Markdown("md".into())),
+                _ => MetaData::new_empty_stem(FileType::Unknown("unk".into())),
             })
         });
 
@@ -62,8 +55,8 @@ mod tests {
 
         // Assert
         let expected: Vec<_> = vec![
-            create_test_data("[[rid1]]", types::FileType::Unknown("unk".into())),
-            create_test_data("[[rid2]]", types::FileType::Markdown("md".into())),
+            create_test_rid_and_meta_data("[[rid1]]", types::FileType::Unknown("unk".into())),
+            create_test_rid_and_meta_data("[[rid2]]", types::FileType::Markdown("md".into())),
         ];
         assert_eq!(result, expected);
     }
