@@ -7,9 +7,11 @@ pub struct DefaultFileModel {
 }
 
 impl DefaultFileModel {
-    pub fn new(it_files: impl IntoIterator<Item = types::ResourceId>) -> DefaultFileModel {
+    pub fn new(
+        it_files: impl IntoIterator<Item = (types::ResourceId, types::MetaData)>,
+    ) -> DefaultFileModel {
         DefaultFileModel {
-            file_index: it_files.into_iter().collect(),
+            file_index: it_files.into_iter().map(|f| f.0).collect(),
         }
     }
 }

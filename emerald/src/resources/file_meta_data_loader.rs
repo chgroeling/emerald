@@ -3,9 +3,10 @@ use super::resource_object::ResourceObject;
 use super::resource_object_retriever::ResourceObjectRetriever;
 use crate::error::{EmeraldError::*, Result};
 use crate::types;
+use std::path::Path;
+
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
-use std::path::Path;
 
 #[derive(Clone)]
 pub struct FileMetaDataLoader<I>
@@ -24,7 +25,10 @@ where
     }
 
     fn get_file_type(&self, path: &Path) -> Result<types::FileType> {
-        let os_ext = path.extension().ok_or(NotAFile)?;
+        let Some(os_ext) = path.extension() else {
+            return Ok(types::FileType::NoFileType());
+        };
+
         let ext = os_ext.to_str().ok_or(ValueError)?;
         match ext {
             "md" => Ok(types::FileType::Markdown(ext.to_string())),
@@ -34,7 +38,7 @@ where
     }
 
     fn get_file_stem(&self, path: &Path) -> Result<String> {
-        let os_filename = path.file_stem().ok_or(NotAFile)?;
+        let os_filename = path.file_stem().ok_or(NotAFile(path.into()))?;
         let file_stem = os_filename.to_str().ok_or(ValueError)?.to_string();
         Ok(file_stem)
     }
@@ -65,4 +69,31 @@ where
 }
 
 #[cfg(test)]
-mod tests {}
+mod tests {
+    use super::FileMetaDataLoader;
+    use crate::resources::resource_object::ResourceObject;
+    use crate::resources::{MetaDataLoader, MockResourceObjectRetriever};
+    use crate::types;
+    use std::path::PathBuf;
+
+    fn create_test_case(path: PathBuf) -> FileMetaDataLoader<MockResourceObjectRetriever> {
+        let mut mock = MockResourceObjectRetriever::new();
+        mock.expect_retrieve()
+            .returning(move |_f| Ok(ResourceObject::File(path.clone())));
+        FileMetaDataLoader::new(mock)
+    }
+
+    #[test]
+    fn test_load_file_type_is_markdown() {
+        let dut = create_test_case("test.md".into());
+        let res = dut.load(&types::ResourceId::from("resid0")).unwrap();
+        assert_eq!(res.file_type, types::FileType::Markdown("md".into()))
+    }
+
+    #[test]
+    fn test_load_file_type_is_no_file_type() {
+        let dut = create_test_case("test".into());
+        let res = dut.load(&types::ResourceId::from("resid0")).unwrap();
+        assert_eq!(res.file_type, types::FileType::NoFileType())
+    }
+}

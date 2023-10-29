@@ -10,3 +10,7 @@ pub struct MetaData {
     pub file_stem: String,
     pub file_type: FileType,
 }
+
+impl MetaData {
+    // builder pattern could work wonders here
+}

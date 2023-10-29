@@ -60,14 +60,19 @@ impl Emerald {
         debug!("Creation of FileMetaDataLoader: {:?}", elapsed);
 
         let start = Instant::now();
-        // Transform iter: from (ResourceId) to (FileType, ResourceId)
-        let ft_and_rid_iter = adapters::adapter_to_rid_and_filetype(&all_vec, &meta_data_loader);
-        let md_vec: Vec<_> = adapters::adapter_to_rid(ft_and_rid_iter).collect();
+
+        // load all meta data and ensure that there were no errors
+        let all_meta_data: Vec<_> =
+            adapters::adapter_to_rid_and_meta_data(&all_vec, &meta_data_loader)?.collect();
+
+        let md_meta_data: Vec<_> = adapters::filter_rid_and_meta_data(&all_meta_data).collect();
+        let md_it = md_meta_data.iter().map(|f| &f.0);
+
         let elapsed = start.elapsed();
         debug!("Creation of ResourceId md vec: {:?}", elapsed);
 
         let start = Instant::now();
-        let md_content_vec = resources::adapter_to_rid_and_content(&md_vec, &content_loader)?;
+        let md_content_vec = resources::adapter_to_rid_and_content(md_it.clone(), &content_loader)?;
         let content_model = Rc::new(content::DefaultContentModel::new(md_content_vec));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultContentModel: {:?}", elapsed);
@@ -79,19 +84,18 @@ impl Emerald {
         debug!("Creation of DefaultLinkModel: {:?}", elapsed);
 
         let start = Instant::now();
-        let fmod = Rc::new(file::DefaultFileModel::new(all_vec));
+
+        let fmod = Rc::new(file::DefaultFileModel::new(all_meta_data));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultFileModel: {:?}", elapsed);
 
         let start = Instant::now();
-        let c_it = adapters::adapter_to_rids_and_content(&md_vec, content_model.as_ref());
+        let c_it = adapters::adapter_to_rids_and_content(md_it, content_model.as_ref());
         let md_analyzer = markdown::MarkdownAnalyzerImpl::new();
         let ct_it = adapters::adapter_to_rid_and_content_type(c_it, md_analyzer);
         let s2t_idx: Vec<_> =
             adapters::adapter_to_link_src_2_tgt(ct_it, link_model.as_ref()).collect();
 
-        // load all meta data and ensure that there were no errors
-        let md_meta_data = adapters::adapter_to_rid_and_meta_data(md_vec, &meta_data_loader)?;
         let nmod = Rc::new(note::DefaultNoteModel::new(md_meta_data, s2t_idx));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultNoteModel: {:?}", elapsed);
