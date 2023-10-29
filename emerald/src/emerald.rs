@@ -47,7 +47,7 @@ impl Emerald {
         debug!("Creation of ResourceObjectMap: {:?}", elapsed);
 
         let start = Instant::now();
-        let all_vec: Vec<_> = resources::adapter_to_rid(&ros_rids).collect();
+        let all_vec: Vec<_> = resources::adapter_to_rid(ros_rids).collect();
         let elapsed = start.elapsed();
         debug!("Creation of ResourceId vec: {:?}", elapsed);
 
