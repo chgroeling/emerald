@@ -14,15 +14,21 @@ pub fn adapter_to_rid<'a>(
 mod tests {
     use super::types;
     use crate::{adapters::adapter_to_rid, types::FileType};
-    /*
+
+    fn create_test_data(file_type: FileType) -> types::MetaData {
+        types::MetaData {
+            file_stem: "".into(),
+            file_type: file_type,
+        }
+    }
     #[test]
     fn test_filter_markdown_types_two_but_one_remains() {
         let rid1: types::ResourceId = "[[rid1]]".into();
         let rid2: types::ResourceId = "[[rid2]]".into();
 
         let all_res_ids = vec![
-            (rid1, FileType::Unknown("md".into())),
-            (rid2, FileType::Markdown("md".into())),
+            (rid1, create_test_data(FileType::Unknown("md".into()))),
+            (rid2, create_test_data(FileType::Markdown("md".into()))),
         ];
 
         // Act
@@ -30,8 +36,7 @@ mod tests {
 
         // Assert
         let rid2_exp: types::ResourceId = "[[rid2]]".into();
-        let expected: Vec<types::ResourceId> = vec![rid2_exp];
+        let expected: Vec<_> = vec![(rid2_exp, create_test_data(FileType::Markdown("md".into())))];
         assert_eq!(result, expected);
     }
-    */
 }
