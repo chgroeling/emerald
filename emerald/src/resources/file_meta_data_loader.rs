@@ -80,7 +80,7 @@ mod tests {
     }
 
     #[test]
-    fn test_get_file_type() {
+    fn test_get_file_type_markdown() {
         let dut = create_test_case("test.md".into());
         let res = dut.load(&types::ResourceId::from("resid0")).unwrap();
         assert_eq!(res.file_type, types::FileType::Markdown("md".into()))
