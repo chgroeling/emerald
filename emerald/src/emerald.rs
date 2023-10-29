@@ -65,15 +65,14 @@ impl Emerald {
         let all_meta_data: Vec<_> =
             adapters::adapter_to_rid_and_meta_data(all_vec.clone(), &meta_data_loader)?.collect();
 
-        // Transform iter: from (ResourceId) to (FileType, ResourceId)
         let md_vec_md: Vec<_> = adapters::adapter_to_rid(all_meta_data).collect();
-        let md_vec: Vec<_> = md_vec_md.iter().map(|f| f.0.clone()).collect();
+        let md_it = md_vec_md.iter().map(|f| &f.0);
 
         let elapsed = start.elapsed();
         debug!("Creation of ResourceId md vec: {:?}", elapsed);
 
         let start = Instant::now();
-        let md_content_vec = resources::adapter_to_rid_and_content(&md_vec, &content_loader)?;
+        let md_content_vec = resources::adapter_to_rid_and_content(md_it.clone(), &content_loader)?;
         let content_model = Rc::new(content::DefaultContentModel::new(md_content_vec));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultContentModel: {:?}", elapsed);
@@ -91,7 +90,7 @@ impl Emerald {
         debug!("Creation of DefaultFileModel: {:?}", elapsed);
 
         let start = Instant::now();
-        let c_it = adapters::adapter_to_rids_and_content(&md_vec, content_model.as_ref());
+        let c_it = adapters::adapter_to_rids_and_content(md_it, content_model.as_ref());
         let md_analyzer = markdown::MarkdownAnalyzerImpl::new();
         let ct_it = adapters::adapter_to_rid_and_content_type(c_it, md_analyzer);
         let s2t_idx: Vec<_> =
