@@ -1,4 +1,5 @@
-use super::{markdown_analyzer::MarkdownAnalyzer, markdown_analyzer_iter::MarkdownAnalyzerIter};
+use super::markdown_analyzer::MarkdownAnalyzer;
+use super::markdown_analyzer_iter::MarkdownAnalyzerIter;
 
 #[derive(Debug, Clone, Copy, PartialEq, Hash)]
 pub struct MarkdownAnalyzerImpl;
