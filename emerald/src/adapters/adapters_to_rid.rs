@@ -16,36 +16,34 @@ mod tests {
     use super::types;
     use crate::adapters::filter_rid_and_meta_data;
 
-    pub fn create_meta_data(file_type: types::FileType) -> types::MetaData {
+    pub fn create_meta_data(ft: types::FileType) -> types::MetaData {
         types::MetaData {
             file_stem: "".into(),
-            file_type,
+            file_type: ft,
         }
     }
 
-    fn create_rid_and_meta_data(
+    fn create_rid_meta_data(
         rid: &str,
-        file_type: types::FileType,
+        ft: types::FileType,
     ) -> (types::ResourceId, types::MetaData) {
-        (rid.into(), create_meta_data(file_type))
+        (rid.into(), create_meta_data(ft))
     }
 
     #[test]
-    fn test_filter_markdown_types_two_but_one_remains() {
+    fn test_filter_two_and_one_remains() {
+        use types::FileType::*;
+
         let all_res_ids = vec![
-            create_rid_and_meta_data("[[rid1]]", types::FileType::Unknown("unk".into())),
-            create_rid_and_meta_data("[[rid2]]", types::FileType::Markdown("md".into())),
+            create_rid_meta_data("[[rid1]]", Unknown("unk".into())),
+            create_rid_meta_data("[[rid2]]", Markdown("md".into())),
         ];
 
-        // Act
         let result: Vec<_> = filter_rid_and_meta_data(all_res_ids.iter()).collect();
 
-        // Assert
-        let expected: Vec<_> = vec![create_rid_and_meta_data(
-            "[[rid2]]",
-            types::FileType::Markdown("md".into()),
-        )];
-
-        assert_eq!(result, expected);
+        assert_eq!(
+            result,
+            vec![create_rid_meta_data("[[rid2]]", Markdown("md".into()))]
+        );
     }
 }
