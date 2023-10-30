@@ -208,7 +208,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
 }
 
 impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
-    type Item = types::ContentType<'a>;
+    type Item = types::MdBlock<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut next_element = self.it.next();
@@ -221,7 +221,7 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                 _ => IllegalFormat,
             };
 
-            use types::ContentType as ct; // short hand for the following code
+            use types::MdBlock as ct; // short hand for the following code
             match iter_state {
                 WikiLinkFound(s1, e1) => return Some(ct::WikiLink(&self.buf[s1..e1])),
                 LinkFound(s1, e1) => return Some(ct::Link(&self.buf[s1..e1])),
@@ -239,7 +239,7 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
 
 #[cfg(test)]
 mod tests {
-    use super::types::ContentType::*;
+    use super::types::MdBlock::*;
     use super::MarkdownAnalyzerIter;
 
     #[test]
