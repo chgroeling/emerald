@@ -3,7 +3,7 @@ use super::adapters_to_links::adapter_to_rid_and_links;
 use crate::{model::link, types};
 
 pub fn adapter_to_link_src_2_tgt<'a>(
-    it_src: impl IntoIterator<Item = (&'a types::ResourceId, types::ContentType<'a>)> + 'a,
+    it_src: impl IntoIterator<Item = (&'a types::ResourceId, types::MdBlock<'a>)> + 'a,
     rid_resolver: &'a impl link::ResourceIdResolver,
 ) -> impl Iterator<Item = types::LinkSrc2Tgt> + 'a {
     let it1 = adapter_to_rid_and_links(it_src);
