@@ -2,7 +2,6 @@ use super::file_count::FileCount;
 use super::file_meta_data_map::FileMetaDataMap;
 use super::file_meta_data_retriever::FileMetaDataRetriever;
 use super::files_iter_src::FilesIterSrc;
-
 use crate::types;
 
 pub struct DefaultFileModel {
