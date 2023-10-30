@@ -4,11 +4,11 @@ use crate::types;
 use std::rc::Rc;
 
 pub struct MetaDataTitleProvider {
-    meta_data_retriever: Rc<dyn note::MetaDataRetriever>,
+    meta_data_retriever: Rc<dyn note::NoteMetaDataRetriever>,
 }
 
 impl MetaDataTitleProvider {
-    pub fn new(meta_data_retriever: Rc<dyn note::MetaDataRetriever>) -> Self {
+    pub fn new(meta_data_retriever: Rc<dyn note::NoteMetaDataRetriever>) -> Self {
         Self {
             meta_data_retriever,
         }

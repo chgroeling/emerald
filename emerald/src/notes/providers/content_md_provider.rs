@@ -6,13 +6,13 @@ use std::rc::Rc;
 
 pub struct ContentMdProvider {
     content_retriever: Rc<dyn content::MdContentRetriever>,
-    meta_data_retriever: Rc<dyn note::MetaDataRetriever>,
+    meta_data_retriever: Rc<dyn note::NoteMetaDataRetriever>,
 }
 
 impl ContentMdProvider {
     pub fn new(
         content_retriever: Rc<dyn content::MdContentRetriever>,
-        meta_data_retriever: Rc<dyn note::MetaDataRetriever>,
+        meta_data_retriever: Rc<dyn note::NoteMetaDataRetriever>,
     ) -> Self {
         Self {
             content_retriever,

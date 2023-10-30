@@ -1,7 +1,7 @@
 use super::links_iter_src::LinksIterSrc;
-use super::meta_data_map::MetaDataMap;
-use super::meta_data_retriever::MetaDataRetriever;
 use super::note_count::NoteCount;
+use super::note_meta_data_map::NoteMetaDataMap;
+use super::note_meta_data_retriever::NoteMetaDataRetriever;
 use super::notes_iter_src::NotesIterSrc;
 use super::src_links_map::SrcLinksMap;
 use super::tgt_links_map::TgtLinksMap;
@@ -10,7 +10,7 @@ use crate::types;
 #[allow(dead_code)]
 pub struct DefaultNoteModel {
     note_index: Vec<types::ResourceId>,
-    meta_data_map: MetaDataMap,
+    meta_data_map: NoteMetaDataMap,
     link_index: Vec<types::LinkSrc2Tgt>,
     src_links_map: SrcLinksMap,
     tgt_links_map: TgtLinksMap,
@@ -30,7 +30,7 @@ impl DefaultNoteModel {
             link_index,
             src_links_map,
             tgt_links_map,
-            meta_data_map: MetaDataMap::new(it_note_meta),
+            meta_data_map: NoteMetaDataMap::new(it_note_meta),
         }
     }
 
@@ -39,7 +39,7 @@ impl DefaultNoteModel {
     }
 }
 
-impl MetaDataRetriever for DefaultNoteModel {
+impl NoteMetaDataRetriever for DefaultNoteModel {
     fn retrieve(&self, md: &types::ResourceId) -> &types::MetaData {
         // Option is not returned because meta data should be consistent at this point
         self.meta_data_map.retrieve(md)

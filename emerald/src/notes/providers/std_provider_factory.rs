@@ -8,13 +8,13 @@ use crate::{model::content, model::note};
 
 #[derive(Clone)]
 pub struct StdProviderFactory {
-    meta_data_retriever: Rc<dyn note::MetaDataRetriever>,
+    meta_data_retriever: Rc<dyn note::NoteMetaDataRetriever>,
     content_retriever: Rc<dyn content::MdContentRetriever>,
 }
 
 impl StdProviderFactory {
     pub fn new(
-        meta_data_retriever: Rc<dyn note::MetaDataRetriever>,
+        meta_data_retriever: Rc<dyn note::NoteMetaDataRetriever>,
         content_retriever: Rc<dyn content::MdContentRetriever>,
     ) -> Self {
         Self {
