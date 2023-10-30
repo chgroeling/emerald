@@ -10,10 +10,10 @@ use crate::types;
 #[allow(dead_code)]
 pub struct DefaultNoteModel {
     note_index: Vec<types::ResourceId>,
+    meta_data_map: MetaDataMap,
     link_index: Vec<types::LinkSrc2Tgt>,
     src_links_map: SrcLinksMap,
     tgt_links_map: TgtLinksMap,
-    meta_data_map: MetaDataMap,
 }
 
 impl DefaultNoteModel {
