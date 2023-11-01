@@ -4,13 +4,12 @@ use super::resource_object_retriever::ResourceObjectRetriever;
 use crate::error::{EmeraldError::*, Result};
 use crate::types::MetaDataBuilder;
 use crate::{types, EmeraldError};
+use std::fs;
+use std::path::Path;
+use std::time::UNIX_EPOCH;
 
 #[cfg(test)]
 use mockall::{predicate::*, *};
-use std::fs;
-use std::marker::PhantomData;
-use std::path::Path;
-use std::time::UNIX_EPOCH;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
@@ -21,13 +20,13 @@ pub struct FsMetadata {
 }
 #[cfg_attr(test, automock)]
 pub trait FsMetadataAccess {
-    fn get_meta_data_from_fs(path: &Path) -> Result<FsMetadata>;
+    fn get_meta_data_from_fs(&self, path: &Path) -> Result<FsMetadata>;
 }
 
 pub struct FsMetadataAccessImpl();
 
 impl FsMetadataAccessImpl {
-    fn get_meta_data_from_fs(path: &Path) -> Result<FsMetadata> {
+    fn get_meta_data_from_fs(&self, path: &Path) -> Result<FsMetadata> {
         if let Ok(meta_data) = fs::metadata(path) {
             let modified = meta_data.modified()?;
             let modified_dur = modified.duration_since(UNIX_EPOCH).unwrap();
@@ -48,8 +47,8 @@ impl FsMetadataAccessImpl {
 }
 
 impl FsMetadataAccess for FsMetadataAccessImpl {
-    fn get_meta_data_from_fs(path: &Path) -> Result<FsMetadata> {
-        Self::get_meta_data_from_fs(path)
+    fn get_meta_data_from_fs(&self, path: &Path) -> Result<FsMetadata> {
+        self.get_meta_data_from_fs(path)
     }
 }
 #[derive(Clone)]
@@ -94,7 +93,7 @@ where
     }
 
     fn get_file_timestamps(&self, path: &Path) -> Result<(i64, i64)> {
-        let metadata = U::get_meta_data_from_fs(path)?;
+        let metadata = self.fs_meta_data_access.get_meta_data_from_fs(path)?;
 
         Ok((metadata.modified as i64, metadata.created as i64))
     }
@@ -166,25 +165,6 @@ mod tests {
     use crate::types;
     use std::path::PathBuf;
 
-    use lazy_static::lazy_static;
-    use std::sync::{Mutex, MutexGuard};
-
-    lazy_static! {
-        static ref MTX: Mutex<()> = Mutex::new(());
-    }
-
-    // When a test panics, it will poison the Mutex. Since we don't actually
-    // care about the state of the data we ignore that it is poisoned and grab
-    // the lock regardless.  If you just do `let _m = &MTX.lock().unwrap()`, one
-    // test panicking will cause all other tests that try and acquire a lock on
-    // that Mutex to also panic.
-    fn get_lock(m: &'static Mutex<()>) -> MutexGuard<'static, ()> {
-        match m.lock() {
-            Ok(guard) => guard,
-            Err(poisoned) => poisoned.into_inner(),
-        }
-    }
-
     fn create_test_case(
         path: PathBuf,
     ) -> FileMetaDataLoaderImpl<MockResourceObjectRetriever, MockFsMetadataAccess> {
@@ -192,38 +172,28 @@ mod tests {
         mock.expect_retrieve()
             .returning(move |_f| Ok(ResourceObject::File(path.clone())));
 
-        let mock_fs_access = MockFsMetadataAccess::new();
+        let mut mock_fs_access = MockFsMetadataAccess::new();
+        mock_fs_access
+            .expect_get_meta_data_from_fs()
+            .returning(|_| {
+                Ok(FsMetadata {
+                    modified: 0,
+                    created: 0,
+                })
+            });
         FileMetaDataLoaderImpl::new(mock, mock_fs_access)
     }
 
     #[test]
     fn test_load_file_type_is_markdown() {
-        let _m = get_lock(&MTX);
-
         let dut = create_test_case("test.md".into());
-        let ctx = MockFsMetadataAccess::get_meta_data_from_fs_context();
-        ctx.expect().returning(|_| {
-            Ok(FsMetadata {
-                modified: 0,
-                created: 0,
-            })
-        });
-
         let res = dut.load(&types::ResourceId::from("resid0")).unwrap();
         assert_eq!(res.file_type, types::FileType::Markdown("md".into()));
     }
 
     #[test]
     fn test_load_file_type_is_no_file_type() {
-        let _m = get_lock(&MTX);
         let dut = create_test_case("test".into());
-        let ctx = MockFsMetadataAccess::get_meta_data_from_fs_context();
-        ctx.expect().returning(|_| {
-            Ok(FsMetadata {
-                modified: 0,
-                created: 0,
-            })
-        });
         let res = dut.load(&types::ResourceId::from("resid0")).unwrap();
         assert_eq!(res.file_type, types::FileType::NoFileType())
     }
