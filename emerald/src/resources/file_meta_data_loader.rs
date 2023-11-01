@@ -11,7 +11,9 @@ use std::time::UNIX_EPOCH;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-trait FsMetaData {}
+pub trait FsMetaData {
+    fn get_meta_data_from_fs(&self, path: &Path) -> Result<fs::Metadata>;
+}
 pub struct FsMetaDataImpl();
 
 impl FsMetaDataImpl {
@@ -23,20 +25,32 @@ impl FsMetaDataImpl {
         }
     }
 }
+
+impl FsMetaData for FsMetaDataImpl {
+    fn get_meta_data_from_fs(&self, path: &Path) -> Result<fs::Metadata> {
+        self.get_meta_data_from_fs(path)
+    }
+}
 #[derive(Clone)]
-pub struct FileMetaDataLoader<I>
+pub struct FileMetaDataLoaderImpl<I, U>
 where
     I: ResourceObjectRetriever,
+    U: FsMetaData,
 {
     ro_retriever: I,
+    fs_meta_data: U,
 }
 
-impl<I> FileMetaDataLoader<I>
+impl<I, U> FileMetaDataLoaderImpl<I, U>
 where
     I: ResourceObjectRetriever,
+    U: FsMetaData,
 {
-    pub fn new(ro_retriever: I) -> Self {
-        Self { ro_retriever }
+    pub fn new(ro_retriever: I, fs_meta_data: U) -> Self {
+        Self {
+            ro_retriever,
+            fs_meta_data,
+        }
     }
 
     fn get_file_type(&self, path: &Path) -> Result<types::FileType> {
@@ -90,9 +104,10 @@ where
     }
 }
 
-impl<I> MetaDataLoader for FileMetaDataLoader<I>
+impl<I, U> MetaDataLoader for FileMetaDataLoaderImpl<I, U>
 where
     I: ResourceObjectRetriever,
+    U: FsMetaData,
 {
     fn load(&self, rid: &types::ResourceId) -> Result<types::MetaData> {
         let ro = self.ro_retriever.retrieve(rid)?;
@@ -102,6 +117,30 @@ where
             ResourceObject::File(path) => self.get_file_meta_data(&path),
             _ => Err(NoMetaData),
         }
+    }
+}
+pub struct FileMetaDataLoader<I>(FileMetaDataLoaderImpl<I, FsMetaDataImpl>)
+where
+    I: ResourceObjectRetriever;
+
+impl<I> FileMetaDataLoader<I>
+where
+    I: ResourceObjectRetriever,
+{
+    pub fn new(ro_retriever: I) -> Self {
+        Self(FileMetaDataLoaderImpl {
+            ro_retriever: ro_retriever,
+            fs_meta_data: FsMetaDataImpl(),
+        })
+    }
+}
+
+impl<I> MetaDataLoader for FileMetaDataLoader<I>
+where
+    I: ResourceObjectRetriever,
+{
+    fn load(&self, rid: &types::ResourceId) -> Result<types::MetaData> {
+        self.0.load(rid)
     }
 }
 
