@@ -23,8 +23,8 @@ pub struct FsMetadata {
 pub trait FsMetadataAccess {
     fn get_meta_data_from_fs(&self, path: &Path) -> Result<FsMetadata>;
 }
-pub struct DefaultFsMetadataAccess();
-impl FsMetadataAccess for DefaultFsMetadataAccess {
+pub struct FsMetadataAccessImpl();
+impl FsMetadataAccess for FsMetadataAccessImpl {
     fn get_meta_data_from_fs(&self, path: &Path) -> Result<FsMetadata> {
         if let Ok(meta_data) = fs::metadata(path) {
             if !meta_data.is_file() {
@@ -49,7 +49,7 @@ impl FsMetadataAccess for DefaultFsMetadataAccess {
     }
 }
 #[derive(Clone)]
-pub struct FileMetaDataLoader<I, U = DefaultFsMetadataAccess>
+pub struct FileMetaDataLoader<I, U = FsMetadataAccessImpl>
 where
     I: ResourceObjectRetriever,
     U: FsMetadataAccess,

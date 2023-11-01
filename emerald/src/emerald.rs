@@ -1,4 +1,4 @@
-use crate::resources::DefaultFsMetadataAccess;
+use crate::resources::FsMetadataAccessImpl;
 
 use super::adapters;
 use super::error::Result;
@@ -62,7 +62,7 @@ impl Emerald {
 
         let start = Instant::now();
         let meta_data_loader =
-            resources::FileMetaDataLoader::new(ro_retriever.clone(), DefaultFsMetadataAccess());
+            resources::FileMetaDataLoader::new(ro_retriever.clone(), FsMetadataAccessImpl());
         let elapsed = start.elapsed();
         debug!("Creation of FileMetaDataLoader: {:?}", elapsed);
 
