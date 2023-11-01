@@ -16,11 +16,11 @@ mod tests {
     use super::types;
     use crate::adapters::filter_rid_and_meta_data;
 
-    pub fn create_meta_data(ft: types::FileType) -> types::MetaData {
-        types::MetaData {
-            file_stem: "".into(),
-            file_type: ft,
-        }
+    pub fn create_meta_data(file_type: types::FileType) -> types::MetaData {
+        types::MetaDataBuilder::new()
+            .set_file_stem("".into())
+            .set_file_type(file_type)
+            .build()
     }
 
     fn create_rid_meta_data(

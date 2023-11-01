@@ -2,7 +2,7 @@ use super::meta_data_loader::MetaDataLoader;
 use super::resource_object::ResourceObject;
 use super::resource_object_retriever::ResourceObjectRetriever;
 use crate::error::{EmeraldError::*, Result};
-use crate::types;
+use crate::{types, EmeraldError};
 use chrono::prelude::*;
 use std::fs;
 use std::path::Path;
@@ -11,6 +11,18 @@ use std::time::UNIX_EPOCH;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
+trait FsMetaData {}
+pub struct FsMetaDataImpl();
+
+impl FsMetaDataImpl {
+    pub fn get_meta_data_from_fs(&self, path: &Path) -> Result<fs::Metadata> {
+        if let Ok(meta_data) = fs::metadata(path) {
+            Ok(meta_data)
+        } else {
+            Err(EmeraldError::NoMetaData)
+        }
+    }
+}
 #[derive(Clone)]
 pub struct FileMetaDataLoader<I>
 where
@@ -47,7 +59,8 @@ where
     }
 
     fn get_times(&self, path: &Path) -> Result<String> {
-        let metadata = fs::metadata(path)?;
+        let fs_meta_data = FsMetaDataImpl();
+        let metadata = fs_meta_data.get_meta_data_from_fs(path)?;
 
         let modified = metadata.modified()?;
         let dur = modified.duration_since(UNIX_EPOCH).unwrap();
@@ -71,6 +84,8 @@ where
         Ok(types::MetaData {
             file_stem,
             file_type,
+            modified: 0 as u64,
+            created: 0 as u64,
         })
     }
 }
