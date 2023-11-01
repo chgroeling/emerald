@@ -1,5 +1,3 @@
-use std::fs::File;
-
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub enum FileType {
     Unknown(String),
@@ -12,7 +10,7 @@ impl Default for FileType {
         Self::NoFileType()
     }
 }
-#[derive(Debug, Clone, PartialEq, Hash)]
+#[derive(Debug, Clone, PartialEq, Hash, Default)]
 pub struct MetaData {
     pub file_stem: String,
     pub file_type: FileType,
@@ -20,16 +18,6 @@ pub struct MetaData {
     pub created: i64,
 }
 
-impl Default for MetaData {
-    fn default() -> Self {
-        Self {
-            file_stem: Default::default(),
-            file_type: Default::default(),
-            modified: Default::default(),
-            created: Default::default(),
-        }
-    }
-}
 pub struct MetaDataBuilder {
     prep: MetaData,
 }
@@ -59,7 +47,7 @@ impl MetaDataBuilder {
 
     pub fn set_modified(self, modified: i64) -> Self {
         let new_prep = MetaData {
-            modified: modified,
+            modified,
             ..self.prep
         };
         Self { prep: new_prep }
@@ -67,7 +55,7 @@ impl MetaDataBuilder {
 
     pub fn set_created(self, created: i64) -> Self {
         let new_prep = MetaData {
-            created: created,
+            created,
             ..self.prep
         };
         Self { prep: new_prep }

@@ -16,7 +16,7 @@ impl DefaultFileModel {
         let files: Vec<_> = it_files.into_iter().collect();
         DefaultFileModel {
             file_index: files.iter().map(|f| f.0.clone()).collect(),
-            meta_data_map: FileMetaDataMap::new(files.into_iter()),
+            meta_data_map: FileMetaDataMap::new(files),
         }
     }
 }

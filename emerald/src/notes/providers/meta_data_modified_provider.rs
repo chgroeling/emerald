@@ -17,6 +17,6 @@ impl MetaDataModifiedProvider {
 impl TimestampProvider for MetaDataModifiedProvider {
     fn get_timestamp(&self, rid: &types::ResourceId) -> i64 {
         let meta_data = self.meta_data_retriever.retrieve(rid);
-        meta_data.modified.clone()
+        meta_data.modified
     }
 }

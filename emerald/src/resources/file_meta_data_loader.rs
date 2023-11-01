@@ -70,7 +70,7 @@ where
     pub fn new(ro_retriever: I) -> Self {
         Self {
             ro_retriever,
-            phantom_fs_md: PhantomData::default(),
+            phantom_fs_md: PhantomData,
         }
     }
 
@@ -103,12 +103,13 @@ where
         let file_stem = self.get_file_stem(path)?;
         let file_type = self.get_file_type(path)?;
         let (modified, created) = self.get_file_timestamps(path)?;
-        Ok(types::MetaData {
-            file_stem,
-            file_type,
-            modified,
-            created,
-        })
+
+        let builder = MetaDataBuilder::new()
+            .set_file_stem(file_stem)
+            .set_file_type(file_type)
+            .set_created(created)
+            .set_modified(modified);
+        Ok(builder.build())
     }
 }
 
@@ -140,6 +141,25 @@ mod tests {
     use crate::types;
     use std::path::PathBuf;
 
+    use lazy_static::lazy_static;
+    use std::sync::{Mutex, MutexGuard};
+
+    lazy_static! {
+        static ref MTX: Mutex<()> = Mutex::new(());
+    }
+
+    // When a test panics, it will poison the Mutex. Since we don't actually
+    // care about the state of the data we ignore that it is poisoned and grab
+    // the lock regardless.  If you just do `let _m = &MTX.lock().unwrap()`, one
+    // test panicking will cause all other tests that try and acquire a lock on
+    // that Mutex to also panic.
+    fn get_lock(m: &'static Mutex<()>) -> MutexGuard<'static, ()> {
+        match m.lock() {
+            Ok(guard) => guard,
+            Err(poisoned) => poisoned.into_inner(),
+        }
+    }
+
     fn create_test_case(
         path: PathBuf,
     ) -> FileMetaDataLoaderImpl<MockResourceObjectRetriever, MockFsMetadataAccess> {
@@ -152,6 +172,8 @@ mod tests {
 
     #[test]
     fn test_load_file_type_is_markdown() {
+        let _m = get_lock(&MTX);
+
         let dut = create_test_case("test.md".into());
         let ctx = MockFsMetadataAccess::get_meta_data_from_fs_context();
         ctx.expect().returning(|_| {
@@ -167,6 +189,7 @@ mod tests {
 
     #[test]
     fn test_load_file_type_is_no_file_type() {
+        let _m = get_lock(&MTX);
         let dut = create_test_case("test".into());
         let ctx = MockFsMetadataAccess::get_meta_data_from_fs_context();
         ctx.expect().returning(|_| {

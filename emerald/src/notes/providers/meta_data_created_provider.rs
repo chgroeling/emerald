@@ -17,6 +17,6 @@ impl MetaDataCreatedProvider {
 impl TimestampProvider for MetaDataCreatedProvider {
     fn get_timestamp(&self, rid: &types::ResourceId) -> i64 {
         let meta_data = self.meta_data_retriever.retrieve(rid);
-        meta_data.created.clone()
+        meta_data.created
     }
 }
