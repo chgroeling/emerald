@@ -16,8 +16,8 @@ impl Default for FileType {
 pub struct MetaData {
     pub file_stem: String,
     pub file_type: FileType,
-    pub modified: u64,
-    pub created: u64,
+    pub modified: i64,
+    pub created: i64,
 }
 
 impl Default for MetaData {
@@ -57,7 +57,7 @@ impl MetaDataBuilder {
         Self { prep: new_prep }
     }
 
-    pub fn set_modified(self, modified: u64) -> Self {
+    pub fn set_modified(self, modified: i64) -> Self {
         let new_prep = MetaData {
             modified: modified,
             ..self.prep
@@ -65,7 +65,7 @@ impl MetaDataBuilder {
         Self { prep: new_prep }
     }
 
-    pub fn set_created(self, created: u64) -> Self {
+    pub fn set_created(self, created: i64) -> Self {
         let new_prep = MetaData {
             created: created,
             ..self.prep
