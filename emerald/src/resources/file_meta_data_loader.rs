@@ -14,15 +14,15 @@ use mockall::{predicate::*, *};
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-pub struct FsMetadata {
+struct FsMetadata {
     modified: u64,
     created: u64,
 }
 #[cfg_attr(test, automock)]
-pub trait FsMetadataAccess {
+trait FsMetadataAccess {
     fn get_meta_data_from_fs(&self, path: &Path) -> Result<FsMetadata>;
 }
-pub struct FsMetadataAccessImpl();
+struct FsMetadataAccessImpl();
 impl FsMetadataAccess for FsMetadataAccessImpl {
     fn get_meta_data_from_fs(&self, path: &Path) -> Result<FsMetadata> {
         if let Ok(meta_data) = fs::metadata(path) {
@@ -44,7 +44,7 @@ impl FsMetadataAccess for FsMetadataAccessImpl {
     }
 }
 #[derive(Clone)]
-pub struct FileMetaDataLoaderImpl<I, U = FsMetadataAccessImpl>
+struct FileMetaDataLoaderImpl<I, U = FsMetadataAccessImpl>
 where
     I: ResourceObjectRetriever,
     U: FsMetadataAccess,
@@ -58,7 +58,7 @@ where
     I: ResourceObjectRetriever,
     U: FsMetadataAccess,
 {
-    pub fn new(ro_retriever: I, fs_meta_data_access: U) -> Self {
+    fn new(ro_retriever: I, fs_meta_data_access: U) -> Self {
         Self {
             ro_retriever,
             fs_meta_data_access,
