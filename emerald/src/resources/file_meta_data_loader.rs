@@ -3,7 +3,10 @@ use super::resource_object::ResourceObject;
 use super::resource_object_retriever::ResourceObjectRetriever;
 use crate::error::{EmeraldError::*, Result};
 use crate::types;
+use chrono::prelude::*;
+use std::fs;
 use std::path::Path;
+use std::time::UNIX_EPOCH;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
@@ -43,9 +46,28 @@ where
         Ok(file_stem)
     }
 
+    fn get_times(&self, path: &Path) -> Result<String> {
+        let metadata = fs::metadata(path)?;
+
+        let modified = metadata.modified()?;
+        let dur = modified.duration_since(UNIX_EPOCH).unwrap();
+        let dur_u64 = dur.as_secs();
+
+        let dt: DateTime<Local> = modified.into();
+
+        let dt2 = Local.timestamp_opt(dur_u64 as i64, 0);
+        if let Ok(time) = metadata.modified() {
+            println!("{dt:?} // {dt2:?}");
+        } else {
+            println!("Not supported on this platform");
+        }
+        Ok("cdc".into())
+    }
+
     fn get_file_meta_data(&self, path: &Path) -> Result<types::MetaData> {
         let file_stem = self.get_file_stem(path)?;
         let file_type = self.get_file_type(path)?;
+        let file_times = self.get_times(path)?;
         Ok(types::MetaData {
             file_stem,
             file_type,
