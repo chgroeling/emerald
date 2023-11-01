@@ -1,3 +1,4 @@
+use chrono::prelude::*;
 use emerald::{Note, Vault};
 
 struct TableRow {
@@ -7,16 +8,16 @@ struct TableRow {
 
 const TABLE_DEF: &[TableRow] = &[
     TableRow {
-        max_width: 15,
+        max_width: 30,
         element: "title",
     },
     TableRow {
-        max_width: 5,
-        element: "title",
+        max_width: 19,
+        element: "modified",
     },
     TableRow {
-        max_width: 25,
-        element: "title",
+        max_width: 19,
+        element: "created",
     },
 ];
 
@@ -25,6 +26,14 @@ const TRAIL: &str = "...";
 fn note_element_2_str(note: &Note, element: &str) -> String {
     match element {
         "title" => note.title(),
+        "modified" => {
+            let modified = Local.timestamp_opt(note.modified(), 0).unwrap();
+            modified.format("%Y-%m-%d %H:%M:%S").to_string()
+        }
+        "created" => {
+            let created = Local.timestamp_opt(note.created(), 0).unwrap();
+            created.format("%Y-%m-%d %H:%M:%S").to_string()
+        }
         _ => panic!("Unknown element"),
     }
 }

@@ -17,4 +17,5 @@ pub use self::link_src_2_tgt::LinkSrc2Tgt;
 pub use self::md_block::MdBlock;
 pub use self::meta_data::FileType;
 pub use self::meta_data::MetaData;
+pub use self::meta_data::MetaDataBuilder;
 pub use self::resource_id::ResourceId;

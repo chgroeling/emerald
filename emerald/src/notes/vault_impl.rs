@@ -32,11 +32,13 @@ where
 
     pub fn flat_iter(&self) -> std::vec::IntoIter<Note> {
         let title_p = || self.provider_factory.create_title_provider();
+        let created_p = || self.provider_factory.create_created_provider();
+        let modified_p = || self.provider_factory.create_modified_provider();
         let content_p = || self.provider_factory.create_markdown_provider();
         let note_vec: Vec<Note> = self
             .notes_iter_src
             .create_iter()
-            .map(move |rid| Note::new(rid, title_p(), content_p()))
+            .map(move |rid| Note::new(rid, title_p(), content_p(), created_p(), modified_p()))
             .collect();
 
         note_vec.into_iter()
