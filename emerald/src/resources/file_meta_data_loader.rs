@@ -4,7 +4,7 @@ use super::resource_object_retriever::ResourceObjectRetriever;
 use crate::error::{EmeraldError::*, Result};
 use crate::types::MetaDataBuilder;
 use crate::{types, EmeraldError};
-use chrono::prelude::*;
+
 #[cfg(test)]
 use mockall::{predicate::*, *};
 use std::fs;
@@ -95,6 +95,7 @@ where
 
     fn get_file_timestamps(&self, path: &Path) -> Result<(i64, i64)> {
         let metadata = U::get_meta_data_from_fs(path)?;
+
         Ok((metadata.modified as i64, metadata.created as i64))
     }
 
