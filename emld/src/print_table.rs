@@ -5,8 +5,6 @@ struct TableRow {
     element: &'static str,
 }
 
-// TODO: const array
-// TODO: array init
 const TABLE_DEF: &[TableRow] = &[
     TableRow {
         max_width: 15,
@@ -34,7 +32,9 @@ fn note_element_2_str(note: &Note, element: &str) -> String {
 fn truncate_string(inp: &str, max_len: usize, trailing_str: &str) -> String {
     if inp.len() > max_len {
         let max_len_with_trail = max_len - trailing_str.len();
-        format!("{0}{1}", &inp[0..max_len_with_trail], trailing_str)
+        // unicode comptabitle split
+        let part1: String = inp.chars().take(max_len_with_trail).collect();
+        format!("{0}{1}", part1, trailing_str)
     } else {
         inp.to_string()
     }
