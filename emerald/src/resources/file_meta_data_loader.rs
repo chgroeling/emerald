@@ -5,6 +5,7 @@ use crate::error::{EmeraldError::*, Result};
 use crate::{types, EmeraldError};
 use chrono::prelude::*;
 use std::fs;
+use std::marker::PhantomData;
 use std::path::Path;
 use std::time::UNIX_EPOCH;
 
@@ -32,19 +33,25 @@ impl FsMetaData for FsMetaDataImpl {
     }
 }
 #[derive(Clone)]
-pub struct FileMetaDataLoaderImpl<I>
+pub struct FileMetaDataLoaderImpl<I, U>
 where
     I: ResourceObjectRetriever,
+    U: FsMetaData,
 {
     ro_retriever: I,
+    phantom_fs_md: PhantomData<U>,
 }
 
-impl<I> FileMetaDataLoaderImpl<I>
+impl<I, U> FileMetaDataLoaderImpl<I, U>
 where
     I: ResourceObjectRetriever,
+    U: FsMetaData,
 {
     pub fn new(ro_retriever: I) -> Self {
-        Self { ro_retriever }
+        Self {
+            ro_retriever,
+            phantom_fs_md: PhantomData::default(),
+        }
     }
 
     fn get_file_type(&self, path: &Path) -> Result<types::FileType> {
@@ -66,7 +73,7 @@ where
         Ok(file_stem)
     }
 
-    fn get_times<U: FsMetaData>(&self, path: &Path) -> Result<String> {
+    fn get_times(&self, path: &Path) -> Result<String> {
         let metadata = U::get_meta_data_from_fs(path)?;
 
         let modified = metadata.modified()?;
@@ -84,10 +91,10 @@ where
         Ok("cdc".into())
     }
 
-    fn get_file_meta_data<U: FsMetaData>(&self, path: &Path) -> Result<types::MetaData> {
+    fn get_file_meta_data(&self, path: &Path) -> Result<types::MetaData> {
         let file_stem = self.get_file_stem(path)?;
         let file_type = self.get_file_type(path)?;
-        let file_times = self.get_times::<U>(path)?;
+        let file_times = self.get_times(path)?;
         Ok(types::MetaData {
             file_stem,
             file_type,
@@ -97,21 +104,22 @@ where
     }
 }
 
-impl<I> MetaDataLoader for FileMetaDataLoaderImpl<I>
+impl<I, U> MetaDataLoader for FileMetaDataLoaderImpl<I, U>
 where
     I: ResourceObjectRetriever,
+    U: FsMetaData,
 {
     fn load(&self, rid: &types::ResourceId) -> Result<types::MetaData> {
         let ro = self.ro_retriever.retrieve(rid)?;
 
         #[allow(unreachable_patterns)]
         match ro {
-            ResourceObject::File(path) => self.get_file_meta_data::<FsMetaDataImpl>(&path),
+            ResourceObject::File(path) => self.get_file_meta_data(&path),
             _ => Err(NoMetaData),
         }
     }
 }
-pub struct FileMetaDataLoader<I>(FileMetaDataLoaderImpl<I>)
+pub struct FileMetaDataLoader<I>(FileMetaDataLoaderImpl<I, FsMetaDataImpl>)
 where
     I: ResourceObjectRetriever;
 
@@ -120,9 +128,7 @@ where
     I: ResourceObjectRetriever,
 {
     pub fn new(ro_retriever: I) -> Self {
-        Self(FileMetaDataLoaderImpl {
-            ro_retriever: ro_retriever,
-        })
+        Self(FileMetaDataLoaderImpl::new(ro_retriever))
     }
 }
 
