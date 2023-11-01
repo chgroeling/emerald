@@ -129,7 +129,32 @@ where
     }
 }
 
-pub type FileMetaDataLoader<I> = FileMetaDataLoaderImpl<I, FsMetadataAccessImpl>;
+pub struct FileMetaDataLoader<I>
+where
+    I: ResourceObjectRetriever,
+{
+    imp: FileMetaDataLoaderImpl<I>,
+}
+
+impl<I> FileMetaDataLoader<I>
+where
+    I: ResourceObjectRetriever,
+{
+    pub fn new(ro_retriever: I) -> Self {
+        Self {
+            imp: FileMetaDataLoaderImpl::new(ro_retriever),
+        }
+    }
+}
+
+impl<I> MetaDataLoader for FileMetaDataLoader<I>
+where
+    I: ResourceObjectRetriever,
+{
+    fn load(&self, rid: &types::ResourceId) -> Result<types::MetaData> {
+        self.imp.load(rid)
+    }
+}
 
 #[cfg(test)]
 mod tests {
