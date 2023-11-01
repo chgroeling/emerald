@@ -33,7 +33,7 @@ impl FsMetaData for FsMetaDataImpl {
     }
 }
 #[derive(Clone)]
-pub struct FileMetaDataLoaderImpl<I, U>
+pub struct FileMetaDataLoaderImpl<I, U = FsMetaDataImpl>
 where
     I: ResourceObjectRetriever,
     U: FsMetaData,
@@ -119,28 +119,8 @@ where
         }
     }
 }
-pub struct FileMetaDataLoader<I>(FileMetaDataLoaderImpl<I, FsMetaDataImpl>)
-where
-    I: ResourceObjectRetriever;
 
-impl<I> FileMetaDataLoader<I>
-where
-    I: ResourceObjectRetriever,
-{
-    pub fn new(ro_retriever: I) -> Self {
-        Self(FileMetaDataLoaderImpl::new(ro_retriever))
-    }
-}
-
-impl<I> MetaDataLoader for FileMetaDataLoader<I>
-where
-    I: ResourceObjectRetriever,
-{
-    fn load(&self, rid: &types::ResourceId) -> Result<types::MetaData> {
-        self.0.load(rid)
-    }
-}
-
+pub type FileMetaDataLoader<I> = FileMetaDataLoaderImpl<I, FsMetaDataImpl>;
 #[cfg(test)]
 mod tests {
     use super::FileMetaDataLoader;
