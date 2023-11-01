@@ -22,10 +22,8 @@ pub struct FsMetadata {
 pub trait FsMetadataAccess {
     fn get_meta_data_from_fs(&self, path: &Path) -> Result<FsMetadata>;
 }
-
 pub struct FsMetadataAccessImpl();
-
-impl FsMetadataAccessImpl {
+impl FsMetadataAccess for FsMetadataAccessImpl {
     fn get_meta_data_from_fs(&self, path: &Path) -> Result<FsMetadata> {
         if let Ok(meta_data) = fs::metadata(path) {
             let modified = meta_data.modified()?;
@@ -43,12 +41,6 @@ impl FsMetadataAccessImpl {
         } else {
             Err(EmeraldError::NoMetaData)
         }
-    }
-}
-
-impl FsMetadataAccess for FsMetadataAccessImpl {
-    fn get_meta_data_from_fs(&self, path: &Path) -> Result<FsMetadata> {
-        self.get_meta_data_from_fs(path)
     }
 }
 #[derive(Clone)]
