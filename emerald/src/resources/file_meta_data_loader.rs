@@ -59,7 +59,7 @@ where
     U: FsMetadataAccess,
 {
     ro_retriever: I,
-    phantom_fs_md: PhantomData<U>,
+    fs_meta_data_access: U,
 }
 
 impl<I, U> FileMetaDataLoaderImpl<I, U>
@@ -67,10 +67,10 @@ where
     I: ResourceObjectRetriever,
     U: FsMetadataAccess,
 {
-    pub fn new(ro_retriever: I) -> Self {
+    pub fn new(ro_retriever: I, fs_meta_data_access: U) -> Self {
         Self {
             ro_retriever,
-            phantom_fs_md: PhantomData,
+            fs_meta_data_access,
         }
     }
 
@@ -142,7 +142,7 @@ where
 {
     pub fn new(ro_retriever: I) -> Self {
         Self {
-            imp: FileMetaDataLoaderImpl::new(ro_retriever),
+            imp: FileMetaDataLoaderImpl::new(ro_retriever, FsMetadataAccessImpl()),
         }
     }
 }
@@ -192,7 +192,8 @@ mod tests {
         mock.expect_retrieve()
             .returning(move |_f| Ok(ResourceObject::File(path.clone())));
 
-        FileMetaDataLoaderImpl::new(mock)
+        let mock_fs_access = MockFsMetadataAccess::new();
+        FileMetaDataLoaderImpl::new(mock, mock_fs_access)
     }
 
     #[test]
