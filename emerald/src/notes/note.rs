@@ -1,10 +1,10 @@
-use super::providers::{Provider, StringProvider};
+use super::providers::Provider;
 use crate::types;
 
 pub struct Note {
     rid: types::ResourceId,
     title_provider: Box<dyn Provider<String>>,
-    md_provider: Box<dyn StringProvider>,
+    md_provider: Box<dyn Provider<String>>,
     created_provider: Box<dyn Provider<i64>>,
     modified_provider: Box<dyn Provider<i64>>,
 }
@@ -13,7 +13,7 @@ impl Note {
     pub fn new(
         rid: types::ResourceId,
         title_provider: Box<dyn Provider<String>>,
-        md_provider: Box<dyn StringProvider>,
+        md_provider: Box<dyn Provider<String>>,
         created_provider: Box<dyn Provider<i64>>,
         modified_provider: Box<dyn Provider<i64>>,
     ) -> Self {

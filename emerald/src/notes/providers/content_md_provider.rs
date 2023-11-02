@@ -1,4 +1,4 @@
-use super::StringProvider;
+use super::Provider;
 use crate::model::content;
 use crate::model::note;
 use crate::types;
@@ -20,7 +20,7 @@ impl ContentMdProvider {
         }
     }
 }
-impl StringProvider for ContentMdProvider {
+impl Provider<String> for ContentMdProvider {
     fn get(&self, rid: &types::ResourceId) -> String {
         let meta_data = self.meta_data_retriever.retrieve(rid);
 
