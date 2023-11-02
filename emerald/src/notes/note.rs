@@ -1,21 +1,21 @@
-use super::providers::{MdProvider, TimestampProvider, TitleProvider};
+use super::providers::Provider;
 use crate::types;
 
 pub struct Note {
     rid: types::ResourceId,
-    title_provider: Box<dyn TitleProvider>,
-    md_provider: Box<dyn MdProvider>,
-    created_provider: Box<dyn TimestampProvider>,
-    modified_provider: Box<dyn TimestampProvider>,
+    title_provider: Box<dyn Provider<String>>,
+    md_provider: Box<dyn Provider<String>>,
+    created_provider: Box<dyn Provider<i64>>,
+    modified_provider: Box<dyn Provider<i64>>,
 }
 
 impl Note {
     pub fn new(
         rid: types::ResourceId,
-        title_provider: Box<dyn TitleProvider>,
-        md_provider: Box<dyn MdProvider>,
-        created_provider: Box<dyn TimestampProvider>,
-        modified_provider: Box<dyn TimestampProvider>,
+        title_provider: Box<dyn Provider<String>>,
+        md_provider: Box<dyn Provider<String>>,
+        created_provider: Box<dyn Provider<i64>>,
+        modified_provider: Box<dyn Provider<i64>>,
     ) -> Self {
         Self {
             rid,
@@ -27,18 +27,18 @@ impl Note {
     }
 
     pub fn title(&self) -> String {
-        self.title_provider.get_title(&self.rid)
+        self.title_provider.get(&self.rid)
     }
 
     pub fn markdown(&self) -> String {
-        self.md_provider.get_markdown(&self.rid)
+        self.md_provider.get(&self.rid)
     }
 
     pub fn created(&self) -> i64 {
-        self.created_provider.get_timestamp(&self.rid)
+        self.created_provider.get(&self.rid)
     }
 
     pub fn modified(&self) -> i64 {
-        self.modified_provider.get_timestamp(&self.rid)
+        self.modified_provider.get(&self.rid)
     }
 }

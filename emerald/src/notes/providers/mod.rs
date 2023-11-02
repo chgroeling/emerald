@@ -1,15 +1,9 @@
 mod content_md_provider;
-mod md_provider;
-mod meta_data_created_provider;
-mod meta_data_modified_provider;
-mod meta_data_title_provider;
+mod meta_data_provider;
+mod provider;
 mod provider_factory;
 mod std_provider_factory;
-mod timestamp_provider;
-mod title_provider;
 
-pub use md_provider::MdProvider;
+pub use provider::Provider;
 pub use provider_factory::ProviderFactory;
 pub use std_provider_factory::StdProviderFactory;
-pub use timestamp_provider::TimestampProvider;
-pub use title_provider::TitleProvider;
