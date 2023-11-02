@@ -3,7 +3,7 @@ use crate::model::note;
 use crate::types;
 use std::rc::Rc;
 
-pub struct MetaDataTitleProvider<I>
+pub struct MetaDataStringProvider<I>
 where
     I: Fn(&types::MetaData) -> String,
 {
@@ -11,7 +11,7 @@ where
     from_metadata_to_string: I,
 }
 
-impl<I> MetaDataTitleProvider<I>
+impl<I> MetaDataStringProvider<I>
 where
     I: Fn(&types::MetaData) -> String,
 {
@@ -25,7 +25,7 @@ where
         }
     }
 }
-impl<I> StringProvider for MetaDataTitleProvider<I>
+impl<I> StringProvider for MetaDataStringProvider<I>
 where
     I: Fn(&types::MetaData) -> String,
 {

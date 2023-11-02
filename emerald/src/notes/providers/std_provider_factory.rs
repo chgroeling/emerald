@@ -3,7 +3,7 @@ use std::rc::Rc;
 use super::{
     content_md_provider::ContentMdProvider, meta_data_created_provider::MetaDataCreatedProvider,
     meta_data_modified_provider::MetaDataModifiedProvider,
-    meta_data_title_provider::MetaDataTitleProvider, provider_factory::ProviderFactory,
+    meta_data_string_provider::MetaDataStringProvider, provider_factory::ProviderFactory,
 };
 use crate::{model::content, model::note};
 
@@ -27,7 +27,7 @@ impl StdProviderFactory {
 
 impl ProviderFactory for StdProviderFactory {
     fn create_title_provider(&self) -> Box<dyn super::string_provider::StringProvider> {
-        Box::new(MetaDataTitleProvider::new(
+        Box::new(MetaDataStringProvider::new(
             self.meta_data_retriever.clone(),
             |meta_data| meta_data.file_stem.to_owned(),
         ))
