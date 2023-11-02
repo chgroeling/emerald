@@ -1,8 +1,8 @@
 use std::rc::Rc;
 
 use super::{
-    content_md_provider::ContentMdProvider, meta_data_string_provider::MetaDataStringProvider,
-    meta_data_timestamp_provider::MetaDataTimestampProvider, provider_factory::ProviderFactory,
+    content_md_provider::ContentMdProvider, meta_data_provider::MetaDataProvider,
+    provider_factory::ProviderFactory,
 };
 use crate::{model::content, model::note};
 
@@ -26,7 +26,7 @@ impl StdProviderFactory {
 
 impl ProviderFactory for StdProviderFactory {
     fn create_title_provider(&self) -> Box<dyn super::string_provider::StringProvider> {
-        Box::new(MetaDataStringProvider::new(
+        Box::new(MetaDataProvider::new(
             self.meta_data_retriever.clone(),
             |meta_data| meta_data.file_stem.to_owned(),
         ))
@@ -42,7 +42,7 @@ impl ProviderFactory for StdProviderFactory {
     fn create_created_time_provider(
         &self,
     ) -> Box<dyn super::timestamp_provider::TimestampProvider> {
-        Box::new(MetaDataTimestampProvider::new(
+        Box::new(MetaDataProvider::new(
             self.meta_data_retriever.clone(),
             |meta_data| meta_data.created,
         ))
@@ -51,7 +51,7 @@ impl ProviderFactory for StdProviderFactory {
     fn create_modified_time_provider(
         &self,
     ) -> Box<dyn super::timestamp_provider::TimestampProvider> {
-        Box::new(MetaDataTimestampProvider::new(
+        Box::new(MetaDataProvider::new(
             self.meta_data_retriever.clone(),
             |meta_data| meta_data.modified,
         ))
