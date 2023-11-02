@@ -26,7 +26,7 @@ impl StdProviderFactory {
 }
 
 impl ProviderFactory for StdProviderFactory {
-    fn create_title_provider(&self) -> Box<dyn super::title_provider::TitleProvider> {
+    fn create_title_provider(&self) -> Box<dyn super::string_provider::StringProvider> {
         Box::new(MetaDataTitleProvider::new(self.meta_data_retriever.clone()))
     }
 
@@ -37,13 +37,17 @@ impl ProviderFactory for StdProviderFactory {
         ))
     }
 
-    fn create_created_provider(&self) -> Box<dyn super::timestamp_provider::TimestampProvider> {
+    fn create_timestamp_created_provider(
+        &self,
+    ) -> Box<dyn super::timestamp_provider::TimestampProvider> {
         Box::new(MetaDataCreatedProvider::new(
             self.meta_data_retriever.clone(),
         ))
     }
 
-    fn create_modified_provider(&self) -> Box<dyn super::timestamp_provider::TimestampProvider> {
+    fn create_timestamp_modified_provider(
+        &self,
+    ) -> Box<dyn super::timestamp_provider::TimestampProvider> {
         Box::new(MetaDataModifiedProvider::new(
             self.meta_data_retriever.clone(),
         ))

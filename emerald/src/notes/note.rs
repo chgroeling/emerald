@@ -1,9 +1,9 @@
-use super::providers::{MdProvider, TimestampProvider, TitleProvider};
+use super::providers::{MdProvider, StringProvider, TimestampProvider};
 use crate::types;
 
 pub struct Note {
     rid: types::ResourceId,
-    title_provider: Box<dyn TitleProvider>,
+    title_provider: Box<dyn StringProvider>,
     md_provider: Box<dyn MdProvider>,
     created_provider: Box<dyn TimestampProvider>,
     modified_provider: Box<dyn TimestampProvider>,
@@ -12,7 +12,7 @@ pub struct Note {
 impl Note {
     pub fn new(
         rid: types::ResourceId,
-        title_provider: Box<dyn TitleProvider>,
+        title_provider: Box<dyn StringProvider>,
         md_provider: Box<dyn MdProvider>,
         created_provider: Box<dyn TimestampProvider>,
         modified_provider: Box<dyn TimestampProvider>,
@@ -27,7 +27,7 @@ impl Note {
     }
 
     pub fn title(&self) -> String {
-        self.title_provider.get_title(&self.rid)
+        self.title_provider.get_string(&self.rid)
     }
 
     pub fn markdown(&self) -> String {

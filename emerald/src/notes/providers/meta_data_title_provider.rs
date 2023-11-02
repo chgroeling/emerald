@@ -1,4 +1,4 @@
-use super::title_provider::TitleProvider;
+use super::string_provider::StringProvider;
 use crate::model::note;
 use crate::types;
 use std::rc::Rc;
@@ -14,8 +14,8 @@ impl MetaDataTitleProvider {
         }
     }
 }
-impl TitleProvider for MetaDataTitleProvider {
-    fn get_title(&self, rid: &types::ResourceId) -> String {
+impl StringProvider for MetaDataTitleProvider {
+    fn get_string(&self, rid: &types::ResourceId) -> String {
         let meta_data = self.meta_data_retriever.retrieve(rid);
         meta_data.file_stem.clone()
     }
