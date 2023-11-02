@@ -27,7 +27,10 @@ impl StdProviderFactory {
 
 impl ProviderFactory for StdProviderFactory {
     fn create_title_provider(&self) -> Box<dyn super::string_provider::StringProvider> {
-        Box::new(MetaDataTitleProvider::new(self.meta_data_retriever.clone()))
+        Box::new(MetaDataTitleProvider::new(
+            self.meta_data_retriever.clone(),
+            |meta_data| meta_data.file_stem.to_owned(),
+        ))
     }
 
     fn create_markdown_provider(&self) -> Box<dyn super::md_provider::MdProvider> {
