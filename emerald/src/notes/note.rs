@@ -27,7 +27,7 @@ impl Note {
     }
 
     pub fn title(&self) -> String {
-        self.title_provider.get_string(&self.rid)
+        self.title_provider.get(&self.rid)
     }
 
     pub fn markdown(&self) -> String {
@@ -35,10 +35,10 @@ impl Note {
     }
 
     pub fn created(&self) -> i64 {
-        self.created_provider.get_timestamp(&self.rid)
+        self.created_provider.get(&self.rid)
     }
 
     pub fn modified(&self) -> i64 {
-        self.modified_provider.get_timestamp(&self.rid)
+        self.modified_provider.get(&self.rid)
     }
 }

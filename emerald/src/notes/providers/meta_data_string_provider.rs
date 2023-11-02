@@ -29,7 +29,7 @@ impl<I> StringProvider for MetaDataStringProvider<I>
 where
     I: Fn(&types::MetaData) -> String,
 {
-    fn get_string(&self, rid: &types::ResourceId) -> String {
+    fn get(&self, rid: &types::ResourceId) -> String {
         let meta_data = self.meta_data_retriever.retrieve(rid);
         (self.from_metadata_to_string)(meta_data)
     }

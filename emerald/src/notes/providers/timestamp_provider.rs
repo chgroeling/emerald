@@ -1,5 +1,5 @@
 use crate::types;
 
 pub trait TimestampProvider {
-    fn get_timestamp(&self, rid: &types::ResourceId) -> i64;
+    fn get(&self, rid: &types::ResourceId) -> i64;
 }
