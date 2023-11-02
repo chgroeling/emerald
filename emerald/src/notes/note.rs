@@ -1,12 +1,12 @@
-use super::providers::{StringProvider, TimestampProvider};
+use super::providers::{Provider, StringProvider, TimestampProvider};
 use crate::types;
 
 pub struct Note {
     rid: types::ResourceId,
     title_provider: Box<dyn StringProvider>,
     md_provider: Box<dyn StringProvider>,
-    created_provider: Box<dyn TimestampProvider>,
-    modified_provider: Box<dyn TimestampProvider>,
+    created_provider: Box<dyn Provider<i64>>,
+    modified_provider: Box<dyn Provider<i64>>,
 }
 
 impl Note {
@@ -14,8 +14,8 @@ impl Note {
         rid: types::ResourceId,
         title_provider: Box<dyn StringProvider>,
         md_provider: Box<dyn StringProvider>,
-        created_provider: Box<dyn TimestampProvider>,
-        modified_provider: Box<dyn TimestampProvider>,
+        created_provider: Box<dyn Provider<i64>>,
+        modified_provider: Box<dyn Provider<i64>>,
     ) -> Self {
         Self {
             rid,

@@ -1,4 +1,4 @@
-use super::{StringProvider, TimestampProvider};
+use super::{Provider, StringProvider, TimestampProvider};
 use crate::model::note;
 use crate::types;
 use std::rc::Rc;
@@ -40,6 +40,16 @@ where
     I: Fn(&types::MetaData) -> String,
 {
     fn get(&self, rid: &types::ResourceId) -> String {
+        let meta_data = self.meta_data_retriever.retrieve(rid);
+        (self.from_metadata_to_t)(meta_data)
+    }
+}
+
+impl<T, I> Provider<T> for MetaDataProvider<T, I>
+where
+    I: Fn(&types::MetaData) -> T,
+{
+    fn get(&self, rid: &types::ResourceId) -> T {
         let meta_data = self.meta_data_retriever.retrieve(rid);
         (self.from_metadata_to_t)(meta_data)
     }

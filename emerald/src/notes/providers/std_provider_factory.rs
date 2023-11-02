@@ -39,18 +39,14 @@ impl ProviderFactory for StdProviderFactory {
         ))
     }
 
-    fn create_created_time_provider(
-        &self,
-    ) -> Box<dyn super::timestamp_provider::TimestampProvider> {
+    fn create_created_time_provider(&self) -> Box<dyn super::provider::Provider<i64>> {
         Box::new(MetaDataProvider::new(
             self.meta_data_retriever.clone(),
             |meta_data| meta_data.created,
         ))
     }
 
-    fn create_modified_time_provider(
-        &self,
-    ) -> Box<dyn super::timestamp_provider::TimestampProvider> {
+    fn create_modified_time_provider(&self) -> Box<dyn super::provider::Provider<i64>> {
         Box::new(MetaDataProvider::new(
             self.meta_data_retriever.clone(),
             |meta_data| meta_data.modified,
