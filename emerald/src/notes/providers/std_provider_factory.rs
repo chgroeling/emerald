@@ -32,14 +32,14 @@ impl ProviderFactory for StdProviderFactory {
         ))
     }
 
-    fn create_markdown_provider(&self) -> Box<dyn super::md_provider::MdProvider> {
+    fn create_markdown_provider(&self) -> Box<dyn super::string_provider::StringProvider> {
         Box::new(ContentMdProvider::new(
             self.content_retriever.clone(),
             self.meta_data_retriever.clone(),
         ))
     }
 
-    fn create_timestamp_created_provider(
+    fn create_created_time_provider(
         &self,
     ) -> Box<dyn super::timestamp_provider::TimestampProvider> {
         Box::new(MetaDataTimestampProvider::new(
@@ -48,7 +48,7 @@ impl ProviderFactory for StdProviderFactory {
         ))
     }
 
-    fn create_timestamp_modified_provider(
+    fn create_modified_time_provider(
         &self,
     ) -> Box<dyn super::timestamp_provider::TimestampProvider> {
         Box::new(MetaDataTimestampProvider::new(

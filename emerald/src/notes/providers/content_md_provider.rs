@@ -1,4 +1,4 @@
-use super::md_provider::MdProvider;
+use super::StringProvider;
 use crate::model::content;
 use crate::model::note;
 use crate::types;
@@ -20,8 +20,8 @@ impl ContentMdProvider {
         }
     }
 }
-impl MdProvider for ContentMdProvider {
-    fn get_markdown(&self, rid: &types::ResourceId) -> String {
+impl StringProvider for ContentMdProvider {
+    fn get(&self, rid: &types::ResourceId) -> String {
         let meta_data = self.meta_data_retriever.retrieve(rid);
 
         // do not allow anything other than markdown files pass this point
