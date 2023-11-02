@@ -1,8 +1,7 @@
 mod content_md_provider;
 mod md_provider;
-mod meta_data_created_provider;
-mod meta_data_modified_provider;
 mod meta_data_string_provider;
+mod meta_data_timestamp_provider;
 mod provider_factory;
 mod std_provider_factory;
 mod string_provider;

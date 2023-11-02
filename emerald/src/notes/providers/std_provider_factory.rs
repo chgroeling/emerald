@@ -1,9 +1,8 @@
 use std::rc::Rc;
 
 use super::{
-    content_md_provider::ContentMdProvider, meta_data_created_provider::MetaDataCreatedProvider,
-    meta_data_modified_provider::MetaDataModifiedProvider,
-    meta_data_string_provider::MetaDataStringProvider, provider_factory::ProviderFactory,
+    content_md_provider::ContentMdProvider, meta_data_string_provider::MetaDataStringProvider,
+    meta_data_timestamp_provider::MetaDataTimestampProvider, provider_factory::ProviderFactory,
 };
 use crate::{model::content, model::note};
 
@@ -43,16 +42,18 @@ impl ProviderFactory for StdProviderFactory {
     fn create_timestamp_created_provider(
         &self,
     ) -> Box<dyn super::timestamp_provider::TimestampProvider> {
-        Box::new(MetaDataCreatedProvider::new(
+        Box::new(MetaDataTimestampProvider::new(
             self.meta_data_retriever.clone(),
+            |meta_data| meta_data.created,
         ))
     }
 
     fn create_timestamp_modified_provider(
         &self,
     ) -> Box<dyn super::timestamp_provider::TimestampProvider> {
-        Box::new(MetaDataModifiedProvider::new(
+        Box::new(MetaDataTimestampProvider::new(
             self.meta_data_retriever.clone(),
+            |meta_data| meta_data.modified,
         ))
     }
 }
