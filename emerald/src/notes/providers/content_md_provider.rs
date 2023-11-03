@@ -25,7 +25,7 @@ impl Provider<String> for ContentMdProvider {
         let meta_data = self.meta_data_retriever.retrieve(rid);
 
         // do not allow anything other than markdown files pass this point
-        let types::ResourceType::Markdown(_) = meta_data.resource_type else {
+        let types::ResourceType::Markdown() = meta_data.resource_type else {
             panic!("This should not happen. A md resource id is not a markdown file.")
         };
 

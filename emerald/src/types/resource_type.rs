@@ -1,7 +1,7 @@
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub enum ResourceType {
-    Unknown(String),
-    Markdown(String),
+    Unknown(),
+    Markdown(),
     NoType(), // No resource type available
 }
 

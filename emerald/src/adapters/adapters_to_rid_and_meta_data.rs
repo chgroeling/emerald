@@ -50,9 +50,9 @@ mod tests {
             use types::ResourceType;
             count += 1;
             Ok(match count {
-                1 => create_meta_data(ResourceType::Unknown("unk".into())),
-                2 => create_meta_data(ResourceType::Markdown("md".into())),
-                _ => create_meta_data(ResourceType::Unknown("unk".into())),
+                1 => create_meta_data(ResourceType::Unknown()),
+                2 => create_meta_data(ResourceType::Markdown()),
+                _ => create_meta_data(ResourceType::Unknown()),
             })
         });
 
@@ -62,8 +62,8 @@ mod tests {
 
         // Assert
         let expected: Vec<_> = vec![
-            create_rid_and_meta_data("[[rid1]]", types::ResourceType::Unknown("unk".into())),
-            create_rid_and_meta_data("[[rid2]]", types::ResourceType::Markdown("md".into())),
+            create_rid_and_meta_data("[[rid1]]", types::ResourceType::Unknown()),
+            create_rid_and_meta_data("[[rid2]]", types::ResourceType::Markdown()),
         ];
         assert_eq!(result, expected);
     }

@@ -83,9 +83,9 @@ where
             let ext = os_ext.to_str().ok_or(ValueError)?;
 
             match ext {
-                "md" => types::ResourceType::Markdown(ext.to_string()),
-                "markdown" => types::ResourceType::Markdown(ext.to_string()),
-                _ => types::ResourceType::Unknown(ext.to_string()),
+                "md" => types::ResourceType::Markdown(),
+                "markdown" => types::ResourceType::Markdown(),
+                _ => types::ResourceType::Unknown(),
             }
         } else {
             types::ResourceType::NoType()
@@ -151,10 +151,7 @@ mod tests {
     fn test_load_file_type_is_markdown() {
         let dut = create_test_case("test.md".into());
         let res = dut.load(&types::ResourceId::from("resid0")).unwrap();
-        assert_eq!(
-            res.resource_type,
-            types::ResourceType::Markdown("md".into())
-        );
+        assert_eq!(res.resource_type, types::ResourceType::Markdown());
     }
 
     #[test]

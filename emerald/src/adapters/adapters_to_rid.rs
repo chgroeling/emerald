@@ -7,7 +7,7 @@ pub fn filter_rid_and_meta_data<'a>(
 ) -> impl Iterator<Item = (types::ResourceId, types::MetaData)> + 'a {
     it_src
         .into_iter()
-        .filter(|pred| matches!(pred.1.resource_type, types::ResourceType::Markdown(_)))
+        .filter(|pred| matches!(pred.1.resource_type, types::ResourceType::Markdown()))
         .cloned()
 }
 
@@ -35,15 +35,12 @@ mod tests {
         use types::ResourceType::*;
 
         let all_res_ids = vec![
-            create_rid_meta_data("[[rid1]]", Unknown("unk".into())),
-            create_rid_meta_data("[[rid2]]", Markdown("md".into())),
+            create_rid_meta_data("[[rid1]]", Unknown()),
+            create_rid_meta_data("[[rid2]]", Markdown()),
         ];
 
         let result: Vec<_> = filter_rid_and_meta_data(all_res_ids.iter()).collect();
 
-        assert_eq!(
-            result,
-            vec![create_rid_meta_data("[[rid2]]", Markdown("md".into()))]
-        );
+        assert_eq!(result, vec![create_rid_meta_data("[[rid2]]", Markdown())]);
     }
 }
