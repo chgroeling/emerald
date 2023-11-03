@@ -24,18 +24,18 @@ mod tests {
     use crate::types;
     use crate::{adapters::adapter_to_rid_and_meta_data, resources::MockMetaDataLoader};
 
-    pub fn create_meta_data(file_type: types::FileType) -> types::MetaData {
+    pub fn create_meta_data(resource_type: types::ResourceType) -> types::MetaData {
         types::MetaDataBuilder::new()
-            .set_file_stem("".into())
-            .set_file_type(file_type)
+            .set_name("".into())
+            .set_resource_type(resource_type)
             .build()
     }
 
     fn create_rid_and_meta_data(
         rid: &str,
-        file_type: types::FileType,
+        resource_type: types::ResourceType,
     ) -> (types::ResourceId, types::MetaData) {
-        (rid.into(), create_meta_data(file_type))
+        (rid.into(), create_meta_data(resource_type))
     }
 
     #[test]
@@ -47,12 +47,12 @@ mod tests {
         let mut count = 0;
         let mut mock_md_loader = MockMetaDataLoader::new();
         mock_md_loader.expect_load().returning(move |_| {
-            use types::FileType;
+            use types::ResourceType;
             count += 1;
             Ok(match count {
-                1 => create_meta_data(FileType::Unknown("unk".into())),
-                2 => create_meta_data(FileType::Markdown("md".into())),
-                _ => create_meta_data(FileType::Unknown("unk".into())),
+                1 => create_meta_data(ResourceType::Unknown("unk".into())),
+                2 => create_meta_data(ResourceType::Markdown("md".into())),
+                _ => create_meta_data(ResourceType::Unknown("unk".into())),
             })
         });
 
@@ -62,8 +62,8 @@ mod tests {
 
         // Assert
         let expected: Vec<_> = vec![
-            create_rid_and_meta_data("[[rid1]]", types::FileType::Unknown("unk".into())),
-            create_rid_and_meta_data("[[rid2]]", types::FileType::Markdown("md".into())),
+            create_rid_and_meta_data("[[rid1]]", types::ResourceType::Unknown("unk".into())),
+            create_rid_and_meta_data("[[rid2]]", types::ResourceType::Markdown("md".into())),
         ];
         assert_eq!(result, expected);
     }

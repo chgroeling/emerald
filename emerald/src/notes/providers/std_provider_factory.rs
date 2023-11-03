@@ -28,7 +28,7 @@ impl ProviderFactory for StdProviderFactory {
     fn create_title_provider(&self) -> Box<dyn provider::Provider<String>> {
         Box::new(MetaDataProvider::new(
             self.meta_data_retriever.clone(),
-            |meta_data| meta_data.file_stem.to_owned(),
+            |meta_data| meta_data.name.to_owned(),
         ))
     }
 

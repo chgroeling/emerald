@@ -1,19 +1,10 @@
-#[derive(Debug, Clone, PartialEq, Hash)]
-pub enum FileType {
-    Unknown(String),
-    Markdown(String),
-    NoFileType(), // No file type available
-}
+use super::resource_type::ResourceType;
 
-impl Default for FileType {
-    fn default() -> Self {
-        Self::NoFileType()
-    }
-}
 #[derive(Debug, Clone, PartialEq, Hash, Default)]
 pub struct MetaData {
-    pub file_stem: String,
-    pub file_type: FileType,
+    pub name: String,
+    pub resource_type: ResourceType,
+    pub size: u64,
     pub modified: i64,
     pub created: i64,
 }
@@ -29,19 +20,21 @@ impl MetaDataBuilder {
         }
     }
 
-    pub fn set_file_stem(self, stem: String) -> Self {
+    pub fn set_name(self, name: String) -> Self {
+        let new_prep = MetaData { name, ..self.prep };
+        Self { prep: new_prep }
+    }
+
+    pub fn set_resource_type(self, resource_type: ResourceType) -> Self {
         let new_prep = MetaData {
-            file_stem: stem,
+            resource_type,
             ..self.prep
         };
         Self { prep: new_prep }
     }
 
-    pub fn set_file_type(self, file_type: FileType) -> Self {
-        let new_prep = MetaData {
-            file_type,
-            ..self.prep
-        };
+    pub fn set_size(self, size: u64) -> Self {
+        let new_prep = MetaData { size, ..self.prep };
         Self { prep: new_prep }
     }
 
