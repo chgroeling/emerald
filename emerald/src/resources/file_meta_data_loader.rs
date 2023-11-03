@@ -78,6 +78,7 @@ where
         let os_filename = path.file_stem().ok_or(NotAFile(path.into()))?;
         let name = os_filename.to_str().ok_or(ValueError)?.to_string();
 
+        // determine resource type
         let resource_type = if let Some(os_ext) = path.extension() {
             let ext = os_ext.to_str().ok_or(ValueError)?;
 
@@ -92,6 +93,7 @@ where
 
         let builder = MetaDataBuilder::new()
             .set_name(name)
+            .set_size(fs_meta_data.size)
             .set_resource_type(resource_type)
             .set_created(fs_meta_data.created as i64)
             .set_modified(fs_meta_data.modified as i64);
