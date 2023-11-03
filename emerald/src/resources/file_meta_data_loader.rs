@@ -15,6 +15,7 @@ use mockall::{predicate::*, *};
 use log::{debug, error, info, trace, warn};
 
 pub struct FsMetadata {
+    size: u64,
     modified: u64,
     created: u64,
 }
@@ -26,6 +27,9 @@ pub struct DefaultFsMetadataAccess();
 impl FsMetadataAccess for DefaultFsMetadataAccess {
     fn get_meta_data_from_fs(&self, path: &Path) -> Result<FsMetadata> {
         if let Ok(meta_data) = fs::metadata(path) {
+            if !meta_data.is_file() {
+                return Err(EmeraldError::NotAFile(path.to_owned()));
+            }
             let modified = meta_data.modified()?;
             let modified_dur = modified.duration_since(UNIX_EPOCH).unwrap();
             let modified_u64 = modified_dur.as_secs();
@@ -35,6 +39,7 @@ impl FsMetadataAccess for DefaultFsMetadataAccess {
             let created_u64 = created_dur.as_secs();
 
             Ok(FsMetadata {
+                size: meta_data.len(),
                 modified: modified_u64,
                 created: created_u64,
             })
@@ -65,41 +70,31 @@ where
         }
     }
 
-    fn get_file_type(&self, path: &Path) -> Result<types::FileType> {
-        let Some(os_ext) = path.extension() else {
-            return Ok(types::FileType::NoFileType());
+    fn get_file_meta_data(&self, path: &Path) -> Result<types::MetaData> {
+        // get meta data from filesystem
+        let fs_meta_data = self.fs_meta_data_access.get_meta_data_from_fs(path)?;
+
+        // get name of file
+        let os_filename = path.file_stem().ok_or(NotAFile(path.into()))?;
+        let name = os_filename.to_str().ok_or(ValueError)?.to_string();
+
+        let resource_type = if let Some(os_ext) = path.extension() {
+            let ext = os_ext.to_str().ok_or(ValueError)?;
+
+            match ext {
+                "md" => types::ResourceType::Markdown(ext.to_string()),
+                "markdown" => types::ResourceType::Markdown(ext.to_string()),
+                _ => types::ResourceType::Unknown(ext.to_string()),
+            }
+        } else {
+            types::ResourceType::NoType()
         };
 
-        let ext = os_ext.to_str().ok_or(ValueError)?;
-        match ext {
-            "md" => Ok(types::FileType::Markdown(ext.to_string())),
-            "markdown" => Ok(types::FileType::Markdown(ext.to_string())),
-            _ => Ok(types::FileType::Unknown(ext.to_string())),
-        }
-    }
-
-    fn get_file_stem(&self, path: &Path) -> Result<String> {
-        let os_filename = path.file_stem().ok_or(NotAFile(path.into()))?;
-        let file_stem = os_filename.to_str().ok_or(ValueError)?.to_string();
-        Ok(file_stem)
-    }
-
-    fn get_file_timestamps(&self, path: &Path) -> Result<(i64, i64)> {
-        let metadata = self.fs_meta_data_access.get_meta_data_from_fs(path)?;
-
-        Ok((metadata.modified as i64, metadata.created as i64))
-    }
-
-    fn get_file_meta_data(&self, path: &Path) -> Result<types::MetaData> {
-        let file_stem = self.get_file_stem(path)?;
-        let file_type = self.get_file_type(path)?;
-        let (modified, created) = self.get_file_timestamps(path)?;
-
         let builder = MetaDataBuilder::new()
-            .set_file_stem(file_stem)
-            .set_file_type(file_type)
-            .set_created(created)
-            .set_modified(modified);
+            .set_name(name)
+            .set_resource_type(resource_type)
+            .set_created(fs_meta_data.created as i64)
+            .set_modified(fs_meta_data.modified as i64);
         Ok(builder.build())
     }
 }
@@ -111,11 +106,11 @@ where
 {
     fn load(&self, rid: &types::ResourceId) -> Result<types::MetaData> {
         let ro = self.ro_retriever.retrieve(rid)?;
-
-        #[allow(unreachable_patterns)]
-        match ro {
-            ResourceObject::File(path) => self.get_file_meta_data(&path),
-            _ => Err(NoMetaData),
+        #[allow(irrefutable_let_patterns)]
+        if let ResourceObject::File(path) = ro {
+            self.get_file_meta_data(&path)
+        } else {
+            Err(EmeraldError::NoMetaData)
         }
     }
 }
@@ -142,6 +137,7 @@ mod tests {
             .expect_get_meta_data_from_fs()
             .returning(|_| {
                 Ok(FsMetadata {
+                    size: 0,
                     modified: 0,
                     created: 0,
                 })
@@ -153,13 +149,16 @@ mod tests {
     fn test_load_file_type_is_markdown() {
         let dut = create_test_case("test.md".into());
         let res = dut.load(&types::ResourceId::from("resid0")).unwrap();
-        assert_eq!(res.file_type, types::FileType::Markdown("md".into()));
+        assert_eq!(
+            res.resource_type,
+            types::ResourceType::Markdown("md".into())
+        );
     }
 
     #[test]
     fn test_load_file_type_is_no_file_type() {
         let dut = create_test_case("test".into());
         let res = dut.load(&types::ResourceId::from("resid0")).unwrap();
-        assert_eq!(res.file_type, types::FileType::NoFileType())
+        assert_eq!(res.resource_type, types::ResourceType::NoType())
     }
 }

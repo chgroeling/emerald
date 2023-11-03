@@ -7,7 +7,7 @@ pub fn filter_rid_and_meta_data<'a>(
 ) -> impl Iterator<Item = (types::ResourceId, types::MetaData)> + 'a {
     it_src
         .into_iter()
-        .filter(|pred| matches!(pred.1.file_type, types::FileType::Markdown(_)))
+        .filter(|pred| matches!(pred.1.resource_type, types::ResourceType::Markdown(_)))
         .cloned()
 }
 
@@ -16,23 +16,23 @@ mod tests {
     use super::types;
     use crate::adapters::filter_rid_and_meta_data;
 
-    pub fn create_meta_data(file_type: types::FileType) -> types::MetaData {
+    pub fn create_meta_data(resource_type: types::ResourceType) -> types::MetaData {
         types::MetaDataBuilder::new()
-            .set_file_stem("".into())
-            .set_file_type(file_type)
+            .set_name("".into())
+            .set_resource_type(resource_type)
             .build()
     }
 
     fn create_rid_meta_data(
         rid: &str,
-        ft: types::FileType,
+        ft: types::ResourceType,
     ) -> (types::ResourceId, types::MetaData) {
         (rid.into(), create_meta_data(ft))
     }
 
     #[test]
     fn test_filter_two_and_one_remains() {
-        use types::FileType::*;
+        use types::ResourceType::*;
 
         let all_res_ids = vec![
             create_rid_meta_data("[[rid1]]", Unknown("unk".into())),
