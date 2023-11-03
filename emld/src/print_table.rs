@@ -19,6 +19,10 @@ const TABLE_DEF: &[TableRow] = &[
         max_width: 19,
         element: "created",
     },
+    TableRow {
+        max_width: 12,
+        element: "size",
+    },
 ];
 
 const TRAIL: &str = "...";
@@ -34,6 +38,7 @@ fn note_element_2_str(note: &Note, element: &str) -> String {
             let created = Local.timestamp_opt(note.created(), 0).unwrap();
             created.format("%Y-%m-%d %H:%M:%S").to_string()
         }
+        "size" => note.size().to_string(),
         _ => panic!("Unknown element"),
     }
 }
