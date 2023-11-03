@@ -5,6 +5,7 @@ pub struct Note {
     rid: types::ResourceId,
     title_provider: Box<dyn Provider<String>>,
     md_provider: Box<dyn Provider<String>>,
+    size_provider: Box<dyn Provider<u64>>,
     created_provider: Box<dyn Provider<i64>>,
     modified_provider: Box<dyn Provider<i64>>,
 }
@@ -14,6 +15,7 @@ impl Note {
         rid: types::ResourceId,
         title_provider: Box<dyn Provider<String>>,
         md_provider: Box<dyn Provider<String>>,
+        size_provider: Box<dyn Provider<u64>>,
         created_provider: Box<dyn Provider<i64>>,
         modified_provider: Box<dyn Provider<i64>>,
     ) -> Self {
@@ -21,6 +23,7 @@ impl Note {
             rid,
             title_provider,
             md_provider,
+            size_provider,
             created_provider,
             modified_provider,
         }
@@ -32,6 +35,10 @@ impl Note {
 
     pub fn markdown(&self) -> String {
         self.md_provider.get(&self.rid)
+    }
+
+    pub fn size(&self) -> u64 {
+        self.size_provider.get(&self.rid)
     }
 
     pub fn created(&self) -> i64 {

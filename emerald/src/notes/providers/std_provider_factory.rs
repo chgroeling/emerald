@@ -39,6 +39,12 @@ impl ProviderFactory for StdProviderFactory {
         ))
     }
 
+    fn create_size_provider(&self) -> Box<dyn provider::Provider<u64>> {
+        Box::new(MetaDataProvider::new(
+            self.meta_data_retriever.clone(),
+            |meta_data| meta_data.size,
+        ))
+    }
     fn create_created_time_provider(&self) -> Box<dyn provider::Provider<i64>> {
         Box::new(MetaDataProvider::new(
             self.meta_data_retriever.clone(),
