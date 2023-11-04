@@ -27,8 +27,15 @@ impl LinkedNoteProvider {
 
 impl Provider<Vec<notes::Note>> for LinkedNoteProvider {
     fn get(&self, rid: &types::ResourceId) -> Vec<notes::Note> {
-        let out_itr = self.tgt_link_retriever.retrieve(rid).into_iter();
+        let Some(out_itr) = self.tgt_link_retriever.retrieve(rid) else {
+            return vec![];
+        };
 
-        vec![self.note_factory.create_note(rid.clone())]
+        let mut ret: Vec<notes::Note> = vec![];
+
+        for i in out_itr {
+            ret.push(self.note_factory.create_note(i.tgt.unwrap()))
+        }
+        ret
     }
 }
