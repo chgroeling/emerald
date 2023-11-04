@@ -1,3 +1,4 @@
+use crate::notes::NoteFactoryImpl;
 use crate::resources::FsMetadataAccessImpl;
 
 use super::adapters;
@@ -21,7 +22,7 @@ type StdProviderFactoryImpl = notes::StdProviderFactory;
 #[allow(dead_code)]
 pub struct Emerald {
     pub vault: notes::VaultImpl<
-        StdProviderFactoryImpl,
+        NoteFactoryImpl<StdProviderFactoryImpl>,
         <note::DefaultNoteModel as note::NotesIterSrc>::Iter,
     >,
     pub vault_stats: stats::VaultStats,
@@ -109,11 +110,12 @@ impl Emerald {
 
         let start = Instant::now();
         let provider_factory = notes::StdProviderFactory::new(nmod.clone(), content_model.clone());
+        let note_factory = notes::NoteFactoryImpl::new(provider_factory);
         let elapsed = start.elapsed();
         debug!("Creation of StdProviderFactory: {:?}", elapsed);
 
         let start = Instant::now();
-        let vault = notes::VaultImpl::new(nmod.clone(), provider_factory.clone());
+        let vault = notes::VaultImpl::new(nmod.clone(), note_factory);
         let elapsed = start.elapsed();
         debug!("Creation of Vault: {:?}", elapsed);
 
@@ -134,7 +136,7 @@ impl Emerald {
     pub fn get_vault(
         &self,
     ) -> notes::VaultImpl<
-        StdProviderFactoryImpl,
+        NoteFactoryImpl<StdProviderFactoryImpl>,
         <note::DefaultNoteModel as note::NotesIterSrc>::Iter,
     > {
         self.vault.clone()
