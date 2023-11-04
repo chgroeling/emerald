@@ -1,37 +1,29 @@
 use super::Provider;
+use crate::model::content;
 use crate::model::note;
+use crate::notes;
 use crate::types;
 use std::rc::Rc;
 
-pub struct LinkedNoteProvider<T, I>
-where
-    I: Fn(&types::MetaData) -> T,
-{
+pub struct LinkedNoteProvider {
+    note_factory: Box<dyn notes::NoteFactory>,
     meta_data_retriever: Rc<dyn note::NoteMetaDataRetriever>,
-    from_metadata_to_t: I,
 }
 
-impl<T, I> LinkedNoteProvider<T, I>
-where
-    I: Fn(&types::MetaData) -> T,
-{
+impl LinkedNoteProvider {
     pub fn new(
+        note_factory: Box<dyn notes::NoteFactory>,
         meta_data_retriever: Rc<dyn note::NoteMetaDataRetriever>,
-        from_metadata_to_t: I,
     ) -> Self {
         Self {
+            note_factory,
             meta_data_retriever,
-            from_metadata_to_t,
         }
     }
 }
 
-impl<T, I> Provider<T> for LinkedNoteProvider<T, I>
-where
-    I: Fn(&types::MetaData) -> T,
-{
-    fn get(&self, rid: &types::ResourceId) -> T {
-        let meta_data = self.meta_data_retriever.retrieve(rid);
-        (self.from_metadata_to_t)(meta_data)
+impl Provider<notes::Note> for LinkedNoteProvider {
+    fn get(&self, rid: &types::ResourceId) -> notes::Note {
+        todo!();
     }
 }

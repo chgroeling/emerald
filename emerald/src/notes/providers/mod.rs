@@ -1,4 +1,5 @@
 mod content_md_provider;
+mod linked_note_provider;
 mod meta_data_provider;
 mod provider;
 mod provider_factory;
