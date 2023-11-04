@@ -10,5 +10,5 @@ pub trait ProviderFactory {
     fn create_linked_note_provider(
         &self,
         note_factory: Box<dyn notes::NoteFactory>,
-    ) -> Box<dyn Provider<notes::Note>>;
+    ) -> Box<dyn Provider<Vec<notes::Note>>>;
 }

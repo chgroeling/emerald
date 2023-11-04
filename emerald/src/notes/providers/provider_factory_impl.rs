@@ -66,7 +66,7 @@ impl ProviderFactory for ProviderFactoryImpl {
     fn create_linked_note_provider(
         &self,
         note_factory: Box<dyn notes::NoteFactory>,
-    ) -> Box<dyn provider::Provider<notes::Note>> {
+    ) -> Box<dyn provider::Provider<Vec<notes::Note>>> {
         Box::new(LinkedNoteProvider::new(
             note_factory,
             self.tgt_link_retriever.clone(),

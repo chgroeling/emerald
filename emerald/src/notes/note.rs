@@ -1,5 +1,4 @@
 use super::providers::Provider;
-use crate::notes;
 use crate::types;
 
 pub struct Note {
@@ -9,7 +8,7 @@ pub struct Note {
     size_provider: Box<dyn Provider<u64>>,
     created_provider: Box<dyn Provider<i64>>,
     modified_provider: Box<dyn Provider<i64>>,
-    linked_notes_provider: Box<dyn Provider<Note>>,
+    linked_notes_provider: Box<dyn Provider<Vec<Note>>>,
 }
 
 impl Note {
@@ -20,7 +19,7 @@ impl Note {
         size_provider: Box<dyn Provider<u64>>,
         created_provider: Box<dyn Provider<i64>>,
         modified_provider: Box<dyn Provider<i64>>,
-        linked_notes_provider: Box<dyn Provider<Note>>,
+        linked_notes_provider: Box<dyn Provider<Vec<Note>>>,
     ) -> Self {
         Self {
             rid,
@@ -53,7 +52,7 @@ impl Note {
         self.modified_provider.get(&self.rid)
     }
 
-    pub fn linked_notes(&self) -> Note {
-        self.linked_notes_provider.get(&self.rid)
+    pub fn linked_notes(&self) -> impl Iterator<Item = Note> {
+        self.linked_notes_provider.get(&self.rid).into_iter()
     }
 }
