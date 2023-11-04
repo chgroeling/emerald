@@ -70,7 +70,10 @@ impl LinksIterSrc for DefaultNoteModel {
 }
 
 impl TgtIterRetriever for DefaultNoteModel {
-    fn retrieve(&self, src: &types::ResourceId) -> Option<std::vec::IntoIter<types::Link2Tgt>> {
+    fn retrieve(
+        &self,
+        src: &types::ResourceId,
+    ) -> Option<Box<dyn Iterator<Item = types::Link2Tgt>>> {
         self.tgt_links_map.retrieve(src)
     }
 }
