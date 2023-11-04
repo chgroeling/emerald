@@ -13,7 +13,8 @@ impl<I: ProviderFactory> NoteFactoryImpl<I> {
         Self { provider_factory }
     }
 }
-impl<I: ProviderFactory> NoteFactory for NoteFactoryImpl<I> {
+
+impl<I: ProviderFactory + Clone + 'static> NoteFactory for NoteFactoryImpl<I> {
     fn create_note(&self, rid: types::ResourceId) -> Note {
         Note::new(
             rid,
@@ -22,6 +23,8 @@ impl<I: ProviderFactory> NoteFactory for NoteFactoryImpl<I> {
             self.provider_factory.create_size_provider(),
             self.provider_factory.create_created_time_provider(),
             self.provider_factory.create_modified_time_provider(),
+            self.provider_factory
+                .create_linked_note_provider(Box::new(self.clone())),
         )
     }
 }

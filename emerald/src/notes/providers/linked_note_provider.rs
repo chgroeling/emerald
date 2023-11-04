@@ -24,6 +24,6 @@ impl LinkedNoteProvider {
 
 impl Provider<notes::Note> for LinkedNoteProvider {
     fn get(&self, rid: &types::ResourceId) -> notes::Note {
-        todo!();
+        self.note_factory.create_note(rid.clone())
     }
 }
