@@ -1,3 +1,4 @@
+use crate::notes::{self, providers::linked_note_provider::LinkedNoteProvider};
 use std::rc::Rc;
 
 use super::{
@@ -56,6 +57,16 @@ impl ProviderFactory for ProviderFactoryImpl {
         Box::new(MetaDataProvider::new(
             self.meta_data_retriever.clone(),
             |meta_data| meta_data.modified,
+        ))
+    }
+
+    fn create_linked_note_provider(
+        &self,
+        note_factory: Box<dyn notes::NoteFactory>,
+    ) -> Box<dyn provider::Provider<notes::Note>> {
+        Box::new(LinkedNoteProvider::new(
+            note_factory,
+            self.meta_data_retriever.clone(),
         ))
     }
 }
