@@ -7,12 +7,12 @@ use super::{
 use crate::{model::content, model::note};
 
 #[derive(Clone)]
-pub struct StdProviderFactory {
+pub struct ProviderFactoryImpl {
     meta_data_retriever: Rc<dyn note::NoteMetaDataRetriever>,
     content_retriever: Rc<dyn content::MdContentRetriever>,
 }
 
-impl StdProviderFactory {
+impl ProviderFactoryImpl {
     pub fn new(
         meta_data_retriever: Rc<dyn note::NoteMetaDataRetriever>,
         content_retriever: Rc<dyn content::MdContentRetriever>,
@@ -24,7 +24,7 @@ impl StdProviderFactory {
     }
 }
 
-impl ProviderFactory for StdProviderFactory {
+impl ProviderFactory for ProviderFactoryImpl {
     fn create_title_provider(&self) -> Box<dyn provider::Provider<String>> {
         Box::new(MetaDataProvider::new(
             self.meta_data_retriever.clone(),
