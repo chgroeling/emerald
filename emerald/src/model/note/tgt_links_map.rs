@@ -29,9 +29,12 @@ impl TgtLinksMap {
 }
 
 impl TgtIterRetriever for TgtLinksMap {
-    fn retrieve(&self, src: &types::ResourceId) -> Option<std::vec::IntoIter<types::Link2Tgt>> {
+    fn retrieve(
+        &self,
+        src: &types::ResourceId,
+    ) -> Option<Box<dyn Iterator<Item = types::Link2Tgt>>> {
         if let Some(vec) = self.link_2_tgt_map.get(src) {
-            Some(vec.clone().into_iter())
+            Some(Box::new(vec.clone().into_iter()))
         } else {
             None
         }
