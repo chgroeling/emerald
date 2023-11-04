@@ -34,7 +34,10 @@ impl Provider<Vec<notes::Note>> for LinkedNoteProvider {
         let mut ret: Vec<notes::Note> = vec![];
 
         for i in out_itr {
-            ret.push(self.note_factory.create_note(i.tgt.unwrap()))
+            if let Some(valid_tgt) = i.tgt {
+                // only consider valid targets
+                ret.push(self.note_factory.create_note(valid_tgt));
+            }
         }
         ret
     }
