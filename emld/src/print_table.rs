@@ -80,7 +80,10 @@ pub fn print_table(vault: &impl Vault) {
         print!("|");
         TABLE_DEF.iter().for_each(|cell_def| {
             let ref_cell = note_element_2_str(&i, cell_def.element);
-            print_cell(&ref_cell, cell_def.max_width, TRAIL)
+            print_cell(&ref_cell, cell_def.max_width, TRAIL);
+            for i in i.linked_notes() {
+                println!("{}", i.title())
+            }
         });
         println!();
     }
