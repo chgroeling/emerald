@@ -70,7 +70,6 @@ impl ProviderFactory for ProviderFactoryImpl {
         Box::new(LinkedNoteProvider::new(
             note_factory,
             self.tgt_link_retriever.clone(),
-            self.meta_data_retriever.clone(),
         ))
     }
 }
