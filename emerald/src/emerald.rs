@@ -109,7 +109,8 @@ impl Emerald {
         debug!("Creation of DefaultNoteModel: {:?}", elapsed);
 
         let start = Instant::now();
-        let provider_factory = notes::ProviderFactoryImpl::new(nmod.clone(), content_model.clone());
+        let provider_factory =
+            notes::ProviderFactoryImpl::new(nmod.clone(), content_model.clone(), nmod.clone());
         let note_factory = notes::NoteFactoryImpl::new(provider_factory);
         let elapsed = start.elapsed();
         debug!("Creation of StdProviderFactory: {:?}", elapsed);
