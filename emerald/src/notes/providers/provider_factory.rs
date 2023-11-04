@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use super::provider::Provider;
 use crate::notes;
 
@@ -9,6 +11,6 @@ pub trait ProviderFactory {
     fn create_modified_time_provider(&self) -> Box<dyn Provider<i64>>;
     fn create_linked_note_provider(
         &self,
-        note_factory: Box<dyn notes::NoteFactory>,
-    ) -> Box<dyn Provider<Vec<notes::Note>>>;
+        note_factory: Rc<dyn notes::NoteFactory>,
+    ) -> Box<dyn Provider<Box<dyn Iterator<Item = notes::Note>>>>;
 }
