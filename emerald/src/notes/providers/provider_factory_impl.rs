@@ -11,16 +11,19 @@ use crate::{model::content, model::note};
 pub struct ProviderFactoryImpl {
     meta_data_retriever: Rc<dyn note::NoteMetaDataRetriever>,
     content_retriever: Rc<dyn content::MdContentRetriever>,
+    tgt_link_retriever: Rc<dyn note::TgtIterRetriever>,
 }
 
 impl ProviderFactoryImpl {
     pub fn new(
         meta_data_retriever: Rc<dyn note::NoteMetaDataRetriever>,
         content_retriever: Rc<dyn content::MdContentRetriever>,
+        tgt_link_retriever: Rc<dyn note::TgtIterRetriever>,
     ) -> Self {
         Self {
             meta_data_retriever,
             content_retriever,
+            tgt_link_retriever,
         }
     }
 }
@@ -66,6 +69,7 @@ impl ProviderFactory for ProviderFactoryImpl {
     ) -> Box<dyn provider::Provider<notes::Note>> {
         Box::new(LinkedNoteProvider::new(
             note_factory,
+            self.tgt_link_retriever.clone(),
             self.meta_data_retriever.clone(),
         ))
     }

@@ -1,22 +1,25 @@
 use super::Provider;
-use crate::model::content;
 use crate::model::note;
 use crate::notes;
+
 use crate::types;
 use std::rc::Rc;
 
 pub struct LinkedNoteProvider {
     note_factory: Box<dyn notes::NoteFactory>,
+    tgt_link_retriever: Rc<dyn note::TgtIterRetriever>,
     meta_data_retriever: Rc<dyn note::NoteMetaDataRetriever>,
 }
 
 impl LinkedNoteProvider {
     pub fn new(
         note_factory: Box<dyn notes::NoteFactory>,
+        tgt_link_retriever: Rc<dyn note::TgtIterRetriever>,
         meta_data_retriever: Rc<dyn note::NoteMetaDataRetriever>,
     ) -> Self {
         Self {
             note_factory,
+            tgt_link_retriever,
             meta_data_retriever,
         }
     }

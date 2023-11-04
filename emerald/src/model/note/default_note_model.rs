@@ -5,6 +5,7 @@ use super::note_meta_data_retriever::NoteMetaDataRetriever;
 use super::notes_iter_src::NotesIterSrc;
 use super::src_links_map::SrcLinksMap;
 use super::tgt_links_map::TgtLinksMap;
+use super::TgtIterRetriever;
 use crate::types;
 
 #[allow(dead_code)]
@@ -65,5 +66,11 @@ impl LinksIterSrc for DefaultNoteModel {
 
     fn create_iter(&self) -> Self::Iter {
         self.link_index.clone().into_iter()
+    }
+}
+
+impl TgtIterRetriever for DefaultNoteModel {
+    fn retrieve(&self, src: &types::ResourceId) -> Option<std::vec::IntoIter<types::Link2Tgt>> {
+        self.tgt_links_map.retrieve(src)
     }
 }
