@@ -23,6 +23,10 @@ const TABLE_DEF: &[TableRow] = &[
         max_width: 12,
         element: "size",
     },
+    TableRow {
+        max_width: 12,
+        element: "linkcnt",
+    },
 ];
 
 const TRAIL: &str = "...";
@@ -39,6 +43,7 @@ fn note_element_2_str(note: &Note, element: &str) -> String {
             created.format("%Y-%m-%d %H:%M:%S").to_string()
         }
         "size" => note.size().to_string(),
+        "linkcnt" => note.linked_notes().count().to_string(),
         _ => panic!("Unknown element"),
     }
 }
@@ -81,9 +86,9 @@ pub fn print_table(vault: &impl Vault) {
         TABLE_DEF.iter().for_each(|cell_def| {
             let ref_cell = note_element_2_str(&i, cell_def.element);
             print_cell(&ref_cell, cell_def.max_width, TRAIL);
-            for i in i.linked_notes() {
+            /* TESTCODE for i in i.linked_notes() {
                 println!("{}", i.title())
-            }
+            }*/
         });
         println!();
     }

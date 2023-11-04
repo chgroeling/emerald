@@ -5,14 +5,15 @@ use crate::notes;
 use crate::types;
 use std::rc::Rc;
 
+#[derive(Clone)]
 pub struct LinkedNoteProvider {
-    note_factory: Box<dyn notes::NoteFactory>,
+    note_factory: Rc<dyn notes::NoteFactory>,
     tgt_link_retriever: Rc<dyn note::TgtIterRetriever>,
 }
 
 impl LinkedNoteProvider {
     pub fn new(
-        note_factory: Box<dyn notes::NoteFactory>,
+        note_factory: Rc<dyn notes::NoteFactory>,
         tgt_link_retriever: Rc<dyn note::TgtIterRetriever>,
     ) -> Self {
         Self {
@@ -22,20 +23,19 @@ impl LinkedNoteProvider {
     }
 }
 
-impl Provider<Vec<notes::Note>> for LinkedNoteProvider {
-    fn get(&self, rid: &types::ResourceId) -> Vec<notes::Note> {
+impl Provider<Box<dyn Iterator<Item = notes::Note>>> for LinkedNoteProvider {
+    fn get(&self, rid: &types::ResourceId) -> Box<dyn Iterator<Item = notes::Note>> {
         let Some(out_itr) = self.tgt_link_retriever.retrieve(rid) else {
-            return vec![];
+            return Box::new(std::iter::empty());
         };
-
-        let mut ret: Vec<notes::Note> = vec![];
-
-        for i in out_itr {
+        let self_clone = self.clone();
+        Box::new(out_itr.filter_map(move |i| {
+            // only consider valid targets
             if let Some(valid_tgt) = i.tgt {
-                // only consider valid targets
-                ret.push(self.note_factory.create_note(valid_tgt));
+                Some(self_clone.note_factory.create_note(valid_tgt))
+            } else {
+                None
             }
-        }
-        ret
+        }))
     }
 }

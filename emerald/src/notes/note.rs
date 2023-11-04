@@ -8,7 +8,7 @@ pub struct Note {
     size_provider: Box<dyn Provider<u64>>,
     created_provider: Box<dyn Provider<i64>>,
     modified_provider: Box<dyn Provider<i64>>,
-    linked_notes_provider: Box<dyn Provider<Vec<Note>>>,
+    linked_notes_provider: Box<dyn Provider<Box<dyn Iterator<Item = Note>>>>,
 }
 
 impl Note {
@@ -19,7 +19,7 @@ impl Note {
         size_provider: Box<dyn Provider<u64>>,
         created_provider: Box<dyn Provider<i64>>,
         modified_provider: Box<dyn Provider<i64>>,
-        linked_notes_provider: Box<dyn Provider<Vec<Note>>>,
+        linked_notes_provider: Box<dyn Provider<Box<dyn Iterator<Item = Note>>>>,
     ) -> Self {
         Self {
             rid,
