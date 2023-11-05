@@ -5,9 +5,9 @@ pub struct Note {
     pub rid: types::ResourceId,
     title_provider: Box<dyn Provider<String>>,
     md_provider: Box<dyn Provider<String>>,
-    size_provider: Box<dyn Provider<u64>>,
-    created_provider: Box<dyn Provider<i64>>,
-    modified_provider: Box<dyn Provider<i64>>,
+    size_provider: u64,
+    created_provider: i64,
+    modified_provider: i64,
 }
 
 impl Note {
@@ -15,9 +15,9 @@ impl Note {
         rid: types::ResourceId,
         title_provider: Box<dyn Provider<String>>,
         md_provider: Box<dyn Provider<String>>,
-        size_provider: Box<dyn Provider<u64>>,
-        created_provider: Box<dyn Provider<i64>>,
-        modified_provider: Box<dyn Provider<i64>>,
+        size_provider: u64,
+        created_provider: i64,
+        modified_provider: i64,
     ) -> Self {
         Self {
             rid,
@@ -38,14 +38,14 @@ impl Note {
     }
 
     pub fn size(&self) -> u64 {
-        self.size_provider.get(&self.rid)
+        self.size_provider
     }
 
     pub fn created(&self) -> i64 {
-        self.created_provider.get(&self.rid)
+        self.created_provider
     }
 
     pub fn modified(&self) -> i64 {
-        self.modified_provider.get(&self.rid)
+        self.modified_provider
     }
 }
