@@ -37,16 +37,16 @@ const TRAIL: &str = "...";
 
 fn note_element_2_str(note: &Note, vault: &impl Vault, element: &str) -> String {
     match element {
-        "title" => note.title(),
+        "title" => note.title.clone(),
         "modified" => {
-            let modified = Local.timestamp_opt(note.modified(), 0).unwrap();
+            let modified = Local.timestamp_opt(note.modified, 0).unwrap();
             modified.format("%Y-%m-%d %H:%M:%S").to_string()
         }
         "created" => {
-            let created = Local.timestamp_opt(note.created(), 0).unwrap();
+            let created = Local.timestamp_opt(note.created, 0).unwrap();
             created.format("%Y-%m-%d %H:%M:%S").to_string()
         }
-        "size" => note.size().to_string(),
+        "size" => note.size.to_string(),
         "linkcnt" => vault.get_links_of(note).count().to_string(),
         "backlinkcnt" => vault.get_backlinks_of(note).count().to_string(),
         _ => panic!("Unknown element"),

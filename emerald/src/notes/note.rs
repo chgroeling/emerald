@@ -2,11 +2,11 @@ use crate::types;
 
 pub struct Note {
     pub rid: types::ResourceId,
-    title_provider: String,
-    md_provider: String,
-    size_provider: u64,
-    created_provider: i64,
-    modified_provider: i64,
+    pub title: String,
+    pub markdown: String,
+    pub size: u64,
+    pub created: i64,
+    pub modified: i64,
 }
 
 impl Note {
@@ -20,31 +20,11 @@ impl Note {
     ) -> Self {
         Self {
             rid,
-            title_provider,
-            md_provider,
-            size_provider,
-            created_provider,
-            modified_provider,
+            title: title_provider,
+            markdown: md_provider,
+            size: size_provider,
+            created: created_provider,
+            modified: modified_provider,
         }
-    }
-
-    pub fn title(&self) -> String {
-        self.title_provider.clone()
-    }
-
-    pub fn markdown(&self) -> String {
-        self.md_provider.clone()
-    }
-
-    pub fn size(&self) -> u64 {
-        self.size_provider
-    }
-
-    pub fn created(&self) -> i64 {
-        self.created_provider
-    }
-
-    pub fn modified(&self) -> i64 {
-        self.modified_provider
     }
 }
