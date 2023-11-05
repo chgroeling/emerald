@@ -1,11 +1,9 @@
-use std::rc::Rc;
-
 use super::note_factory::NoteFactory;
-use super::providers::ProviderFactory;
 use super::Note;
 use crate::model::content;
 use crate::model::note;
 use crate::types;
+use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct NoteFactoryImpl {
