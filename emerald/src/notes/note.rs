@@ -3,8 +3,8 @@ use crate::types;
 
 pub struct Note {
     pub rid: types::ResourceId,
-    title_provider: Box<dyn Provider<String>>,
-    md_provider: Box<dyn Provider<String>>,
+    title_provider: String,
+    md_provider: String,
     size_provider: u64,
     created_provider: i64,
     modified_provider: i64,
@@ -13,8 +13,8 @@ pub struct Note {
 impl Note {
     pub fn new(
         rid: types::ResourceId,
-        title_provider: Box<dyn Provider<String>>,
-        md_provider: Box<dyn Provider<String>>,
+        title_provider: String,
+        md_provider: String,
         size_provider: u64,
         created_provider: i64,
         modified_provider: i64,
@@ -30,11 +30,11 @@ impl Note {
     }
 
     pub fn title(&self) -> String {
-        self.title_provider.get(&self.rid)
+        self.title_provider.clone()
     }
 
     pub fn markdown(&self) -> String {
-        self.md_provider.get(&self.rid)
+        self.md_provider.clone()
     }
 
     pub fn size(&self) -> u64 {
