@@ -12,6 +12,7 @@ where
 {
     notes_iter_src: Rc<dyn note::NotesIterSrc<Iter = I>>,
     tgt_link_retriever: Rc<dyn note::TgtIterRetriever>,
+    src_link_retriever: Rc<dyn note::SrcIterRetriever>,
     note_factory: Rc<dyn NoteFactory>,
 }
 
@@ -23,6 +24,7 @@ where
         notes_iter_src: Rc<dyn note::NotesIterSrc<Iter = I>>,
         note_factory: Rc<dyn NoteFactory>,
         tgt_link_retriever: Rc<dyn note::TgtIterRetriever>,
+        src_link_retriever: Rc<dyn note::SrcIterRetriever>,
     ) -> Self
     where
         I: Iterator<Item = types::ResourceId>,
@@ -31,6 +33,7 @@ where
             notes_iter_src,
             note_factory,
             tgt_link_retriever,
+            src_link_retriever,
         }
     }
 
@@ -67,5 +70,9 @@ where
                 None
             }
         }))
+    }
+
+    fn get_backlinks_of(&self, note: &Note) -> Box<dyn Iterator<Item = Note>> {
+        todo!()
     }
 }

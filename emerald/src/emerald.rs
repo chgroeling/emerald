@@ -113,7 +113,7 @@ impl Emerald {
         debug!("Creation of StdProviderFactory: {:?}", elapsed);
 
         let start = Instant::now();
-        let vault = notes::VaultImpl::new(nmod.clone(), note_factory, nmod.clone());
+        let vault = notes::VaultImpl::new(nmod.clone(), note_factory, nmod.clone(), nmod.clone());
         let elapsed = start.elapsed();
         debug!("Creation of Vault: {:?}", elapsed);
 

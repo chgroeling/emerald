@@ -33,8 +33,15 @@ impl SrcLinksMap {
 }
 
 impl SrcIterRetriever for SrcLinksMap {
-    fn retrieve(&self, tgt: &types::ResourceId) -> Option<std::vec::IntoIter<types::LinkFrmSrc>> {
-        self.src_2_tgt_map.get(tgt).map(|f| f.clone().into_iter())
+    fn retrieve(
+        &self,
+        tgt: &types::ResourceId,
+    ) -> Option<Box<dyn Iterator<Item = types::LinkFrmSrc>>> {
+        if let Some(vec) = self.src_2_tgt_map.get(tgt) {
+            Some(Box::new(vec.clone().into_iter()))
+        } else {
+            None
+        }
     }
 }
 
