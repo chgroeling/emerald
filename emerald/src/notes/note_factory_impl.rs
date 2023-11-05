@@ -8,27 +8,24 @@ use crate::model::note;
 use crate::types;
 
 #[derive(Clone)]
-pub struct NoteFactoryImpl<I: ProviderFactory> {
-    provider_factory: I,
+pub struct NoteFactoryImpl {
     meta_data_retriever: Rc<dyn note::NoteMetaDataRetriever>,
     content_retriever: Rc<dyn content::MdContentRetriever>,
 }
 
-impl<I: ProviderFactory> NoteFactoryImpl<I> {
+impl NoteFactoryImpl {
     pub fn new(
-        provider_factory: I,
         meta_data_retriever: Rc<dyn note::NoteMetaDataRetriever>,
         content_retriever: Rc<dyn content::MdContentRetriever>,
     ) -> Self {
         Self {
-            provider_factory,
             meta_data_retriever,
             content_retriever,
         }
     }
 }
 
-impl<I: ProviderFactory + Clone + 'static> NoteFactory for NoteFactoryImpl<I> {
+impl NoteFactory for NoteFactoryImpl {
     fn create_note(&self, rid: types::ResourceId) -> Note {
         let meta_data = self.meta_data_retriever.retrieve(&rid);
         let content = self.content_retriever.retrieve(&rid);
