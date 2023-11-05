@@ -31,7 +31,7 @@ const TABLE_DEF: &[TableRow] = &[
 
 const TRAIL: &str = "...";
 
-fn note_element_2_str(note: &Note, element: &str) -> String {
+fn note_element_2_str(note: &Note, vault: &impl Vault, element: &str) -> String {
     match element {
         "title" => note.title(),
         "modified" => {
@@ -43,7 +43,7 @@ fn note_element_2_str(note: &Note, element: &str) -> String {
             created.format("%Y-%m-%d %H:%M:%S").to_string()
         }
         "size" => note.size().to_string(),
-        "linkcnt" => note.linked_notes().count().to_string(),
+        "linkcnt" => vault.get_links_of(note).count().to_string(),
         _ => panic!("Unknown element"),
     }
 }
@@ -84,7 +84,7 @@ pub fn print_table(vault: &impl Vault) {
     for i in vault.flat_iter() {
         print!("|");
         TABLE_DEF.iter().for_each(|cell_def| {
-            let ref_cell = note_element_2_str(&i, cell_def.element);
+            let ref_cell = note_element_2_str(&i, vault, cell_def.element);
             print_cell(&ref_cell, cell_def.max_width, TRAIL);
             /* TESTCODE for i in i.linked_notes() {
                 println!("{}", i.title())

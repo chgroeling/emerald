@@ -2,7 +2,7 @@ use super::providers::Provider;
 use crate::types;
 
 pub struct Note {
-    rid: types::ResourceId,
+    pub rid: types::ResourceId,
     title_provider: Box<dyn Provider<String>>,
     md_provider: Box<dyn Provider<String>>,
     size_provider: Box<dyn Provider<u64>>,
