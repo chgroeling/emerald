@@ -1,4 +1,3 @@
-use super::providers::Provider;
 use crate::types;
 
 pub struct Note {
