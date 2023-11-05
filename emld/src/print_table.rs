@@ -24,8 +24,12 @@ const TABLE_DEF: &[TableRow] = &[
         element: "size",
     },
     TableRow {
-        max_width: 12,
+        max_width: 6,
         element: "linkcnt",
+    },
+    TableRow {
+        max_width: 6,
+        element: "backlinkcnt",
     },
 ];
 
@@ -44,6 +48,7 @@ fn note_element_2_str(note: &Note, vault: &impl Vault, element: &str) -> String 
         }
         "size" => note.size().to_string(),
         "linkcnt" => vault.get_links_of(note).count().to_string(),
+        "backlinkcnt" => vault.get_backlinks_of(note).count().to_string(),
         _ => panic!("Unknown element"),
     }
 }
