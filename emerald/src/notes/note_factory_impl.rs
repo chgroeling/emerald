@@ -25,8 +25,6 @@ impl<I: ProviderFactory + Clone + 'static> NoteFactory for NoteFactoryImpl<I> {
             self.provider_factory.create_size_provider(),
             self.provider_factory.create_created_time_provider(),
             self.provider_factory.create_modified_time_provider(),
-            self.provider_factory
-                .create_linked_note_provider(Rc::new(self.clone())),
         )
     }
 }
