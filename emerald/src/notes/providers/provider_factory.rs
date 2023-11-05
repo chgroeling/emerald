@@ -9,12 +9,4 @@ pub trait ProviderFactory {
     fn create_size_provider(&self) -> Box<dyn Provider<u64>>;
     fn create_created_time_provider(&self) -> Box<dyn Provider<i64>>;
     fn create_modified_time_provider(&self) -> Box<dyn Provider<i64>>;
-    fn create_linked_note_provider(
-        &self,
-        note_factory: Rc<dyn notes::NoteFactory>,
-    ) -> Box<dyn Provider<Box<dyn Iterator<Item = notes::Note>>>>;
-    fn create_backlink_note_provider(
-        &self,
-        note_factory: Rc<dyn notes::NoteFactory>,
-    ) -> Box<dyn Provider<Box<dyn Iterator<Item = notes::Note>>>>;
 }

@@ -8,7 +8,6 @@ pub struct Note {
     size_provider: Box<dyn Provider<u64>>,
     created_provider: Box<dyn Provider<i64>>,
     modified_provider: Box<dyn Provider<i64>>,
-    linked_notes_provider: Box<dyn Provider<Box<dyn Iterator<Item = Note>>>>,
 }
 
 impl Note {
@@ -19,7 +18,6 @@ impl Note {
         size_provider: Box<dyn Provider<u64>>,
         created_provider: Box<dyn Provider<i64>>,
         modified_provider: Box<dyn Provider<i64>>,
-        linked_notes_provider: Box<dyn Provider<Box<dyn Iterator<Item = Note>>>>,
     ) -> Self {
         Self {
             rid,
@@ -28,7 +26,6 @@ impl Note {
             size_provider,
             created_provider,
             modified_provider,
-            linked_notes_provider,
         }
     }
 
@@ -50,9 +47,5 @@ impl Note {
 
     pub fn modified(&self) -> i64 {
         self.modified_provider.get(&self.rid)
-    }
-
-    pub fn linked_notes(&self) -> impl Iterator<Item = Note> {
-        self.linked_notes_provider.get(&self.rid).into_iter()
     }
 }
