@@ -21,10 +21,7 @@ type StdProviderFactoryImpl = notes::ProviderFactoryImpl;
 
 #[allow(dead_code)]
 pub struct Emerald {
-    pub vault: notes::VaultImpl<
-        NoteFactoryImpl<StdProviderFactoryImpl>,
-        <note::DefaultNoteModel as note::NotesIterSrc>::Iter,
-    >,
+    pub vault: notes::VaultImpl<<note::DefaultNoteModel as note::NotesIterSrc>::Iter>,
     pub vault_stats: stats::VaultStats,
 }
 
@@ -111,12 +108,12 @@ impl Emerald {
         let start = Instant::now();
         let provider_factory =
             notes::ProviderFactoryImpl::new(nmod.clone(), content_model.clone(), nmod.clone());
-        let note_factory = notes::NoteFactoryImpl::new(provider_factory);
+        let note_factory = Rc::new(notes::NoteFactoryImpl::new(provider_factory));
         let elapsed = start.elapsed();
         debug!("Creation of StdProviderFactory: {:?}", elapsed);
 
         let start = Instant::now();
-        let vault = notes::VaultImpl::new(nmod.clone(), note_factory);
+        let vault = notes::VaultImpl::new(nmod.clone(), note_factory, nmod.clone());
         let elapsed = start.elapsed();
         debug!("Creation of Vault: {:?}", elapsed);
 
@@ -136,10 +133,7 @@ impl Emerald {
 impl Emerald {
     pub fn get_vault(
         &self,
-    ) -> notes::VaultImpl<
-        NoteFactoryImpl<StdProviderFactoryImpl>,
-        <note::DefaultNoteModel as note::NotesIterSrc>::Iter,
-    > {
+    ) -> notes::VaultImpl<<note::DefaultNoteModel as note::NotesIterSrc>::Iter> {
         self.vault.clone()
     }
 
