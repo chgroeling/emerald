@@ -10,10 +10,10 @@ pub struct VaultImpl<I>
 where
     I: Iterator<Item = types::ResourceId>,
 {
+    note_factory: Rc<dyn NoteFactory>,
     notes_iter_src: Rc<dyn note::NotesIterSrc<Iter = I>>,
     tgt_link_retriever: Rc<dyn note::TgtIterRetriever>,
     src_link_retriever: Rc<dyn note::SrcIterRetriever>,
-    note_factory: Rc<dyn NoteFactory>,
 }
 
 impl<I> VaultImpl<I>
@@ -21,8 +21,8 @@ where
     I: Iterator<Item = types::ResourceId>,
 {
     pub fn new(
-        notes_iter_src: Rc<dyn note::NotesIterSrc<Iter = I>>,
         note_factory: Rc<dyn NoteFactory>,
+        notes_iter_src: Rc<dyn note::NotesIterSrc<Iter = I>>,
         tgt_link_retriever: Rc<dyn note::TgtIterRetriever>,
         src_link_retriever: Rc<dyn note::SrcIterRetriever>,
     ) -> Self
