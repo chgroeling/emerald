@@ -14,6 +14,7 @@ pub use links_iter_src::LinksIterSrc;
 pub use note_count::NoteCount;
 pub use note_meta_data_retriever::NoteMetaDataRetriever;
 pub use notes_iter_src::NotesIterSrc;
+pub use src_iter_retriever::SrcIterRetriever;
 pub use tgt_iter_retriever::TgtIterRetriever;
 
 #[cfg(test)]
