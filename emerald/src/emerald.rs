@@ -1,4 +1,3 @@
-use crate::notes::NoteFactoryImpl;
 use crate::resources::FsMetadataAccessImpl;
 
 use super::adapters;
@@ -16,8 +15,6 @@ use super::stats;
 use log::{debug, error, info, trace, warn};
 use std::rc::Rc;
 use std::{path::Path, time::Instant};
-
-type StdProviderFactoryImpl = notes::ProviderFactoryImpl;
 
 #[allow(dead_code)]
 pub struct Emerald {
@@ -106,8 +103,7 @@ impl Emerald {
         debug!("Creation of DefaultNoteModel: {:?}", elapsed);
 
         let start = Instant::now();
-        let provider_factory =
-            notes::ProviderFactoryImpl::new(nmod.clone(), content_model.clone(), nmod.clone());
+        let provider_factory = notes::ProviderFactoryImpl::new(nmod.clone(), content_model.clone());
         let note_factory = Rc::new(notes::NoteFactoryImpl::new(provider_factory));
         let elapsed = start.elapsed();
         debug!("Creation of StdProviderFactory: {:?}", elapsed);

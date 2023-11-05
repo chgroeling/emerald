@@ -1,5 +1,4 @@
 use super::Note;
-use crate::types;
 
 pub trait Vault {
     fn flat_iter(&self) -> std::vec::IntoIter<Note>;

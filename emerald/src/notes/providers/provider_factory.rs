@@ -1,7 +1,4 @@
-use std::rc::Rc;
-
 use super::provider::Provider;
-use crate::notes;
 
 pub trait ProviderFactory {
     fn create_title_provider(&self) -> Box<dyn Provider<String>>;
