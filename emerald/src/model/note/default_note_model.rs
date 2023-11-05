@@ -5,7 +5,7 @@ use super::note_meta_data_retriever::NoteMetaDataRetriever;
 use super::notes_iter_src::NotesIterSrc;
 use super::src_links_map::SrcLinksMap;
 use super::tgt_links_map::TgtLinksMap;
-use super::TgtIterRetriever;
+use super::{SrcIterRetriever, TgtIterRetriever};
 use crate::types;
 
 #[allow(dead_code)]
@@ -75,5 +75,13 @@ impl TgtIterRetriever for DefaultNoteModel {
         src: &types::ResourceId,
     ) -> Option<Box<dyn Iterator<Item = types::Link2Tgt>>> {
         self.tgt_links_map.retrieve(src)
+    }
+}
+impl SrcIterRetriever for DefaultNoteModel {
+    fn retrieve(
+        &self,
+        src: &types::ResourceId,
+    ) -> Option<Box<dyn Iterator<Item = types::LinkFrmSrc>>> {
+        self.src_links_map.retrieve(src)
     }
 }
