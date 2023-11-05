@@ -13,4 +13,8 @@ pub trait ProviderFactory {
         &self,
         note_factory: Rc<dyn notes::NoteFactory>,
     ) -> Box<dyn Provider<Box<dyn Iterator<Item = notes::Note>>>>;
+    fn create_backlink_note_provider(
+        &self,
+        note_factory: Rc<dyn notes::NoteFactory>,
+    ) -> Box<dyn Provider<Box<dyn Iterator<Item = notes::Note>>>>;
 }

@@ -72,4 +72,14 @@ impl ProviderFactory for ProviderFactoryImpl {
             self.tgt_link_retriever.clone(),
         ))
     }
+
+    fn create_backlink_note_provider(
+        &self,
+        note_factory: Rc<dyn notes::NoteFactory>,
+    ) -> Box<dyn provider::Provider<Box<dyn Iterator<Item = notes::Note>>>> {
+        Box::new(LinkedNoteProvider::new(
+            note_factory,
+            self.tgt_link_retriever.clone(),
+        ))
+    }
 }
