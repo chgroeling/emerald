@@ -1,4 +1,3 @@
-use crate::notes::{self};
 use std::rc::Rc;
 
 use super::{
@@ -11,19 +10,16 @@ use crate::{model::content, model::note};
 pub struct ProviderFactoryImpl {
     meta_data_retriever: Rc<dyn note::NoteMetaDataRetriever>,
     content_retriever: Rc<dyn content::MdContentRetriever>,
-    tgt_link_retriever: Rc<dyn note::TgtIterRetriever>,
 }
 
 impl ProviderFactoryImpl {
     pub fn new(
         meta_data_retriever: Rc<dyn note::NoteMetaDataRetriever>,
         content_retriever: Rc<dyn content::MdContentRetriever>,
-        tgt_link_retriever: Rc<dyn note::TgtIterRetriever>,
     ) -> Self {
         Self {
             meta_data_retriever,
             content_retriever,
-            tgt_link_retriever,
         }
     }
 }

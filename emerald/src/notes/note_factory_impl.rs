@@ -1,5 +1,3 @@
-use std::rc::Rc;
-
 use super::note_factory::NoteFactory;
 use super::providers::ProviderFactory;
 use super::Note;
