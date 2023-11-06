@@ -6,7 +6,7 @@ use super::get_links::{GetLinks, GetLinksResult};
 use super::get_links_impl::GetLinksImpl;
 use super::note::Note;
 use super::NoteFactory;
-use crate::model::{link, note};
+use crate::model::{file, link, note};
 use crate::{types, Vault};
 
 #[derive(Clone)]
@@ -29,7 +29,7 @@ where
         notes_iter_src: Rc<dyn note::NotesIterSrc<Iter = I>>,
         tgt_link_retriever: Rc<dyn link::TgtIterRetriever>,
         src_link_retriever: Rc<dyn link::SrcIterRetriever>,
-        meta_data_retriever: Rc<dyn note::NoteMetaDataRetriever>,
+        meta_data_retriever: Rc<dyn file::FileMetaDataRetriever>,
     ) -> Self
     where
         I: Iterator<Item = types::ResourceId>,
