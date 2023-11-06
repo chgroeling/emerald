@@ -5,7 +5,7 @@ use super::error::Result;
 use super::markdown;
 use super::model::content;
 use super::model::file;
-use super::model::link;
+use super::model::link_resolver;
 use super::model::note;
 use super::notes;
 use super::resources;
@@ -81,7 +81,7 @@ impl Emerald {
 
         let start = Instant::now();
         let name_iter = adapters::adapter_to_rid_and_name(&all_vec)?;
-        let link_model = Rc::new(link::DefaultLinkModel::new(name_iter));
+        let link_model = Rc::new(link_resolver::DefaultLinkResolverModel::new(name_iter));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultLinkModel: {:?}", elapsed);
 

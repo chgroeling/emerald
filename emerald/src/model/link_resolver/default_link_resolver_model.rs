@@ -2,11 +2,11 @@ use super::resource_id_link_map::ResourceIdLinkMap;
 use super::resource_id_resolver::ResourceIdResolver;
 use crate::types;
 
-pub struct DefaultLinkModel {
+pub struct DefaultLinkResolverModel {
     link_map: ResourceIdLinkMap,
 }
 
-impl DefaultLinkModel {
+impl DefaultLinkResolverModel {
     pub fn new(it_src: impl IntoIterator<Item = (types::ResourceId, String)>) -> Self {
         Self {
             link_map: ResourceIdLinkMap::new(it_src),
@@ -14,7 +14,7 @@ impl DefaultLinkModel {
     }
 }
 
-impl ResourceIdResolver for DefaultLinkModel {
+impl ResourceIdResolver for DefaultLinkResolverModel {
     fn resolve_with_hint(
         &self,
         link: &types::Link,

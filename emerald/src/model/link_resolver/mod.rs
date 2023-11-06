@@ -1,6 +1,6 @@
-mod default_link_model;
+mod default_link_resolver_model;
 mod resource_id_link_map;
 mod resource_id_resolver;
 
-pub use default_link_model::DefaultLinkModel;
+pub use default_link_resolver_model::DefaultLinkResolverModel;
 pub use resource_id_resolver::ResourceIdResolver;
