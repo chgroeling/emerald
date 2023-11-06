@@ -1,6 +1,6 @@
 use super::get_links::{GetLinks, GetLinksResult};
 use super::Note;
-use crate::model::{file, link, note};
+use crate::model::{file, link};
 use std::rc::Rc;
 
 #[derive(Clone)]
