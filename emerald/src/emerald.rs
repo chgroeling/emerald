@@ -87,9 +87,9 @@ impl Emerald {
         debug!("Creation of DefaultLinkModel: {:?}", elapsed);
 
         let start = Instant::now();
-        let fmod = Rc::new(resource::DefaultResourceModel::new(all_meta_data));
+        let rmod = Rc::new(resource::DefaultResourceModel::new(all_meta_data));
         let elapsed = start.elapsed();
-        debug!("Creation of DefaultFileModel: {:?}", elapsed);
+        debug!("Creation of DefaultResourceModel: {:?}", elapsed);
 
         let start = Instant::now();
         let c_it = adapters::adapter_to_rids_and_content(md_it, cmod.as_ref());
@@ -120,7 +120,7 @@ impl Emerald {
             nmod.clone(),
             lmod.clone(),
             lmod.clone(),
-            fmod.clone(),
+            rmod.clone(),
         );
         let elapsed = start.elapsed();
         debug!("Creation of Vault: {:?}", elapsed);
@@ -128,7 +128,7 @@ impl Emerald {
         // -----
         // Aquire stats
         let link_stats = stats::extract_link_stats(lmod.as_ref());
-        let file_stats = stats::extract_file_stats(fmod.as_ref(), nmod.as_ref());
+        let file_stats = stats::extract_file_stats(rmod.as_ref(), nmod.as_ref());
         let vault_stats = stats::VaultStats {
             file_stats,
             link_stats,

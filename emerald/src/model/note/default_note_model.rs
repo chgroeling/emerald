@@ -1,4 +1,5 @@
 use super::note_count::NoteCount;
+use super::note_meta_data::NoteMetaData;
 use super::note_meta_data_map::NoteMetaDataMap;
 use super::note_meta_data_retriever::NoteMetaDataRetriever;
 use super::notes_iter_src::NotesIterSrc;
@@ -14,7 +15,10 @@ impl DefaultNoteModel {
     pub fn new(
         it_note_meta_data: impl IntoIterator<Item = (types::ResourceId, types::MetaData)>,
     ) -> DefaultNoteModel {
-        let it_note_meta: Vec<_> = it_note_meta_data.into_iter().collect();
+        let it_note_meta: Vec<(_, NoteMetaData)> = it_note_meta_data
+            .into_iter()
+            .map(|f| (f.0, f.1.into()))
+            .collect();
         DefaultNoteModel {
             note_index: it_note_meta.iter().map(|f| f.0.clone()).collect(),
 
@@ -24,7 +28,7 @@ impl DefaultNoteModel {
 }
 
 impl NoteMetaDataRetriever for DefaultNoteModel {
-    fn retrieve(&self, md: &types::ResourceId) -> &types::MetaData {
+    fn retrieve(&self, md: &types::ResourceId) -> &NoteMetaData {
         // Option is not returned because meta data should be consistent at this point
         self.meta_data_map.retrieve(md)
     }
