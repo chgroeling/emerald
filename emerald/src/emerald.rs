@@ -8,9 +8,9 @@ use super::model::link;
 use super::model::note;
 use super::model::resource;
 use super::model::resource_id_resolver;
-use super::notes;
 use super::resources;
 use super::stats;
+use super::vault;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
@@ -19,8 +19,8 @@ use std::{path::Path, time::Instant};
 
 #[allow(dead_code)]
 pub struct Emerald {
-    pub vault: notes::VaultImpl<<note::DefaultNoteModel as note::NotesIterSrc>::Iter>,
-    pub vault_stats: stats::VaultStats,
+    pub vault: vault::VaultImpl<<note::DefaultNoteModel as note::NotesIterSrc>::Iter>,
+    pub stats: stats::VaultStats,
 }
 
 impl Emerald {
@@ -112,12 +112,12 @@ impl Emerald {
         debug!("Creation of DefaultNoteModel: {:?}", elapsed);
 
         let start = Instant::now();
-        let note_factory = Rc::new(notes::NoteFactoryImpl::new(nmod.clone(), cmod.clone()));
+        let note_factory = Rc::new(vault::NoteFactoryImpl::new(nmod.clone(), cmod.clone()));
         let elapsed = start.elapsed();
         debug!("Creation of NoteFactoryImpl: {:?}", elapsed);
 
         let start = Instant::now();
-        let vault = notes::VaultImpl::new(
+        let vault = vault::VaultImpl::new(
             note_factory,
             nmod.clone(),
             lmod.clone(),
@@ -136,30 +136,33 @@ impl Emerald {
             link_stats,
         };
         // -------
-        Ok(Emerald { vault, vault_stats })
+        Ok(Emerald {
+            vault,
+            stats: vault_stats,
+        })
     }
 }
 
 impl Emerald {
     pub fn get_vault(
         &self,
-    ) -> notes::VaultImpl<<note::DefaultNoteModel as note::NotesIterSrc>::Iter> {
+    ) -> vault::VaultImpl<<note::DefaultNoteModel as note::NotesIterSrc>::Iter> {
         self.vault.clone()
     }
 
     pub fn file_count(&self) -> usize {
-        self.vault_stats.file_stats.file_count
+        self.stats.file_stats.file_count
     }
 
     pub fn md_file_count(&self) -> usize {
-        self.vault_stats.file_stats.md_file_count
+        self.stats.file_stats.md_file_count
     }
 
     pub fn valid_backlink_count(&self) -> usize {
-        self.vault_stats.link_stats.valid_backlinks
+        self.stats.link_stats.valid_backlinks
     }
 
     pub fn invalid_backlink_count(&self) -> usize {
-        self.vault_stats.link_stats.invalid_backlinks
+        self.stats.link_stats.invalid_backlinks
     }
 }
