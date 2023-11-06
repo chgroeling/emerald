@@ -76,39 +76,41 @@ impl Emerald {
 
         let start = Instant::now();
         let md_content_vec = resources::adapter_to_rid_and_content(md_it.clone(), &content_loader)?;
-        let content_model = Rc::new(content::DefaultContentModel::new(md_content_vec));
+        let cmod = Rc::new(content::DefaultContentModel::new(md_content_vec));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultContentModel: {:?}", elapsed);
 
         let start = Instant::now();
         let name_iter = adapters::adapter_to_rid_and_name(&all_vec)?;
-        let link_model = Rc::new(link_resolver::DefaultLinkResolverModel::new(name_iter));
+        let lrmod = Rc::new(link_resolver::DefaultLinkResolverModel::new(name_iter));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultLinkModel: {:?}", elapsed);
 
         let start = Instant::now();
-
         let fmod = Rc::new(file::DefaultFileModel::new(all_meta_data));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultFileModel: {:?}", elapsed);
 
         let start = Instant::now();
-        let c_it = adapters::adapter_to_rids_and_content(md_it, content_model.as_ref());
+        let c_it = adapters::adapter_to_rids_and_content(md_it, cmod.as_ref());
         let md_analyzer = markdown::MarkdownAnalyzerImpl::new();
         let ct_it = adapters::adapter_to_rid_and_content_type(c_it, md_analyzer);
-        let s2t_idx: Vec<_> =
-            adapters::adapter_to_link_src_2_tgt(ct_it, link_model.as_ref()).collect();
+        let s2t_idx: Vec<_> = adapters::adapter_to_link_src_2_tgt(ct_it, lrmod.as_ref()).collect();
+        let elapsed = start.elapsed();
+        debug!("Link and Backlink extraction: {:?}", elapsed);
 
-        let nmod = Rc::new(note::DefaultNoteModel::new(md_meta_data));
+        let start = Instant::now();
         let lmod = Rc::new(link::DefaultLinkModel::new(s2t_idx));
+        let elapsed = start.elapsed();
+        debug!("Creation of DefaultLinkModel: {:?}", elapsed);
+
+        let start = Instant::now();
+        let nmod = Rc::new(note::DefaultNoteModel::new(md_meta_data));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultNoteModel: {:?}", elapsed);
 
         let start = Instant::now();
-        let note_factory = Rc::new(notes::NoteFactoryImpl::new(
-            nmod.clone(),
-            content_model.clone(),
-        ));
+        let note_factory = Rc::new(notes::NoteFactoryImpl::new(nmod.clone(), cmod.clone()));
         let elapsed = start.elapsed();
         debug!("Creation of NoteFactoryImpl: {:?}", elapsed);
 
