@@ -2,6 +2,7 @@ use super::get_links::{GetLinks, GetLinksResult};
 use super::Note;
 use crate::model::{link, resource};
 use std::rc::Rc;
+use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct GetLinksImpl {
@@ -26,10 +27,22 @@ impl GetLinks for GetLinksImpl {
         let Some(out_itr) = self.tgt_link_retriever.retrieve(&rid) else {
             return Box::new(std::iter::empty());
         };
+        let res_meta_data_ret = self.res_meta_data_ret.clone();
         Box::new(out_itr.filter_map(move |i| {
             // only consider valid targets
             if let Some(valid_tgt) = i.tgt {
-                Some(GetLinksResult::LinkToNote(valid_tgt))
+                let rmd = res_meta_data_ret.retrieve(&valid_tgt);
+                match rmd.resource_type {
+                    crate::types::ResourceType::Unknown() => {
+                        Some(GetLinksResult::LinkToResource(valid_tgt))
+                    }
+                    crate::types::ResourceType::Markdown() => {
+                        Some(GetLinksResult::LinkToNote(valid_tgt))
+                    }
+                    crate::types::ResourceType::NoType() => {
+                        Some(GetLinksResult::LinkToResource(valid_tgt))
+                    }
+                }
             } else {
                 None
             }

@@ -61,10 +61,14 @@ where
 
     fn get_links_of(&self, note: &Note) -> Box<dyn Iterator<Item = Note>> {
         let factory_clone = self.note_factory.clone();
-        Box::new(self.get_links.get_links_of(note).map(move |f| match f {
-            GetLinksResult::LinkToNote(rid) => factory_clone.create_note(rid),
-            GetLinksResult::LinkToFile(_) => todo!(),
-        }))
+        Box::new(
+            self.get_links
+                .get_links_of(note)
+                .filter_map(move |f| match f {
+                    GetLinksResult::LinkToNote(rid) => Some(factory_clone.create_note(rid)),
+                    GetLinksResult::LinkToResource(_) => None,
+                }),
+        )
     }
 
     fn get_backlinks_of(&self, note: &Note) -> Box<dyn Iterator<Item = Note>> {
