@@ -5,6 +5,8 @@ mod get_links_impl;
 mod note;
 mod note_factory;
 mod note_factory_impl;
+mod note_types;
+mod resource_ref;
 mod vault;
 mod vault_impl;
 

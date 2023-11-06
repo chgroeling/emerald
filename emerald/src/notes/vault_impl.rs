@@ -5,6 +5,8 @@ use super::get_backlinks_impl::GetBacklinksImpl;
 use super::get_links::{GetLinks, GetLinksResult};
 use super::get_links_impl::GetLinksImpl;
 use super::note::Note;
+use super::note_types::NoteTypes;
+use super::resource_ref::ResourceRef;
 use super::NoteFactory;
 use crate::model::{link, note, resource};
 use crate::{types, Vault};
@@ -59,14 +61,18 @@ where
         note_vec.into_iter()
     }
 
-    fn get_links_of(&self, note: &Note) -> Box<dyn Iterator<Item = Note>> {
+    fn get_links_of(&self, note: &Note) -> Box<dyn Iterator<Item = NoteTypes>> {
         let factory_clone = self.note_factory.clone();
         Box::new(
             self.get_links
                 .get_links_of(note)
                 .filter_map(move |f| match f {
-                    GetLinksResult::LinkToNote(rid) => Some(factory_clone.create_note(rid)),
-                    GetLinksResult::LinkToResource(_) => None,
+                    GetLinksResult::LinkToNote(rid) => {
+                        Some(NoteTypes::Note(factory_clone.create_note(rid)))
+                    }
+                    GetLinksResult::LinkToResource(rid) => {
+                        Some(NoteTypes::ResourceRef(ResourceRef::new(rid)))
+                    }
                 }),
         )
     }
