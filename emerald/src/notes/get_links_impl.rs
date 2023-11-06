@@ -6,17 +6,17 @@ use std::rc::Rc;
 #[derive(Clone)]
 pub struct GetLinksImpl {
     tgt_link_retriever: Rc<dyn link::TgtIterRetriever>,
-    meta_data_retriever: Rc<dyn resource::ResourceMetaDataRetriever>,
+    res_meta_data_ret: Rc<dyn resource::ResourceMetaDataRetriever>,
 }
 
 impl GetLinksImpl {
     pub fn new(
         tgt_link_retriever: Rc<dyn link::TgtIterRetriever>,
-        meta_data_retriever: Rc<dyn resource::ResourceMetaDataRetriever>,
+        res_meta_data_ret: Rc<dyn resource::ResourceMetaDataRetriever>,
     ) -> Self {
         Self {
             tgt_link_retriever,
-            meta_data_retriever,
+            res_meta_data_ret,
         }
     }
 }

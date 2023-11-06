@@ -29,7 +29,7 @@ impl NoteFactory for NoteFactoryImpl {
         let content = self.content_retriever.retrieve(&rid);
         Note::new(
             rid,
-            meta_data.name.clone(),
+            meta_data.title.clone(),
             content.0.clone(),
             meta_data.size,
             meta_data.created,

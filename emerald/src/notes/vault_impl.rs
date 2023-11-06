@@ -29,12 +29,12 @@ where
         notes_iter_src: Rc<dyn note::NotesIterSrc<Iter = I>>,
         tgt_link_retriever: Rc<dyn link::TgtIterRetriever>,
         src_link_retriever: Rc<dyn link::SrcIterRetriever>,
-        meta_data_retriever: Rc<dyn resource::ResourceMetaDataRetriever>,
+        res_meta_data_ret: Rc<dyn resource::ResourceMetaDataRetriever>,
     ) -> Self
     where
         I: Iterator<Item = types::ResourceId>,
     {
-        let get_links = GetLinksImpl::new(tgt_link_retriever.clone(), meta_data_retriever.clone());
+        let get_links = GetLinksImpl::new(tgt_link_retriever.clone(), res_meta_data_ret.clone());
         let get_backlinks = GetBacklinksImpl::new(src_link_retriever.clone());
         Self {
             notes_iter_src,

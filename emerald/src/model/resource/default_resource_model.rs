@@ -1,5 +1,6 @@
 use super::resource_count::ResourceCount;
 use super::resource_iter_src::ResourceIterSrc;
+use super::resource_meta_data::ResourceMetaData;
 use super::resource_meta_data_map::ResourceMetaDataMap;
 use super::resource_meta_data_retriever::ResourceMetaDataRetriever;
 use crate::types;
@@ -13,7 +14,9 @@ impl DefaultResourceModel {
     pub fn new(
         it_files: impl IntoIterator<Item = (types::ResourceId, types::MetaData)>,
     ) -> DefaultResourceModel {
-        let files: Vec<_> = it_files.into_iter().collect();
+        let files: Vec<(_, ResourceMetaData)> =
+            it_files.into_iter().map(|f| (f.0, f.1.into())).collect();
+
         DefaultResourceModel {
             file_index: files.iter().map(|f| f.0.clone()).collect(),
             meta_data_map: ResourceMetaDataMap::new(files),
@@ -29,7 +32,7 @@ impl ResourceIterSrc for DefaultResourceModel {
 }
 
 impl ResourceMetaDataRetriever for DefaultResourceModel {
-    fn retrieve(&self, tgt: &types::ResourceId) -> &types::MetaData {
+    fn retrieve(&self, tgt: &types::ResourceId) -> &ResourceMetaData {
         // Option is not returned because meta data should be consistent at this point
         self.meta_data_map.retrieve(tgt)
     }

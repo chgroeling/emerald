@@ -1,5 +1,6 @@
 mod default_note_model;
 mod note_count;
+mod note_meta_data;
 mod note_meta_data_map;
 mod note_meta_data_retriever;
 mod notes_iter_src;

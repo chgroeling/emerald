@@ -1,6 +1,7 @@
 mod default_resource_model;
 mod resource_count;
 mod resource_iter_src;
+mod resource_meta_data;
 mod resource_meta_data_map;
 mod resource_meta_data_retriever;
 
