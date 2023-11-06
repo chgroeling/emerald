@@ -5,7 +5,6 @@ use super::notes_iter_src::NotesIterSrc;
 
 use crate::types;
 
-#[allow(dead_code)]
 pub struct DefaultNoteModel {
     note_index: Vec<types::ResourceId>,
     meta_data_map: NoteMetaDataMap,
@@ -22,10 +21,6 @@ impl DefaultNoteModel {
             meta_data_map: NoteMetaDataMap::new(it_note_meta),
         }
     }
-
-    /*  pub fn get_links_src_2_tgt_iterator(&self) -> impl Iterator<Item = &types::LinkSrc2Tgt> {
-        self.link_index.iter()
-    }*/
 }
 
 impl NoteMetaDataRetriever for DefaultNoteModel {
