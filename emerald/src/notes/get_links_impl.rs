@@ -1,4 +1,4 @@
-use super::Note;
+use super::note::Note;
 use super::{get_links::GetLinks, link_query_result::LinkQueryResult};
 use crate::model::{link, resource};
 use std::rc::Rc;

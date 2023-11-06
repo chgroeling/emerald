@@ -1,7 +1,6 @@
 use super::note_factory::NoteFactory;
 use super::Note;
-use crate::model::content;
-use crate::model::note;
+use crate::model::{content, note};
 use crate::types;
 use std::rc::Rc;
 

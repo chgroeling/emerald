@@ -5,9 +5,9 @@ use super::error::Result;
 use super::markdown;
 use super::model::content;
 use super::model::link;
-use super::model::link_resolver;
 use super::model::note;
 use super::model::resource;
+use super::model::resource_id_resolver;
 use super::notes;
 use super::resources;
 use super::stats;
@@ -82,7 +82,9 @@ impl Emerald {
 
         let start = Instant::now();
         let name_iter = adapters::adapter_to_rid_and_name(&all_vec)?;
-        let lrmod = Rc::new(link_resolver::DefaultLinkResolverModel::new(name_iter));
+        let lrmod = Rc::new(resource_id_resolver::DefaultResourceIdResolverModel::new(
+            name_iter,
+        ));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultLinkModel: {:?}", elapsed);
 
