@@ -12,19 +12,19 @@ pub struct Note {
 impl Note {
     pub fn new(
         rid: types::ResourceId,
-        title_provider: String,
-        md_provider: String,
-        size_provider: u64,
-        created_provider: i64,
-        modified_provider: i64,
+        title: String,
+        md: String,
+        size: u64,
+        created: i64,
+        modified: i64,
     ) -> Self {
         Self {
             rid,
-            title: title_provider,
-            markdown: md_provider,
-            size: size_provider,
-            created: created_provider,
-            modified: modified_provider,
+            title,
+            markdown: md,
+            size,
+            created,
+            modified,
         }
     }
 }
