@@ -1,5 +1,7 @@
 use std::rc::Rc;
 
+use super::get_backlinks::GetBacklinks;
+use super::get_backlinks_impl::GetBacklinksImpl;
 use super::get_links::GetLinks;
 use super::get_links_impl::GetLinksImpl;
 use super::note::Note;
@@ -8,18 +10,17 @@ use crate::model::note;
 use crate::{types, Vault};
 
 #[derive(Clone)]
-pub struct VaultImpl<I, U: GetLinks = GetLinksImpl>
+pub struct VaultImpl<I, U: GetLinks = GetLinksImpl, L: GetBacklinks = GetBacklinksImpl>
 where
     I: Iterator<Item = types::ResourceId>,
 {
     note_factory: Rc<dyn NoteFactory>,
     notes_iter_src: Rc<dyn note::NotesIterSrc<Iter = I>>,
-    tgt_link_retriever: Rc<dyn note::TgtIterRetriever>,
-    src_link_retriever: Rc<dyn note::SrcIterRetriever>,
     get_links: U,
+    get_backlinks: L,
 }
 
-impl<I> VaultImpl<I, GetLinksImpl>
+impl<I> VaultImpl<I, GetLinksImpl, GetBacklinksImpl>
 where
     I: Iterator<Item = types::ResourceId>,
 {
@@ -33,12 +34,12 @@ where
         I: Iterator<Item = types::ResourceId>,
     {
         let get_links = GetLinksImpl::new(note_factory.clone(), tgt_link_retriever.clone());
+        let get_backlinks = GetBacklinksImpl::new(note_factory.clone(), src_link_retriever.clone());
         Self {
             notes_iter_src,
             note_factory,
-            tgt_link_retriever,
-            src_link_retriever,
             get_links,
+            get_backlinks,
         }
     }
 }
@@ -62,15 +63,6 @@ where
     }
 
     fn get_backlinks_of(&self, note: &Note) -> Box<dyn Iterator<Item = Note>> {
-        let rid = note.rid.clone();
-        let Some(out_itr) = self.src_link_retriever.retrieve(&rid) else {
-            return Box::new(std::iter::empty());
-        };
-        let factory_clone = self.note_factory.clone();
-        Box::new(out_itr.filter_map(move |i| {
-            // only consider valid targets
-            let valid_src = i.src;
-            Some(factory_clone.create_note(valid_src))
-        }))
+        self.get_backlinks.get_backlinks_of(note)
     }
 }
