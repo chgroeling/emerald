@@ -120,7 +120,7 @@ impl Emerald {
             nmod.clone(),
             lmod.clone(),
             lmod.clone(),
-            nmod.clone(),
+            fmod.clone(),
         );
         let elapsed = start.elapsed();
         debug!("Creation of Vault: {:?}", elapsed);
