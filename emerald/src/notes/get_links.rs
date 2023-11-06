@@ -3,7 +3,7 @@ use crate::types;
 
 pub enum GetLinksResult {
     LinkToNote(types::ResourceId),
-    LinkToFile(types::ResourceId),
+    LinkToResource(types::ResourceId),
 }
 
 pub trait GetLinks {
