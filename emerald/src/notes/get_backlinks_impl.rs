@@ -1,16 +1,16 @@
 use super::get_backlinks::GetBacklinks;
 use super::Note;
-use crate::model::note;
+use crate::model::link;
 use crate::types;
 use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct GetBacklinksImpl {
-    src_link_retriever: Rc<dyn note::SrcIterRetriever>,
+    src_link_retriever: Rc<dyn link::SrcIterRetriever>,
 }
 
 impl GetBacklinksImpl {
-    pub fn new(src_link_retriever: Rc<dyn note::SrcIterRetriever>) -> Self {
+    pub fn new(src_link_retriever: Rc<dyn link::SrcIterRetriever>) -> Self {
         Self { src_link_retriever }
     }
 }

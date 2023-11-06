@@ -5,6 +5,7 @@ use super::error::Result;
 use super::markdown;
 use super::model::content;
 use super::model::file;
+use super::model::link;
 use super::model::link_resolver;
 use super::model::note;
 use super::notes;
@@ -98,7 +99,8 @@ impl Emerald {
         let s2t_idx: Vec<_> =
             adapters::adapter_to_link_src_2_tgt(ct_it, link_model.as_ref()).collect();
 
-        let nmod = Rc::new(note::DefaultNoteModel::new(md_meta_data, s2t_idx));
+        let nmod = Rc::new(note::DefaultNoteModel::new(md_meta_data));
+        let lmod = Rc::new(link::DefaultLinkModel::new(s2t_idx));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultNoteModel: {:?}", elapsed);
 
@@ -114,8 +116,8 @@ impl Emerald {
         let vault = notes::VaultImpl::new(
             note_factory,
             nmod.clone(),
-            nmod.clone(),
-            nmod.clone(),
+            lmod.clone(),
+            lmod.clone(),
             nmod.clone(),
         );
         let elapsed = start.elapsed();
@@ -123,7 +125,7 @@ impl Emerald {
 
         // -----
         // Aquire stats
-        let link_stats = stats::extract_link_stats(nmod.as_ref());
+        let link_stats = stats::extract_link_stats(lmod.as_ref());
         let file_stats = stats::extract_file_stats(fmod.as_ref(), nmod.as_ref());
         let vault_stats = stats::VaultStats {
             file_stats,

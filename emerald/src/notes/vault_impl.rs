@@ -6,7 +6,7 @@ use super::get_links::{GetLinks, GetLinksResult};
 use super::get_links_impl::GetLinksImpl;
 use super::note::Note;
 use super::NoteFactory;
-use crate::model::note;
+use crate::model::{link, note};
 use crate::{types, Vault};
 
 #[derive(Clone)]
@@ -27,8 +27,8 @@ where
     pub fn new(
         note_factory: Rc<dyn NoteFactory>,
         notes_iter_src: Rc<dyn note::NotesIterSrc<Iter = I>>,
-        tgt_link_retriever: Rc<dyn note::TgtIterRetriever>,
-        src_link_retriever: Rc<dyn note::SrcIterRetriever>,
+        tgt_link_retriever: Rc<dyn link::TgtIterRetriever>,
+        src_link_retriever: Rc<dyn link::SrcIterRetriever>,
         meta_data_retriever: Rc<dyn note::NoteMetaDataRetriever>,
     ) -> Self
     where

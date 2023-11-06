@@ -1,17 +1,17 @@
 use super::get_links::{GetLinks, GetLinksResult};
 use super::Note;
-use crate::model::note;
+use crate::model::{link, note};
 use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct GetLinksImpl {
-    tgt_link_retriever: Rc<dyn note::TgtIterRetriever>,
+    tgt_link_retriever: Rc<dyn link::TgtIterRetriever>,
     meta_data_retriever: Rc<dyn note::NoteMetaDataRetriever>,
 }
 
 impl GetLinksImpl {
     pub fn new(
-        tgt_link_retriever: Rc<dyn note::TgtIterRetriever>,
+        tgt_link_retriever: Rc<dyn link::TgtIterRetriever>,
         meta_data_retriever: Rc<dyn note::NoteMetaDataRetriever>,
     ) -> Self {
         Self {
