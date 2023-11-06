@@ -65,18 +65,10 @@ where
 
     fn get_links_of(&self, note: &Note) -> Box<dyn Iterator<Item = NoteTypes>> {
         let factory_clone = self.note_factory.clone();
-        Box::new(
-            self.get_links
-                .get_links_of(note)
-                .filter_map(move |f| match f {
-                    LinkQueryResult::LinkToNote(rid) => {
-                        Some(NoteTypes::Note(factory_clone.create_note(rid)))
-                    }
-                    LinkQueryResult::LinkToResource(rid) => {
-                        Some(NoteTypes::ResourceRef(ResourceRef::new(rid)))
-                    }
-                }),
-        )
+        Box::new(self.get_links.get_links_of(note).map(move |f| match f {
+            LinkQueryResult::LinkToNote(rid) => NoteTypes::Note(factory_clone.create_note(rid)),
+            LinkQueryResult::LinkToResource(rid) => NoteTypes::ResourceRef(ResourceRef::new(rid)),
+        }))
     }
 
     fn get_backlinks_of(&self, note: &Note) -> Box<dyn Iterator<Item = NoteTypes>> {
@@ -84,12 +76,12 @@ where
         Box::new(
             self.get_backlinks
                 .get_backlinks_of(note)
-                .filter_map(move |f| match f {
+                .map(move |f| match f {
                     LinkQueryResult::LinkToNote(rid) => {
-                        Some(NoteTypes::Note(factory_clone.create_note(rid)))
+                        NoteTypes::Note(factory_clone.create_note(rid))
                     }
                     LinkQueryResult::LinkToResource(rid) => {
-                        Some(NoteTypes::ResourceRef(ResourceRef::new(rid)))
+                        NoteTypes::ResourceRef(ResourceRef::new(rid))
                     }
                 }),
         )

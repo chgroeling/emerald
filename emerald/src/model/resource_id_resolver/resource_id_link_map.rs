@@ -1,5 +1,5 @@
-use super::resource_id_resolver::Hint;
-use super::resource_id_resolver::ResourceIdResolver;
+use super::resource_id_resolver_trait::Hint;
+use super::resource_id_resolver_trait::ResourceIdResolver;
 use crate::error::{EmeraldError::*, Result};
 use crate::{types, utils};
 use std::collections::hash_map::Entry;

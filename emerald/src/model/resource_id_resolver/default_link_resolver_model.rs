@@ -1,5 +1,5 @@
 use super::resource_id_link_map::ResourceIdLinkMap;
-use super::resource_id_resolver::ResourceIdResolver;
+use super::resource_id_resolver_trait::ResourceIdResolver;
 use crate::types;
 
 pub struct DefaultResourceIdResolverModel {
@@ -18,7 +18,7 @@ impl ResourceIdResolver for DefaultResourceIdResolverModel {
     fn resolve_with_hint(
         &self,
         link: &types::Link,
-        hint: super::resource_id_resolver::Hint,
+        hint: super::resource_id_resolver_trait::Hint,
     ) -> crate::Result<types::ResourceId> {
         self.link_map.resolve_with_hint(link, hint)
     }
