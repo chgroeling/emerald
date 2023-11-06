@@ -4,10 +4,10 @@ use super::adapters;
 use super::error::Result;
 use super::markdown;
 use super::model::content;
-use super::model::file;
 use super::model::link;
 use super::model::link_resolver;
 use super::model::note;
+use super::model::resource;
 use super::notes;
 use super::resources;
 use super::stats;
@@ -87,7 +87,7 @@ impl Emerald {
         debug!("Creation of DefaultLinkModel: {:?}", elapsed);
 
         let start = Instant::now();
-        let fmod = Rc::new(file::DefaultFileModel::new(all_meta_data));
+        let fmod = Rc::new(resource::DefaultResourceModel::new(all_meta_data));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultFileModel: {:?}", elapsed);
 

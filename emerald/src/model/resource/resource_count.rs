@@ -1,3 +1,3 @@
-pub trait FileCount {
+pub trait ResourceCount {
     fn count(&self) -> usize;
 }

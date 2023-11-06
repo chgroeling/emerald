@@ -1,13 +1,13 @@
-use super::file_meta_data_retriever::FileMetaDataRetriever;
+use super::resource_meta_data_retriever::ResourceMetaDataRetriever;
 use crate::types;
 use std::collections::HashMap;
 
 #[derive(Clone)]
-pub struct FileMetaDataMap {
+pub struct ResourceMetaDataMap {
     meta_data_map: HashMap<types::ResourceId, types::MetaData>,
 }
 
-impl FileMetaDataMap {
+impl ResourceMetaDataMap {
     pub fn new(it_src: impl IntoIterator<Item = (types::ResourceId, types::MetaData)>) -> Self {
         let mut meta_data_map = HashMap::<types::ResourceId, types::MetaData>::new();
         for (rid, meta_data) in it_src.into_iter() {
@@ -19,7 +19,7 @@ impl FileMetaDataMap {
     }
 }
 
-impl FileMetaDataRetriever for FileMetaDataMap {
+impl ResourceMetaDataRetriever for ResourceMetaDataMap {
     fn retrieve(&self, md: &types::ResourceId) -> &types::MetaData {
         // Option is not returned because meta data should be consistent at this point
         self.meta_data_map
