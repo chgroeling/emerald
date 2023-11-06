@@ -1,6 +1,6 @@
 use super::get_backlinks::GetBacklinks;
 use super::link_query_result::LinkQueryResult;
-use super::Note;
+use super::note::Note;
 use crate::model::{link, resource};
 use std::rc::Rc;
 
