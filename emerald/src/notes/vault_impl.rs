@@ -2,8 +2,9 @@ use std::rc::Rc;
 
 use super::get_backlinks::GetBacklinks;
 use super::get_backlinks_impl::GetBacklinksImpl;
-use super::get_links::{GetLinks, GetLinksResult};
+use super::get_links::GetLinks;
 use super::get_links_impl::GetLinksImpl;
+use super::link_query_result::LinkQueryResult;
 use super::note::Note;
 use super::note_types::NoteTypes;
 use super::resource_ref::ResourceRef;
@@ -37,7 +38,8 @@ where
         I: Iterator<Item = types::ResourceId>,
     {
         let get_links = GetLinksImpl::new(tgt_link_retriever.clone(), res_meta_data_ret.clone());
-        let get_backlinks = GetBacklinksImpl::new(src_link_retriever.clone());
+        let get_backlinks =
+            GetBacklinksImpl::new(src_link_retriever.clone(), res_meta_data_ret.clone());
         Self {
             notes_iter_src,
             note_factory,
@@ -67,22 +69,29 @@ where
             self.get_links
                 .get_links_of(note)
                 .filter_map(move |f| match f {
-                    GetLinksResult::LinkToNote(rid) => {
+                    LinkQueryResult::LinkToNote(rid) => {
                         Some(NoteTypes::Note(factory_clone.create_note(rid)))
                     }
-                    GetLinksResult::LinkToResource(rid) => {
+                    LinkQueryResult::LinkToResource(rid) => {
                         Some(NoteTypes::ResourceRef(ResourceRef::new(rid)))
                     }
                 }),
         )
     }
 
-    fn get_backlinks_of(&self, note: &Note) -> Box<dyn Iterator<Item = Note>> {
+    fn get_backlinks_of(&self, note: &Note) -> Box<dyn Iterator<Item = NoteTypes>> {
         let factory_clone = self.note_factory.clone();
         Box::new(
             self.get_backlinks
                 .get_backlinks_of(note)
-                .map(move |f| factory_clone.create_note(f)),
+                .filter_map(move |f| match f {
+                    LinkQueryResult::LinkToNote(rid) => {
+                        Some(NoteTypes::Note(factory_clone.create_note(rid)))
+                    }
+                    LinkQueryResult::LinkToResource(rid) => {
+                        Some(NoteTypes::ResourceRef(ResourceRef::new(rid)))
+                    }
+                }),
         )
     }
 }

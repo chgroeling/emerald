@@ -2,6 +2,7 @@ mod get_backlinks;
 mod get_backlinks_impl;
 mod get_links;
 mod get_links_impl;
+mod link_query_result;
 mod note;
 mod note_factory;
 mod note_factory_impl;
