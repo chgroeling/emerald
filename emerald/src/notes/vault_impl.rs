@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use super::get_backlinks::GetBacklinks;
 use super::get_backlinks_impl::GetBacklinksImpl;
-use super::get_links::GetLinks;
+use super::get_links::{GetLinks, GetLinksResult};
 use super::get_links_impl::GetLinksImpl;
 use super::note::Note;
 use super::NoteFactory;
@@ -29,12 +29,13 @@ where
         notes_iter_src: Rc<dyn note::NotesIterSrc<Iter = I>>,
         tgt_link_retriever: Rc<dyn note::TgtIterRetriever>,
         src_link_retriever: Rc<dyn note::SrcIterRetriever>,
+        meta_data_retriever: Rc<dyn note::NoteMetaDataRetriever>,
     ) -> Self
     where
         I: Iterator<Item = types::ResourceId>,
     {
-        let get_links = GetLinksImpl::new(note_factory.clone(), tgt_link_retriever.clone());
-        let get_backlinks = GetBacklinksImpl::new(note_factory.clone(), src_link_retriever.clone());
+        let get_links = GetLinksImpl::new(tgt_link_retriever.clone(), meta_data_retriever.clone());
+        let get_backlinks = GetBacklinksImpl::new(src_link_retriever.clone());
         Self {
             notes_iter_src,
             note_factory,
@@ -59,10 +60,19 @@ where
     }
 
     fn get_links_of(&self, note: &Note) -> Box<dyn Iterator<Item = Note>> {
-        self.get_links.get_links_of(note)
+        let factory_clone = self.note_factory.clone();
+        Box::new(self.get_links.get_links_of(note).map(move |f| match f {
+            GetLinksResult::LinkToNote(rid) => factory_clone.create_note(rid),
+            GetLinksResult::LinkToFile(_) => todo!(),
+        }))
     }
 
     fn get_backlinks_of(&self, note: &Note) -> Box<dyn Iterator<Item = Note>> {
-        self.get_backlinks.get_backlinks_of(note)
+        let factory_clone = self.note_factory.clone();
+        Box::new(
+            self.get_backlinks
+                .get_backlinks_of(note)
+                .map(move |f| factory_clone.create_note(f)),
+        )
     }
 }
