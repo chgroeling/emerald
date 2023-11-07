@@ -14,18 +14,18 @@ use mockall::{predicate::*, *};
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-pub struct FsMetadata {
+pub struct FsMetaData {
     size: u64,
     modified: u64,
     created: u64,
 }
 #[cfg_attr(test, automock)]
-pub trait FsMetadataAccess {
-    fn get_meta_data_from_fs(&self, path: &Path) -> Result<FsMetadata>;
+pub trait FsMetaDataAccess {
+    fn get_meta_data_from_fs(&self, path: &Path) -> Result<FsMetaData>;
 }
-pub struct FsMetadataAccessImpl();
-impl FsMetadataAccess for FsMetadataAccessImpl {
-    fn get_meta_data_from_fs(&self, path: &Path) -> Result<FsMetadata> {
+pub struct FsMetaDataAccessImpl();
+impl FsMetaDataAccess for FsMetaDataAccessImpl {
+    fn get_meta_data_from_fs(&self, path: &Path) -> Result<FsMetaData> {
         if let Ok(meta_data) = fs::metadata(path) {
             if !meta_data.is_file() {
                 return Err(EmeraldError::NotAFile(path.to_owned()));
@@ -38,7 +38,7 @@ impl FsMetadataAccess for FsMetadataAccessImpl {
             let created_dur = created.duration_since(UNIX_EPOCH).unwrap();
             let created_u64 = created_dur.as_secs();
 
-            Ok(FsMetadata {
+            Ok(FsMetaData {
                 size: meta_data.len(),
                 modified: modified_u64,
                 created: created_u64,
@@ -49,10 +49,10 @@ impl FsMetadataAccess for FsMetadataAccessImpl {
     }
 }
 #[derive(Clone)]
-pub struct FileMetaDataLoader<I, U = FsMetadataAccessImpl>
+pub struct FileMetaDataLoader<I, U = FsMetaDataAccessImpl>
 where
     I: ResourceObjectRetriever,
-    U: FsMetadataAccess,
+    U: FsMetaDataAccess,
 {
     ro_retriever: I,
     fs_meta_data_access: U,
@@ -61,7 +61,7 @@ where
 impl<I, U> FileMetaDataLoader<I, U>
 where
     I: ResourceObjectRetriever,
-    U: FsMetadataAccess,
+    U: FsMetaDataAccess,
 {
     pub fn new(ro_retriever: I, fs_meta_data_access: U) -> Self {
         Self {
@@ -104,7 +104,7 @@ where
 impl<I, U> MetaDataLoader for FileMetaDataLoader<I, U>
 where
     I: ResourceObjectRetriever,
-    U: FsMetadataAccess,
+    U: FsMetaDataAccess,
 {
     fn load(&self, rid: &types::ResourceId) -> Result<types::MetaData> {
         let ro = self.ro_retriever.retrieve(rid)?;
@@ -120,8 +120,8 @@ where
 #[cfg(test)]
 mod tests {
     use super::FileMetaDataLoader;
-    use super::MockFsMetadataAccess;
-    use crate::resources::file_meta_data_loader::FsMetadata;
+    use super::MockFsMetaDataAccess;
+    use crate::resources::file_meta_data_loader::FsMetaData;
     use crate::resources::resource_object::ResourceObject;
     use crate::resources::{MetaDataLoader, MockResourceObjectRetriever};
     use crate::types;
@@ -129,16 +129,16 @@ mod tests {
 
     fn create_test_case(
         path: PathBuf,
-    ) -> FileMetaDataLoader<MockResourceObjectRetriever, MockFsMetadataAccess> {
+    ) -> FileMetaDataLoader<MockResourceObjectRetriever, MockFsMetaDataAccess> {
         let mut mock = MockResourceObjectRetriever::new();
         mock.expect_retrieve()
             .returning(move |_f| Ok(ResourceObject::File(path.clone())));
 
-        let mut mock_fs_access = MockFsMetadataAccess::new();
+        let mut mock_fs_access = MockFsMetaDataAccess::new();
         mock_fs_access
             .expect_get_meta_data_from_fs()
             .returning(|_| {
-                Ok(FsMetadata {
+                Ok(FsMetaData {
                     size: 0,
                     modified: 0,
                     created: 0,
