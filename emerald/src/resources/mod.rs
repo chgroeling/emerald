@@ -22,7 +22,7 @@ pub use adapter_to_ro_and_rid::adapter_to_ro_and_rid;
 pub use content_loader::ContentLoader;
 pub use file_content_loader::FileContentLoader;
 pub use file_meta_data_loader::FileMetaDataLoader;
-pub use file_meta_data_loader::FsMetadataAccessImpl;
+pub use file_meta_data_loader::FsMetaDataAccessImpl;
 pub use get_path_list::get_path_list;
 pub use meta_data_loader::MetaDataLoader;
 pub use resource_id_map::ResourceIdMap;
