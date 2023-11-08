@@ -1,12 +1,14 @@
 use crate::types;
 
+use super::timestamp::Timestamp;
+
 pub struct Note {
     pub rid: types::ResourceId,
     pub title: String,
     pub markdown: String,
     pub size: u64,
-    pub created: i64,
-    pub modified: i64,
+    pub created: Timestamp,
+    pub modified: Timestamp,
 }
 
 impl Note {
@@ -15,8 +17,8 @@ impl Note {
         title: String,
         md: String,
         size: u64,
-        created: i64,
-        modified: i64,
+        created: Timestamp,
+        modified: Timestamp,
     ) -> Self {
         Self {
             rid,
