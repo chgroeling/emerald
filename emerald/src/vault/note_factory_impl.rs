@@ -1,4 +1,5 @@
 use super::note_factory::NoteFactory;
+use super::timestamp::Timestamp;
 use super::Note;
 use crate::model::{content, note};
 use crate::types;
@@ -31,8 +32,8 @@ impl NoteFactory for NoteFactoryImpl {
             meta_data.title.clone(),
             content.0.clone(),
             meta_data.size,
-            meta_data.created,
-            meta_data.modified,
+            Timestamp(meta_data.created),
+            Timestamp(meta_data.modified),
         )
     }
 }

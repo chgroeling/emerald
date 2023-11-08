@@ -8,6 +8,7 @@ mod note_factory;
 mod note_factory_impl;
 mod note_types;
 mod resource_ref;
+mod timestamp;
 mod vault_impl;
 mod vault_trait;
 
