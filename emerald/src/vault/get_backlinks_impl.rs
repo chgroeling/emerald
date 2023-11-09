@@ -37,8 +37,7 @@ where
         let res_meta_data_ret = self.res_meta_data_ret.clone();
         Box::new(out_itr.map(move |i| {
             // only consider valid targets
-            let valid_src = i.src;
-            I::convert_to_link_query_result(res_meta_data_ret.as_ref(), valid_src)
+            I::convert_to_link_query_result(res_meta_data_ret.as_ref(), i.src)
         }))
     }
 }
