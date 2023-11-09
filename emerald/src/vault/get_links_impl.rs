@@ -23,17 +23,23 @@ impl GetLinksImpl {
     }
 }
 
-fn convert_to_link_query_result(
-    res_meta_data_retriever: &dyn ResourceMetaDataRetriever,
-    rid: types::ResourceId,
-) -> LinkQueryResult {
-    let rmd = res_meta_data_retriever.retrieve(&rid);
-    match rmd.resource_type {
-        crate::types::ResourceType::Unknown() => LinkQueryResult::LinkToResource(rid),
-        crate::types::ResourceType::Markdown() => LinkQueryResult::LinkToNote(rid),
-        crate::types::ResourceType::NoType() => LinkQueryResult::LinkToResource(rid),
+struct LinkQueryResultConverter;
+
+trait TraitLinkQueryResultConverter {
+    fn convert_to_link_query_result(
+        res_meta_data_retriever: &dyn ResourceMetaDataRetriever,
+        rid: types::ResourceId,
+    ) -> LinkQueryResult {
+        let rmd = res_meta_data_retriever.retrieve(&rid);
+        match rmd.resource_type {
+            crate::types::ResourceType::Unknown() => LinkQueryResult::LinkToResource(rid),
+            crate::types::ResourceType::Markdown() => LinkQueryResult::LinkToNote(rid),
+            crate::types::ResourceType::NoType() => LinkQueryResult::LinkToResource(rid),
+        }
     }
 }
+
+impl TraitLinkQueryResultConverter for LinkQueryResultConverter {}
 
 impl GetLinks for GetLinksImpl {
     fn get_links_of(&self, note: &Note) -> Box<dyn Iterator<Item = LinkQueryResult>> {
@@ -45,7 +51,7 @@ impl GetLinks for GetLinksImpl {
         Box::new(out_itr.filter_map(move |i| {
             // only consider valid targets
             if let Some(valid_tgt) = i.tgt {
-                Some(convert_to_link_query_result(
+                Some(LinkQueryResultConverter::convert_to_link_query_result(
                     res_meta_data_ret.as_ref(),
                     valid_tgt,
                 ))
