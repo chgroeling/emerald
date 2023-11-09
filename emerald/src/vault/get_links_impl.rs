@@ -1,6 +1,8 @@
 use super::note::Note;
 use super::{get_links::GetLinks, link_query_result::LinkQueryResult};
+use crate::model::resource::ResourceMetaDataRetriever;
 use crate::model::{link, resource};
+use crate::types;
 use std::rc::Rc;
 
 #[derive(Clone)]
@@ -20,6 +22,19 @@ impl GetLinksImpl {
         }
     }
 }
+
+fn convert_to_link_query_result(
+    res_meta_data_ret: &dyn ResourceMetaDataRetriever,
+    rid: types::ResourceId,
+) -> LinkQueryResult {
+    let rmd = res_meta_data_ret.retrieve(&rid);
+    match rmd.resource_type {
+        crate::types::ResourceType::Unknown() => LinkQueryResult::LinkToResource(rid),
+        crate::types::ResourceType::Markdown() => LinkQueryResult::LinkToNote(rid),
+        crate::types::ResourceType::NoType() => LinkQueryResult::LinkToResource(rid),
+    }
+}
+
 impl GetLinks for GetLinksImpl {
     fn get_links_of(&self, note: &Note) -> Box<dyn Iterator<Item = LinkQueryResult>> {
         let rid = note.rid.clone();
@@ -30,19 +45,10 @@ impl GetLinks for GetLinksImpl {
         Box::new(out_itr.filter_map(move |i| {
             // only consider valid targets
             if let Some(valid_tgt) = i.tgt {
-                let rmd = res_meta_data_ret.retrieve(&valid_tgt);
-                let ret = match rmd.resource_type {
-                    crate::types::ResourceType::Unknown() => {
-                        LinkQueryResult::LinkToResource(valid_tgt)
-                    }
-                    crate::types::ResourceType::Markdown() => {
-                        LinkQueryResult::LinkToNote(valid_tgt)
-                    }
-                    crate::types::ResourceType::NoType() => {
-                        LinkQueryResult::LinkToResource(valid_tgt)
-                    }
-                };
-                Some(ret)
+                Some(convert_to_link_query_result(
+                    res_meta_data_ret.as_ref(),
+                    valid_tgt,
+                ))
             } else {
                 None
             }
