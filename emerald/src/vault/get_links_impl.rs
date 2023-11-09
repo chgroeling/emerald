@@ -1,8 +1,7 @@
+use super::link_query_result_builder::{LinkQueryResultBuilder, LinkQueryResultBuilderImpl};
 use super::note::Note;
 use super::{get_links::GetLinks, link_query_result::LinkQueryResult};
-use crate::model::resource::ResourceMetaDataRetriever;
 use crate::model::{link, resource};
-use crate::types;
 use std::marker::PhantomData;
 use std::rc::Rc;
 
@@ -12,25 +11,6 @@ pub struct GetLinksImpl<I = LinkQueryResultBuilderImpl> {
     res_meta_data_ret: Rc<dyn resource::ResourceMetaDataRetriever>,
     pd: PhantomData<I>,
 }
-
-#[derive(Clone)]
-pub struct LinkQueryResultBuilderImpl;
-
-trait LinkQueryResultBuilder {
-    fn convert_to_link_query_result(
-        res_meta_data_retriever: &dyn ResourceMetaDataRetriever,
-        rid: types::ResourceId,
-    ) -> LinkQueryResult {
-        let rmd = res_meta_data_retriever.retrieve(&rid);
-        match rmd.resource_type {
-            crate::types::ResourceType::Unknown() => LinkQueryResult::LinkToResource(rid),
-            crate::types::ResourceType::Markdown() => LinkQueryResult::LinkToNote(rid),
-            crate::types::ResourceType::NoType() => LinkQueryResult::LinkToResource(rid),
-        }
-    }
-}
-
-impl LinkQueryResultBuilder for LinkQueryResultBuilderImpl {}
 
 impl<I> GetLinksImpl<I> {
     pub fn new(
