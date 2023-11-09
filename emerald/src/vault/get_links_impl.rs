@@ -24,10 +24,10 @@ impl GetLinksImpl {
 }
 
 fn convert_to_link_query_result(
-    res_meta_data_ret: &dyn ResourceMetaDataRetriever,
+    res_meta_data_retriever: &dyn ResourceMetaDataRetriever,
     rid: types::ResourceId,
 ) -> LinkQueryResult {
-    let rmd = res_meta_data_ret.retrieve(&rid);
+    let rmd = res_meta_data_retriever.retrieve(&rid);
     match rmd.resource_type {
         crate::types::ResourceType::Unknown() => LinkQueryResult::LinkToResource(rid),
         crate::types::ResourceType::Markdown() => LinkQueryResult::LinkToNote(rid),
