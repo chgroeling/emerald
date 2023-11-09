@@ -3,29 +3,20 @@ use super::{get_links::GetLinks, link_query_result::LinkQueryResult};
 use crate::model::resource::ResourceMetaDataRetriever;
 use crate::model::{link, resource};
 use crate::types;
+use std::marker::PhantomData;
 use std::rc::Rc;
 
 #[derive(Clone)]
-pub struct GetLinksImpl {
+pub struct GetLinksImpl<I = LinkQueryResultBuilderImpl> {
     tgt_link_retriever: Rc<dyn link::TgtIterRetriever>,
     res_meta_data_ret: Rc<dyn resource::ResourceMetaDataRetriever>,
+    pd: PhantomData<I>,
 }
 
-impl GetLinksImpl {
-    pub fn new(
-        tgt_link_retriever: Rc<dyn link::TgtIterRetriever>,
-        res_meta_data_ret: Rc<dyn resource::ResourceMetaDataRetriever>,
-    ) -> Self {
-        Self {
-            tgt_link_retriever,
-            res_meta_data_ret,
-        }
-    }
-}
+#[derive(Clone)]
+pub struct LinkQueryResultBuilderImpl;
 
-struct LinkQueryResultConverter;
-
-trait TraitLinkQueryResultConverter {
+trait LinkQueryResultBuilder {
     fn convert_to_link_query_result(
         res_meta_data_retriever: &dyn ResourceMetaDataRetriever,
         rid: types::ResourceId,
@@ -39,9 +30,25 @@ trait TraitLinkQueryResultConverter {
     }
 }
 
-impl TraitLinkQueryResultConverter for LinkQueryResultConverter {}
+impl LinkQueryResultBuilder for LinkQueryResultBuilderImpl {}
 
-impl GetLinks for GetLinksImpl {
+impl<I> GetLinksImpl<I> {
+    pub fn new(
+        tgt_link_retriever: Rc<dyn link::TgtIterRetriever>,
+        res_meta_data_ret: Rc<dyn resource::ResourceMetaDataRetriever>,
+    ) -> Self {
+        Self {
+            tgt_link_retriever,
+            res_meta_data_ret,
+            pd: Default::default(),
+        }
+    }
+}
+
+impl<I> GetLinks for GetLinksImpl<I>
+where
+    I: LinkQueryResultBuilder,
+{
     fn get_links_of(&self, note: &Note) -> Box<dyn Iterator<Item = LinkQueryResult>> {
         let rid = note.rid.clone();
         let Some(out_itr) = self.tgt_link_retriever.retrieve(&rid) else {
@@ -51,7 +58,7 @@ impl GetLinks for GetLinksImpl {
         Box::new(out_itr.filter_map(move |i| {
             // only consider valid targets
             if let Some(valid_tgt) = i.tgt {
-                Some(LinkQueryResultConverter::convert_to_link_query_result(
+                Some(I::convert_to_link_query_result(
                     res_meta_data_ret.as_ref(),
                     valid_tgt,
                 ))
