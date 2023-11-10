@@ -1,6 +1,6 @@
-use std::{collections::HashMap, iter::Enumerate, str::Chars};
+use std::collections::HashMap;
 
-struct ExprParser;
+pub struct ExprParser;
 impl ExprParser {
     pub fn new() -> Self {
         Self
@@ -8,12 +8,12 @@ impl ExprParser {
     pub fn interpret_literal(
         &self,
         key_value: &HashMap<&str, String>,
-        iter: &mut Enumerate<Chars<'_>>,
+        iter: &mut impl Iterator<Item = char>,
         out_str: &mut Vec<char>,
     ) {
         let mut literal = Vec::<char>::new();
         loop {
-            let Some((idx, ch)) = iter.next() else {
+            let Some( ch) = iter.next() else {
                 return;
             };
 
@@ -33,10 +33,10 @@ impl ExprParser {
         }
     }
     pub fn parse(&self, key_value: &HashMap<&str, String>, inp: &str) -> String {
-        let mut iter = inp.chars().enumerate();
+        let mut iter = inp.chars();
         let mut out_str = Vec::<char>::new();
         loop {
-            let Some((idx, ch)) = iter.next() else {
+            let Some( ch) = iter.next() else {
                 break;
             };
             match ch {
@@ -99,6 +99,14 @@ mod tests {
         key_value.insert("var1", "welt".into());
         key_value.insert("var2", "!!!!".into());
         test_parse_helper(&key_value, "Hallo {var1}{var2}", "Hallo welt!!!!");
+    }
+
+    #[test]
+    fn test_parse_string_with_var1_and_var2_with_delimiter() {
+        let mut key_value = HashMap::<&str, String>::new();
+        key_value.insert("var1", "a".into());
+        key_value.insert("var2", "b".into());
+        test_parse_helper(&key_value, "|{var1}|{var2}|", "|a|b|");
     }
 
     #[test]
