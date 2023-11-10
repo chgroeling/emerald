@@ -1,5 +1,9 @@
+use std::collections::HashMap;
+
 use chrono::prelude::*;
 use emerald::{Note, Vault};
+
+use crate::expr_parser::ExprParser;
 
 struct TableRow {
     max_width: usize,
@@ -68,37 +72,39 @@ fn truncate_string(inp: &str, max_len: usize, trailing_str: &str) -> String {
     }
 }
 
-fn print_cell(content: &str, max_width: usize, trailing_str: &str) {
+fn format_cell(content: &str, max_width: usize, trailing_str: &str) -> String {
     let trimed_content = truncate_string(content, max_width, trailing_str);
-    print!("{0:<1$}|", trimed_content, max_width);
+    format!("{0:<1$}", trimed_content, max_width)
 }
 
 pub fn print_table(vault: &impl Vault) {
+    let expr_parser = ExprParser::new();
+    let format_string = "|{title}|{modified}|{created}|{size}|{linkcnt}|{backlinkcnt}|";
+
     // print header
-    print!("|");
-    TABLE_DEF
-        .iter()
-        .for_each(|cell_def| print_cell(cell_def.element, cell_def.max_width, TRAIL));
-    println!();
+    let mut key_value_store = HashMap::<&str, String>::new();
+    TABLE_DEF.iter().for_each(|cell_def| {
+        let out_str = format_cell(cell_def.element, cell_def.max_width, TRAIL);
+        key_value_store.insert(cell_def.element, out_str);
+    });
+    println!("{}", expr_parser.parse(&key_value_store, format_string));
 
     // print separator
-    print!("|");
     TABLE_DEF.iter().for_each(|cell_def| {
         let bar = "=".repeat(cell_def.max_width);
-        print_cell(&bar, cell_def.max_width, TRAIL);
+        let out_str = format_cell(&bar, cell_def.max_width, TRAIL);
+        key_value_store.insert(cell_def.element, out_str);
     });
-    println!();
+    println!("{}", expr_parser.parse(&key_value_store, format_string));
 
     // print content
+    let mut key_value_store = HashMap::<&str, String>::new();
     for i in vault.flat_iter() {
-        print!("|");
         TABLE_DEF.iter().for_each(|cell_def| {
             let ref_cell = note_element_2_str(&i, vault, cell_def.element);
-            print_cell(&ref_cell, cell_def.max_width, TRAIL);
-            /* TESTCODE for i in i.linked_notes() {
-                println!("{}", i.title())
-            }*/
+            let out_str = format_cell(&ref_cell, cell_def.max_width, TRAIL);
+            key_value_store.insert(cell_def.element, out_str);
         });
-        println!();
+        println!("{}", expr_parser.parse(&key_value_store, format_string));
     }
 }
