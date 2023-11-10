@@ -1,9 +1,11 @@
+mod expr_parser;
 mod print_table;
 use clap::{Parser, Subcommand};
 use emerald::Emerald;
 use emerald::EmeraldError;
 use emerald::Result;
 use emerald::Vault;
+
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 use print_table::print_table;
