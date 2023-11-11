@@ -1,73 +1,74 @@
 use std::collections::HashMap;
 
-/// A char iterator with peek functionality.
+/// A char iterator with peek, mark, and backtrack functionalities.
 ///
-/// `PeekCharIterator` is a wrapper around another iterator that yields `char` elements.
-/// It provides an additional `peek` method to preview the next element
-/// without altering the state of the iterator.
-///
-/// # Types
-///
-/// - `I`: The type of the inner iterator that yields `char` elements.
-struct PeekCharIterator<I>
-where
-    I: Iterator<Item = char>,
-{
-    // The inner iterator.
-    inner: I,
-
-    // An optional field that stores the last peeked element.
-    // If `Some`, it contains the next element of the iterator or `None` if the iterator has ended.
-    peeked: Option<Option<char>>,
+/// This iterator operates on a `Vec<char>` and uses indices
+/// to mark positions and to return to previous states.
+struct PeekCharIterator<'a> {
+    // The vector of characters to iterate over.
+    chars: &'a Vec<char>,
+    // The current index in the vector.
+    current_index: usize,
+    // An optional index for the peeked character.
+    peeked_index: Option<usize>,
+    // An optional index marking a saved position in the vector.
+    marked_index: Option<usize>,
 }
 
-impl<I> PeekCharIterator<I>
-where
-    I: Iterator<Item = char>,
-{
-    /// Creates a new `PeekCharIterator` from a given inner iterator.
+impl<'a> PeekCharIterator<'a> {
+    /// Creates a new `PeekCharIterator` for a given `Vec<char>`.
     ///
     /// # Arguments
     ///
-    /// * `inner` - The inner iterator that yields `char` elements.
-    fn new(inner: I) -> Self {
+    /// * `chars` - The `Vec<char>` to iterate over.
+    fn new(chars: &'a Vec<char>) -> Self {
         PeekCharIterator {
-            inner,
-            peeked: None,
+            chars,
+            current_index: 0,
+            peeked_index: None,
+            marked_index: None,
         }
     }
 
-    /// Peeks at the next element in the iterator without consuming it.
-    ///
-    /// Returns the next element without consuming it or `None` if the iterator is finished.
-    ///
-    /// Repeated calls to `peek` will return the same result until `next` is called.
+    /// Peeks at the next character without changing the iterator's state.
     fn peek(&mut self) -> Option<char> {
-        if self.peeked.is_none() {
-            self.peeked = Some(self.inner.next());
+        if self.peeked_index.is_none() {
+            self.peeked_index = Some(self.current_index);
         }
 
-        self.peeked.unwrap()
+        self.chars.get(self.peeked_index.unwrap()).copied()
+    }
+
+    /// Marks the current position in the iterator.
+    fn mark(&mut self) {
+        self.marked_index = Some(self.current_index);
+    }
+
+    /// Resets the iterator to the last marked position.
+    fn backtrack(&mut self) {
+        if let Some(index) = self.marked_index {
+            self.current_index = index;
+            self.peeked_index = None;
+        }
     }
 }
 
-impl<I> Iterator for PeekCharIterator<I>
-where
-    I: Iterator<Item = char>,
-{
+impl<'a> Iterator for PeekCharIterator<'a> {
     type Item = char;
 
-    /// Returns the next element in the iterator.
+    /// Returns the next character in the iterator.
     ///
-    /// If the `peek` method was called previously, this returns the peeked element
-    /// and resets the peeked state to `None`. Otherwise, it fetches the next element
-    /// from the inner iterator.
+    /// If `peek` was previously called, it returns the peeked character and advances the iterator.
+    /// Otherwise, it fetches the next character from the vector.
     fn next(&mut self) -> Option<Self::Item> {
-        if let Some(peeked) = self.peeked.take() {
-            peeked
-        } else {
-            self.inner.next()
+        if let Some(index) = self.peeked_index.take() {
+            self.current_index = index + 1;
+            return self.chars.get(index).copied();
         }
+
+        let result = self.chars.get(self.current_index).copied();
+        self.current_index += 1;
+        result
     }
 }
 
@@ -76,38 +77,19 @@ enum Format {
     LeftAlign(u32),
 }
 
-struct ParserContext<'a, I>
-where
-    I: Iterator<Item = char>,
-{
+struct ParserContext<'a> {
     key_value: &'a HashMap<&'a str, String>,
-    iter: &'a mut PeekCharIterator<I>,
+    iter: &'a mut PeekCharIterator<'a>,
     out_str: &'a mut Vec<char>,
     format: Format,
 }
 
-struct ParseResult<I> {
-    result: Option<I>,
-    last_char: char,
-}
-
-impl<I> ParseResult<I> {
-    fn new(result: Option<I>, last_char: char) -> Self {
-        Self {
-            result: result,
-            last_char: last_char,
-        }
-    }
-}
 pub struct ExprParser;
 impl ExprParser {
     pub fn new() -> Self {
         Self
     }
-    fn interpret_named_placeholder<I>(&self, context: &mut ParserContext<'_, I>)
-    where
-        I: Iterator<Item = char>,
-    {
+    fn interpret_named_placeholder(&self, context: &mut ParserContext<'_>) {
         let mut literal = Vec::<char>::new();
         loop {
             let Some(ch) = context.iter.next() else {
@@ -143,10 +125,7 @@ impl ExprParser {
         context.format = Format::None;
     }
 
-    fn consume_digit_without_0<I>(&self, context: &mut ParserContext<'_, I>) -> Option<char>
-    where
-        I: Iterator<Item = char>,
-    {
+    fn consume_digit_without_0(&self, context: &mut ParserContext<'_>) -> Option<char> {
         loop {
             let Some(ch) = context.iter.peek() else {
                 return None;
@@ -164,10 +143,7 @@ impl ExprParser {
         }
     }
 
-    fn consume_digit<I>(&self, context: &mut ParserContext<'_, I>) -> Option<char>
-    where
-        I: Iterator<Item = char>,
-    {
+    fn consume_digit(&self, context: &mut ParserContext<'_>) -> Option<char> {
         loop {
             let Some(ch) = context.iter.peek() else {
                 return None;
@@ -185,14 +161,11 @@ impl ExprParser {
         }
     }
 
-    fn consume_expected_char<I>(
+    fn consume_expected_char(
         &self,
-        context: &mut ParserContext<'_, I>,
+        context: &mut ParserContext<'_>,
         expected_char: char,
-    ) -> Option<char>
-    where
-        I: Iterator<Item = char>,
-    {
+    ) -> Option<char> {
         loop {
             let Some(ch) = context.iter.peek() else {
                 return None;
@@ -207,10 +180,7 @@ impl ExprParser {
         }
     }
 
-    fn consume_decimal<I>(&self, context: &mut ParserContext<'_, I>) -> Option<u32>
-    where
-        I: Iterator<Item = char>,
-    {
+    fn consume_decimal(&self, context: &mut ParserContext<'_>) -> Option<u32> {
         let mut decimal_vec = Vec::<char>::new();
 
         let Some(first_digit) = self.consume_digit_without_0(context) else {
@@ -231,10 +201,7 @@ impl ExprParser {
         }
     }
 
-    fn interpret_format_open<I>(&self, context: &mut ParserContext<'_, I>)
-    where
-        I: Iterator<Item = char>,
-    {
+    fn interpret_format_open(&self, context: &mut ParserContext<'_>) {
         if None == self.consume_expected_char(context, '(') {
             return;
         }
@@ -251,10 +218,7 @@ impl ExprParser {
         context.format = Format::LeftAlign(decimal);
     }
 
-    fn interpret_placeholder<I>(&self, context: &mut ParserContext<'_, I>)
-    where
-        I: Iterator<Item = char>,
-    {
+    fn interpret_placeholder(&self, context: &mut ParserContext<'_>) {
         loop {
             let Some(ch) = context.iter.next() else {
                 return;
@@ -285,7 +249,8 @@ impl ExprParser {
     }
 
     pub fn parse(&self, key_value: &HashMap<&str, String>, inp: &str) -> String {
-        let mut iter = PeekCharIterator::new(inp.chars());
+        let vec: Vec<_> = inp.chars().collect();
+        let mut iter = PeekCharIterator::new(&vec);
         let mut out_str = Vec::<char>::new();
         let mut context = ParserContext {
             key_value: key_value,
