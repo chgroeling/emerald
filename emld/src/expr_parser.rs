@@ -206,8 +206,6 @@ impl ExprParser {
             return;
         }
         let Some(decimal) = self.consume_decimal(context) else {
-            context.out_str.push('(');
-            context.out_str.push(context.iter.next().unwrap());
             return;
         };
 
