@@ -44,6 +44,7 @@ impl<'a> PeekCharIterator<'a> {
         self.marked_index = Some(self.current_index);
     }
 
+    /// Returns a vector of chars between the mark and the current position
     fn get_mark2cur(&self) -> Option<Vec<char>> {
         self.marked_index
             .map(|marked_index| self.chars[marked_index..self.current_index].to_vec())
@@ -315,11 +316,11 @@ impl ExprParser {
     pub fn parse(&self, key_value: &HashMap<&str, String>, inp: &str) -> String {
         let vec: Vec<_> = inp.chars().collect();
         let mut iter = PeekCharIterator::new(&vec);
-        let mut out_str = Vec::<char>::new();
+        let mut vout = Vec::<char>::new();
         let mut context = ParserContext {
             key_value: key_value,
             iter: &mut iter,
-            vout: &mut out_str,
+            vout: &mut vout,
             format: Format::None,
         };
 
@@ -340,7 +341,7 @@ impl ExprParser {
                 }
             }
         }
-        out_str.into_iter().collect()
+        vout.into_iter().collect()
     }
 }
 
