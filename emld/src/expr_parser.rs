@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 enum Format {
     None,
-    LeftAlign(i32),
+    LeftAlign(u32),
 }
 
 struct ParserContext<'a, I>
@@ -54,9 +54,21 @@ impl ExprParser {
         let Some(value) = context.key_value.get(literal_str.as_str()) else {
             return;
         };
+
         for c in value.chars() {
             context.out_str.push(c)
         }
+
+        if let Format::LeftAlign(la) = context.format {
+            let len_diff = (la as i32) - (value.len() as i32);
+            if len_diff > 0 {
+                for _i in 0..len_diff {
+                    context.out_str.push(' ')
+                }
+            }
+        }
+
+        // Reset format for next Placeholder
         context.format = Format::None;
     }
 
@@ -119,7 +131,7 @@ impl ExprParser {
         }
     }
 
-    fn consume_decimal<I>(&self, context: &mut ParserContext<'_, I>) -> ParseResult<i32>
+    fn consume_decimal<I>(&self, context: &mut ParserContext<'_, I>) -> ParseResult<u32>
     where
         I: Iterator<Item = char>,
     {
@@ -136,7 +148,7 @@ impl ExprParser {
 
             let Some(digit) = res_digit.result else {
                 let decimal_str: String = decimal_vec.into_iter().collect();
-                let decimal = decimal_str.parse::<i32>().unwrap();
+                let decimal = decimal_str.parse::<u32>().unwrap();
                 return ParseResult::new(Some(decimal), res_digit.last_char);
             };
 
@@ -162,6 +174,7 @@ impl ExprParser {
         };
         context.format = Format::LeftAlign(decimal);
     }
+
     fn interpret_placeholder<I>(&self, context: &mut ParserContext<'_, I>)
     where
         I: Iterator<Item = char>,
@@ -328,13 +341,27 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_string_format_specifier_and_token() {
+    fn test_parse_string_format_specifier_left_align_and_token_smaller() {
         let mut key_value = HashMap::<&str, String>::new();
-        key_value.insert("var1", "Welt".into());
+        key_value.insert("var1", "1234".into());
+        test_parse_helper(&key_value, "Hallo %<(10)%(var1)xx", "Hallo 1234      xx");
+    }
+
+    #[test]
+    fn test_parse_string_format_specifier_left_align_and_token_exact() {
+        let mut key_value = HashMap::<&str, String>::new();
+        key_value.insert("var1", "1234567890".into());
+        test_parse_helper(&key_value, "Hallo %<(10)%(var1)xx", "Hallo 1234567890xx");
+    }
+
+    #[test]
+    fn test_parse_string_format_specifier_left_align_and_token_bigger() {
+        let mut key_value = HashMap::<&str, String>::new();
+        key_value.insert("var1", "1234567890ABCDEF".into());
         test_parse_helper(
             &key_value,
-            "Hallo Welt %<(10)%(var1)xx",
-            "Hallo Welt      xx",
+            "Hallo %<(10)%(var1)xx",
+            "Hallo 1234567890ABCDEFxx",
         );
     }
 }
