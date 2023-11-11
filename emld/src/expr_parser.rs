@@ -1,19 +1,26 @@
 use std::collections::HashMap;
 
+struct ParserContext<'a, I>
+where
+    I: Iterator<Item = char>,
+{
+    key_value: &'a HashMap<&'a str, String>,
+    iter: &'a mut I,
+    out_str: &'a mut Vec<char>,
+}
+
 pub struct ExprParser;
 impl ExprParser {
     pub fn new() -> Self {
         Self
     }
-    pub fn interpret_literal(
-        &self,
-        key_value: &HashMap<&str, String>,
-        iter: &mut impl Iterator<Item = char>,
-        out_str: &mut Vec<char>,
-    ) {
+    fn interpret_literal<I>(&self, context: &mut ParserContext<'_, I>)
+    where
+        I: Iterator<Item = char>,
+    {
         let mut literal = Vec::<char>::new();
         loop {
-            let Some(ch) = iter.next() else {
+            let Some(ch) = context.iter.next() else {
                 return;
             };
 
@@ -25,37 +32,74 @@ impl ExprParser {
 
         let literal_str: String = literal.into_iter().collect();
 
-        let Some(value) = key_value.get(literal_str.as_str()) else {
+        let Some(value) = context.key_value.get(literal_str.as_str()) else {
             return;
         };
         for c in value.chars() {
-            out_str.push(c)
+            context.out_str.push(c)
         }
     }
 
-    pub fn interpret_placeholder(
-        &self,
-        key_value: &HashMap<&str, String>,
-        iter: &mut impl Iterator<Item = char>,
-        out_str: &mut Vec<char>,
-    ) {
+    fn interpret_decimal<I>(&self, context: &mut ParserContext<'_, I>)
+    where
+        I: Iterator<Item = char>,
+    {
         loop {
-            let Some(ch) = iter.next() else {
+            let Some(ch) = context.iter.next() else {
+                return;
+            };
+            match ch {
+                '(' => {
+                    return;
+                }
+                _ => {
+                    return;
+                }
+            }
+        }
+    }
+
+    fn interpret_format_open<I>(&self, context: &mut ParserContext<'_, I>)
+    where
+        I: Iterator<Item = char>,
+    {
+        loop {
+            let Some(ch) = context.iter.next() else {
+                return;
+            };
+            match ch {
+                '(' => {
+                    return;
+                }
+                _ => {
+                    return;
+                }
+            }
+        }
+    }
+    fn interpret_placeholder<I>(&self, context: &mut ParserContext<'_, I>)
+    where
+        I: Iterator<Item = char>,
+    {
+        loop {
+            let Some(ch) = context.iter.next() else {
                 return;
             };
 
             match ch {
                 '(' => {
-                    self.interpret_literal(key_value, iter, out_str);
+                    self.interpret_literal(context);
                     return;
                 }
-                '<' => {}
+                '<' => {
+                    self.interpret_format_open(context);
+                }
                 'n' => {
-                    out_str.push('\n');
+                    context.out_str.push('\n');
                     return;
                 }
                 '%' => {
-                    out_str.push('%');
+                    context.out_str.push('%');
                     return;
                 }
                 _ => {
@@ -68,13 +112,19 @@ impl ExprParser {
     pub fn parse(&self, key_value: &HashMap<&str, String>, inp: &str) -> String {
         let mut iter = inp.chars();
         let mut out_str = Vec::<char>::new();
+
         loop {
             let Some(ch) = iter.next() else {
                 break;
             };
             match ch {
                 '%' => {
-                    self.interpret_placeholder(key_value, &mut iter, &mut out_str);
+                    let mut context = ParserContext {
+                        key_value: key_value,
+                        iter: &mut iter,
+                        out_str: &mut out_str,
+                    };
+                    self.interpret_placeholder(&mut context);
                 }
                 _ => out_str.push(ch),
             }
@@ -197,7 +247,7 @@ mod tests {
         test_parse_helper(
             &key_value,
             "Hallo Welt %<(10)%(var1)xx",
-            "Hallo Welt      xx\n",
+            "Hallo Welt      xx",
         );
     }
 }
