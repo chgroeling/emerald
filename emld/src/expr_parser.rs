@@ -13,12 +13,12 @@ impl ExprParser {
     ) {
         let mut literal = Vec::<char>::new();
         loop {
-            let Some( ch) = iter.next() else {
+            let Some(ch) = iter.next() else {
                 return;
             };
 
             match ch {
-                '}' => break,
+                ')' => break,
                 _ => literal.push(ch),
             }
         }
@@ -32,15 +32,41 @@ impl ExprParser {
             out_str.push(c)
         }
     }
+
+    pub fn interpret_placeholder(
+        &self,
+        key_value: &HashMap<&str, String>,
+        iter: &mut impl Iterator<Item = char>,
+        out_str: &mut Vec<char>,
+    ) {
+        loop {
+            let Some(ch) = iter.next() else {
+                return;
+            };
+
+            match ch {
+                '(' => {
+                    self.interpret_literal(key_value, iter, out_str);
+                    return;
+                }
+                _ => {
+                    return;
+                }
+            }
+        }
+    }
+
     pub fn parse(&self, key_value: &HashMap<&str, String>, inp: &str) -> String {
         let mut iter = inp.chars();
         let mut out_str = Vec::<char>::new();
         loop {
-            let Some( ch) = iter.next() else {
+            let Some(ch) = iter.next() else {
                 break;
             };
             match ch {
-                '{' => self.interpret_literal(key_value, &mut iter, &mut out_str),
+                '%' => {
+                    self.interpret_placeholder(key_value, &mut iter, &mut out_str);
+                }
                 _ => out_str.push(ch),
             }
         }
@@ -83,14 +109,14 @@ mod tests {
     fn test_parse_string_with_var1_token() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "world".into());
-        test_parse_helper(&key_value, "Hello {var1}", "Hello world");
+        test_parse_helper(&key_value, "Hello %(var1)", "Hello world");
     }
 
     #[test]
     fn test_parse_string_with_var1_alternative_token() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "welt".into());
-        test_parse_helper(&key_value, "Hallo {var1}", "Hallo welt");
+        test_parse_helper(&key_value, "Hallo %(var1)", "Hallo welt");
     }
 
     #[test]
@@ -98,7 +124,7 @@ mod tests {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "welt".into());
         key_value.insert("var2", "!!!!".into());
-        test_parse_helper(&key_value, "Hallo {var1}{var2}", "Hallo welt!!!!");
+        test_parse_helper(&key_value, "Hallo %(var1)%(var2)", "Hallo welt!!!!");
     }
 
     #[test]
@@ -106,34 +132,34 @@ mod tests {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "a".into());
         key_value.insert("var2", "b".into());
-        test_parse_helper(&key_value, "|{var1}|{var2}|", "|a|b|");
+        test_parse_helper(&key_value, "|%(var1)|%(var2)|", "|a|b|");
     }
 
     #[test]
     fn test_parse_string_with_var1_and_var2_var1_undefined() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "welt".into());
-        test_parse_helper(&key_value, "Hallo {var1}{var2}", "Hallo welt");
+        test_parse_helper(&key_value, "Hallo %(var1)%(var2)", "Hallo welt");
     }
 
     #[test]
     fn test_parse_string_with_var1_and_var2_var2_undefined() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var2", "!!!!".into());
-        test_parse_helper(&key_value, "Hallo {var1}{var2}", "Hallo !!!!");
+        test_parse_helper(&key_value, "Hallo %(var1)%(var2)", "Hallo !!!!");
     }
 
     #[test]
     fn test_parse_string_with_var1_invalid() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "welt".into());
-        test_parse_helper(&key_value, "Hallo {var1", "Hallo ");
+        test_parse_helper(&key_value, "Hallo %var1", "Hallo ar1");
     }
 
     #[test]
     fn test_parse_string_with_var1_invalid2() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "welt".into());
-        test_parse_helper(&key_value, "Hallo var1}", "Hallo var1}");
+        test_parse_helper(&key_value, "Hallo %(var1", "Hallo ");
     }
 }
