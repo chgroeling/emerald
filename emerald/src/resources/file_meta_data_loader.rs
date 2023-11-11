@@ -3,7 +3,7 @@ use super::resource_object::ResourceObject;
 use super::resource_object_retriever::ResourceObjectRetriever;
 use crate::error::{EmeraldError::*, Result};
 use crate::types::MetaDataBuilder;
-use crate::{types, EmeraldError};
+use crate::{types, utils, EmeraldError};
 use std::fs;
 use std::path::Path;
 use std::time::UNIX_EPOCH;
@@ -78,6 +78,8 @@ where
         let os_filename = path.file_stem().ok_or(NotAFile(path.into()))?;
         let name = os_filename.to_str().ok_or(ValueError)?.to_string();
 
+        // names should be in normalized nfc form. Mac Filesystems use other form.
+        let name = utils::normalize_str(&name);
         // determine resource type
         let resource_type = if let Some(os_ext) = path.extension() {
             let ext = os_ext.to_str().ok_or(ValueError)?;
@@ -152,6 +154,14 @@ mod tests {
         let dut = create_test_case("test.md".into());
         let res = dut.load(&types::ResourceId::from("resid0")).unwrap();
         assert_eq!(res.resource_type, types::ResourceType::Markdown());
+    }
+
+    #[test]
+    fn test_load_title_in_nfc() {
+        // attention: the öä in the filename have different unicode representations
+        let dut = create_test_case("testöä.md".into());
+        let res = dut.load(&types::ResourceId::from("resid0")).unwrap();
+        assert_eq!(res.name, "testöä");
     }
 
     #[test]
