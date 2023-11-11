@@ -61,8 +61,13 @@ fn note_element_2_str(note: &Note, vault: &impl Vault, element: &str) -> String 
 
 pub fn print_table(vault: &impl Vault) {
     let expr_parser = ExprParser::new();
-    let format_string =
-        "|%<(30,trunc)%(title)|%<(19,trunc)%(modified)|%<(19,trunc)%(created)|%<(12,trunc)%(size)|%<(6,trunc)%(linkcnt)|%<(6,trunc)%(backlinkcnt)|";
+    let format_string = "\
+         |%<(30,trunc)%(title)\
+         |%<(19,trunc)%(modified)\
+         |%<(19,trunc)%(created)\
+         |%<(12,trunc)%(size)\
+         |%<(6,trunc)%(linkcnt)\
+         |%<(6,trunc)%(backlinkcnt)|";
 
     // print header
     let mut key_value_store = HashMap::<&str, String>::new();
