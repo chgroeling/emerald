@@ -1,5 +1,76 @@
 use std::collections::HashMap;
 
+/// A char iterator with peek functionality.
+///
+/// `PeekCharIterator` is a wrapper around another iterator that yields `char` elements.
+/// It provides an additional `peek` method to preview the next element
+/// without altering the state of the iterator.
+///
+/// # Types
+///
+/// - `I`: The type of the inner iterator that yields `char` elements.
+struct PeekCharIterator<I>
+where
+    I: Iterator<Item = char>,
+{
+    // The inner iterator.
+    inner: I,
+
+    // An optional field that stores the last peeked element.
+    // If `Some`, it contains the next element of the iterator or `None` if the iterator has ended.
+    peeked: Option<Option<char>>,
+}
+
+impl<I> PeekCharIterator<I>
+where
+    I: Iterator<Item = char>,
+{
+    /// Creates a new `PeekCharIterator` from a given inner iterator.
+    ///
+    /// # Arguments
+    ///
+    /// * `inner` - The inner iterator that yields `char` elements.
+    fn new(inner: I) -> Self {
+        PeekCharIterator {
+            inner,
+            peeked: None,
+        }
+    }
+
+    /// Peeks at the next element in the iterator without consuming it.
+    ///
+    /// Returns a reference to the next element or `None` if the iterator is finished.
+    ///
+    /// Repeated calls to `peek` will return the same result until `next` is called.
+    fn peek(&mut self) -> Option<&char> {
+        if self.peeked.is_none() {
+            self.peeked = Some(self.inner.next());
+        }
+
+        self.peeked.as_ref().unwrap().as_ref()
+    }
+}
+
+impl<I> Iterator for PeekCharIterator<I>
+where
+    I: Iterator<Item = char>,
+{
+    type Item = char;
+
+    /// Returns the next element in the iterator.
+    ///
+    /// If the `peek` method was called previously, this returns the peeked element
+    /// and resets the peeked state to `None`. Otherwise, it fetches the next element
+    /// from the inner iterator.
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(peeked) = self.peeked.take() {
+            peeked
+        } else {
+            self.inner.next()
+        }
+    }
+}
+
 enum Format {
     None,
     LeftAlign(u32),
@@ -10,7 +81,7 @@ where
     I: Iterator<Item = char>,
 {
     key_value: &'a HashMap<&'a str, String>,
-    iter: &'a mut I,
+    iter: &'a mut PeekCharIterator<I>,
     out_str: &'a mut Vec<char>,
     format: Format,
 }
@@ -209,7 +280,7 @@ impl ExprParser {
     }
 
     pub fn parse(&self, key_value: &HashMap<&str, String>, inp: &str) -> String {
-        let mut iter = inp.chars();
+        let mut iter = PeekCharIterator::new(inp.chars());
         let mut out_str = Vec::<char>::new();
         let mut context = ParserContext {
             key_value: key_value,
