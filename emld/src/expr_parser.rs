@@ -39,15 +39,15 @@ where
 
     /// Peeks at the next element in the iterator without consuming it.
     ///
-    /// Returns a reference to the next element or `None` if the iterator is finished.
+    /// Returns the next element without consuming it or `None` if the iterator is finished.
     ///
     /// Repeated calls to `peek` will return the same result until `next` is called.
-    fn peek(&mut self) -> Option<&char> {
+    fn peek(&mut self) -> Option<char> {
         if self.peeked.is_none() {
             self.peeked = Some(self.inner.next());
         }
 
-        self.peeked.as_ref().unwrap().as_ref()
+        self.peeked.unwrap()
     }
 }
 
@@ -143,40 +143,44 @@ impl ExprParser {
         context.format = Format::None;
     }
 
-    fn consume_digit_without_0<I>(&self, context: &mut ParserContext<'_, I>) -> ParseResult<char>
+    fn consume_digit_without_0<I>(&self, context: &mut ParserContext<'_, I>) -> Option<char>
     where
         I: Iterator<Item = char>,
     {
         loop {
-            let Some(ch) = context.iter.next() else {
-                return ParseResult::new(None, '\0');
+            let Some(ch) = context.iter.peek() else {
+                return None;
             };
 
             match ch {
                 '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => {
-                    return ParseResult::new(Some(ch), ch)
+                    context.iter.next(); // consume
+                    return Some(ch);
                 }
                 _ => {
-                    return ParseResult::new(None, ch);
+                    return None;
                 }
             }
         }
     }
 
-    fn consume_digit<I>(&self, context: &mut ParserContext<'_, I>) -> ParseResult<char>
+    fn consume_digit<I>(&self, context: &mut ParserContext<'_, I>) -> Option<char>
     where
         I: Iterator<Item = char>,
     {
         loop {
-            let Some(ch) = context.iter.next() else {
-                return ParseResult::new(None, '\0');
+            let Some(ch) = context.iter.peek() else {
+                return None;
             };
 
             match ch {
                 '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => {
-                    return ParseResult::new(Some(ch), ch)
+                    context.iter.next(); // consume
+                    return Some(ch);
                 }
-                _ => return ParseResult::new(None, ch),
+                _ => {
+                    return None;
+                }
             }
         }
     }
@@ -185,42 +189,42 @@ impl ExprParser {
         &self,
         context: &mut ParserContext<'_, I>,
         expected_char: char,
-    ) -> ParseResult<char>
+    ) -> Option<char>
     where
         I: Iterator<Item = char>,
     {
         loop {
-            let Some(ch) = context.iter.next() else {
-                return ParseResult::new(None, '\0');
+            let Some(ch) = context.iter.peek() else {
+                return None;
             };
 
             if ch == expected_char {
-                return ParseResult::new(Some(ch), ch);
+                context.iter.next(); // consume
+                return Some(ch);
             } else {
-                return ParseResult::new(None, ch);
+                return None;
             }
         }
     }
 
-    fn consume_decimal<I>(&self, context: &mut ParserContext<'_, I>) -> ParseResult<u32>
+    fn consume_decimal<I>(&self, context: &mut ParserContext<'_, I>) -> Option<u32>
     where
         I: Iterator<Item = char>,
     {
         let mut decimal_vec = Vec::<char>::new();
 
-        let res_first_digit = self.consume_digit_without_0(context);
-        let Some(first_digit) = res_first_digit.result else {
-            return ParseResult::new(None, res_first_digit.last_char);
+        let Some(first_digit) = self.consume_digit_without_0(context) else {
+            return None;
         };
 
         decimal_vec.push(first_digit);
         loop {
             let res_digit = self.consume_digit(context);
 
-            let Some(digit) = res_digit.result else {
+            let Some(digit) = res_digit else {
                 let decimal_str: String = decimal_vec.into_iter().collect();
                 let decimal = decimal_str.parse::<u32>().unwrap();
-                return ParseResult::new(Some(decimal), res_digit.last_char);
+                return Some(decimal);
             };
 
             decimal_vec.push(digit);
@@ -231,18 +235,19 @@ impl ExprParser {
     where
         I: Iterator<Item = char>,
     {
-        let res_open = self.consume_expected_char(context, '(');
-        if res_open.result.is_none() {
+        if None == self.consume_expected_char(context, '(') {
             return;
         }
-        let res_decimal = self.consume_decimal(context);
-        if res_decimal.last_char != ')' {
+        let Some(decimal) = self.consume_decimal(context) else {
+            context.out_str.push('(');
+            context.out_str.push(context.iter.next().unwrap());
+            return;
+        };
+
+        if None == self.consume_expected_char(context, ')') {
             return;
         }
 
-        let Some(decimal) = res_decimal.result else {
-            return;
-        };
         context.format = Format::LeftAlign(decimal);
     }
 
@@ -433,6 +438,17 @@ mod tests {
             &key_value,
             "Hallo %<(10)%(var1)xx",
             "Hallo 1234567890ABCDEFxx",
+        );
+    }
+
+    #[test]
+    fn test_parse_string_format_specifier_left_align_and_token_invalid() {
+        let mut key_value = HashMap::<&str, String>::new();
+        key_value.insert("var1", "1234567890ABCDEF".into());
+        test_parse_helper(
+            &key_value,
+            "Hallo %<(a10)%(var1)xx",
+            "Hallo %<(a10)1234567890ABCDEFxx",
         );
     }
 }
