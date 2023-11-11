@@ -78,7 +78,7 @@ enum Format {
 struct ParserContext<'a> {
     key_value: &'a HashMap<&'a str, String>,
     iter: &'a mut PeekCharIterator<'a>,
-    out_str: &'a mut Vec<char>,
+    vout: &'a mut Vec<char>,
     format: Format,
 }
 
@@ -188,8 +188,9 @@ impl ExprParser {
         let opt_literal = self.consume_until_char(context, ')');
 
         let Some(literal) = opt_literal else {
-            let mut m2c = context.iter.get_marked_to_current().unwrap();
-            context.out_str.append(&mut m2c);
+            context
+                .vout
+                .extend(context.iter.get_marked_to_current().unwrap());
             return;
         };
 
@@ -197,38 +198,33 @@ impl ExprParser {
 
         let Some(value) = context.key_value.get(literal_str.as_str()) else {
             let mut m2c = context.iter.get_marked_to_current().unwrap();
-            context.out_str.append(&mut m2c);
+            context.vout.append(&mut m2c);
             return;
         };
 
         match context.format {
             Format::LeftAlign(la) => {
-                for c in value.chars() {
-                    context.out_str.push(c)
-                }
+                context.vout.extend(value.chars());
+
                 let len_diff = (la as i32) - (value.len() as i32);
                 if len_diff > 0 {
                     for _i in 0..len_diff {
-                        context.out_str.push(' ')
+                        context.vout.push(' ')
                     }
                 }
             }
 
             Format::LeftAlignTrunc(la) => {
-                for c in value.chars() {
-                    context.out_str.push(c)
-                }
+                context.vout.extend(value.chars());
                 let len_diff = (la as i32) - (value.len() as i32);
                 if len_diff > 0 {
                     for _i in 0..len_diff {
-                        context.out_str.push(' ')
+                        context.vout.push(' ')
                     }
                 }
             }
             _ => {
-                for c in value.chars() {
-                    context.out_str.push(c)
-                }
+                context.vout.extend(value.chars());
             }
         }
 
@@ -239,19 +235,19 @@ impl ExprParser {
     fn interpret_format_left(&self, context: &mut ParserContext<'_>) {
         if None == self.consume_expected_char(context, '(') {
             let mut m2c = context.iter.get_marked_to_current().unwrap();
-            context.out_str.append(&mut m2c);
+            context.vout.append(&mut m2c);
             return;
         }
         let Some(decimal) = self.consume_decimal(context) else {
             let mut m2c = context.iter.get_marked_to_current().unwrap();
-            context.out_str.append(&mut m2c);
+            context.vout.append(&mut m2c);
             return;
         };
 
         if let Some(_) = self.consume_expected_char(context, ',') {
             let Some(literal) = self.consume_until_char(context, ')') else {
                 let mut m2c = context.iter.get_marked_to_current().unwrap();
-                context.out_str.append(&mut m2c);
+                context.vout.append(&mut m2c);
                 return;
             };
             let literal_str: String = literal.into_iter().collect();
@@ -261,13 +257,13 @@ impl ExprParser {
                 return;
             }
             let mut m2c = context.iter.get_marked_to_current().unwrap();
-            context.out_str.append(&mut m2c);
+            context.vout.append(&mut m2c);
             return;
         }
 
         if None == self.consume_expected_char(context, ')') {
             let mut m2c = context.iter.get_marked_to_current().unwrap();
-            context.out_str.append(&mut m2c);
+            context.vout.append(&mut m2c);
             return;
         }
 
@@ -290,11 +286,11 @@ impl ExprParser {
                     return;
                 }
                 'n' => {
-                    context.out_str.push('\n');
+                    context.vout.push('\n');
                     return;
                 }
                 '%' => {
-                    context.out_str.push('%');
+                    context.vout.push('%');
                     return;
                 }
                 _ => {
@@ -311,7 +307,7 @@ impl ExprParser {
         let mut context = ParserContext {
             key_value: key_value,
             iter: &mut iter,
-            out_str: &mut out_str,
+            vout: &mut out_str,
             format: Format::None,
         };
 
@@ -328,7 +324,7 @@ impl ExprParser {
                 }
                 _ => {
                     context.iter.next();
-                    context.out_str.push(ch)
+                    context.vout.push(ch)
                 }
             }
         }
