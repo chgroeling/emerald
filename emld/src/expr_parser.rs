@@ -1,5 +1,10 @@
 use std::collections::HashMap;
 
+enum Format {
+    None,
+    LeftAlign(i32),
+}
+
 struct ParserContext<'a, I>
 where
     I: Iterator<Item = char>,
@@ -7,6 +12,7 @@ where
     key_value: &'a HashMap<&'a str, String>,
     iter: &'a mut I,
     out_str: &'a mut Vec<char>,
+    format: Format,
 }
 
 struct ParseResult<I> {
@@ -51,6 +57,7 @@ impl ExprParser {
         for c in value.chars() {
             context.out_str.push(c)
         }
+        context.format = Format::None;
     }
 
     fn consume_digit_without_0<I>(&self, context: &mut ParserContext<'_, I>) -> ParseResult<char>
@@ -153,6 +160,7 @@ impl ExprParser {
         let Some(decimal) = res_decimal.result else {
             return;
         };
+        context.format = Format::LeftAlign(decimal);
     }
     fn interpret_placeholder<I>(&self, context: &mut ParserContext<'_, I>)
     where
@@ -170,6 +178,7 @@ impl ExprParser {
                 }
                 '<' => {
                     self.interpret_format_open(context);
+                    return;
                 }
                 'n' => {
                     context.out_str.push('\n');
@@ -193,6 +202,7 @@ impl ExprParser {
             key_value: key_value,
             iter: &mut iter,
             out_str: &mut out_str,
+            format: Format::None,
         };
 
         loop {
