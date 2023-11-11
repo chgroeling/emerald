@@ -201,15 +201,33 @@ impl ExprParser {
             return;
         };
 
-        for c in value.chars() {
-            context.out_str.push(c)
-        }
+        match context.format {
+            Format::LeftAlign(la) => {
+                for c in value.chars() {
+                    context.out_str.push(c)
+                }
+                let len_diff = (la as i32) - (value.len() as i32);
+                if len_diff > 0 {
+                    for _i in 0..len_diff {
+                        context.out_str.push(' ')
+                    }
+                }
+            }
 
-        if let Format::LeftAlign(la) = context.format {
-            let len_diff = (la as i32) - (value.len() as i32);
-            if len_diff > 0 {
-                for _i in 0..len_diff {
-                    context.out_str.push(' ')
+            Format::LeftAlignTrunc(la) => {
+                for c in value.chars() {
+                    context.out_str.push(c)
+                }
+                let len_diff = (la as i32) - (value.len() as i32);
+                if len_diff > 0 {
+                    for _i in 0..len_diff {
+                        context.out_str.push(' ')
+                    }
+                }
+            }
+            _ => {
+                for c in value.chars() {
+                    context.out_str.push(c)
                 }
             }
         }
@@ -229,6 +247,23 @@ impl ExprParser {
             context.out_str.append(&mut m2c);
             return;
         };
+
+        if let Some(_) = self.consume_expected_char(context, ',') {
+            let Some(literal) = self.consume_until_char(context, ')') else {
+                let mut m2c = context.iter.get_marked_to_current().unwrap();
+                context.out_str.append(&mut m2c);
+                return;
+            };
+            let literal_str: String = literal.into_iter().collect();
+
+            if literal_str == "trunc" {
+                context.format = Format::LeftAlignTrunc(decimal);
+                return;
+            }
+            let mut m2c = context.iter.get_marked_to_current().unwrap();
+            context.out_str.append(&mut m2c);
+            return;
+        }
 
         if None == self.consume_expected_char(context, ')') {
             let mut m2c = context.iter.get_marked_to_current().unwrap();
