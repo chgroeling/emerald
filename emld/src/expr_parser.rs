@@ -44,7 +44,7 @@ impl<'a> PeekCharIterator<'a> {
         self.marked_index = Some(self.current_index);
     }
 
-    fn get_marked_to_current(&self) -> Option<Vec<char>> {
+    fn get_mark2cur(&self) -> Option<Vec<char>> {
         self.marked_index
             .map(|marked_index| self.chars[marked_index..self.current_index].to_vec())
     }
@@ -188,17 +188,14 @@ impl ExprParser {
         let opt_literal = self.consume_until_char(context, ')');
 
         let Some(literal) = opt_literal else {
-            context
-                .vout
-                .extend(context.iter.get_marked_to_current().unwrap());
+            context.vout.extend(context.iter.get_mark2cur().unwrap());
             return;
         };
 
         let literal_str: String = literal.into_iter().collect();
 
         let Some(value) = context.key_value.get(literal_str.as_str()) else {
-            let mut m2c = context.iter.get_marked_to_current().unwrap();
-            context.vout.append(&mut m2c);
+            context.vout.extend(context.iter.get_mark2cur().unwrap());
             return;
         };
 
@@ -234,20 +231,17 @@ impl ExprParser {
 
     fn interpret_format_left(&self, context: &mut ParserContext<'_>) {
         if None == self.consume_expected_char(context, '(') {
-            let mut m2c = context.iter.get_marked_to_current().unwrap();
-            context.vout.append(&mut m2c);
+            context.vout.extend(context.iter.get_mark2cur().unwrap());
             return;
         }
         let Some(decimal) = self.consume_decimal(context) else {
-            let mut m2c = context.iter.get_marked_to_current().unwrap();
-            context.vout.append(&mut m2c);
+            context.vout.extend(context.iter.get_mark2cur().unwrap());
             return;
         };
 
         if let Some(_) = self.consume_expected_char(context, ',') {
             let Some(literal) = self.consume_until_char(context, ')') else {
-                let mut m2c = context.iter.get_marked_to_current().unwrap();
-                context.vout.append(&mut m2c);
+                context.vout.extend(context.iter.get_mark2cur().unwrap());
                 return;
             };
             let literal_str: String = literal.into_iter().collect();
@@ -256,14 +250,12 @@ impl ExprParser {
                 context.format = Format::LeftAlignTrunc(decimal);
                 return;
             }
-            let mut m2c = context.iter.get_marked_to_current().unwrap();
-            context.vout.append(&mut m2c);
+            context.vout.extend(context.iter.get_mark2cur().unwrap());
             return;
         }
 
         if None == self.consume_expected_char(context, ')') {
-            let mut m2c = context.iter.get_marked_to_current().unwrap();
-            context.vout.append(&mut m2c);
+            context.vout.extend(context.iter.get_mark2cur().unwrap());
             return;
         }
 
