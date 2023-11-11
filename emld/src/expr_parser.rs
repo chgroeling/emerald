@@ -9,6 +9,11 @@ where
     out_str: &'a mut Vec<char>,
 }
 
+struct ParseResult<I> {
+    result: Option<I>,
+    last_char: char,
+}
+
 pub struct ExprParser;
 impl ExprParser {
     pub fn new() -> Self {
@@ -40,23 +45,93 @@ impl ExprParser {
         }
     }
 
-    fn interpret_format<I>(&self, context: &mut ParserContext<'_, I>)
+    fn consume_digit_without_0<I>(&self, context: &mut ParserContext<'_, I>) -> ParseResult<char>
     where
         I: Iterator<Item = char>,
     {
         loop {
             let Some(ch) = context.iter.next() else {
-                return;
+                return ParseResult {
+                    result: None,
+                    last_char: '\0',
+                };
             };
+
             match ch {
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => {}
-                ')' => {
-                    return;
+                '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => {
+                    return ParseResult {
+                        result: Some(ch),
+                        last_char: ch,
+                    }
                 }
                 _ => {
-                    return;
+                    return ParseResult {
+                        result: None,
+                        last_char: ch,
+                    }
                 }
             }
+        }
+    }
+
+    fn consume_digit<I>(&self, context: &mut ParserContext<'_, I>) -> ParseResult<char>
+    where
+        I: Iterator<Item = char>,
+    {
+        loop {
+            let Some(ch) = context.iter.next() else {
+                return ParseResult {
+                    result: None,
+                    last_char: '\0',
+                };
+            };
+
+            match ch {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => {
+                    return ParseResult {
+                        result: Some(ch),
+                        last_char: ch,
+                    }
+                }
+                _ => {
+                    return ParseResult {
+                        result: None,
+                        last_char: ch,
+                    }
+                }
+            }
+        }
+    }
+
+    fn interpret_decimal<I>(&self, context: &mut ParserContext<'_, I>) -> ParseResult<i32>
+    where
+        I: Iterator<Item = char>,
+    {
+        let mut decimal_vec = Vec::<char>::new();
+
+        let res_first_digit = self.consume_digit_without_0(context);
+        let Some(first_digit) = res_first_digit.result else {
+            return ParseResult {
+                result: None,
+                last_char: res_first_digit.last_char,
+            };
+        };
+
+        decimal_vec.push(first_digit);
+        loop {
+            let res_digit = self.consume_digit(context);
+
+            let Some(digit) = res_digit.result else {
+                let decimal_str: String = decimal_vec.into_iter().collect();
+
+                let decimal = decimal_str.parse::<i32>().unwrap();
+                return ParseResult {
+                    result: Some(decimal),
+                    last_char: res_digit.last_char,
+                };
+            };
+
+            decimal_vec.push(digit);
         }
     }
 
@@ -70,7 +145,10 @@ impl ExprParser {
             };
             match ch {
                 '(' => {
-                    self.interpret_format(context);
+                    let res_decimal = self.interpret_decimal(context);
+                    let Some(decimal) = res_decimal.result else {
+                        return;
+                    };
                     return;
                 }
                 _ => {
