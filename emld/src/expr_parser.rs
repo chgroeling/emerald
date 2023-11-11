@@ -14,6 +14,14 @@ struct ParseResult<I> {
     last_char: char,
 }
 
+impl<I> ParseResult<I> {
+    fn new(result: Option<I>, last_char: char) -> Self {
+        Self {
+            result: result,
+            last_char: last_char,
+        }
+    }
+}
 pub struct ExprParser;
 impl ExprParser {
     pub fn new() -> Self {
@@ -51,24 +59,15 @@ impl ExprParser {
     {
         loop {
             let Some(ch) = context.iter.next() else {
-                return ParseResult {
-                    result: None,
-                    last_char: '\0',
-                };
+                return ParseResult::new(None, '\0');
             };
 
             match ch {
                 '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => {
-                    return ParseResult {
-                        result: Some(ch),
-                        last_char: ch,
-                    }
+                    return ParseResult::new(Some(ch), ch)
                 }
                 _ => {
-                    return ParseResult {
-                        result: None,
-                        last_char: ch,
-                    }
+                    return ParseResult::new(None, ch);
                 }
             }
         }
@@ -80,30 +79,40 @@ impl ExprParser {
     {
         loop {
             let Some(ch) = context.iter.next() else {
-                return ParseResult {
-                    result: None,
-                    last_char: '\0',
-                };
+                return ParseResult::new(None, '\0');
             };
 
             match ch {
                 '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => {
-                    return ParseResult {
-                        result: Some(ch),
-                        last_char: ch,
-                    }
+                    return ParseResult::new(Some(ch), ch)
                 }
-                _ => {
-                    return ParseResult {
-                        result: None,
-                        last_char: ch,
-                    }
-                }
+                _ => return ParseResult::new(None, ch),
             }
         }
     }
 
-    fn interpret_decimal<I>(&self, context: &mut ParserContext<'_, I>) -> ParseResult<i32>
+    fn consume_expected_char<I>(
+        &self,
+        context: &mut ParserContext<'_, I>,
+        expected_char: char,
+    ) -> ParseResult<char>
+    where
+        I: Iterator<Item = char>,
+    {
+        loop {
+            let Some(ch) = context.iter.next() else {
+                return ParseResult::new(None, '\0');
+            };
+
+            if ch == expected_char {
+                return ParseResult::new(Some(ch), ch);
+            } else {
+                return ParseResult::new(None, ch);
+            }
+        }
+    }
+
+    fn consume_decimal<I>(&self, context: &mut ParserContext<'_, I>) -> ParseResult<i32>
     where
         I: Iterator<Item = char>,
     {
@@ -111,10 +120,7 @@ impl ExprParser {
 
         let res_first_digit = self.consume_digit_without_0(context);
         let Some(first_digit) = res_first_digit.result else {
-            return ParseResult {
-                result: None,
-                last_char: res_first_digit.last_char,
-            };
+            return ParseResult::new(None, res_first_digit.last_char);
         };
 
         decimal_vec.push(first_digit);
@@ -123,12 +129,8 @@ impl ExprParser {
 
             let Some(digit) = res_digit.result else {
                 let decimal_str: String = decimal_vec.into_iter().collect();
-
                 let decimal = decimal_str.parse::<i32>().unwrap();
-                return ParseResult {
-                    result: Some(decimal),
-                    last_char: res_digit.last_char,
-                };
+                return ParseResult::new(Some(decimal), res_digit.last_char);
             };
 
             decimal_vec.push(digit);
@@ -139,23 +141,18 @@ impl ExprParser {
     where
         I: Iterator<Item = char>,
     {
-        loop {
-            let Some(ch) = context.iter.next() else {
-                return;
-            };
-            match ch {
-                '(' => {
-                    let res_decimal = self.interpret_decimal(context);
-                    let Some(decimal) = res_decimal.result else {
-                        return;
-                    };
-                    return;
-                }
-                _ => {
-                    return;
-                }
-            }
+        let res_open = self.consume_expected_char(context, '(');
+        if res_open.result.is_none() {
+            return;
         }
+        let res_decimal = self.consume_decimal(context);
+        if res_decimal.last_char != ')' {
+            return;
+        }
+
+        let Some(decimal) = res_decimal.result else {
+            return;
+        };
     }
     fn interpret_placeholder<I>(&self, context: &mut ParserContext<'_, I>)
     where
