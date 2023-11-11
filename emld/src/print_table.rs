@@ -79,7 +79,7 @@ fn format_cell(content: &str, max_width: usize, trailing_str: &str) -> String {
 
 pub fn print_table(vault: &impl Vault) {
     let expr_parser = ExprParser::new();
-    let format_string = "|{title}|{modified}|{created}|{size}|{linkcnt}|{backlinkcnt}|";
+    let format_string = "|%(title)|%(modified)|%(created)|%(size)|%(linkcnt)|%(backlinkcnt)|";
 
     // print header
     let mut key_value_store = HashMap::<&str, String>::new();
