@@ -499,7 +499,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_string_format_specifier_left_align_with_trunc_and_token_bigger_umlaute() {
+    fn test_parse_string_format_specifier_left_align_with_trunc_and_token_smaller_umlaute() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "äöü".into());
         test_parse_helper(
@@ -507,6 +507,24 @@ mod tests {
             "Hallo %<(10,trunc)%(var1)xx",
             "Hallo äöü       xx",
         );
+    }
+
+    #[test]
+    fn test_parse_string_format_specifier_left_align_with_trunc_and_token_biggerer_umlaute() {
+        let mut key_value = HashMap::<&str, String>::new();
+        key_value.insert("var1", "äöü12345678".into());
+        test_parse_helper(
+            &key_value,
+            "Hallo %<(10,trunc)%(var1)xx",
+            "Hallo äöü123456…xx",
+        );
+    }
+
+    #[test]
+    fn test_parse_string_format_specifier_bug() {
+        let mut key_value = HashMap::<&str, String>::new();
+        key_value.insert("var1", "äch zum Orientationcenter".into());
+        test_parse_helper(&key_value, "|%<(2,trunc)%(var1)|", "|ä…|");
     }
 
     #[test]
