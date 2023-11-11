@@ -14,7 +14,7 @@ impl ExprParser {
     pub fn new() -> Self {
         Self
     }
-    fn interpret_literal<I>(&self, context: &mut ParserContext<'_, I>)
+    fn interpret_named_placeholder<I>(&self, context: &mut ParserContext<'_, I>)
     where
         I: Iterator<Item = char>,
     {
@@ -40,7 +40,7 @@ impl ExprParser {
         }
     }
 
-    fn interpret_decimal<I>(&self, context: &mut ParserContext<'_, I>)
+    fn interpret_format<I>(&self, context: &mut ParserContext<'_, I>)
     where
         I: Iterator<Item = char>,
     {
@@ -49,7 +49,8 @@ impl ExprParser {
                 return;
             };
             match ch {
-                '(' => {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => {}
+                ')' => {
                     return;
                 }
                 _ => {
@@ -69,6 +70,7 @@ impl ExprParser {
             };
             match ch {
                 '(' => {
+                    self.interpret_format(context);
                     return;
                 }
                 _ => {
@@ -88,7 +90,7 @@ impl ExprParser {
 
             match ch {
                 '(' => {
-                    self.interpret_literal(context);
+                    self.interpret_named_placeholder(context);
                     return;
                 }
                 '<' => {
@@ -112,21 +114,21 @@ impl ExprParser {
     pub fn parse(&self, key_value: &HashMap<&str, String>, inp: &str) -> String {
         let mut iter = inp.chars();
         let mut out_str = Vec::<char>::new();
+        let mut context = ParserContext {
+            key_value: key_value,
+            iter: &mut iter,
+            out_str: &mut out_str,
+        };
 
         loop {
-            let Some(ch) = iter.next() else {
+            let Some(ch) = context.iter.next() else {
                 break;
             };
             match ch {
                 '%' => {
-                    let mut context = ParserContext {
-                        key_value: key_value,
-                        iter: &mut iter,
-                        out_str: &mut out_str,
-                    };
                     self.interpret_placeholder(&mut context);
                 }
-                _ => out_str.push(ch),
+                _ => context.out_str.push(ch),
             }
         }
         out_str.into_iter().collect()
