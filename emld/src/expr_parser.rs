@@ -203,8 +203,8 @@ impl ExprParser {
         match context.format {
             Format::LeftAlign(la) => {
                 context.vout.extend(value.chars());
-
-                let len_diff = (la as i32) - (value.len() as i32);
+                let value_len = value.chars().count();
+                let len_diff = (la as i32) - (value_len as i32);
                 if len_diff > 0 {
                     for _i in 0..len_diff {
                         context.vout.push(' ')
@@ -213,7 +213,8 @@ impl ExprParser {
             }
 
             Format::LeftAlignTrunc(la) => {
-                let len_diff = (la as i32) - (value.len() as i32);
+                let value_len = value.chars().count();
+                let len_diff = (la as i32) - (value_len as i32);
 
                 match len_diff {
                     _ if len_diff > 0 => {
@@ -224,7 +225,7 @@ impl ExprParser {
                     }
 
                     _ if len_diff < 0 => {
-                        let let_cmp = (value.len() as i32) + len_diff - 1;
+                        let let_cmp = (value_len as i32) + len_diff - 1;
                         for (idx, ch) in value.chars().enumerate() {
                             if idx >= let_cmp as usize {
                                 break;
@@ -257,6 +258,7 @@ impl ExprParser {
             return;
         };
 
+        // Check if optional arguments are available
         if let Some(_) = self.consume_expected_char(context, ',') {
             let Some(literal) = self.consume_until_char(context, ')') else {
                 context.vout.extend(context.iter.get_mark2cur().unwrap());
@@ -493,6 +495,17 @@ mod tests {
             &key_value,
             "Hallo %<(10,trunc)%(var1)xx",
             "Hallo 123456789…xx",
+        );
+    }
+
+    #[test]
+    fn test_parse_string_format_specifier_left_align_with_trunc_and_token_bigger_umlaute() {
+        let mut key_value = HashMap::<&str, String>::new();
+        key_value.insert("var1", "äöü".into());
+        test_parse_helper(
+            &key_value,
+            "Hallo %<(10,trunc)%(var1)xx",
+            "Hallo äöü       xx",
         );
     }
 
