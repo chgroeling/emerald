@@ -86,42 +86,46 @@ impl ExprParser {
     pub fn new() -> Self {
         Self
     }
-    fn interpret_named_placeholder(&self, context: &mut ParserContext<'_>) {
-        let mut literal = Vec::<char>::new();
+
+    fn consume_expected_char(
+        &self,
+        context: &mut ParserContext<'_>,
+        expected_char: char,
+    ) -> Option<char> {
         loop {
-            let Some(ch) = context.iter.next() else {
-                return;
+            let Some(ch) = context.iter.peek() else {
+                return None;
             };
 
-            match ch {
-                ')' => break,
-                _ => literal.push(ch),
+            if ch == expected_char {
+                context.iter.next(); // consume
+                return Some(ch);
+            } else {
+                return None;
             }
         }
-
-        let literal_str: String = literal.into_iter().collect();
-
-        let Some(value) = context.key_value.get(literal_str.as_str()) else {
-            return;
-        };
-
-        for c in value.chars() {
-            context.out_str.push(c)
-        }
-
-        if let Format::LeftAlign(la) = context.format {
-            let len_diff = (la as i32) - (value.len() as i32);
-            if len_diff > 0 {
-                for _i in 0..len_diff {
-                    context.out_str.push(' ')
-                }
-            }
-        }
-
-        // Reset format for next Placeholder
-        context.format = Format::None;
     }
 
+    fn consume_until_char(
+        &self,
+        context: &mut ParserContext<'_>,
+        predicate_char: char,
+    ) -> Option<Vec<char>> {
+        let mut vec: Vec<char> = Vec::new();
+        loop {
+            let Some(ch) = context.iter.peek() else {
+                return None;
+            };
+
+            if ch == predicate_char {
+                context.iter.next();
+                return Some(vec);
+            } else {
+                context.iter.next();
+                vec.push(ch);
+            }
+        }
+    }
     fn consume_digit_without_0(&self, context: &mut ParserContext<'_>) -> Option<char> {
         loop {
             let Some(ch) = context.iter.peek() else {
@@ -158,25 +162,6 @@ impl ExprParser {
         }
     }
 
-    fn consume_expected_char(
-        &self,
-        context: &mut ParserContext<'_>,
-        expected_char: char,
-    ) -> Option<char> {
-        loop {
-            let Some(ch) = context.iter.peek() else {
-                return None;
-            };
-
-            if ch == expected_char {
-                context.iter.next(); // consume
-                return Some(ch);
-            } else {
-                return None;
-            }
-        }
-    }
-
     fn consume_decimal(&self, context: &mut ParserContext<'_>) -> Option<u32> {
         let mut decimal_vec = Vec::<char>::new();
 
@@ -198,18 +183,55 @@ impl ExprParser {
         }
     }
 
-    fn interpret_format_open(&self, context: &mut ParserContext<'_>) {
+    fn interpret_named_placeholder(&self, context: &mut ParserContext<'_>) {
+        let opt_literal = self.consume_until_char(context, ')');
+
+        let Some(literal) = opt_literal else {
+            let mut m2c = context.iter.get_marked_to_current().unwrap();
+            context.out_str.append(&mut m2c);
+            return;
+        };
+
+        let literal_str: String = literal.into_iter().collect();
+
+        let Some(value) = context.key_value.get(literal_str.as_str()) else {
+            let mut m2c = context.iter.get_marked_to_current().unwrap();
+            context.out_str.append(&mut m2c);
+            return;
+        };
+
+        for c in value.chars() {
+            context.out_str.push(c)
+        }
+
+        if let Format::LeftAlign(la) = context.format {
+            let len_diff = (la as i32) - (value.len() as i32);
+            if len_diff > 0 {
+                for _i in 0..len_diff {
+                    context.out_str.push(' ')
+                }
+            }
+        }
+
+        // Reset format for next Placeholder
+        context.format = Format::None;
+    }
+
+    fn interpret_format_left(&self, context: &mut ParserContext<'_>) {
         if None == self.consume_expected_char(context, '(') {
+            let mut m2c = context.iter.get_marked_to_current().unwrap();
+            context.out_str.append(&mut m2c);
             return;
         }
         let Some(decimal) = self.consume_decimal(context) else {
-            for i in context.iter.get_marked_to_current().unwrap() {
-                context.out_str.push(i)
-            }
+            let mut m2c = context.iter.get_marked_to_current().unwrap();
+            context.out_str.append(&mut m2c);
             return;
         };
 
         if None == self.consume_expected_char(context, ')') {
+            let mut m2c = context.iter.get_marked_to_current().unwrap();
+            context.out_str.append(&mut m2c);
             return;
         }
 
@@ -228,7 +250,7 @@ impl ExprParser {
                     return;
                 }
                 '<' => {
-                    self.interpret_format_open(context);
+                    self.interpret_format_left(context);
                     return;
                 }
                 'n' => {
@@ -343,14 +365,14 @@ mod tests {
     fn test_parse_string_with_var1_and_var2_var1_undefined() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "welt".into());
-        test_parse_helper(&key_value, "Hallo %(var1)%(var2)", "Hallo welt");
+        test_parse_helper(&key_value, "Hallo %(var1)%(var2)", "Hallo welt%(var2)");
     }
 
     #[test]
     fn test_parse_string_with_var1_and_var2_var2_undefined() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var2", "!!!!".into());
-        test_parse_helper(&key_value, "Hallo %(var1)%(var2)", "Hallo !!!!");
+        test_parse_helper(&key_value, "Hallo %(var1)%(var2)", "Hallo %(var1)!!!!");
     }
 
     #[test]
@@ -364,7 +386,7 @@ mod tests {
     fn test_parse_string_with_var1_invalid2() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "welt".into());
-        test_parse_helper(&key_value, "Hallo %(var1", "Hallo ");
+        test_parse_helper(&key_value, "Hallo %(var1", "Hallo %(var1");
     }
 
     #[test]
