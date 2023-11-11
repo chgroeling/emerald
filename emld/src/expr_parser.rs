@@ -44,12 +44,9 @@ impl<'a> PeekCharIterator<'a> {
         self.marked_index = Some(self.current_index);
     }
 
-    /// Resets the iterator to the last marked position.
-    fn backtrack(&mut self) {
-        if let Some(index) = self.marked_index {
-            self.current_index = index;
-            self.peeked_index = None;
-        }
+    fn get_marked_to_current(&self) -> Option<Vec<char>> {
+        self.marked_index
+            .map(|marked_index| self.chars[marked_index..self.current_index].to_vec())
     }
 }
 
@@ -206,6 +203,9 @@ impl ExprParser {
             return;
         }
         let Some(decimal) = self.consume_decimal(context) else {
+            for i in context.iter.get_marked_to_current().unwrap() {
+                context.out_str.push(i)
+            }
             return;
         };
 
@@ -258,14 +258,20 @@ impl ExprParser {
         };
 
         loop {
-            let Some(ch) = context.iter.next() else {
+            let Some(ch) = context.iter.peek() else {
                 break;
             };
+
             match ch {
                 '%' => {
+                    context.iter.mark(); // mark position of placeholder start
+                    context.iter.next();
                     self.interpret_placeholder(&mut context);
                 }
-                _ => context.out_str.push(ch),
+                _ => {
+                    context.iter.next();
+                    context.out_str.push(ch)
+                }
             }
         }
         out_str.into_iter().collect()
