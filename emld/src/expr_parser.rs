@@ -72,6 +72,7 @@ impl<'a> Iterator for PeekCharIterator<'a> {
 enum Format {
     None,
     LeftAlign(u32),
+    LeftAlignTrunc(u32),
 }
 
 struct ParserContext<'a> {
@@ -429,6 +430,17 @@ mod tests {
             &key_value,
             "Hallo %<(10)%(var1)xx",
             "Hallo 1234567890ABCDEFxx",
+        );
+    }
+
+    #[test]
+    fn test_parse_string_format_specifier_left_align_with_trunc_and_token_bigger() {
+        let mut key_value = HashMap::<&str, String>::new();
+        key_value.insert("var1", "1234567890ABCDEF".into());
+        test_parse_helper(
+            &key_value,
+            "Hallo %<(10,trunc)%(var1)xx",
+            "Hallo 123456789…xx",
         );
     }
 
