@@ -214,20 +214,28 @@ impl ExprParser {
 
             Format::LeftAlignTrunc(la) => {
                 let len_diff = (la as i32) - (value.len() as i32);
-                if len_diff > 0 {
-                    context.vout.extend(value.chars());
-                    for _i in 0..len_diff {
-                        context.vout.push(' ')
-                    }
-                } else {
-                    let let_cmp = (value.len() as i32) + len_diff - 1;
-                    for (idx, ch) in value.chars().enumerate() {
-                        if idx >= let_cmp as usize {
-                            break;
+
+                match len_diff {
+                    _ if len_diff > 0 => {
+                        context.vout.extend(value.chars());
+                        for _i in 0..len_diff {
+                            context.vout.push(' ')
                         }
-                        context.vout.push(ch);
                     }
-                    context.vout.push('…');
+
+                    _ if len_diff < 0 => {
+                        let let_cmp = (value.len() as i32) + len_diff - 1;
+                        for (idx, ch) in value.chars().enumerate() {
+                            if idx >= let_cmp as usize {
+                                break;
+                            }
+                            context.vout.push(ch);
+                        }
+                        context.vout.push('…');
+                    }
+                    _ => {
+                        context.vout.extend(value.chars());
+                    }
                 }
             }
             _ => {
@@ -463,6 +471,17 @@ mod tests {
             &key_value,
             "Hallo %<(10)%(var1)xx",
             "Hallo 1234567890ABCDEFxx",
+        );
+    }
+
+    #[test]
+    fn test_parse_string_format_specifier_left_align_with_trunc_and_token_exact() {
+        let mut key_value = HashMap::<&str, String>::new();
+        key_value.insert("var1", "1234567890".into());
+        test_parse_helper(
+            &key_value,
+            "Hallo %<(10,trunc)%(var1)xx",
+            "Hallo 1234567890xx",
         );
     }
 
