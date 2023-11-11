@@ -49,6 +49,15 @@ impl ExprParser {
                     self.interpret_literal(key_value, iter, out_str);
                     return;
                 }
+                '<' => {}
+                'n' => {
+                    out_str.push('\n');
+                    return;
+                }
+                '%' => {
+                    out_str.push('%');
+                    return;
+                }
                 _ => {
                     return;
                 }
@@ -161,5 +170,34 @@ mod tests {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "welt".into());
         test_parse_helper(&key_value, "Hallo %(var1", "Hallo ");
+    }
+
+    #[test]
+    fn test_parse_string_newline() {
+        let key_value = HashMap::<&str, String>::new();
+        test_parse_helper(&key_value, "Hallo %nWelt", "Hallo \nWelt");
+    }
+
+    #[test]
+    fn test_parse_string_escape() {
+        let key_value = HashMap::<&str, String>::new();
+        test_parse_helper(&key_value, "Hallo %%(var1)", "Hallo %(var1)");
+    }
+
+    #[test]
+    fn test_parse_string_newline_at_end() {
+        let key_value = HashMap::<&str, String>::new();
+        test_parse_helper(&key_value, "Hallo Welt %n", "Hallo Welt \n");
+    }
+
+    #[test]
+    fn test_parse_string_format_specifier_and_token() {
+        let mut key_value = HashMap::<&str, String>::new();
+        key_value.insert("var1", "Welt".into());
+        test_parse_helper(
+            &key_value,
+            "Hallo Welt %<(10)%(var1)xx",
+            "Hallo Welt      xx\n",
+        );
     }
 }
