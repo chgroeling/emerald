@@ -127,6 +127,7 @@ impl ExprParser {
             }
         }
     }
+
     fn consume_digit_without_0(&self, context: &mut ParserContext<'_>) -> Option<char> {
         loop {
             let Some(ch) = context.iter.peek() else {
@@ -212,12 +213,21 @@ impl ExprParser {
             }
 
             Format::LeftAlignTrunc(la) => {
-                context.vout.extend(value.chars());
                 let len_diff = (la as i32) - (value.len() as i32);
                 if len_diff > 0 {
+                    context.vout.extend(value.chars());
                     for _i in 0..len_diff {
                         context.vout.push(' ')
                     }
+                } else {
+                    let let_cmp = (value.len() as i32) + len_diff - 1;
+                    for (idx, ch) in value.chars().enumerate() {
+                        if idx >= let_cmp as usize {
+                            break;
+                        }
+                        context.vout.push(ch);
+                    }
+                    context.vout.push('…');
                 }
             }
             _ => {
