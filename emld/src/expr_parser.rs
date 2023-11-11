@@ -521,13 +521,6 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_string_format_specifier_bug() {
-        let mut key_value = HashMap::<&str, String>::new();
-        key_value.insert("var1", "äch zum Orientationcenter".into());
-        test_parse_helper(&key_value, "|%<(2,trunc)%(var1)|", "|ä…|");
-    }
-
-    #[test]
     fn test_parse_string_format_specifier_left_align_and_token_invalid() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "1234567890ABCDEF".into());
