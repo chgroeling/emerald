@@ -86,7 +86,7 @@ impl Emerald {
             name_iter,
         ));
         let elapsed = start.elapsed();
-        debug!("Creation of DefaultLinkModel: {:?}", elapsed);
+        debug!("Creation of DefaultResourceIdResolverModel: {:?}", elapsed);
 
         let start = Instant::now();
         let rmod = Rc::new(resource::DefaultResourceModel::new(all_meta_data));
