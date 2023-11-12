@@ -241,7 +241,7 @@ impl ExprParser {
     }
 
     fn interpret_format_left(&self, context: &mut ParserContext<'_>) {
-        if None == consume_exp_chars!(context, '(') {
+        if consume_exp_chars!(context, '(').is_none() {
             context.vout.extend(context.iter.get_mark2cur().unwrap());
             return;
         }
@@ -255,7 +255,7 @@ impl ExprParser {
         consume_until_not_char!(context, ' '); // consume whitespaces
 
         // Check if optional arguments are available
-        if let Some(_) = consume_exp_chars!(context, ',') {
+        if consume_exp_chars!(context, ',').is_some() {
             consume_until_not_char!(context, ' '); // consume whitespaces
             let Some(literal) = collect_until_chars!(context, ')') else {
                 context.vout.extend(context.iter.get_mark2cur().unwrap());
@@ -271,7 +271,7 @@ impl ExprParser {
             //error
             context.vout.extend(context.iter.get_mark2cur().unwrap());
         } else {
-            if None == consume_exp_chars!(context, ')') {
+            if consume_exp_chars!(context, ')').is_none() {
                 context.vout.extend(context.iter.get_mark2cur().unwrap());
                 return;
             }
@@ -281,33 +281,26 @@ impl ExprParser {
     }
 
     fn interpret_placeholder(&self, context: &mut ParserContext<'_>) {
-        loop {
-            let Some(ch) = context.iter.next() else {
-                return;
-            };
+        let Some(ch) = context.iter.next() else {
+            return;
+        };
 
-            match ch {
-                '(' => {
-                    self.interpret_named_placeholder(context);
-                    return;
-                }
-                '<' => {
-                    self.interpret_format_left(context);
-                    return;
-                }
-                'n' => {
-                    context.vout.push('\n');
-                    return;
-                }
-                '%' => {
-                    context.vout.push('%');
-                    return;
-                }
-                _ => {
-                    // error
-                    context.vout.extend(context.iter.get_mark2cur().unwrap());
-                    return;
-                }
+        match ch {
+            '(' => {
+                self.interpret_named_placeholder(context);
+            }
+            '<' => {
+                self.interpret_format_left(context);
+            }
+            'n' => {
+                context.vout.push('\n');
+            }
+            '%' => {
+                context.vout.push('%');
+            }
+            _ => {
+                // error
+                context.vout.extend(context.iter.get_mark2cur().unwrap());
             }
         }
     }
@@ -317,7 +310,7 @@ impl ExprParser {
         let mut iter = PeekCharIterator::new(&vec);
         let mut vout = Vec::<char>::new();
         let mut context = ParserContext {
-            key_value: key_value,
+            key_value,
             iter: &mut iter,
             vout: &mut vout,
             format: Format::None,
