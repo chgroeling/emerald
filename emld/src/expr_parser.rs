@@ -114,20 +114,21 @@ macro_rules! consume_exp_chars{
 }
 
 macro_rules! collect_until_char {
-    ($context:ident, $a:ident, $vec:ident) => {
+    ($context:ident, $a:expr) => {{
+        let mut vec: Vec<char> = Vec::new();
         loop {
             let Some(ch) = $context.iter.peek() else {
                 break None;
             };
 
             if ch == $a {
-                break Some($vec);
+                break Some(vec);
             } else {
                 $context.iter.next();
-                $vec.push(ch);
+                vec.push(ch);
             }
         }
-    };
+    }};
 }
 macro_rules! consume_until_not_char {
     ($context:ident, $a:expr) => {
@@ -149,15 +150,6 @@ pub struct ExprParser;
 impl ExprParser {
     pub fn new() -> Self {
         Self
-    }
-
-    fn consume_until_char(
-        &self,
-        context: &mut ParserContext<'_>,
-        predicate_char: char,
-    ) -> Option<Vec<char>> {
-        let mut vec: Vec<char> = Vec::new();
-        return collect_until_char!(context, predicate_char, vec);
     }
 
     fn consume_decimal(&self, context: &mut ParserContext<'_>) -> Option<u32> {
@@ -182,7 +174,7 @@ impl ExprParser {
     }
 
     fn interpret_named_placeholder(&self, context: &mut ParserContext<'_>) {
-        let opt_literal = self.consume_until_char(context, ')');
+        let opt_literal = collect_until_char!(context, ')');
 
         let Some(literal) = opt_literal else {
             context.vout.extend(context.iter.get_mark2cur().unwrap());
@@ -262,8 +254,7 @@ impl ExprParser {
         // Check if optional arguments are available
         if let Some(_) = consume_exp_chars!(context, ',') {
             consume_until_not_char!(context, ' '); // consume whitespaces
-
-            let Some(literal) = self.consume_until_char(context, ')') else {
+            let Some(literal) = collect_until_char!(context, ')') else {
                 context.vout.extend(context.iter.get_mark2cur().unwrap());
                 return;
             };
