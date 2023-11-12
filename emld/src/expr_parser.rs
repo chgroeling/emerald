@@ -83,29 +83,40 @@ struct ParserContext<'a> {
     format: Format,
 }
 
+macro_rules! digit_pat {
+    () => {
+        '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
+    };
+}
+
+macro_rules! digit_without0_pat {
+    () => {
+        '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
+    };
+}
+
+macro_rules! consume_exp_chars{
+    ($context:ident, $($a:pat)+) => {
+        if let Some(ch) = $context.iter.peek()  {
+            match ch {
+                $($a)|+ => {
+                    $context.iter.next(); // consume
+                    Some(ch)
+                }
+                _ => {
+                    None
+                }
+            }
+        } else {
+            None
+        }
+    };
+}
+
 pub struct ExprParser;
 impl ExprParser {
     pub fn new() -> Self {
         Self
-    }
-
-    fn consume_expected_char(
-        &self,
-        context: &mut ParserContext<'_>,
-        expected_char: char,
-    ) -> Option<char> {
-        loop {
-            let Some(ch) = context.iter.peek() else {
-                return None;
-            };
-
-            if ch == expected_char {
-                context.iter.next(); // consume
-                return Some(ch);
-            } else {
-                return None;
-            }
-        }
     }
 
     fn consume_until_char(
@@ -129,52 +140,16 @@ impl ExprParser {
         }
     }
 
-    fn consume_digit_without_0(&self, context: &mut ParserContext<'_>) -> Option<char> {
-        loop {
-            let Some(ch) = context.iter.peek() else {
-                return None;
-            };
-
-            match ch {
-                '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => {
-                    context.iter.next(); // consume
-                    return Some(ch);
-                }
-                _ => {
-                    return None;
-                }
-            }
-        }
-    }
-
-    fn consume_digit(&self, context: &mut ParserContext<'_>) -> Option<char> {
-        loop {
-            let Some(ch) = context.iter.peek() else {
-                return None;
-            };
-
-            match ch {
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => {
-                    context.iter.next(); // consume
-                    return Some(ch);
-                }
-                _ => {
-                    return None;
-                }
-            }
-        }
-    }
-
     fn consume_decimal(&self, context: &mut ParserContext<'_>) -> Option<u32> {
         let mut decimal_vec = Vec::<char>::new();
 
-        let Some(first_digit) = self.consume_digit_without_0(context) else {
+        let Some(first_digit) = consume_exp_chars!(context, digit_without0_pat!()) else {
             return None;
         };
 
         decimal_vec.push(first_digit);
         loop {
-            let res_digit = self.consume_digit(context);
+            let res_digit = consume_exp_chars!(context, digit_pat!());
 
             let Some(digit) = res_digit else {
                 let decimal_str: String = decimal_vec.into_iter().collect();
@@ -250,7 +225,7 @@ impl ExprParser {
     }
 
     fn interpret_format_left(&self, context: &mut ParserContext<'_>) {
-        if None == self.consume_expected_char(context, '(') {
+        if None == consume_exp_chars!(context, '(') {
             context.vout.extend(context.iter.get_mark2cur().unwrap());
             return;
         }
@@ -260,7 +235,7 @@ impl ExprParser {
         };
 
         // Check if optional arguments are available
-        if let Some(_) = self.consume_expected_char(context, ',') {
+        if let Some(_) = consume_exp_chars!(context, ',') {
             let Some(literal) = self.consume_until_char(context, ')') else {
                 context.vout.extend(context.iter.get_mark2cur().unwrap());
                 return;
@@ -275,7 +250,7 @@ impl ExprParser {
             return;
         }
 
-        if None == self.consume_expected_char(context, ')') {
+        if None == consume_exp_chars!(context, ')') {
             context.vout.extend(context.iter.get_mark2cur().unwrap());
             return;
         }
