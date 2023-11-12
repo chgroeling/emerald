@@ -113,6 +113,38 @@ macro_rules! consume_exp_chars{
     };
 }
 
+macro_rules! collect_until_char {
+    ($context:ident, $a:ident, $vec:ident) => {
+        loop {
+            let Some(ch) = $context.iter.peek() else {
+                break None;
+            };
+
+            if ch == $a {
+                break Some($vec);
+            } else {
+                $context.iter.next();
+                $vec.push(ch);
+            }
+        }
+    };
+}
+macro_rules! consume_until_not_char {
+    ($context:ident, $a:expr) => {
+        loop {
+            let Some(ch) = $context.iter.peek() else {
+                break None;
+            };
+
+            if ch != $a {
+                break Some(());
+            } else {
+                $context.iter.next();
+            }
+        }
+    };
+}
+
 pub struct ExprParser;
 impl ExprParser {
     pub fn new() -> Self {
@@ -125,19 +157,7 @@ impl ExprParser {
         predicate_char: char,
     ) -> Option<Vec<char>> {
         let mut vec: Vec<char> = Vec::new();
-        loop {
-            let Some(ch) = context.iter.peek() else {
-                return None;
-            };
-
-            if ch == predicate_char {
-                context.iter.next();
-                return Some(vec);
-            } else {
-                context.iter.next();
-                vec.push(ch);
-            }
-        }
+        return collect_until_char!(context, predicate_char, vec);
     }
 
     fn consume_decimal(&self, context: &mut ParserContext<'_>) -> Option<u32> {
@@ -168,6 +188,7 @@ impl ExprParser {
             context.vout.extend(context.iter.get_mark2cur().unwrap());
             return;
         };
+        context.iter.next(); // consume )
 
         let literal_str: String = literal.into_iter().collect();
 
@@ -229,17 +250,24 @@ impl ExprParser {
             context.vout.extend(context.iter.get_mark2cur().unwrap());
             return;
         }
+        consume_until_not_char!(context, ' '); // consume whitespaces
+
         let Some(decimal) = self.consume_decimal(context) else {
             context.vout.extend(context.iter.get_mark2cur().unwrap());
             return;
         };
 
+        consume_until_not_char!(context, ' '); // consume whitespaces
+
         // Check if optional arguments are available
         if let Some(_) = consume_exp_chars!(context, ',') {
+            consume_until_not_char!(context, ' '); // consume whitespaces
+
             let Some(literal) = self.consume_until_char(context, ')') else {
                 context.vout.extend(context.iter.get_mark2cur().unwrap());
                 return;
             };
+            context.iter.next(); // consume )
             let literal_str: String = literal.into_iter().collect();
 
             if literal_str == "trunc" {
@@ -459,6 +487,17 @@ mod tests {
         test_parse_helper(
             &key_value,
             "Hallo %<(10,trunc)%(var1)xx",
+            "Hallo 1234567890xx",
+        );
+    }
+
+    #[test]
+    fn test_parse_string_format_specifier_left_align_with_trunc_and_token_exact_spaces() {
+        let mut key_value = HashMap::<&str, String>::new();
+        key_value.insert("var1", "1234567890".into());
+        test_parse_helper(
+            &key_value,
+            "Hallo %<(  10  ,  trunc)%(var1)xx",
             "Hallo 1234567890xx",
         );
     }
