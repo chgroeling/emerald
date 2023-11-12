@@ -113,19 +113,22 @@ macro_rules! consume_exp_chars{
     };
 }
 
-macro_rules! collect_until_char {
-    ($context:ident, $a:expr) => {{
+macro_rules! collect_until_chars {
+    ($context:ident, $($a:pat)+) => {{
         let mut vec: Vec<char> = Vec::new();
         loop {
             let Some(ch) = $context.iter.peek() else {
                 break None;
             };
 
-            if ch == $a {
-                break Some(vec);
-            } else {
-                $context.iter.next();
+            match ch {
+                $($a)|+ => {
+                    break Some(vec);
+                }
+                _ => {
+                    $context.iter.next();
                 vec.push(ch);
+                }
             }
         }
     }};
@@ -174,13 +177,13 @@ impl ExprParser {
     }
 
     fn interpret_named_placeholder(&self, context: &mut ParserContext<'_>) {
-        let opt_literal = collect_until_char!(context, ')');
+        let opt_literal = collect_until_chars!(context, ')');
 
         let Some(literal) = opt_literal else {
             context.vout.extend(context.iter.get_mark2cur().unwrap());
             return;
         };
-        context.iter.next(); // consume )
+        context.iter.next(); // consume ")"
 
         let literal_str: String = literal.into_iter().collect();
 
@@ -254,27 +257,27 @@ impl ExprParser {
         // Check if optional arguments are available
         if let Some(_) = consume_exp_chars!(context, ',') {
             consume_until_not_char!(context, ' '); // consume whitespaces
-            let Some(literal) = collect_until_char!(context, ')') else {
+            let Some(literal) = collect_until_chars!(context, ')') else {
                 context.vout.extend(context.iter.get_mark2cur().unwrap());
                 return;
             };
             context.iter.next(); // consume )
             let literal_str: String = literal.into_iter().collect();
 
-            if literal_str == "trunc" {
+            if literal_str.trim() == "trunc" {
                 context.format = Format::LeftAlignTrunc(decimal);
                 return;
             }
+            //error
             context.vout.extend(context.iter.get_mark2cur().unwrap());
-            return;
-        }
+        } else {
+            if None == consume_exp_chars!(context, ')') {
+                context.vout.extend(context.iter.get_mark2cur().unwrap());
+                return;
+            }
 
-        if None == consume_exp_chars!(context, ')') {
-            context.vout.extend(context.iter.get_mark2cur().unwrap());
-            return;
+            context.format = Format::LeftAlign(decimal);
         }
-
-        context.format = Format::LeftAlign(decimal);
     }
 
     fn interpret_placeholder(&self, context: &mut ParserContext<'_>) {
@@ -301,6 +304,8 @@ impl ExprParser {
                     return;
                 }
                 _ => {
+                    // error
+                    context.vout.extend(context.iter.get_mark2cur().unwrap());
                     return;
                 }
             }
@@ -385,6 +390,12 @@ mod tests {
     }
 
     #[test]
+    fn test_parse_string_wrong_token_type() {
+        let key_value = HashMap::<&str, String>::new();
+        test_parse_helper(&key_value, "Hallo %z", "Hallo %z");
+    }
+
+    #[test]
     fn test_parse_string_with_var1_and_var2_token() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "welt".into());
@@ -418,7 +429,7 @@ mod tests {
     fn test_parse_string_with_var1_invalid() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "welt".into());
-        test_parse_helper(&key_value, "Hallo %var1", "Hallo ar1");
+        test_parse_helper(&key_value, "Hallo %var1", "Hallo %var1");
     }
 
     #[test]
@@ -488,7 +499,7 @@ mod tests {
         key_value.insert("var1", "1234567890".into());
         test_parse_helper(
             &key_value,
-            "Hallo %<(  10  ,  trunc)%(var1)xx",
+            "Hallo %<(  10  ,  trunc   )%(var1)xx",
             "Hallo 1234567890xx",
         );
     }
