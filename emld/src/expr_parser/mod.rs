@@ -16,6 +16,10 @@ macro_rules! digit_without0_pat {
     };
 }
 
+/// `consume_expected_chars` checks and consumes the next char in the iterator if it matches the provided pattern(s).
+/// - `$context`: The parsing context containing the `PeekCharIterator`.
+/// - `$($a:pat)+`: Pattern(s) to match against the next char.
+/// If the next char matches, it's consumed and returned as `Some(char)`. Otherwise, returns `None`.
 macro_rules! consume_expected_chars{
     ($context:ident, $($a:pat)+) => {
         if let Some(ch) = $context.iter.peek()  {
