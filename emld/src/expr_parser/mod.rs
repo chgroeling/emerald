@@ -70,7 +70,7 @@ macro_rules! consume_until_not_char {
     };
 }
 
-struct ParserContext<'a> {
+struct ParsingContext<'a> {
     key_value: &'a HashMap<&'a str, String>,
     iter: &'a mut PeekCharIterator<'a>,
     vout: &'a mut Vec<char>,
@@ -83,7 +83,7 @@ impl ExprParser {
         Self
     }
 
-    fn consume_decimal(&self, context: &mut ParserContext<'_>) -> Option<u32> {
+    fn consume_decimal(&self, context: &mut ParsingContext<'_>) -> Option<u32> {
         let mut decimal_vec = Vec::<char>::new();
 
         let Some(first_digit) = consume_exp_chars!(context, digit_without0_pat!()) else {
@@ -104,7 +104,7 @@ impl ExprParser {
         }
     }
 
-    fn interpret_named_placeholder(&self, context: &mut ParserContext<'_>) {
+    fn interpret_named_placeholder(&self, context: &mut ParsingContext<'_>) {
         let opt_literal = collect_until_chars!(context, ')');
 
         let Some(literal) = opt_literal else {
@@ -168,7 +168,7 @@ impl ExprParser {
         context.format = OutputFormat::None;
     }
 
-    fn interpret_format_left(&self, context: &mut ParserContext<'_>) {
+    fn interpret_format_left(&self, context: &mut ParsingContext<'_>) {
         if consume_exp_chars!(context, '(').is_none() {
             context.vout.extend(context.iter.get_mark2cur().unwrap());
             return;
@@ -208,7 +208,7 @@ impl ExprParser {
         }
     }
 
-    fn interpret_placeholder(&self, context: &mut ParserContext<'_>) {
+    fn interpret_placeholder(&self, context: &mut ParsingContext<'_>) {
         let Some(ch) = context.iter.next() else {
             return;
         };
@@ -237,7 +237,7 @@ impl ExprParser {
         let vec: Vec<_> = inp.chars().collect();
         let mut iter = PeekCharIterator::new(&vec);
         let mut vout = Vec::<char>::new();
-        let mut context = ParserContext {
+        let mut context = ParsingContext {
             key_value,
             iter: &mut iter,
             vout: &mut vout,
