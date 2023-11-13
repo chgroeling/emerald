@@ -4,13 +4,6 @@ use self::format::Format;
 use self::peek_char_iterator::PeekCharIterator;
 use std::collections::HashMap;
 
-struct ParserContext<'a> {
-    key_value: &'a HashMap<&'a str, String>,
-    iter: &'a mut PeekCharIterator<'a>,
-    vout: &'a mut Vec<char>,
-    format: Format,
-}
-
 macro_rules! digit_pat {
     () => {
         '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
@@ -65,8 +58,8 @@ macro_rules! consume_until_not_char {
     ($context:ident, $a:expr) => {
         loop {
             let Some(ch) = $context.iter.peek() else {
-                                                                                break None;
-                                                                            };
+                                                                                        break None;
+                                                                                    };
 
             if ch != $a {
                 break Some(());
@@ -75,6 +68,13 @@ macro_rules! consume_until_not_char {
             }
         }
     };
+}
+
+struct ParserContext<'a> {
+    key_value: &'a HashMap<&'a str, String>,
+    iter: &'a mut PeekCharIterator<'a>,
+    vout: &'a mut Vec<char>,
+    format: Format,
 }
 
 pub struct ExprParser;
