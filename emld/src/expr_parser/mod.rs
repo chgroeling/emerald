@@ -58,8 +58,8 @@ macro_rules! consume_until_not_char {
     ($context:ident, $a:expr) => {
         loop {
             let Some(ch) = $context.iter.peek() else {
-                                                                                        break None;
-                                                                                    };
+                break None;
+            };
 
             if ch != $a {
                 break Some(());
