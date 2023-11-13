@@ -168,7 +168,7 @@ impl ExpressionParser {
         context.format = OutputFormat::None;
     }
 
-    fn interpret_format_left_placeholder(&self, context: &mut ParsingContext<'_>) {
+    fn process_format_left_placeholder(&self, context: &mut ParsingContext<'_>) {
         if consume_expected_chars!(context, '(').is_none() {
             context.vout.extend(context.iter.get_mark2cur().unwrap());
             return;
@@ -218,7 +218,7 @@ impl ExpressionParser {
                 self.process_named_placeholder(context);
             }
             '<' => {
-                self.interpret_format_left_placeholder(context);
+                self.process_format_left_placeholder(context);
             }
             'n' => {
                 context.vout.push('\n');
