@@ -168,7 +168,7 @@ impl ExprParser {
         context.format = OutputFormat::None;
     }
 
-    fn interpret_format_left(&self, context: &mut ParsingContext<'_>) {
+    fn interpret_format_left_placeholder(&self, context: &mut ParsingContext<'_>) {
         if consume_exp_chars!(context, '(').is_none() {
             context.vout.extend(context.iter.get_mark2cur().unwrap());
             return;
@@ -208,7 +208,7 @@ impl ExprParser {
         }
     }
 
-    fn interpret_placeholder(&self, context: &mut ParsingContext<'_>) {
+    fn process_placeholder(&self, context: &mut ParsingContext<'_>) {
         let Some(ch) = context.iter.next() else {
             return;
         };
@@ -218,7 +218,7 @@ impl ExprParser {
                 self.interpret_named_placeholder(context);
             }
             '<' => {
-                self.interpret_format_left(context);
+                self.interpret_format_left_placeholder(context);
             }
             'n' => {
                 context.vout.push('\n');
@@ -253,7 +253,7 @@ impl ExprParser {
                 '%' => {
                     context.iter.mark(); // mark position of placeholder start
                     context.iter.next();
-                    self.interpret_placeholder(&mut context);
+                    self.process_placeholder(&mut context);
                 }
                 _ => {
                     context.iter.next();
