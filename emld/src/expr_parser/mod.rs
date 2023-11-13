@@ -77,8 +77,8 @@ struct ParsingContext<'a> {
     format: OutputFormat,
 }
 
-pub struct ExprParser;
-impl ExprParser {
+pub struct ExpressionParser;
+impl ExpressionParser {
     pub fn new() -> Self {
         Self
     }
@@ -269,10 +269,10 @@ impl ExprParser {
 mod tests {
     use std::collections::HashMap;
 
-    use crate::expr_parser::ExprParser;
+    use crate::expr_parser::ExpressionParser;
 
     fn test_parse_helper(key_value: &HashMap<&str, String>, inp: &str, expected_output: &str) {
-        let parser = ExprParser::new();
+        let parser = ExpressionParser::new();
 
         let out_str = parser.parse(&key_value, inp);
         assert_eq!(out_str, expected_output);

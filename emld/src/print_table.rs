@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use chrono::prelude::*;
 use emerald::{Note, Vault};
 
-use crate::expr_parser::ExprParser;
+use crate::expr_parser::ExpressionParser;
 
 struct TableRow {
     max_width: usize,
@@ -60,7 +60,7 @@ fn note_element_2_str(note: &Note, vault: &impl Vault, element: &str) -> String 
 }
 
 pub fn print_table(vault: &impl Vault) {
-    let expr_parser = ExprParser::new();
+    let expr_parser = ExpressionParser::new();
     let format_string = "\
           %<(40, trunc)%(title)\
          |%<(19, trunc)%(modified)\
