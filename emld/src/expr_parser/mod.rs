@@ -1,6 +1,6 @@
-mod format;
+mod output_format;
 mod peek_char_iterator;
-use self::format::Format;
+use self::output_format::OutputFormat;
 use self::peek_char_iterator::PeekCharIterator;
 use std::collections::HashMap;
 
@@ -74,7 +74,7 @@ struct ParserContext<'a> {
     key_value: &'a HashMap<&'a str, String>,
     iter: &'a mut PeekCharIterator<'a>,
     vout: &'a mut Vec<char>,
-    format: Format,
+    format: OutputFormat,
 }
 
 pub struct ExprParser;
@@ -121,7 +121,7 @@ impl ExprParser {
         };
 
         match context.format {
-            Format::LeftAlign(la) => {
+            OutputFormat::LeftAlign(la) => {
                 context.vout.extend(value.chars());
                 let value_len = value.chars().count();
                 let len_diff = (la as i32) - (value_len as i32);
@@ -132,7 +132,7 @@ impl ExprParser {
                 }
             }
 
-            Format::LeftAlignTrunc(la) => {
+            OutputFormat::LeftAlignTrunc(la) => {
                 let value_len = value.chars().count();
                 let len_diff = (la as i32) - (value_len as i32);
 
@@ -165,7 +165,7 @@ impl ExprParser {
         }
 
         // Reset format for next Placeholder
-        context.format = Format::None;
+        context.format = OutputFormat::None;
     }
 
     fn interpret_format_left(&self, context: &mut ParserContext<'_>) {
@@ -193,7 +193,7 @@ impl ExprParser {
             let literal_str: String = literal.into_iter().collect();
 
             if literal_str.trim() == "trunc" {
-                context.format = Format::LeftAlignTrunc(decimal);
+                context.format = OutputFormat::LeftAlignTrunc(decimal);
                 return;
             }
             //error
@@ -204,7 +204,7 @@ impl ExprParser {
                 return;
             }
 
-            context.format = Format::LeftAlign(decimal);
+            context.format = OutputFormat::LeftAlign(decimal);
         }
     }
 
@@ -241,7 +241,7 @@ impl ExprParser {
             key_value,
             iter: &mut iter,
             vout: &mut vout,
-            format: Format::None,
+            format: OutputFormat::None,
         };
 
         loop {
