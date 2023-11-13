@@ -4,18 +4,6 @@ use self::output_format::OutputFormat;
 use self::peek_char_iterator::PeekCharIterator;
 use std::collections::HashMap;
 
-macro_rules! digit_pat {
-    () => {
-        '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
-    };
-}
-
-macro_rules! digit_without0_pat {
-    () => {
-        '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
-    };
-}
-
 /// `consume_expected_chars` checks and consumes the next char in the iterator if it matches the provided pattern(s).
 /// - `$context`: The parsing context containing the `PeekCharIterator`.
 /// - `$($a:pat)+`: Pattern(s) to match against the next char.
@@ -35,6 +23,24 @@ macro_rules! consume_expected_chars{
         } else {
             None
         }
+    };
+}
+
+macro_rules! consume_digits {
+    ($context:ident) => {
+        consume_expected_chars!(
+            $context,
+            '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
+        )
+    };
+}
+
+macro_rules! consume_digits_without_0 {
+    ($context:ident) => {
+        consume_expected_chars!(
+            $context,
+            '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
+        )
     };
 }
 
@@ -90,13 +96,13 @@ impl ExpressionParser {
     fn parse_decimal_number(&self, context: &mut ParsingContext<'_>) -> Option<u32> {
         let mut decimal_vec = Vec::<char>::new();
 
-        let Some(first_digit) = consume_expected_chars!(context, digit_without0_pat!()) else {
+        let Some(first_digit) = consume_digits_without_0!(context) else {
             return None;
         };
 
         decimal_vec.push(first_digit);
         loop {
-            let res_digit = consume_expected_chars!(context, digit_pat!());
+            let res_digit = consume_digits!(context);
 
             let Some(digit) = res_digit else {
                 let decimal_str: String = decimal_vec.into_iter().collect();
