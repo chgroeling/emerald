@@ -16,7 +16,7 @@ macro_rules! digit_without0_pat {
     };
 }
 
-macro_rules! consume_exp_chars{
+macro_rules! consume_expected_chars{
     ($context:ident, $($a:pat)+) => {
         if let Some(ch) = $context.iter.peek()  {
             match ch {
@@ -86,13 +86,13 @@ impl ExprParser {
     fn consume_decimal(&self, context: &mut ParsingContext<'_>) -> Option<u32> {
         let mut decimal_vec = Vec::<char>::new();
 
-        let Some(first_digit) = consume_exp_chars!(context, digit_without0_pat!()) else {
+        let Some(first_digit) = consume_expected_chars!(context, digit_without0_pat!()) else {
             return None;
         };
 
         decimal_vec.push(first_digit);
         loop {
-            let res_digit = consume_exp_chars!(context, digit_pat!());
+            let res_digit = consume_expected_chars!(context, digit_pat!());
 
             let Some(digit) = res_digit else {
                 let decimal_str: String = decimal_vec.into_iter().collect();
@@ -169,7 +169,7 @@ impl ExprParser {
     }
 
     fn interpret_format_left_placeholder(&self, context: &mut ParsingContext<'_>) {
-        if consume_exp_chars!(context, '(').is_none() {
+        if consume_expected_chars!(context, '(').is_none() {
             context.vout.extend(context.iter.get_mark2cur().unwrap());
             return;
         }
@@ -183,7 +183,7 @@ impl ExprParser {
         consume_until_not_char!(context, ' '); // consume whitespaces
 
         // Check if optional arguments are available
-        if consume_exp_chars!(context, ',').is_some() {
+        if consume_expected_chars!(context, ',').is_some() {
             consume_until_not_char!(context, ' '); // consume whitespaces
             let Some(literal) = collect_until_chars!(context, ')') else {
                 context.vout.extend(context.iter.get_mark2cur().unwrap());
@@ -199,7 +199,7 @@ impl ExprParser {
             //error
             context.vout.extend(context.iter.get_mark2cur().unwrap());
         } else {
-            if consume_exp_chars!(context, ')').is_none() {
+            if consume_expected_chars!(context, ')').is_none() {
                 context.vout.extend(context.iter.get_mark2cur().unwrap());
                 return;
             }
