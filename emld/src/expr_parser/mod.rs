@@ -54,7 +54,7 @@ macro_rules! gather_until_match {
         }
     }};
 }
-macro_rules! consume_until_not_char {
+macro_rules! skip_until_neg_char_match {
     ($context:ident, $a:expr) => {
         loop {
             let Some(ch) = $context.iter.peek() else {
@@ -173,18 +173,18 @@ impl ExprParser {
             context.vout.extend(context.iter.get_mark2cur().unwrap());
             return;
         }
-        consume_until_not_char!(context, ' '); // consume whitespaces
+        skip_until_neg_char_match!(context, ' '); // consume whitespaces
 
         let Some(decimal) = self.consume_decimal(context) else {
             context.vout.extend(context.iter.get_mark2cur().unwrap());
             return;
         };
 
-        consume_until_not_char!(context, ' '); // consume whitespaces
+        skip_until_neg_char_match!(context, ' '); // consume whitespaces
 
         // Check if optional arguments are available
         if consume_expected_chars!(context, ',').is_some() {
-            consume_until_not_char!(context, ' '); // consume whitespaces
+            skip_until_neg_char_match!(context, ' '); // consume whitespaces
             let Some(literal) = gather_until_match!(context, ')') else {
                 context.vout.extend(context.iter.get_mark2cur().unwrap());
                 return;
