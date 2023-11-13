@@ -83,7 +83,7 @@ impl ExpressionParser {
         Self
     }
 
-    fn consume_decimal(&self, context: &mut ParsingContext<'_>) -> Option<u32> {
+    fn parse_decimal_number(&self, context: &mut ParsingContext<'_>) -> Option<u32> {
         let mut decimal_vec = Vec::<char>::new();
 
         let Some(first_digit) = consume_expected_chars!(context, digit_without0_pat!()) else {
@@ -175,7 +175,7 @@ impl ExpressionParser {
         }
         skip_until_neg_char_match!(context, ' '); // consume whitespaces
 
-        let Some(decimal) = self.consume_decimal(context) else {
+        let Some(decimal) = self.parse_decimal_number(context) else {
             context.vout.extend(context.iter.get_mark2cur().unwrap());
             return;
         };
