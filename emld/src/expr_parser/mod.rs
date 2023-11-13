@@ -34,7 +34,7 @@ macro_rules! consume_expected_chars{
     };
 }
 
-macro_rules! collect_until_chars {
+macro_rules! gather_until_match {
     ($context:ident, $($a:pat)+) => {{
         let mut vec: Vec<char> = Vec::new();
         loop {
@@ -105,7 +105,7 @@ impl ExprParser {
     }
 
     fn interpret_named_placeholder(&self, context: &mut ParsingContext<'_>) {
-        let opt_literal = collect_until_chars!(context, ')');
+        let opt_literal = gather_until_match!(context, ')');
 
         let Some(literal) = opt_literal else {
             context.vout.extend(context.iter.get_mark2cur().unwrap());
@@ -185,7 +185,7 @@ impl ExprParser {
         // Check if optional arguments are available
         if consume_expected_chars!(context, ',').is_some() {
             consume_until_not_char!(context, ' '); // consume whitespaces
-            let Some(literal) = collect_until_chars!(context, ')') else {
+            let Some(literal) = gather_until_match!(context, ')') else {
                 context.vout.extend(context.iter.get_mark2cur().unwrap());
                 return;
             };
