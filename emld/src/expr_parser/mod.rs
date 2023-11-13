@@ -1,12 +1,8 @@
+mod format;
 mod peek_char_iterator;
+use self::format::Format;
 use self::peek_char_iterator::PeekCharIterator;
 use std::collections::HashMap;
-
-enum Format {
-    None,
-    LeftAlign(u32),
-    LeftAlignTrunc(u32),
-}
 
 struct ParserContext<'a> {
     key_value: &'a HashMap<&'a str, String>,
@@ -69,8 +65,8 @@ macro_rules! consume_until_not_char {
     ($context:ident, $a:expr) => {
         loop {
             let Some(ch) = $context.iter.peek() else {
-                                                        break None;
-                                                    };
+                                                                                break None;
+                                                                            };
 
             if ch != $a {
                 break Some(());
