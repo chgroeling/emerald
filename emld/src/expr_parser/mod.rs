@@ -104,7 +104,7 @@ impl ExpressionParser {
         }
     }
 
-    fn interpret_named_placeholder(&self, context: &mut ParsingContext<'_>) {
+    fn process_named_placeholder(&self, context: &mut ParsingContext<'_>) {
         let opt_literal = gather_until_match!(context, ')');
 
         let Some(literal) = opt_literal else {
@@ -215,7 +215,7 @@ impl ExpressionParser {
 
         match ch {
             '(' => {
-                self.interpret_named_placeholder(context);
+                self.process_named_placeholder(context);
             }
             '<' => {
                 self.interpret_format_left_placeholder(context);
