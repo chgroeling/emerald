@@ -80,10 +80,20 @@ macro_rules! skip_until_neg_char_match {
     };
 }
 
-struct ParsingContext<'a> {
+struct CharType;
+
+trait TypeTrait {
+    type Item;
+}
+
+impl TypeTrait for CharType {
+    type Item = char;
+}
+
+struct ParsingContext<'a, T: TypeTrait> {
     key_value: &'a HashMap<&'a str, String>,
     iter: &'a mut PeekCharIterator<'a>,
-    vout: &'a mut Vec<char>,
+    vout: &'a mut Vec<T::Item>,
     format: OutputFormat,
 }
 
@@ -91,23 +101,41 @@ pub struct ExpressionParser;
 
 struct TaskStringOutput;
 trait Task {
+    type Item: TypeTrait;
+
     /// Called in case that the parser encounts an error
-    fn error(context: &mut ParsingContext<'_>) {
+    fn error(context: &mut ParsingContext<'_, Self::Item>);
+
+    /// Called in case that the input should be copied to the output
+    fn mirror(context: &mut ParsingContext<'_, Self::Item>, ch: char);
+
+    /// Called in case that a single char placeholder should be substitutet
+    fn output_char_placeholder(context: &mut ParsingContext<'_, Self::Item>, ch: char);
+
+    /// Called in case that a placeholder should be substitutet
+    fn output_placeholder(context: &mut ParsingContext<'_, Self::Item>, arg: String);
+}
+
+impl Task for TaskStringOutput {
+    type Item = CharType;
+
+    /// Called in case that the parser encounts an error
+    fn error(context: &mut ParsingContext<'_, Self::Item>) {
         context.vout.extend(context.iter.get_mark2cur().unwrap());
     }
 
     /// Called in case that the input should be copied to the output
-    fn mirror(context: &mut ParsingContext<'_>, ch: char) {
+    fn mirror(context: &mut ParsingContext<'_, Self::Item>, ch: char) {
         context.vout.push(ch);
     }
 
     /// Called in case that a single char placeholder should be substitutet
-    fn output_char_placeholder(context: &mut ParsingContext<'_>, ch: char) {
+    fn output_char_placeholder(context: &mut ParsingContext<'_, Self::Item>, ch: char) {
         context.vout.push(ch);
     }
 
     /// Called in case that a placeholder should be substitutet
-    fn output_placeholder(context: &mut ParsingContext<'_>, arg: String) {
+    fn output_placeholder(context: &mut ParsingContext<'_, Self::Item>, arg: String) {
         let Some(repl_str) = context.key_value.get(arg.as_str()) else {
             Self::error(context);
             return;
@@ -126,7 +154,7 @@ trait Task {
             }
 
             OutputFormat::LeftAlignTrunc(la) => {
-                let value_len = repl.clone().into_iter().count();
+                let value_len = repl.clone().count();
                 let len_diff = (la as i32) - (value_len as i32);
 
                 match len_diff {
@@ -159,14 +187,15 @@ trait Task {
     }
 }
 
-impl Task for TaskStringOutput {}
-
 impl ExpressionParser {
     pub fn new() -> Self {
         Self
     }
 
-    fn parse_decimal_number(&self, context: &mut ParsingContext<'_>) -> Option<u32> {
+    fn parse_decimal_number<I: TypeTrait>(
+        &self,
+        context: &mut ParsingContext<'_, I>,
+    ) -> Option<u32> {
         let mut decimal_vec = Vec::<char>::new();
 
         let Some(first_digit) = consume_digits_without_0!(context) else {
@@ -187,7 +216,7 @@ impl ExpressionParser {
         }
     }
 
-    fn process_named_placeholder<T: Task>(&self, context: &mut ParsingContext<'_>) {
+    fn process_named_placeholder<T: Task>(&self, context: &mut ParsingContext<'_, T::Item>) {
         let opt_literal = gather_until_match!(context, ')');
 
         let Some(literal) = opt_literal else {
@@ -202,7 +231,7 @@ impl ExpressionParser {
         context.format = OutputFormat::None;
     }
 
-    fn process_format_left_placeholder<T: Task>(&self, context: &mut ParsingContext<'_>) {
+    fn process_format_left_placeholder<T: Task>(&self, context: &mut ParsingContext<'_, T::Item>) {
         if consume_expected_chars!(context, '(').is_none() {
             T::error(context);
             return;
@@ -241,7 +270,7 @@ impl ExpressionParser {
         }
     }
 
-    fn process_placeholder<T: Task>(&self, context: &mut ParsingContext<'_>) {
+    fn process_placeholder<T: Task>(&self, context: &mut ParsingContext<'_, T::Item>) {
         let Some(ch) = context.iter.next() else {
             return;
         };
@@ -264,11 +293,15 @@ impl ExpressionParser {
             }
         }
     }
-    fn parse_generic<T: Task>(&self, key_value: &HashMap<&str, String>, inp: &str) -> String {
+    fn parse_string_char_result<T: Task<Item = CharType>>(
+        &self,
+        key_value: &HashMap<&str, String>,
+        inp: &str,
+    ) -> String {
         let vec: Vec<_> = inp.chars().collect();
         let mut iter = PeekCharIterator::new(&vec);
         let mut vout = Vec::<char>::new();
-        let mut context = ParsingContext {
+        let mut context = ParsingContext::<'_, T::Item> {
             key_value,
             iter: &mut iter,
             vout: &mut vout,
@@ -294,8 +327,9 @@ impl ExpressionParser {
         }
         vout.into_iter().collect()
     }
+
     pub fn parse(&self, key_value: &HashMap<&str, String>, inp: &str) -> String {
-        self.parse_generic::<TaskStringOutput>(key_value, inp)
+        self.parse_string_char_result::<TaskStringOutput>(key_value, inp)
     }
 }
 
