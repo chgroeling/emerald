@@ -2,9 +2,9 @@
 ///
 /// This iterator operates on a `Vec<char>` and uses indices
 /// to mark positions and to return to previous states.
-pub struct PeekCharIterator<'a> {
+pub struct PeekCharIterator {
     // The vector of characters to iterate over.
-    chars: &'a Vec<char>,
+    chars: Vec<char>,
     // The current index in the vector.
     current_index: usize,
     // An optional index for the peeked character.
@@ -13,13 +13,13 @@ pub struct PeekCharIterator<'a> {
     marked_index: Option<usize>,
 }
 
-impl<'a> PeekCharIterator<'a> {
+impl PeekCharIterator {
     /// Creates a new `PeekCharIterator` for a given `Vec<char>`.
     ///
     /// # Arguments
     ///
     /// * `chars` - The `Vec<char>` to iterate over.
-    pub fn new(chars: &'a Vec<char>) -> Self {
+    pub fn new(chars: Vec<char>) -> Self {
         PeekCharIterator {
             chars,
             current_index: 0,
@@ -49,7 +49,7 @@ impl<'a> PeekCharIterator<'a> {
     }
 }
 
-impl<'a> Iterator for PeekCharIterator<'a> {
+impl Iterator for PeekCharIterator {
     type Item = char;
 
     /// Returns the next character in the iterator.

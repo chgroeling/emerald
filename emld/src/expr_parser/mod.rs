@@ -92,8 +92,8 @@ impl TypeTrait for CharType {
 
 struct ParsingContext<'a, T: TypeTrait> {
     key_value: &'a HashMap<&'a str, String>,
-    iter: &'a mut PeekCharIterator<'a>,
-    vout: &'a mut Vec<T::Item>,
+    iter: PeekCharIterator,
+    vout: Vec<T::Item>,
     format: OutputFormat,
 }
 
@@ -102,6 +102,12 @@ pub struct ExpressionParser;
 struct TaskStringOutput;
 trait Task {
     type Item: TypeTrait;
+
+    /// Called in case the context should be initialized
+    fn init<'a>(
+        inp: &'a str,
+        key_value: &'a HashMap<&'a str, String>,
+    ) -> ParsingContext<'a, Self::Item>;
 
     /// Called in case that the parser encounts an error
     fn error(context: &mut ParsingContext<'_, Self::Item>);
@@ -118,6 +124,20 @@ trait Task {
 
 impl Task for TaskStringOutput {
     type Item = CharType;
+
+    /// Called in case the context should be initialized
+    fn init<'a>(
+        inp: &'a str,
+        key_value: &'a HashMap<&'a str, String>,
+    ) -> ParsingContext<'a, Self::Item> {
+        let vec: Vec<_> = inp.chars().collect();
+        ParsingContext::<'_, Self::Item> {
+            key_value,
+            iter: PeekCharIterator::new(vec),
+            vout: Vec::<char>::new(),
+            format: OutputFormat::None,
+        }
+    }
 
     /// Called in case that the parser encounts an error
     fn error(context: &mut ParsingContext<'_, Self::Item>) {
@@ -293,21 +313,13 @@ impl ExpressionParser {
             }
         }
     }
+
     fn parse_string_char_result<T: Task<Item = CharType>>(
         &self,
         key_value: &HashMap<&str, String>,
         inp: &str,
     ) -> String {
-        let vec: Vec<_> = inp.chars().collect();
-        let mut iter = PeekCharIterator::new(&vec);
-        let mut vout = Vec::<char>::new();
-        let mut context = ParsingContext::<'_, T::Item> {
-            key_value,
-            iter: &mut iter,
-            vout: &mut vout,
-            format: OutputFormat::None,
-        };
-
+        let mut context = T::init(inp, key_value);
         loop {
             let Some(ch) = context.iter.peek() else {
                 break;
@@ -325,7 +337,7 @@ impl ExpressionParser {
                 }
             }
         }
-        vout.into_iter().collect()
+        context.vout.iter().collect()
     }
 
     pub fn parse(&self, key_value: &HashMap<&str, String>, inp: &str) -> String {
