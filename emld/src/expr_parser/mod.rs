@@ -91,8 +91,8 @@ struct ParsingContext<'a, T: TypeTrait> {
 
 pub struct ExpressionParser;
 
-struct TaskStringOutput;
-trait Task {
+struct ParsingTaskStringInterpolation;
+trait ParsingTask {
     type Item: TypeTrait;
 
     /// Called in case the context should be initialized
@@ -114,7 +114,7 @@ trait Task {
     fn output_placeholder(context: &mut ParsingContext<'_, Self::Item>, arg: String);
 }
 
-impl Task for TaskStringOutput {
+impl ParsingTask for ParsingTaskStringInterpolation {
     type Item = CharType;
 
     /// Called in case the context should be initialized
@@ -228,7 +228,7 @@ impl ExpressionParser {
         }
     }
 
-    fn process_named_placeholder<T: Task>(&self, context: &mut ParsingContext<'_, T::Item>) {
+    fn process_named_placeholder<T: ParsingTask>(&self, context: &mut ParsingContext<'_, T::Item>) {
         let opt_literal = gather_until_match!(context, ')');
 
         let Some(literal) = opt_literal else {
@@ -243,7 +243,10 @@ impl ExpressionParser {
         context.format = OutputFormat::None;
     }
 
-    fn process_format_left_placeholder<T: Task>(&self, context: &mut ParsingContext<'_, T::Item>) {
+    fn process_format_left_placeholder<T: ParsingTask>(
+        &self,
+        context: &mut ParsingContext<'_, T::Item>,
+    ) {
         if consume_expected_chars!(context, '(').is_none() {
             T::error(context);
             return;
@@ -282,7 +285,7 @@ impl ExpressionParser {
         }
     }
 
-    fn process_placeholder<T: Task>(&self, context: &mut ParsingContext<'_, T::Item>) {
+    fn process_placeholder<T: ParsingTask>(&self, context: &mut ParsingContext<'_, T::Item>) {
         let Some(ch) = context.iter.next() else {
             return;
         };
@@ -306,7 +309,7 @@ impl ExpressionParser {
         }
     }
 
-    fn parse_string_char_result<T: Task<Item = CharType>>(
+    fn parse_string_char_result<T: ParsingTask<Item = CharType>>(
         &self,
         key_value: &HashMap<&str, String>,
         inp: &str,
@@ -333,7 +336,7 @@ impl ExpressionParser {
     }
 
     pub fn parse(&self, key_value: &HashMap<&str, String>, inp: &str) -> String {
-        self.parse_string_char_result::<TaskStringOutput>(key_value, inp)
+        self.parse_string_char_result::<ParsingTaskStringInterpolation>(key_value, inp)
     }
 }
 
