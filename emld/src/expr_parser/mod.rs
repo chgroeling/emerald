@@ -1,9 +1,7 @@
 mod output_format;
 mod peek_char_iterator;
-mod type_trait;
 use self::output_format::OutputFormat;
 use self::peek_char_iterator::PeekCharIterator;
-use self::type_trait::{CharType, TypeTrait};
 use std::collections::HashMap;
 
 /// `consume_expected_chars` checks and consumes the next char in the iterator if it matches the provided pattern(s).
@@ -82,10 +80,10 @@ macro_rules! skip_until_neg_char_match {
     };
 }
 
-struct ParsingContext<'a, T: TypeTrait> {
+struct ParsingContext<'a, T> {
     key_value: &'a HashMap<&'a str, String>,
     iter: PeekCharIterator,
-    vout: Vec<T::Item>,
+    vout: Vec<T>,
     format: OutputFormat,
 }
 
@@ -93,7 +91,7 @@ pub struct ExpressionParser;
 
 struct ParsingTaskStringInterpolation;
 trait ParsingTask {
-    type Item: TypeTrait;
+    type Item;
     type Output;
 
     /// Called in case the context should be initialized
@@ -118,7 +116,7 @@ trait ParsingTask {
 }
 
 impl ParsingTask for ParsingTaskStringInterpolation {
-    type Item = CharType;
+    type Item = char;
     type Output = String;
 
     /// Called in case the context should be initialized
@@ -212,10 +210,7 @@ impl ExpressionParser {
         Self
     }
 
-    fn parse_decimal_number<I: TypeTrait>(
-        &self,
-        context: &mut ParsingContext<'_, I>,
-    ) -> Option<u32> {
+    fn parse_decimal_number<I>(&self, context: &mut ParsingContext<'_, I>) -> Option<u32> {
         let mut decimal_vec = Vec::<char>::new();
 
         let Some(first_digit) = consume_digits_without_0!(context) else {
