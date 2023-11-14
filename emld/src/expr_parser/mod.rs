@@ -88,6 +88,79 @@ struct ParsingContext<'a> {
 }
 
 pub struct ExpressionParser;
+
+struct TaskStringOutput;
+trait Task {
+    /// Called in case that the parser encounts an error
+    fn error(context: &mut ParsingContext<'_>) {
+        context.vout.extend(context.iter.get_mark2cur().unwrap());
+    }
+
+    /// Called in case that the input should be copied to the output
+    fn mirror(context: &mut ParsingContext<'_>, ch: char) {
+        context.vout.push(ch);
+    }
+
+    /// Called in case that a single char placeholder should be substitutet
+    fn output_char_placeholder(context: &mut ParsingContext<'_>, ch: char) {
+        context.vout.push(ch);
+    }
+
+    /// Called in case that a placeholder should be substitutet
+    fn output_placeholder(context: &mut ParsingContext<'_>, arg: String) {
+        let Some(repl_str) = context.key_value.get(arg.as_str()) else {
+            Self::error(context);
+            return;
+        };
+        let repl = repl_str.chars();
+        match context.format {
+            OutputFormat::LeftAlign(la) => {
+                context.vout.extend(repl.clone());
+                let value_len = repl.into_iter().count();
+                let len_diff = (la as i32) - (value_len as i32);
+                if len_diff > 0 {
+                    for _i in 0..len_diff {
+                        context.vout.push(' ');
+                    }
+                }
+            }
+
+            OutputFormat::LeftAlignTrunc(la) => {
+                let value_len = repl.clone().into_iter().count();
+                let len_diff = (la as i32) - (value_len as i32);
+
+                match len_diff {
+                    _ if len_diff > 0 => {
+                        context.vout.extend(repl);
+                        for _i in 0..len_diff {
+                            context.vout.push(' ');
+                        }
+                    }
+
+                    _ if len_diff < 0 => {
+                        let let_cmp = (value_len as i32) + len_diff - 1;
+                        for (idx, ch) in repl.into_iter().enumerate() {
+                            if idx >= let_cmp as usize {
+                                break;
+                            }
+                            context.vout.push(ch);
+                        }
+                        context.vout.push('…');
+                    }
+                    _ => {
+                        context.vout.extend(repl);
+                    }
+                }
+            }
+            _ => {
+                context.vout.extend(repl);
+            }
+        }
+    }
+}
+
+impl Task for TaskStringOutput {}
+
 impl ExpressionParser {
     pub fn new() -> Self {
         Self
@@ -114,79 +187,30 @@ impl ExpressionParser {
         }
     }
 
-    fn process_named_placeholder(&self, context: &mut ParsingContext<'_>) {
+    fn process_named_placeholder<T: Task>(&self, context: &mut ParsingContext<'_>) {
         let opt_literal = gather_until_match!(context, ')');
 
         let Some(literal) = opt_literal else {
-            context.vout.extend(context.iter.get_mark2cur().unwrap());
+            T::error(context);
             return;
         };
         context.iter.next(); // consume ")"
 
-        let literal_str: String = literal.into_iter().collect();
-
-        let Some(value) = context.key_value.get(literal_str.as_str()) else {
-            context.vout.extend(context.iter.get_mark2cur().unwrap());
-            return;
-        };
-
-        match context.format {
-            OutputFormat::LeftAlign(la) => {
-                context.vout.extend(value.chars());
-                let value_len = value.chars().count();
-                let len_diff = (la as i32) - (value_len as i32);
-                if len_diff > 0 {
-                    for _i in 0..len_diff {
-                        context.vout.push(' ')
-                    }
-                }
-            }
-
-            OutputFormat::LeftAlignTrunc(la) => {
-                let value_len = value.chars().count();
-                let len_diff = (la as i32) - (value_len as i32);
-
-                match len_diff {
-                    _ if len_diff > 0 => {
-                        context.vout.extend(value.chars());
-                        for _i in 0..len_diff {
-                            context.vout.push(' ')
-                        }
-                    }
-
-                    _ if len_diff < 0 => {
-                        let let_cmp = (value_len as i32) + len_diff - 1;
-                        for (idx, ch) in value.chars().enumerate() {
-                            if idx >= let_cmp as usize {
-                                break;
-                            }
-                            context.vout.push(ch);
-                        }
-                        context.vout.push('…');
-                    }
-                    _ => {
-                        context.vout.extend(value.chars());
-                    }
-                }
-            }
-            _ => {
-                context.vout.extend(value.chars());
-            }
-        }
+        T::output_placeholder(context, literal.into_iter().collect());
 
         // Reset format for next Placeholder
         context.format = OutputFormat::None;
     }
 
-    fn process_format_left_placeholder(&self, context: &mut ParsingContext<'_>) {
+    fn process_format_left_placeholder<T: Task>(&self, context: &mut ParsingContext<'_>) {
         if consume_expected_chars!(context, '(').is_none() {
-            context.vout.extend(context.iter.get_mark2cur().unwrap());
+            T::error(context);
             return;
         }
         skip_until_neg_char_match!(context, ' '); // consume whitespaces
 
         let Some(decimal) = self.parse_decimal_number(context) else {
-            context.vout.extend(context.iter.get_mark2cur().unwrap());
+            T::error(context);
             return;
         };
 
@@ -196,21 +220,20 @@ impl ExpressionParser {
         if consume_expected_chars!(context, ',').is_some() {
             skip_until_neg_char_match!(context, ' '); // consume whitespaces
             let Some(literal) = gather_until_match!(context, ')') else {
-                context.vout.extend(context.iter.get_mark2cur().unwrap());
+                T::error(context);
                 return;
             };
             context.iter.next(); // consume )
-            let literal_str: String = literal.into_iter().collect();
+            let arg: String = literal.into_iter().collect();
 
-            if literal_str.trim() == "trunc" {
+            if arg.trim() == "trunc" {
                 context.format = OutputFormat::LeftAlignTrunc(decimal);
                 return;
             }
-            //error
-            context.vout.extend(context.iter.get_mark2cur().unwrap());
+            T::error(context);
         } else {
             if consume_expected_chars!(context, ')').is_none() {
-                context.vout.extend(context.iter.get_mark2cur().unwrap());
+                T::error(context);
                 return;
             }
 
@@ -218,32 +241,30 @@ impl ExpressionParser {
         }
     }
 
-    fn process_placeholder(&self, context: &mut ParsingContext<'_>) {
+    fn process_placeholder<T: Task>(&self, context: &mut ParsingContext<'_>) {
         let Some(ch) = context.iter.next() else {
             return;
         };
 
         match ch {
             '(' => {
-                self.process_named_placeholder(context);
+                self.process_named_placeholder::<T>(context);
             }
             '<' => {
-                self.process_format_left_placeholder(context);
+                self.process_format_left_placeholder::<T>(context);
             }
             'n' => {
-                context.vout.push('\n');
+                T::output_char_placeholder(context, '\n');
             }
             '%' => {
-                context.vout.push('%');
+                T::output_char_placeholder(context, '%');
             }
             _ => {
-                // error
-                context.vout.extend(context.iter.get_mark2cur().unwrap());
+                T::error(context);
             }
         }
     }
-
-    pub fn parse(&self, key_value: &HashMap<&str, String>, inp: &str) -> String {
+    fn parse_generic<T: Task>(&self, key_value: &HashMap<&str, String>, inp: &str) -> String {
         let vec: Vec<_> = inp.chars().collect();
         let mut iter = PeekCharIterator::new(&vec);
         let mut vout = Vec::<char>::new();
@@ -263,15 +284,18 @@ impl ExpressionParser {
                 '%' => {
                     context.iter.mark(); // mark position of placeholder start
                     context.iter.next();
-                    self.process_placeholder(&mut context);
+                    self.process_placeholder::<T>(&mut context);
                 }
                 _ => {
                     context.iter.next();
-                    context.vout.push(ch)
+                    T::mirror(&mut context, ch);
                 }
             }
         }
         vout.into_iter().collect()
+    }
+    pub fn parse(&self, key_value: &HashMap<&str, String>, inp: &str) -> String {
+        self.parse_generic::<TaskStringOutput>(key_value, inp)
     }
 }
 
