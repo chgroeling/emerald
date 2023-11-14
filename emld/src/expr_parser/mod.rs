@@ -1,7 +1,9 @@
 mod output_format;
 mod peek_char_iterator;
+mod type_trait;
 use self::output_format::OutputFormat;
 use self::peek_char_iterator::PeekCharIterator;
+use self::type_trait::{CharType, TypeTrait};
 use std::collections::HashMap;
 
 /// `consume_expected_chars` checks and consumes the next char in the iterator if it matches the provided pattern(s).
@@ -78,16 +80,6 @@ macro_rules! skip_until_neg_char_match {
             }
         }
     };
-}
-
-struct CharType;
-
-trait TypeTrait {
-    type Item;
-}
-
-impl TypeTrait for CharType {
-    type Item = char;
 }
 
 struct ParsingContext<'a, T: TypeTrait> {
