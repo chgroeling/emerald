@@ -94,12 +94,15 @@ pub struct ExpressionParser;
 struct ParsingTaskStringInterpolation;
 trait ParsingTask {
     type Item: TypeTrait;
+    type Output;
 
     /// Called in case the context should be initialized
     fn init<'a>(
         inp: &'a str,
         key_value: &'a HashMap<&'a str, String>,
     ) -> ParsingContext<'a, Self::Item>;
+
+    fn done(context: ParsingContext<'_, Self::Item>) -> Self::Output;
 
     /// Called in case that the parser encounts an error
     fn error(context: &mut ParsingContext<'_, Self::Item>);
@@ -116,6 +119,7 @@ trait ParsingTask {
 
 impl ParsingTask for ParsingTaskStringInterpolation {
     type Item = CharType;
+    type Output = String;
 
     /// Called in case the context should be initialized
     fn init<'a>(
@@ -196,6 +200,10 @@ impl ParsingTask for ParsingTaskStringInterpolation {
                 context.vout.extend(repl);
             }
         }
+    }
+
+    fn done(context: ParsingContext<'_, Self::Item>) -> Self::Output {
+        context.vout.into_iter().collect()
     }
 }
 
@@ -309,11 +317,11 @@ impl ExpressionParser {
         }
     }
 
-    fn parse_string_char_result<T: ParsingTask<Item = CharType>>(
+    fn parse_generic<T: ParsingTask>(
         &self,
         key_value: &HashMap<&str, String>,
         inp: &str,
-    ) -> String {
+    ) -> T::Output {
         let mut context = T::init(inp, key_value);
         loop {
             let Some(ch) = context.iter.peek() else {
@@ -332,11 +340,11 @@ impl ExpressionParser {
                 }
             }
         }
-        context.vout.iter().collect()
+        T::done(context)
     }
 
     pub fn parse(&self, key_value: &HashMap<&str, String>, inp: &str) -> String {
-        self.parse_string_char_result::<ParsingTaskStringInterpolation>(key_value, inp)
+        self.parse_generic::<ParsingTaskStringInterpolation>(key_value, inp)
     }
 }
 
