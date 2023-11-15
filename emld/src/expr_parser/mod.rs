@@ -28,23 +28,17 @@ macro_rules! consume_expected_chars{
 
 macro_rules! consume_digits {
     ($context:ident) => {
-        consume_expected_chars!(
-            $context,
-            '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
-        )
+        consume_expected_chars!($context, '0'..='9')
     };
 }
 
 macro_rules! consume_digits_without_0 {
     ($context:ident) => {
-        consume_expected_chars!(
-            $context,
-            '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
-        )
+        consume_expected_chars!($context, '1'..='9')
     };
 }
 
-macro_rules! gather_until_match {
+macro_rules! gather {
     ($context:ident, $($a:pat)+) => {{
         let mut vec: Vec<char> = Vec::new();
         loop {
@@ -54,16 +48,27 @@ macro_rules! gather_until_match {
 
             match ch {
                 $($a)|+ => {
-                    break Some(vec);
+                    vec.push(ch);
+                    $context.iter.next();
+
                 }
                 _ => {
-                    $context.iter.next();
-                vec.push(ch);
+                    break Some(vec);
                 }
             }
         }
     }};
 }
+
+macro_rules! gather_literal_chars {
+    ($context:ident) => {
+        gather!(
+            $context,
+            ('0'..='9') | ('a'..='z') | ('A'..='Z') | '_' | '+' | '-'
+        )
+    };
+}
+
 macro_rules! skip_until_neg_char_match {
     ($context:ident, $a:expr) => {
         loop {
@@ -232,7 +237,7 @@ impl ExpressionParser {
     }
 
     fn process_named_placeholder<T: ParsingTask>(&self, context: &mut ParsingContext<'_, T::Item>) {
-        let opt_literal = gather_until_match!(context, ')');
+        let opt_literal = gather_literal_chars!(context);
 
         let Some(literal) = opt_literal else {
             T::error(context);
@@ -266,10 +271,11 @@ impl ExpressionParser {
         // Check if optional arguments are available
         if consume_expected_chars!(context, ',').is_some() {
             skip_until_neg_char_match!(context, ' '); // consume whitespaces
-            let Some(literal) = gather_until_match!(context, ')') else {
+            let Some(literal) = gather_literal_chars!(context) else {
                 T::error(context);
                 return;
             };
+            skip_until_neg_char_match!(context, ' '); // consume whitespaces
             context.iter.next(); // consume )
             let arg: String = literal.into_iter().collect();
 
@@ -277,6 +283,7 @@ impl ExpressionParser {
                 context.format = OutputFormat::LeftAlignTrunc(decimal);
                 return;
             }
+
             T::error(context);
         } else {
             if consume_expected_chars!(context, ')').is_none() {
