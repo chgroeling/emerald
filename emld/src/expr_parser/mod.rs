@@ -237,7 +237,7 @@ impl ExpressionParser {
         }
     }
 
-    fn process_named_placeholder<T: ParsingTask>(&self, context: &mut ParsingContext<'_, T::Item>) {
+    fn process_str_placeholder<T: ParsingTask>(&self, context: &mut ParsingContext<'_, T::Item>) {
         let opt_literal = gather_literal_chars!(context);
 
         let Some(literal) = opt_literal else {
@@ -303,7 +303,7 @@ impl ExpressionParser {
 
         match ch {
             '(' => {
-                self.process_named_placeholder::<T>(context);
+                self.process_str_placeholder::<T>(context);
             }
             '<' => {
                 self.process_format_left_placeholder::<T>(context);
