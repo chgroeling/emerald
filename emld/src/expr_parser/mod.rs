@@ -114,7 +114,7 @@ trait ParsingTask {
     /// Copies a character from the input to the output as is.
     fn copy_char_to_output(context: &mut ParsingContext<'_, Self::Item>, ch: char);
 
-    /// Processes and outputs a single character placeholder.
+    /// Processes a single character placeholder.
     fn process_char_placeholder(context: &mut ParsingContext<'_, Self::Item>, ch: char);
 
     /// Processes and outputs a placeholder represented by a string.
