@@ -139,22 +139,18 @@ impl ParsingTask for ParsingTaskStringInterpolation {
         }
     }
 
-    /// Called in case that the parser encounts an error
     fn error(context: &mut ParsingContext<'_, Self::Item>) {
         context.vout.extend(context.iter.get_mark2cur().unwrap());
     }
 
-    /// Called in case that the input should be copied to the output
     fn process_char(context: &mut ParsingContext<'_, Self::Item>, ch: char) {
         context.vout.push(ch);
     }
 
-    /// Called in case that a single char placeholder should be substitutet
     fn process_char_placeholder(context: &mut ParsingContext<'_, Self::Item>, ch: char) {
         context.vout.push(ch);
     }
 
-    /// Called in case that a placeholder should be substitutet
     fn process_str_placeholder(context: &mut ParsingContext<'_, Self::Item>, arg: String) {
         let Some(repl_str) = context.key_value.get(arg.as_str()) else {
             Self::error(context);
