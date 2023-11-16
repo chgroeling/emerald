@@ -105,6 +105,7 @@ trait ParsingTask {
         key_value: &'a HashMap<&'a str, String>,
     ) -> ParsingContext<'a, Self::Item>;
 
+    /// Called in case parsing was finished
     fn done(context: ParsingContext<'_, Self::Item>) -> Self::Output;
 
     /// Called in case that the parser encounts an error
