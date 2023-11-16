@@ -99,7 +99,7 @@ trait ParsingTask {
     type Item;
     type Output;
 
-    /// Called in case the context should be initialized
+    /// Called in case parsing is about to start and the context for it should be initialized
     fn init<'a>(
         inp: &'a str,
         key_value: &'a HashMap<&'a str, String>,
