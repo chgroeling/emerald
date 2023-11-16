@@ -111,7 +111,7 @@ trait ParsingTask {
     /// Called in case that the parser encounts an error
     fn error(context: &mut ParsingContext<'_, Self::Item>);
 
-    /// Called in case that the input should be copied to the output
+    /// Copies a character from the input to the output as is.
     fn copy_char_to_output(context: &mut ParsingContext<'_, Self::Item>, ch: char);
 
     /// Processes and outputs a single character placeholder.
