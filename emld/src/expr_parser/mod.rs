@@ -118,7 +118,7 @@ trait ParsingTask {
     fn output_char_placeholder(context: &mut ParsingContext<'_, Self::Item>, ch: char);
 
     /// Processes and outputs a placeholder represented by a string.
-    fn output_placeholder(context: &mut ParsingContext<'_, Self::Item>, arg: String);
+    fn output_str_placeholder(context: &mut ParsingContext<'_, Self::Item>, arg: String);
 }
 
 impl ParsingTask for ParsingTaskStringInterpolation {
@@ -155,7 +155,7 @@ impl ParsingTask for ParsingTaskStringInterpolation {
     }
 
     /// Called in case that a placeholder should be substitutet
-    fn output_placeholder(context: &mut ParsingContext<'_, Self::Item>, arg: String) {
+    fn output_str_placeholder(context: &mut ParsingContext<'_, Self::Item>, arg: String) {
         let Some(repl_str) = context.key_value.get(arg.as_str()) else {
             Self::error(context);
             return;
@@ -246,7 +246,7 @@ impl ExpressionParser {
         };
         context.iter.next(); // consume ")"
 
-        T::output_placeholder(context, literal.into_iter().collect());
+        T::output_str_placeholder(context, literal.into_iter().collect());
 
         // Reset format for next Placeholder
         context.format = OutputFormat::None;
