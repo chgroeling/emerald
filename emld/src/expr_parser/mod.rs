@@ -108,7 +108,7 @@ trait ParsingTask {
     /// Called in case parsing was finished
     fn done(context: ParsingContext<'_, Self::Item>) -> Self::Output;
 
-    /// Called in case that the parser encounts an error
+    /// Handles errors encountered during parsing.
     fn error(context: &mut ParsingContext<'_, Self::Item>);
 
     /// Copies a character from the input to the output as is.
