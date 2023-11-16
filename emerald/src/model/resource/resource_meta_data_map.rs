@@ -4,7 +4,6 @@ use super::{
 use crate::types;
 use std::collections::HashMap;
 
-#[derive(Clone)]
 pub struct ResourceMetaDataMap {
     meta_data_map: HashMap<types::ResourceId, ResourceMetaData>,
 }

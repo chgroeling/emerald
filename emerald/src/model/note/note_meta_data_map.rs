@@ -2,7 +2,6 @@ use super::{note_meta_data::NoteMetaData, note_meta_data_retriever::NoteMetaData
 use crate::types;
 use std::collections::HashMap;
 
-#[derive(Clone)]
 pub struct NoteMetaDataMap {
     meta_data_map: HashMap<types::ResourceId, NoteMetaData>,
 }
