@@ -60,7 +60,7 @@ macro_rules! gather {
     }};
 }
 
-macro_rules! gather_literal_chars {
+macro_rules! gather_str_placeholder {
     ($context:ident) => {
         gather!(
             $context,
@@ -69,7 +69,6 @@ macro_rules! gather_literal_chars {
                 | ('A'..='Z')
                 | '_'
                 | '+'
-                | '-'
                 | '*'
                 | '/'
                 | 'ä'
@@ -246,7 +245,7 @@ impl ExpressionParser {
     }
 
     fn process_str_placeholder<T: ParsingTask>(&self, context: &mut ParsingContext<'_, T::Item>) {
-        let opt_literal = gather_literal_chars!(context);
+        let opt_literal = gather_str_placeholder!(context);
 
         let Some(literal) = opt_literal else {
             T::error(context);
@@ -280,7 +279,7 @@ impl ExpressionParser {
         // Check if optional arguments are available
         if consume_expected_chars!(context, ',').is_some() {
             skip_until_neg_char_match!(context, ' '); // consume whitespaces
-            let Some(literal) = gather_literal_chars!(context) else {
+            let Some(literal) = gather_str_placeholder!(context) else {
                 T::error(context);
                 return;
             };
