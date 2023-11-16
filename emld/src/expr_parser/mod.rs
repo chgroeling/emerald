@@ -112,7 +112,7 @@ trait ParsingTask {
     fn error(context: &mut ParsingContext<'_, Self::Item>);
 
     /// Called in case that the input should be copied to the output
-    fn mirror(context: &mut ParsingContext<'_, Self::Item>, ch: char);
+    fn copy_char_to_output(context: &mut ParsingContext<'_, Self::Item>, ch: char);
 
     /// Processes and outputs a single character placeholder.
     fn output_char_placeholder(context: &mut ParsingContext<'_, Self::Item>, ch: char);
@@ -145,7 +145,7 @@ impl ParsingTask for ParsingTaskStringInterpolation {
     }
 
     /// Called in case that the input should be copied to the output
-    fn mirror(context: &mut ParsingContext<'_, Self::Item>, ch: char) {
+    fn copy_char_to_output(context: &mut ParsingContext<'_, Self::Item>, ch: char) {
         context.vout.push(ch);
     }
 
@@ -339,7 +339,7 @@ impl ExpressionParser {
                 }
                 _ => {
                     context.iter.next();
-                    T::mirror(&mut context, ch);
+                    T::copy_char_to_output(&mut context, ch);
                 }
             }
         }
