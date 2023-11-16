@@ -117,7 +117,7 @@ trait ParsingTask {
     /// Processes a single character placeholder.
     fn process_char_placeholder(context: &mut ParsingContext<'_, Self::Item>, ch: char);
 
-    /// Processes and outputs a placeholder represented by a string.
+    /// Processes a placeholder represented by a string.
     fn process_str_placeholder(context: &mut ParsingContext<'_, Self::Item>, arg: String);
 }
 
