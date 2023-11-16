@@ -13,7 +13,7 @@ impl ResourceMetaDataMap {
         let mut meta_data_map = HashMap::<types::ResourceId, ResourceMetaData>::new();
         for (rid, meta_data) in it_src.into_iter() {
             if meta_data_map.insert(rid, meta_data).is_some() {
-                panic!("This should not happen. No duplicate entries allowed")
+                panic!("This should not happen. No duplicate entries allowed.")
             }
         }
         Self { meta_data_map }
@@ -25,6 +25,6 @@ impl ResourceMetaDataRetriever for ResourceMetaDataMap {
         // Option is not returned because meta data should be consistent at this point
         self.meta_data_map
             .get(md)
-            .expect("Meta data was not stored. This should not happen")
+            .expect("Meta data was not stored. This should not happen.")
     }
 }
