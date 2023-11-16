@@ -364,45 +364,45 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_empty() {
+    fn test_parse_with_empty_input_returns_empty_string() {
         let key_value = HashMap::<&str, String>::new();
         test_parse_helper(&key_value, "", "");
     }
 
     #[test]
-    fn test_parse_string_without_tokens() {
+    fn test_parse_with_plain_string_returns_same_string() {
         let key_value = HashMap::<&str, String>::new();
         test_parse_helper(&key_value, "Conventional string", "Conventional string");
     }
 
     #[test]
-    fn test_parse_unicode_string_without_tokens() {
+    fn test_parse_with_unicode_string_returns_same_string() {
         let key_value = HashMap::<&str, String>::new();
         test_parse_helper(&key_value, "Smiley 😊 Smiley", "Smiley 😊 Smiley");
     }
 
     #[test]
-    fn test_parse_string_with_var1_token() {
+    fn test_parse_with_single_placeholder_replaces_correctly() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "world".into());
         test_parse_helper(&key_value, "Hello %(var1)", "Hello world");
     }
 
     #[test]
-    fn test_parse_string_with_var1_alternative_token() {
+    fn test_parse_with_single_placeholder_alternative_value_replaces_correctly() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "welt".into());
         test_parse_helper(&key_value, "Hallo %(var1)", "Hallo welt");
     }
 
     #[test]
-    fn test_parse_string_wrong_token_type() {
+    fn test_parse_with_invalid_token_type_leaves_token_unreplaced() {
         let key_value = HashMap::<&str, String>::new();
         test_parse_helper(&key_value, "Hallo %z", "Hallo %z");
     }
 
     #[test]
-    fn test_parse_string_with_var1_and_var2_token() {
+    fn test_parse_with_multiple_placeholders_replaces_all_correctly() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "welt".into());
         key_value.insert("var2", "!!!!".into());
@@ -410,7 +410,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_string_with_var1_and_var2_with_delimiter() {
+    fn test_parse_with_multiple_placeholders_and_delimiters_replaces_correctly() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "a".into());
         key_value.insert("var2", "b".into());
@@ -418,67 +418,67 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_string_with_var1_and_var2_var1_undefined() {
-        let mut key_value = HashMap::<&str, String>::new();
-        key_value.insert("var1", "welt".into());
-        test_parse_helper(&key_value, "Hallo %(var1)%(var2)", "Hallo welt%(var2)");
-    }
-
-    #[test]
-    fn test_parse_string_with_var1_and_var2_var2_undefined() {
+    fn test_parse_with_undefined_first_placeholder_keeps_it_unreplaced() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var2", "!!!!".into());
         test_parse_helper(&key_value, "Hallo %(var1)%(var2)", "Hallo %(var1)!!!!");
     }
 
     #[test]
-    fn test_parse_string_with_var1_invalid() {
+    fn test_parse_with_undefined_second_placeholder_keeps_it_unreplaced() {
+        let mut key_value = HashMap::<&str, String>::new();
+        key_value.insert("var1", "welt".into());
+        test_parse_helper(&key_value, "Hallo %(var1)%(var2)", "Hallo welt%(var2)");
+    }
+
+    #[test]
+    fn test_parse_with_incorrect_placeholder_syntax_keeps_it_unreplaced() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "welt".into());
         test_parse_helper(&key_value, "Hallo %var1", "Hallo %var1");
     }
 
     #[test]
-    fn test_parse_string_with_var1_invalid2() {
+    fn test_parse_with_incomplete_placeholder_syntax_keeps_it_unreplaced() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "welt".into());
         test_parse_helper(&key_value, "Hallo %(var1", "Hallo %(var1");
     }
 
     #[test]
-    fn test_parse_string_newline() {
+    fn test_parse_with_newline_placeholder_inserts_newline() {
         let key_value = HashMap::<&str, String>::new();
         test_parse_helper(&key_value, "Hallo %nWelt", "Hallo \nWelt");
     }
 
     #[test]
-    fn test_parse_string_escape() {
+    fn test_parse_with_escaped_percent_sign_keeps_it_unchanged() {
         let key_value = HashMap::<&str, String>::new();
         test_parse_helper(&key_value, "Hallo %%(var1)", "Hallo %(var1)");
     }
 
     #[test]
-    fn test_parse_string_newline_at_end() {
+    fn test_parse_with_newline_placeholder_at_end_inserts_newline() {
         let key_value = HashMap::<&str, String>::new();
         test_parse_helper(&key_value, "Hallo Welt %n", "Hallo Welt \n");
     }
 
     #[test]
-    fn test_parse_string_format_specifier_left_align_and_token_smaller() {
+    fn test_parse_with_left_alignment_and_shorter_value_pads_correctly() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "1234".into());
         test_parse_helper(&key_value, "Hallo %<(10)%(var1)xx", "Hallo 1234      xx");
     }
 
     #[test]
-    fn test_parse_string_format_specifier_left_align_and_token_exact() {
+    fn test_parse_with_left_alignment_and_exact_length_value_keeps_it_unchanged() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "1234567890".into());
         test_parse_helper(&key_value, "Hallo %<(10)%(var1)xx", "Hallo 1234567890xx");
     }
 
     #[test]
-    fn test_parse_string_format_specifier_left_align_and_token_bigger() {
+    fn test_parse_with_left_alignment_and_longer_value_keeps_it_unchanged() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "1234567890ABCDEF".into());
         test_parse_helper(
@@ -489,7 +489,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_string_format_specifier_left_align_with_trunc_and_token_exact() {
+    fn test_parse_with_left_align_truncate_and_exact_length_value_keeps_it_unchanged() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "1234567890".into());
         test_parse_helper(
@@ -500,7 +500,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_string_format_specifier_left_align_with_trunc_and_token_exact_spaces() {
+    fn test_parse_with_left_align_truncate_and_exact_length_value_with_spaces_keeps_it_unchanged() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "1234567890".into());
         test_parse_helper(
@@ -511,7 +511,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_string_format_specifier_left_align_with_trunc_and_token_bigger() {
+    fn test_parse_with_left_align_truncate_and_longer_value_truncates_correctly() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "1234567890ABCDEF".into());
         test_parse_helper(
@@ -522,7 +522,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_string_format_specifier_left_align_with_trunc_and_token_smaller_umlaute() {
+    fn test_parse_with_left_align_truncate_and_shorter_value_with_umlauts_pads_correctly() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "äöü".into());
         test_parse_helper(
@@ -533,7 +533,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_string_format_specifier_left_align_with_trunc_and_token_biggerer_umlaute() {
+    fn test_parse_with_left_align_truncate_and_longer_value_with_umlauts_truncates_correctly() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "äöü12345678".into());
         test_parse_helper(
@@ -544,7 +544,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_string_format_specifier_left_align_and_token_invalid() {
+    fn test_parse_with_invalid_left_align_argument_keeps_format_specifier_unchanged() {
         let mut key_value = HashMap::<&str, String>::new();
         key_value.insert("var1", "1234567890ABCDEF".into());
         test_parse_helper(
