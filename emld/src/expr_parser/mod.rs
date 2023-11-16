@@ -118,8 +118,6 @@ trait ParsingTask {
     fn output_char_placeholder(context: &mut ParsingContext<'_, Self::Item>, ch: char);
 
     /// Processes and outputs a placeholder represented by a string.
-    /// `context`: A mutable reference to the current `ParsingContext`.
-    /// `arg`: The string representing the placeholder to be processed.
     fn output_placeholder(context: &mut ParsingContext<'_, Self::Item>, arg: String);
 }
 
