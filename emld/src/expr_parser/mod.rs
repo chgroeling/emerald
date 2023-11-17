@@ -380,9 +380,20 @@ mod tests_info {
 
 #[cfg(test)]
 mod tests_interplation {
+    use crate::expr_parser::ExpressionParser;
     use std::collections::HashMap;
 
-    use crate::expr_parser::ExpressionParser;
+    macro_rules! create_parse_test {
+        ($test_name:ident, $inp:expr, $expected_output:expr) => {
+            #[test]
+            fn $test_name() {
+                let key_value = HashMap::<&str, String>::new();
+                let parser = ExpressionParser::new();
+                let out_str = parser.parse(&key_value, $inp);
+                assert_eq!(out_str, $expected_output);
+            }
+        };
+    }
 
     fn test_parse_helper(key_value: &HashMap<&str, String>, inp: &str, expected_output: &str) {
         let parser = ExpressionParser::new();
@@ -391,23 +402,17 @@ mod tests_interplation {
         assert_eq!(out_str, expected_output);
     }
 
-    #[test]
-    fn test_parse_with_empty_input_returns_empty_string() {
-        let key_value = HashMap::<&str, String>::new();
-        test_parse_helper(&key_value, "", "");
-    }
-
-    #[test]
-    fn test_parse_with_plain_string_returns_same_string() {
-        let key_value = HashMap::<&str, String>::new();
-        test_parse_helper(&key_value, "Conventional string", "Conventional string");
-    }
-
-    #[test]
-    fn test_parse_with_unicode_string_returns_same_string() {
-        let key_value = HashMap::<&str, String>::new();
-        test_parse_helper(&key_value, "Smiley 😊 Smiley", "Smiley 😊 Smiley");
-    }
+    create_parse_test!(test_parse_with_empty_input_returns_empty_string, "", "");
+    create_parse_test!(
+        test_parse_with_plain_string_returns_same_string,
+        "Conventional string",
+        "Conventional string"
+    );
+    create_parse_test!(
+        test_parse_with_unicode_string_returns_same_string,
+        "Smiley 😊 Smiley",
+        "Smiley 😊 Smiley"
+    );
 
     #[test]
     fn test_parse_with_single_placeholder_replaces_correctly() {
