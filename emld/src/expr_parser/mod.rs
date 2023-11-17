@@ -383,11 +383,18 @@ mod tests_interplation {
     use crate::expr_parser::ExpressionParser;
     use std::collections::HashMap;
 
-    macro_rules! create_parse_test {
+    macro_rules! test {
         ($test_name:ident, $inp:expr, $expected_output:expr) => {
             #[test]
             fn $test_name() {
-                let key_value = HashMap::<&str, String>::new();
+                let mut key_value = HashMap::<&str, String>::new();
+                key_value.insert("var1", "world".into());
+                key_value.insert("var2", "welt".into());
+                key_value.insert("str4", "1234".into());
+                key_value.insert("str10", "1234567890".into());
+                key_value.insert("str14", "1234567890ABCD".into());
+                key_value.insert("umlaute", "äöü".into());
+                key_value.insert("umlaute_bigger", "äöü12345678".into());
                 let parser = ExpressionParser::new();
                 let out_str = parser.parse(&key_value, $inp);
                 assert_eq!(out_str, $expected_output);
@@ -395,195 +402,143 @@ mod tests_interplation {
         };
     }
 
-    fn test_parse_helper(key_value: &HashMap<&str, String>, inp: &str, expected_output: &str) {
-        let parser = ExpressionParser::new();
+    test!(test_parse_with_empty_input_returns_empty_string, "", "");
 
-        let out_str = parser.parse(&key_value, inp);
-        assert_eq!(out_str, expected_output);
-    }
-
-    create_parse_test!(test_parse_with_empty_input_returns_empty_string, "", "");
-    create_parse_test!(
+    test!(
         test_parse_with_plain_string_returns_same_string,
         "Conventional string",
         "Conventional string"
     );
-    create_parse_test!(
+
+    test!(
         test_parse_with_unicode_string_returns_same_string,
         "Smiley 😊 Smiley",
         "Smiley 😊 Smiley"
     );
 
-    #[test]
-    fn test_parse_with_single_placeholder_replaces_correctly() {
-        let mut key_value = HashMap::<&str, String>::new();
-        key_value.insert("var1", "world".into());
-        test_parse_helper(&key_value, "Hello %(var1)", "Hello world");
-    }
+    test!(
+        test_parse_with_single_placeholder_replaces_correctly,
+        "Hello %(var1)",
+        "Hello world"
+    );
 
-    #[test]
-    fn test_parse_with_single_placeholder_alternative_value_replaces_correctly() {
-        let mut key_value = HashMap::<&str, String>::new();
-        key_value.insert("var1", "welt".into());
-        test_parse_helper(&key_value, "Hallo %(var1)", "Hallo welt");
-    }
+    test!(
+        test_parse_with_single_placeholder_alternative_value_replaces_correctly,
+        "Hello %(var2)",
+        "Hello welt"
+    );
 
-    #[test]
-    fn test_parse_with_invalid_token_type_leaves_token_unreplaced() {
-        let key_value = HashMap::<&str, String>::new();
-        test_parse_helper(&key_value, "Hallo %z", "Hallo %z");
-    }
+    test!(
+        test_parse_with_invalid_token_type_leaves_token_unreplaced,
+        "Hallo %z",
+        "Hallo %z"
+    );
 
-    #[test]
-    fn test_parse_with_multiple_placeholders_replaces_all_correctly() {
-        let mut key_value = HashMap::<&str, String>::new();
-        key_value.insert("var1", "welt".into());
-        key_value.insert("var2", "!!!!".into());
-        test_parse_helper(&key_value, "Hallo %(var1)%(var2)", "Hallo welt!!!!");
-    }
+    test!(
+        test_parse_with_multiple_placeholders_replaces_all_correctly,
+        "Hello %(var1). Hallo %(var2).",
+        "Hello world. Hallo welt."
+    );
 
-    #[test]
-    fn test_parse_with_multiple_placeholders_and_delimiters_replaces_correctly() {
-        let mut key_value = HashMap::<&str, String>::new();
-        key_value.insert("var1", "a".into());
-        key_value.insert("var2", "b".into());
-        test_parse_helper(&key_value, "|%(var1)|%(var2)|", "|a|b|");
-    }
+    test!(
+        test_parse_with_multiple_placeholders_and_delimiters_replaces_correctly,
+        "|%(var1)|%(var2)|",
+        "|world|welt|"
+    );
 
-    #[test]
-    fn test_parse_with_undefined_first_placeholder_keeps_it_unreplaced() {
-        let mut key_value = HashMap::<&str, String>::new();
-        key_value.insert("var2", "!!!!".into());
-        test_parse_helper(&key_value, "Hallo %(var1)%(var2)", "Hallo %(var1)!!!!");
-    }
+    test!(
+        test_parse_with_undefined_second_placeholder_keeps_it_unreplaced,
+        "Hallo %(var1)%(vara)",
+        "Hallo world%(vara)"
+    );
 
-    #[test]
-    fn test_parse_with_undefined_second_placeholder_keeps_it_unreplaced() {
-        let mut key_value = HashMap::<&str, String>::new();
-        key_value.insert("var1", "welt".into());
-        test_parse_helper(&key_value, "Hallo %(var1)%(var2)", "Hallo welt%(var2)");
-    }
+    test!(
+        test_parse_with_undefined_first_placeholder_keeps_it_unreplaced,
+        "Hallo %(vara)%(var2)",
+        "Hallo %(vara)welt"
+    );
 
-    #[test]
-    fn test_parse_with_incorrect_placeholder_syntax_keeps_it_unreplaced() {
-        let mut key_value = HashMap::<&str, String>::new();
-        key_value.insert("var1", "welt".into());
-        test_parse_helper(&key_value, "Hallo %var1", "Hallo %var1");
-    }
+    test!(
+        test_parse_with_incorrect_placeholder_syntax_keeps_it_unreplaced,
+        "Hallo %var1",
+        "Hallo %var1"
+    );
 
-    #[test]
-    fn test_parse_with_incomplete_placeholder_syntax_keeps_it_unreplaced() {
-        let mut key_value = HashMap::<&str, String>::new();
-        key_value.insert("var1", "welt".into());
-        test_parse_helper(&key_value, "Hallo %(var1", "Hallo %(var1");
-    }
+    test!(
+        test_parse_with_incomplete_placeholder_syntax_keeps_it_unreplaced,
+        "Hallo %(var1",
+        "Hallo %(var1"
+    );
 
-    #[test]
-    fn test_parse_with_newline_placeholder_inserts_newline() {
-        let key_value = HashMap::<&str, String>::new();
-        test_parse_helper(&key_value, "Hallo %nWelt", "Hallo \nWelt");
-    }
+    test!(
+        test_parse_with_newline_placeholder_inserts_newline,
+        "Hallo %nWelt",
+        "Hallo \nWelt"
+    );
 
-    #[test]
-    fn test_parse_with_escaped_percent_sign_keeps_it_unchanged() {
-        let key_value = HashMap::<&str, String>::new();
-        test_parse_helper(&key_value, "Hallo %%(var1)", "Hallo %(var1)");
-    }
+    test!(
+        test_parse_with_escaped_percent_sign_keeps_it_unchanged,
+        "Hallo %%(var1)",
+        "Hallo %(var1)"
+    );
 
-    #[test]
-    fn test_parse_with_newline_placeholder_at_end_inserts_newline() {
-        let key_value = HashMap::<&str, String>::new();
-        test_parse_helper(&key_value, "Hallo Welt %n", "Hallo Welt \n");
-    }
+    test!(
+        test_parse_with_newline_placeholder_at_end_inserts_newline,
+        "Hallo Welt %n",
+        "Hallo Welt \n"
+    );
 
-    #[test]
-    fn test_parse_with_left_alignment_and_shorter_value_pads_correctly() {
-        let mut key_value = HashMap::<&str, String>::new();
-        key_value.insert("var1", "1234".into());
-        test_parse_helper(&key_value, "Hallo %<(10)%(var1)xx", "Hallo 1234      xx");
-    }
+    test!(
+        test_parse_with_left_alignment_and_shorter_value_pads_correctly,
+        "Hallo %<(10)%(str4)xx",
+        "Hallo 1234      xx"
+    );
 
-    #[test]
-    fn test_parse_with_left_alignment_and_exact_length_value_keeps_it_unchanged() {
-        let mut key_value = HashMap::<&str, String>::new();
-        key_value.insert("var1", "1234567890".into());
-        test_parse_helper(&key_value, "Hallo %<(10)%(var1)xx", "Hallo 1234567890xx");
-    }
+    test!(
+        test_parse_with_left_alignment_and_exact_length_value_keeps_it_unchanged,
+        "Hallo %<(10)%(str10)xx",
+        "Hallo 1234567890xx"
+    );
 
-    #[test]
-    fn test_parse_with_left_alignment_and_longer_value_keeps_it_unchanged() {
-        let mut key_value = HashMap::<&str, String>::new();
-        key_value.insert("var1", "1234567890ABCDEF".into());
-        test_parse_helper(
-            &key_value,
-            "Hallo %<(10)%(var1)xx",
-            "Hallo 1234567890ABCDEFxx",
-        );
-    }
+    test!(
+        test_parse_with_left_alignment_and_longer_value_keeps_it_unchanged,
+        "Hallo %<(10)%(str14)xx",
+        "Hallo 1234567890ABCDxx"
+    );
 
-    #[test]
-    fn test_parse_with_left_align_truncate_and_exact_length_value_keeps_it_unchanged() {
-        let mut key_value = HashMap::<&str, String>::new();
-        key_value.insert("var1", "1234567890".into());
-        test_parse_helper(
-            &key_value,
-            "Hallo %<(10,trunc)%(var1)xx",
-            "Hallo 1234567890xx",
-        );
-    }
+    test!(
+        test_parse_with_left_align_truncate_and_exact_length_value_keeps_it_unchanged,
+        "Hallo %<(10,trunc)%(str10)xx",
+        "Hallo 1234567890xx"
+    );
 
-    #[test]
-    fn test_parse_with_left_align_truncate_and_exact_length_value_with_spaces_keeps_it_unchanged() {
-        let mut key_value = HashMap::<&str, String>::new();
-        key_value.insert("var1", "1234567890".into());
-        test_parse_helper(
-            &key_value,
-            "Hallo %<(  10  ,  trunc   )%(var1)xx",
-            "Hallo 1234567890xx",
-        );
-    }
+    test!(
+        test_parse_with_left_align_truncate_and_exact_length_value_with_spaces_keeps_it_unchanged,
+        "Hallo %<(  10  ,  trunc   )%(str10)xx",
+        "Hallo 1234567890xx"
+    );
 
-    #[test]
-    fn test_parse_with_left_align_truncate_and_longer_value_truncates_correctly() {
-        let mut key_value = HashMap::<&str, String>::new();
-        key_value.insert("var1", "1234567890ABCDEF".into());
-        test_parse_helper(
-            &key_value,
-            "Hallo %<(10,trunc)%(var1)xx",
-            "Hallo 123456789…xx",
-        );
-    }
+    test!(
+        test_parse_with_left_align_truncate_and_longer_value_truncates_correctly,
+        "Hallo %<(10,trunc)%(str14)xx",
+        "Hallo 123456789…xx"
+    );
 
-    #[test]
-    fn test_parse_with_left_align_truncate_and_shorter_value_with_umlauts_pads_correctly() {
-        let mut key_value = HashMap::<&str, String>::new();
-        key_value.insert("var1", "äöü".into());
-        test_parse_helper(
-            &key_value,
-            "Hallo %<(10,trunc)%(var1)xx",
-            "Hallo äöü       xx",
-        );
-    }
+    test!(
+        test_parse_with_left_align_truncate_and_shorter_value_with_umlauts_pads_correctly,
+        "Hallo %<(10,trunc)%(umlaute)xx",
+        "Hallo äöü       xx"
+    );
 
-    #[test]
-    fn test_parse_with_left_align_truncate_and_longer_value_with_umlauts_truncates_correctly() {
-        let mut key_value = HashMap::<&str, String>::new();
-        key_value.insert("var1", "äöü12345678".into());
-        test_parse_helper(
-            &key_value,
-            "Hallo %<(10,trunc)%(var1)xx",
-            "Hallo äöü123456…xx",
-        );
-    }
+    test!(
+        test_parse_with_left_align_truncate_and_longer_value_with_umlauts_truncates_correctly,
+        "Hallo %<(10,trunc)%(umlaute_bigger)xx",
+        "Hallo äöü123456…xx"
+    );
 
-    #[test]
-    fn test_parse_with_invalid_left_align_argument_keeps_format_specifier_unchanged() {
-        let mut key_value = HashMap::<&str, String>::new();
-        key_value.insert("var1", "1234567890ABCDEF".into());
-        test_parse_helper(
-            &key_value,
-            "Hallo %<(a10)%(var1)xx",
-            "Hallo %<(a10)1234567890ABCDEFxx",
-        );
-    }
+    test!(
+        test_parse_with_invalid_left_align_argument_keeps_format_specifier_unchanged,
+        "Hallo %<(a10)%(str14)xx",
+        "Hallo %<(a10)1234567890ABCDxx"
+    );
 }
