@@ -357,9 +357,11 @@ impl ExpressionParser {
         self.parse_generic::<ParsingTaskStringInterpolation>(key_value, inp)
     }
 }
+#[cfg(test)]
+mod tests_info {}
 
 #[cfg(test)]
-mod tests {
+mod tests_interplation {
     use std::collections::HashMap;
 
     use crate::expr_parser::ExpressionParser;
