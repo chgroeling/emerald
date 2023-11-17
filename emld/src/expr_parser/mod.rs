@@ -358,7 +358,25 @@ impl ExpressionParser {
     }
 }
 #[cfg(test)]
-mod tests_info {}
+mod tests_info {
+    use std::collections::HashMap;
+
+    use crate::expr_parser::ExpressionParser;
+
+    macro_rules! create_format_info_test {
+        ($test_name:ident, $inp:expr, $expected_output:expr) => {
+            #[test]
+            fn $test_name() {
+                let key_value = HashMap::<&str, String>::new();
+                let parser = ExpressionParser::new();
+                let out_str = parser.parse(&key_value, $inp);
+                assert_eq!(out_str, $expected_output);
+            }
+        };
+    }
+
+    create_format_info_test!(test_a, "", "");
+}
 
 #[cfg(test)]
 mod tests_interplation {
