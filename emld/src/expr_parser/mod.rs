@@ -217,6 +217,37 @@ impl ParsingTask for ParsingTaskStringInterpolation {
         context.vout.into_iter().collect()
     }
 }
+struct ParsingTaskMeasure;
+impl ParsingTask for ParsingTaskMeasure {
+    type Item = usize;
+    type Output = String;
+
+    /// Called in case the context should be initialized
+    fn init<'a>(
+        inp: &'a str,
+        key_value: &'a HashMap<&'a str, String>,
+    ) -> ParsingContext<'a, Self::Item> {
+        let vec: Vec<_> = inp.chars().collect();
+        ParsingContext::<'_, Self::Item> {
+            key_value,
+            iter: PeekCharIterator::new(vec),
+            vout: Vec::<usize>::new(),
+            format: OutputFormat::None,
+        }
+    }
+
+    fn error(_context: &mut ParsingContext<'_, Self::Item>) {}
+
+    fn process_char(_context: &mut ParsingContext<'_, Self::Item>, ch: char) {}
+
+    fn process_char_placeholder(_context: &mut ParsingContext<'_, Self::Item>, ch: char) {}
+
+    fn process_str_placeholder(_context: &mut ParsingContext<'_, Self::Item>, arg: String) {}
+
+    fn done(_context: ParsingContext<'_, Self::Item>) -> Self::Output {
+        todo!()
+    }
+}
 
 impl ExpressionParser {
     pub fn new() -> Self {
