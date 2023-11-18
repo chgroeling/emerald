@@ -387,6 +387,10 @@ impl ExpressionParser {
     pub fn parse(&self, key_value: &HashMap<&str, String>, inp: &str) -> String {
         self.parse_generic::<ParsingTaskStringInterpolation>(key_value, inp)
     }
+
+    pub fn measure(&self, key_value: &HashMap<&str, String>, inp: &str) -> Vec<usize> {
+        vec![0usize]
+    }
 }
 #[cfg(test)]
 mod tests_info {
@@ -400,13 +404,13 @@ mod tests_info {
             fn $test_name() {
                 let key_value = HashMap::<&str, String>::new();
                 let parser = ExpressionParser::new();
-                let out_str = parser.parse(&key_value, $inp);
+                let out_str = parser.measure(&key_value, $inp);
                 assert_eq!(out_str, $expected_output);
             }
         };
     }
 
-    create_format_info_test!(test_a, "", "");
+    create_format_info_test!(test_measure_empty_string, "", vec![0usize]);
 }
 
 #[cfg(test)]
