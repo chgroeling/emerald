@@ -2,7 +2,7 @@ mod output_format;
 mod peek_char_iterator;
 use self::output_format::OutputFormat;
 use self::peek_char_iterator::PeekCharIterator;
-use std::cmp::{max, min};
+use std::cmp::max;
 use std::collections::HashMap;
 
 /// `consume_expected_chars` checks and consumes the next char in the iterator if it matches the provided pattern(s).
@@ -267,9 +267,9 @@ impl ParsingTask for ParsingTaskMeasure {
                 context.vout.push(repl_c_max);
             }
             OutputFormat::LeftAlignTrunc(la) => {
-                let repl_c_min = min(repl_c, la as usize);
-                context.vout[0] += repl_c_min;
-                context.vout.push(repl_c_min);
+                let repl_c = la as usize;
+                context.vout[0] += repl_c;
+                context.vout.push(repl_c);
             }
         }
     }
@@ -480,7 +480,31 @@ mod tests_measure {
 
     test!(
         test_measure_with_left_alignment_placeholder_and_shorter_value_returns_correct_length,
-        "Hallo %<(10)%(str4)xx", //"Hallo 1234      xx"
+        "Hallo %<(10)%(str4)xx", // "Hallo 1234      xx"
+        vec![18usize, 10usize]
+    );
+
+    test!(
+        test_measure_with_left_alignment_placeholder_and_exact_length_value_returns_correct_length,
+        "Hallo %<(10)%(str10)xx", // "Hallo 1234567890xx"
+        vec![18usize, 10usize]
+    );
+
+    test!(
+        test_measure_with_left_alignment_placeholder_and_longer_value_returns_correct_length,
+        "Hallo %<(10)%(str14)xx", // "Hallo 1234567890ABCDxx"
+        vec![22usize, 14usize]
+    );
+
+    test!(
+        test_measure_with_left_align_truncate_placeholder_and_shorter_value_with_umlauts_returns_correct_length,
+        "Hallo %<(10,trunc)%(umlaute)xx", // "Hallo äöü       xx"
+        vec![18usize, 10usize]
+    );
+
+    test!(
+        test_measure_with_left_align_truncate_placeholder_and_exact_length_value_returns_correct_length,
+        "Hallo %<(10,trunc)%(str10)xx", // "Hallo 1234567890xx"
         vec![18usize, 10usize]
     );
 
