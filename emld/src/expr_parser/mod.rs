@@ -412,7 +412,7 @@ mod tests_measure {
 
     use crate::expr_parser::ExpressionParser;
 
-    macro_rules! create_format_measure_test {
+    macro_rules! test {
         ($test_name:ident, $inp:expr, $expected_output:expr) => {
             #[test]
             fn $test_name() {
@@ -431,32 +431,32 @@ mod tests_measure {
         };
     }
 
-    create_format_measure_test!(test_measure_with_empty_input_returns_vec0, "", vec![0usize]);
-    create_format_measure_test!(
+    test!(test_measure_with_empty_input_returns_vec0, "", vec![0usize]);
+    test!(
         test_measure_with_plain_string_returns_correct_length,
         "Conventional string",
         vec![19usize]
     );
 
-    create_format_measure_test!(
+    test!(
         test_measure_with_unicode_string_returns_correct_length,
         "Smiley 😊 Smiley",
         vec![15usize]
     );
 
-    create_format_measure_test!(
+    test!(
         test_measure_with_single_placeholder_measures_correctly,
         "Hello %(var1)", // replaces to "Hello world"
         vec![11usize, 5usize]
     );
 
-    create_format_measure_test!(
+    test!(
         test_measure_with_invalid_token_type_counts_length_of_unreplaced_string,
         "Hallo %z", // replaces nothing
         vec![8usize]
     );
 
-    create_format_measure_test!(
+    test!(
         test_measure_with_multiple_placeholders_return_correct_length_of_string_and_placeholders,
         "Hello %(var1). Hallo %(var2).", // "Hello world. Hallo welt."
         vec![24usize, 5usize, 4usize]
