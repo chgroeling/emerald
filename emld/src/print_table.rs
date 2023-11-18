@@ -5,21 +5,35 @@ use emerald::{Note, Vault};
 
 use crate::expr_parser::ExpressionParser;
 
-struct DefinedElement {
-    element: &'static str,
+enum Element {
+    Title,
+    Modified,
+    Created,
+    Size,
+    LinkCnt,
+    BackLinkCnt,
 }
 
-const ELEMENT_DEF: &[DefinedElement] = &[
-    DefinedElement { element: "title" },
-    DefinedElement {
-        element: "modified",
-    },
-    DefinedElement { element: "created" },
-    DefinedElement { element: "size" },
-    DefinedElement { element: "linkcnt" },
-    DefinedElement {
-        element: "backlinkcnt",
-    },
+impl Element {
+    fn value(&self) -> &str {
+        match self {
+            Element::Title => "title",
+            Element::Modified => "modified",
+            Element::Created => "created",
+            Element::Size => "size",
+            Element::LinkCnt => "linkcnt",
+            Element::BackLinkCnt => "backlinkcnt",
+        }
+    }
+}
+
+const ELEMENT_DEF: &[Element] = &[
+    Element::Title,
+    Element::Modified,
+    Element::Created,
+    Element::Size,
+    Element::LinkCnt,
+    Element::BackLinkCnt,
 ];
 
 fn note_element_2_str(note: &Note, vault: &impl Vault, element: &str) -> String {
@@ -57,8 +71,8 @@ pub fn print_table(vault: &impl Vault) {
     // print header
     let mut key_value_store = HashMap::<&str, String>::new();
     ELEMENT_DEF.iter().for_each(|cell_def| {
-        let out_str = cell_def.element;
-        key_value_store.insert(cell_def.element, out_str.to_string());
+        let out_str = cell_def.value();
+        key_value_store.insert(cell_def.value(), out_str.to_string());
     });
     println!("{}", expr_parser.parse(&key_value_store, format_string));
     let length_of_format = expr_parser.measure(&key_value_store, format_string);
@@ -67,7 +81,7 @@ pub fn print_table(vault: &impl Vault) {
     ELEMENT_DEF.iter().enumerate().for_each(|(idx, cell_def)| {
         let bar = "=".repeat(length_of_format[idx + 1]);
         let out_str = bar;
-        key_value_store.insert(cell_def.element, out_str);
+        key_value_store.insert(cell_def.value(), out_str);
     });
     println!("{}", expr_parser.parse(&key_value_store, format_string));
 
@@ -75,9 +89,9 @@ pub fn print_table(vault: &impl Vault) {
     let mut key_value_store = HashMap::<&str, String>::new();
     for i in vault.flat_iter() {
         ELEMENT_DEF.iter().for_each(|cell_def| {
-            let ref_cell = note_element_2_str(&i, vault, cell_def.element);
+            let ref_cell = note_element_2_str(&i, vault, cell_def.value());
             let out_str = ref_cell;
-            key_value_store.insert(cell_def.element, out_str);
+            key_value_store.insert(cell_def.value(), out_str);
         });
         println!("{}", expr_parser.parse(&key_value_store, format_string));
     }
