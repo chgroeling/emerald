@@ -2,7 +2,7 @@ mod output_format;
 mod peek_char_iterator;
 use self::output_format::OutputFormat;
 use self::peek_char_iterator::PeekCharIterator;
-use std::cmp::min;
+use std::cmp::{max, min};
 use std::collections::HashMap;
 
 /// `consume_expected_chars` checks and consumes the next char in the iterator if it matches the provided pattern(s).
@@ -261,7 +261,11 @@ impl ParsingTask for ParsingTaskMeasure {
                 context.vout[0] += repl_c;
                 context.vout.push(repl_c);
             }
-            OutputFormat::LeftAlign(_) => todo!(),
+            OutputFormat::LeftAlign(ll) => {
+                let repl_c_max = max(repl_c, ll as usize);
+                context.vout[0] += repl_c_max;
+                context.vout.push(repl_c_max);
+            }
             OutputFormat::LeftAlignTrunc(ll) => {
                 let repl_c_min = min(repl_c, ll as usize);
                 context.vout[0] += repl_c_min;
@@ -472,6 +476,12 @@ mod tests_measure {
         test_measure_with_multiple_placeholders_return_correct_length_of_string_and_placeholders,
         "Hello %(var1). Hallo %(var2).", // "Hello world. Hallo welt."
         vec![24usize, 5usize, 4usize]
+    );
+
+    test!(
+        test_measure_with_left_alignment_placeholder_and_shorter_value_returns_correct_length,
+        "Hallo %<(10)%(str4)xx", //"Hallo 1234      xx"
+        vec![18usize, 10usize]
     );
 
     test!(
