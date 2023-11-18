@@ -73,7 +73,7 @@ pub fn print_table(vault: &impl Vault) {
         let out_str = element.value();
         key_value_store.insert(element.value(), out_str.to_string());
     });
-    println!("{}", expr_parser.parse(&key_value_store, format_string));
+    println!("{}", expr_parser.format(&key_value_store, format_string));
     let length_of_format = expr_parser.measure(&key_value_store, format_string);
 
     // print separator
@@ -82,7 +82,7 @@ pub fn print_table(vault: &impl Vault) {
         let out_str = bar;
         key_value_store.insert(element.value(), out_str);
     });
-    println!("{}", expr_parser.parse(&key_value_store, format_string));
+    println!("{}", expr_parser.format(&key_value_store, format_string));
 
     // print content
     let mut key_value_store = HashMap::<&str, String>::new();
@@ -92,6 +92,6 @@ pub fn print_table(vault: &impl Vault) {
             let out_str = ref_cell;
             key_value_store.insert(elemet.value(), out_str);
         });
-        println!("{}", expr_parser.parse(&key_value_store, format_string));
+        println!("{}", expr_parser.format(&key_value_store, format_string));
     }
 }
