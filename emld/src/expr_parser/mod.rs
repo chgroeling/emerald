@@ -393,12 +393,12 @@ impl ExpressionParser {
     }
 }
 #[cfg(test)]
-mod tests_info {
+mod tests_measure {
     use std::collections::HashMap;
 
     use crate::expr_parser::ExpressionParser;
 
-    macro_rules! create_format_info_test {
+    macro_rules! create_format_measure_test {
         ($test_name:ident, $inp:expr, $expected_output:expr) => {
             #[test]
             fn $test_name() {
@@ -410,7 +410,7 @@ mod tests_info {
         };
     }
 
-    create_format_info_test!(test_measure_empty_string, "", vec![0usize]);
+    create_format_measure_test!(test_measure_empty_string, "", vec![0usize]);
 }
 
 #[cfg(test)]
