@@ -251,8 +251,9 @@ impl ParsingTask for ParsingTaskMeasure {
             Self::error(context);
             return;
         };
-        let repl = repl_str.chars();
-        context.vout[0] += repl.count();
+        let repl_c = repl_str.chars().count();
+        context.vout[0] += repl_c;
+        context.vout.push(repl_c);
     }
 
     fn done(context: ParsingContext<'_, Self::Item>) -> Self::Output {
@@ -444,7 +445,7 @@ mod tests_measure {
     create_format_measure_test!(
         test_measure_with_single_placeholder_measures_correctly,
         "Hello %(var1)", // replaces to "Hello world"
-        vec![11usize]
+        vec![11usize, 5usize]
     );
 }
 
