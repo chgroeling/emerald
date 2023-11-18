@@ -238,11 +238,11 @@ impl ParsingTask for ParsingTaskMeasure {
 
     fn error(_context: &mut ParsingContext<'_, Self::Item>) {}
 
-    fn process_char(_context: &mut ParsingContext<'_, Self::Item>, ch: char) {}
+    fn process_char(_context: &mut ParsingContext<'_, Self::Item>, _ch: char) {}
 
-    fn process_char_placeholder(_context: &mut ParsingContext<'_, Self::Item>, ch: char) {}
+    fn process_char_placeholder(_context: &mut ParsingContext<'_, Self::Item>, _ch: char) {}
 
-    fn process_str_placeholder(_context: &mut ParsingContext<'_, Self::Item>, arg: String) {}
+    fn process_str_placeholder(_context: &mut ParsingContext<'_, Self::Item>, _arg: String) {}
 
     fn done(_context: ParsingContext<'_, Self::Item>) -> Self::Output {
         todo!()
