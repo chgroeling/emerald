@@ -455,6 +455,12 @@ mod tests_measure {
         "Hallo %z", // replaces nothing
         vec![8usize]
     );
+
+    create_format_measure_test!(
+        test_measure_with_multiple_placeholders_return_correct_length_of_string_and_placeholders,
+        "Hello %(var1). Hallo %(var2).", // "Hello world. Hallo welt."
+        vec![24usize, 5usize, 4usize]
+    );
 }
 
 #[cfg(test)]
