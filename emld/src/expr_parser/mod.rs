@@ -2,6 +2,7 @@ mod output_format;
 mod peek_char_iterator;
 use self::output_format::OutputFormat;
 use self::peek_char_iterator::PeekCharIterator;
+use std::cmp::min;
 use std::collections::HashMap;
 
 /// `consume_expected_chars` checks and consumes the next char in the iterator if it matches the provided pattern(s).
@@ -254,8 +255,19 @@ impl ParsingTask for ParsingTaskMeasure {
             return;
         };
         let repl_c = repl_str.chars().count();
-        context.vout[0] += repl_c;
-        context.vout.push(repl_c);
+
+        match context.format {
+            OutputFormat::None => {
+                context.vout[0] += repl_c;
+                context.vout.push(repl_c);
+            }
+            OutputFormat::LeftAlign(_) => todo!(),
+            OutputFormat::LeftAlignTrunc(ll) => {
+                let repl_c_min = min(repl_c, ll as usize);
+                context.vout[0] += repl_c_min;
+                context.vout.push(repl_c_min);
+            }
+        }
     }
 
     fn done(context: ParsingContext<'_, Self::Item>) -> Self::Output {
@@ -460,6 +472,12 @@ mod tests_measure {
         test_measure_with_multiple_placeholders_return_correct_length_of_string_and_placeholders,
         "Hello %(var1). Hallo %(var2).", // "Hello world. Hallo welt."
         vec![24usize, 5usize, 4usize]
+    );
+
+    test!(
+        test_measure_with_left_align_truncate_placeholder_and_longer_value_returns_correct_length,
+        "Hallo %<(10,trunc)%(str14)xx", // "Hallo 123456789…xx"
+        vec![18usize, 10usize]
     );
 }
 
