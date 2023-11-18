@@ -261,13 +261,13 @@ impl ParsingTask for ParsingTaskMeasure {
                 context.vout[0] += repl_c;
                 context.vout.push(repl_c);
             }
-            OutputFormat::LeftAlign(ll) => {
-                let repl_c_max = max(repl_c, ll as usize);
+            OutputFormat::LeftAlign(la) => {
+                let repl_c_max = max(repl_c, la as usize);
                 context.vout[0] += repl_c_max;
                 context.vout.push(repl_c_max);
             }
-            OutputFormat::LeftAlignTrunc(ll) => {
-                let repl_c_min = min(repl_c, ll as usize);
+            OutputFormat::LeftAlignTrunc(la) => {
+                let repl_c_min = min(repl_c, la as usize);
                 context.vout[0] += repl_c_min;
                 context.vout.push(repl_c_min);
             }
