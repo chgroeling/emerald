@@ -220,7 +220,7 @@ impl ParsingTask for ParsingTaskStringInterpolation {
 struct ParsingTaskMeasure;
 impl ParsingTask for ParsingTaskMeasure {
     type Item = usize;
-    type Output = String;
+    type Output = Vec<usize>;
 
     /// Called in case the context should be initialized
     fn init<'a>(
@@ -228,24 +228,28 @@ impl ParsingTask for ParsingTaskMeasure {
         key_value: &'a HashMap<&'a str, String>,
     ) -> ParsingContext<'a, Self::Item> {
         let vec: Vec<_> = inp.chars().collect();
+        let mut vout = Vec::<usize>::new();
+        vout.push(0);
         ParsingContext::<'_, Self::Item> {
             key_value,
             iter: PeekCharIterator::new(vec),
-            vout: Vec::<usize>::new(),
+            vout: vout,
             format: OutputFormat::None,
         }
     }
 
     fn error(_context: &mut ParsingContext<'_, Self::Item>) {}
 
-    fn process_char(_context: &mut ParsingContext<'_, Self::Item>, _ch: char) {}
+    fn process_char(context: &mut ParsingContext<'_, Self::Item>, _ch: char) {
+        context.vout[0] += 1;
+    }
 
     fn process_char_placeholder(_context: &mut ParsingContext<'_, Self::Item>, _ch: char) {}
 
     fn process_str_placeholder(_context: &mut ParsingContext<'_, Self::Item>, _arg: String) {}
 
-    fn done(_context: ParsingContext<'_, Self::Item>) -> Self::Output {
-        todo!()
+    fn done(context: ParsingContext<'_, Self::Item>) -> Self::Output {
+        context.vout
     }
 }
 
@@ -389,7 +393,7 @@ impl ExpressionParser {
     }
 
     pub fn measure(&self, key_value: &HashMap<&str, String>, inp: &str) -> Vec<usize> {
-        vec![0usize]
+        self.parse_generic::<ParsingTaskMeasure>(key_value, inp)
     }
 }
 #[cfg(test)]
@@ -410,7 +414,8 @@ mod tests_measure {
         };
     }
 
-    create_format_measure_test!(test_measure_empty_string, "", vec![0usize]);
+    create_format_measure_test!(test_measure_empty_string_returns_vec_0, "", vec![0usize]);
+    create_format_measure_test!(test_measure_string_returns_vec_4, "1234", vec![4usize]);
 }
 
 #[cfg(test)]
