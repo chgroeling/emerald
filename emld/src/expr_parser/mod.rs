@@ -246,7 +246,14 @@ impl ParsingTask for ParsingTaskMeasure {
 
     fn process_char_placeholder(_context: &mut ParsingContext<'_, Self::Item>, _ch: char) {}
 
-    fn process_str_placeholder(_context: &mut ParsingContext<'_, Self::Item>, _arg: String) {}
+    fn process_str_placeholder(context: &mut ParsingContext<'_, Self::Item>, arg: String) {
+        let Some(repl_str) = context.key_value.get(arg.as_str()) else {
+            Self::error(context);
+            return;
+        };
+        let repl = repl_str.chars();
+        context.vout[0] += repl.count();
+    }
 
     fn done(context: ParsingContext<'_, Self::Item>) -> Self::Output {
         context.vout
@@ -406,7 +413,14 @@ mod tests_measure {
         ($test_name:ident, $inp:expr, $expected_output:expr) => {
             #[test]
             fn $test_name() {
-                let key_value = HashMap::<&str, String>::new();
+                let mut key_value = HashMap::<&str, String>::new();
+                key_value.insert("var1", "world".into());
+                key_value.insert("var2", "welt".into());
+                key_value.insert("str4", "1234".into());
+                key_value.insert("str10", "1234567890".into());
+                key_value.insert("str14", "1234567890ABCD".into());
+                key_value.insert("umlaute", "äöü".into());
+                key_value.insert("umlaute_bigger", "äöü12345678".into());
                 let parser = ExpressionParser::new();
                 let out_str = parser.measure(&key_value, $inp);
                 assert_eq!(out_str, $expected_output);
@@ -414,8 +428,18 @@ mod tests_measure {
         };
     }
 
-    create_format_measure_test!(test_measure_empty_string_returns_vec_0, "", vec![0usize]);
-    create_format_measure_test!(test_measure_string_returns_vec_4, "1234", vec![4usize]);
+    create_format_measure_test!(test_measure_with_empty_input_returns_vec0, "", vec![0usize]);
+    create_format_measure_test!(
+        test_measure_with_plain_string_returns_correct_length,
+        "Conventional string",
+        vec![19usize]
+    );
+
+    create_format_measure_test!(
+        test_measure_with_single_placeholder_measures_correctly,
+        "Hello %(var1)", // replaces to "Hello world"
+        vec![11usize]
+    );
 }
 
 #[cfg(test)]
