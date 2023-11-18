@@ -238,7 +238,9 @@ impl ParsingTask for ParsingTaskMeasure {
         }
     }
 
-    fn error(_context: &mut ParsingContext<'_, Self::Item>) {}
+    fn error(context: &mut ParsingContext<'_, Self::Item>) {
+        context.vout[0] += context.iter.get_mark2cur().unwrap().len();
+    }
 
     fn process_char(context: &mut ParsingContext<'_, Self::Item>, _ch: char) {
         context.vout[0] += 1;
@@ -446,6 +448,12 @@ mod tests_measure {
         test_measure_with_single_placeholder_measures_correctly,
         "Hello %(var1)", // replaces to "Hello world"
         vec![11usize, 5usize]
+    );
+
+    create_format_measure_test!(
+        test_measure_with_invalid_token_type_counts_length_of_unreplaced_string,
+        "Hallo %z", // replaces nothing
+        vec![8usize]
     );
 }
 
