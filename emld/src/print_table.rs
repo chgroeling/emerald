@@ -36,25 +36,24 @@ const ELEMENT_DEF: &[Element] = &[
     Element::BackLinkCnt,
 ];
 
-fn note_element_2_str(note: &Note, vault: &impl Vault, element: &str) -> String {
+fn note_element_2_str(note: &Note, vault: &impl Vault, element: &Element) -> String {
     match element {
-        "title" => note.title.clone(),
-        "modified" => {
+        Element::Title => note.title.clone(),
+        Element::Modified => {
             let modified = Local
                 .timestamp_opt(note.modified.get_raw_value(), 0)
                 .unwrap();
             modified.format("%Y-%m-%d %H:%M:%S").to_string()
         }
-        "created" => {
+        Element::Created => {
             let created = Local
                 .timestamp_opt(note.created.get_raw_value(), 0)
                 .unwrap();
             created.format("%Y-%m-%d %H:%M:%S").to_string()
         }
-        "size" => note.size.to_string(),
-        "linkcnt" => vault.get_links_of(note).count().to_string(),
-        "backlinkcnt" => vault.get_backlinks_of(note).count().to_string(),
-        _ => panic!("Unknown element"),
+        Element::Size => note.size.to_string(),
+        Element::LinkCnt => vault.get_links_of(note).count().to_string(),
+        Element::BackLinkCnt => vault.get_backlinks_of(note).count().to_string(),
     }
 }
 
@@ -89,7 +88,7 @@ pub fn print_table(vault: &impl Vault) {
     let mut key_value_store = HashMap::<&str, String>::new();
     for i in vault.flat_iter() {
         ELEMENT_DEF.iter().for_each(|cell_def| {
-            let ref_cell = note_element_2_str(&i, vault, cell_def.value());
+            let ref_cell = note_element_2_str(&i, vault, cell_def);
             let out_str = ref_cell;
             key_value_store.insert(cell_def.value(), out_str);
         });
