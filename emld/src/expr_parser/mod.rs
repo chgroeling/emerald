@@ -106,7 +106,7 @@ struct ParsingContext<'a, T> {
 
 pub struct ExpressionParser;
 
-struct ParsingTaskStringInterpolation;
+struct ParsingTaskFormat;
 trait ParsingTask {
     type Item;
     type Output;
@@ -133,7 +133,7 @@ trait ParsingTask {
     fn process_str_placeholder(context: &mut ParsingContext<'_, Self::Item>, arg: String);
 }
 
-impl ParsingTask for ParsingTaskStringInterpolation {
+impl ParsingTask for ParsingTaskFormat {
     type Item = char;
     type Output = String;
 
@@ -415,7 +415,7 @@ impl ExpressionParser {
     }
 
     pub fn format(&self, key_value: &HashMap<&str, String>, inp: &str) -> String {
-        self.parse_generic::<ParsingTaskStringInterpolation>(key_value, inp)
+        self.parse_generic::<ParsingTaskFormat>(key_value, inp)
     }
 
     pub fn measure(&self, key_value: &HashMap<&str, String>, inp: &str) -> Vec<usize> {
