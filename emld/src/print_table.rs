@@ -36,7 +36,7 @@ const ELEMENT_DEF: &[Element] = &[
     Element::BackLinkCnt,
 ];
 
-fn note_element_2_str(note: &Note, vault: &impl Vault, element: &Element) -> String {
+fn note_element_2_str(element: &Element, note: &Note, vault: &impl Vault) -> String {
     match element {
         Element::Title => note.title.clone(),
         Element::Modified => {
@@ -88,7 +88,7 @@ pub fn print_table(vault: &impl Vault) {
     let mut key_value_store = HashMap::<&str, String>::new();
     for i in vault.flat_iter() {
         ELEMENT_DEF.iter().for_each(|cell_def| {
-            let ref_cell = note_element_2_str(&i, vault, cell_def);
+            let ref_cell = note_element_2_str(cell_def, &i, vault);
             let out_str = ref_cell;
             key_value_store.insert(cell_def.value(), out_str);
         });
