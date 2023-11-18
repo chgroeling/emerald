@@ -436,6 +436,12 @@ mod tests_measure {
     );
 
     create_format_measure_test!(
+        test_measure_with_unicode_string_returns_correct_length,
+        "Smiley 😊 Smiley",
+        vec![15usize]
+    );
+
+    create_format_measure_test!(
         test_measure_with_single_placeholder_measures_correctly,
         "Hello %(var1)", // replaces to "Hello world"
         vec![11usize]
