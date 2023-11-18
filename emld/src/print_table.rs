@@ -5,19 +5,19 @@ use emerald::{Note, Vault};
 
 use crate::expr_parser::ExpressionParser;
 
-struct TableRow {
+struct DefinedElement {
     element: &'static str,
 }
 
-const ELEMENT_DEF: &[TableRow] = &[
-    TableRow { element: "title" },
-    TableRow {
+const ELEMENT_DEF: &[DefinedElement] = &[
+    DefinedElement { element: "title" },
+    DefinedElement {
         element: "modified",
     },
-    TableRow { element: "created" },
-    TableRow { element: "size" },
-    TableRow { element: "linkcnt" },
-    TableRow {
+    DefinedElement { element: "created" },
+    DefinedElement { element: "size" },
+    DefinedElement { element: "linkcnt" },
+    DefinedElement {
         element: "backlinkcnt",
     },
 ];
