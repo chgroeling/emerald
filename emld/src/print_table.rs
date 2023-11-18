@@ -69,28 +69,28 @@ pub fn print_table(vault: &impl Vault) {
 
     // print header
     let mut key_value_store = HashMap::<&str, String>::new();
-    ELEMENT_DEF.iter().for_each(|cell_def| {
-        let out_str = cell_def.value();
-        key_value_store.insert(cell_def.value(), out_str.to_string());
+    ELEMENT_DEF.iter().for_each(|element| {
+        let out_str = element.value();
+        key_value_store.insert(element.value(), out_str.to_string());
     });
     println!("{}", expr_parser.parse(&key_value_store, format_string));
     let length_of_format = expr_parser.measure(&key_value_store, format_string);
 
     // print separator
-    ELEMENT_DEF.iter().enumerate().for_each(|(idx, cell_def)| {
+    ELEMENT_DEF.iter().enumerate().for_each(|(idx, element)| {
         let bar = "=".repeat(length_of_format[idx + 1]);
         let out_str = bar;
-        key_value_store.insert(cell_def.value(), out_str);
+        key_value_store.insert(element.value(), out_str);
     });
     println!("{}", expr_parser.parse(&key_value_store, format_string));
 
     // print content
     let mut key_value_store = HashMap::<&str, String>::new();
     for i in vault.flat_iter() {
-        ELEMENT_DEF.iter().for_each(|cell_def| {
-            let ref_cell = note_element_2_str(cell_def, &i, vault);
+        ELEMENT_DEF.iter().for_each(|elemet| {
+            let ref_cell = note_element_2_str(elemet, &i, vault);
             let out_str = ref_cell;
-            key_value_store.insert(cell_def.value(), out_str);
+            key_value_store.insert(elemet.value(), out_str);
         });
         println!("{}", expr_parser.parse(&key_value_store, format_string));
     }
