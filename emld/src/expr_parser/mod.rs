@@ -414,7 +414,7 @@ impl ExpressionParser {
         T::done(context)
     }
 
-    pub fn parse(&self, key_value: &HashMap<&str, String>, inp: &str) -> String {
+    pub fn format(&self, key_value: &HashMap<&str, String>, inp: &str) -> String {
         self.parse_generic::<ParsingTaskStringInterpolation>(key_value, inp)
     }
 
@@ -516,7 +516,7 @@ mod tests_measure {
 }
 
 #[cfg(test)]
-mod tests_interplation {
+mod tests_format {
     use crate::expr_parser::ExpressionParser;
     use std::collections::HashMap;
 
@@ -533,148 +533,148 @@ mod tests_interplation {
                 key_value.insert("umlaute", "äöü".into());
                 key_value.insert("umlaute_bigger", "äöü12345678".into());
                 let parser = ExpressionParser::new();
-                let out_str = parser.parse(&key_value, $inp);
+                let out_str = parser.format(&key_value, $inp);
                 assert_eq!(out_str, $expected_output);
             }
         };
     }
 
-    test!(test_parse_with_empty_input_returns_empty_string, "", "");
+    test!(test_format_with_empty_input_returns_empty_string, "", "");
 
     test!(
-        test_parse_with_plain_string_returns_same_string,
+        test_format_with_plain_string_returns_same_string,
         "Conventional string",
         "Conventional string"
     );
 
     test!(
-        test_parse_with_unicode_string_returns_same_string,
+        test_format_with_unicode_string_returns_same_string,
         "Smiley 😊 Smiley",
         "Smiley 😊 Smiley"
     );
 
     test!(
-        test_parse_with_single_placeholder_replaces_correctly,
+        test_format_with_single_placeholder_replaces_correctly,
         "Hello %(var1)",
         "Hello world"
     );
 
     test!(
-        test_parse_with_single_placeholder_alternative_value_replaces_correctly,
+        test_format_with_single_placeholder_alternative_value_replaces_correctly,
         "Hello %(var2)",
         "Hello welt"
     );
 
     test!(
-        test_parse_with_invalid_token_type_leaves_token_unreplaced,
+        test_format_with_invalid_token_type_leaves_token_unreplaced,
         "Hallo %z",
         "Hallo %z"
     );
 
     test!(
-        test_parse_with_multiple_placeholders_replaces_all_correctly,
+        test_format_with_multiple_placeholders_replaces_all_correctly,
         "Hello %(var1). Hallo %(var2).",
         "Hello world. Hallo welt."
     );
 
     test!(
-        test_parse_with_multiple_placeholders_and_delimiters_replaces_correctly,
+        test_format_with_multiple_placeholders_and_delimiters_replaces_correctly,
         "|%(var1)|%(var2)|",
         "|world|welt|"
     );
 
     test!(
-        test_parse_with_undefined_second_placeholder_keeps_it_unreplaced,
+        test_format_with_undefined_second_placeholder_keeps_it_unreplaced,
         "Hallo %(var1)%(vara)",
         "Hallo world%(vara)"
     );
 
     test!(
-        test_parse_with_undefined_first_placeholder_keeps_it_unreplaced,
+        test_format_with_undefined_first_placeholder_keeps_it_unreplaced,
         "Hallo %(vara)%(var2)",
         "Hallo %(vara)welt"
     );
 
     test!(
-        test_parse_with_incorrect_placeholder_syntax_keeps_it_unreplaced,
+        test_format_with_incorrect_placeholder_syntax_keeps_it_unreplaced,
         "Hallo %var1",
         "Hallo %var1"
     );
 
     test!(
-        test_parse_with_incomplete_placeholder_syntax_keeps_it_unreplaced,
+        test_format_with_incomplete_placeholder_syntax_keeps_it_unreplaced,
         "Hallo %(var1",
         "Hallo %(var1"
     );
 
     test!(
-        test_parse_with_newline_placeholder_inserts_newline,
+        test_format_with_newline_placeholder_inserts_newline,
         "Hallo %nWelt",
         "Hallo \nWelt"
     );
 
     test!(
-        test_parse_with_escaped_percent_sign_keeps_it_unchanged,
+        test_format_with_escaped_percent_sign_keeps_it_unchanged,
         "Hallo %%(var1)",
         "Hallo %(var1)"
     );
 
     test!(
-        test_parse_with_newline_placeholder_at_end_inserts_newline,
+        test_format_with_newline_placeholder_at_end_inserts_newline,
         "Hallo Welt %n",
         "Hallo Welt \n"
     );
 
     test!(
-        test_parse_with_left_alignment_placeholder_and_shorter_value_pads_correctly,
+        test_format_with_left_alignment_placeholder_and_shorter_value_pads_correctly,
         "Hallo %<(10)%(str4)xx",
         "Hallo 1234      xx"
     );
 
     test!(
-        test_parse_with_left_alignment_placeholder_and_exact_length_value_keeps_it_unchanged,
+        test_format_with_left_alignment_placeholder_and_exact_length_value_keeps_it_unchanged,
         "Hallo %<(10)%(str10)xx",
         "Hallo 1234567890xx"
     );
 
     test!(
-        test_parse_with_left_alignment_placeholder_and_longer_value_keeps_it_unchanged,
+        test_format_with_left_alignment_placeholder_and_longer_value_keeps_it_unchanged,
         "Hallo %<(10)%(str14)xx",
         "Hallo 1234567890ABCDxx"
     );
 
     test!(
-        test_parse_with_left_align_truncate_placeholder_and_exact_length_value_keeps_it_unchanged,
+        test_format_with_left_align_truncate_placeholder_and_exact_length_value_keeps_it_unchanged,
         "Hallo %<(10,trunc)%(str10)xx",
         "Hallo 1234567890xx"
     );
 
     test!(
-        test_parse_with_left_align_truncate_placeholder_and_exact_length_value_with_spaces_keeps_it_unchanged,
+        test_format_with_left_align_truncate_placeholder_and_exact_length_value_with_spaces_keeps_it_unchanged,
         "Hallo %<(  10  ,  trunc   )%(str10)xx",
         "Hallo 1234567890xx"
     );
 
     test!(
-        test_parse_with_left_align_truncate_placeholder_and_longer_value_truncates_correctly,
+        test_format_with_left_align_truncate_placeholder_and_longer_value_truncates_correctly,
         "Hallo %<(10,trunc)%(str14)xx",
         "Hallo 123456789…xx"
     );
 
     test!(
-        test_parse_with_left_align_truncate_placeholder_and_shorter_value_with_umlauts_pads_correctly,
+        test_format_with_left_align_truncate_placeholder_and_shorter_value_with_umlauts_pads_correctly,
         "Hallo %<(10,trunc)%(umlaute)xx",
         "Hallo äöü       xx"
     );
 
     test!(
-        test_parse_with_left_align_truncate_placeholder_and_longer_value_with_umlauts_truncates_correctly,
+        test_format_with_left_align_truncate_placeholder_and_longer_value_with_umlauts_truncates_correctly,
         "Hallo %<(10,trunc)%(umlaute_bigger)xx",
         "Hallo äöü123456…xx"
     );
 
     test!(
-        test_parse_with_invalid_left_align_placeholder_keeps_format_specifier_unchanged,
+        test_format_with_invalid_left_align_placeholder_keeps_format_specifier_unchanged,
         "Hallo %<(a10)%(str14)xx",
         "Hallo %<(a10)1234567890ABCDxx"
     );
