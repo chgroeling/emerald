@@ -9,7 +9,7 @@ struct TableRow {
     element: &'static str,
 }
 
-const TABLE_DEF: &[TableRow] = &[
+const ELEMENT_DEF: &[TableRow] = &[
     TableRow { element: "title" },
     TableRow {
         element: "modified",
@@ -56,7 +56,7 @@ pub fn print_table(vault: &impl Vault) {
 
     // print header
     let mut key_value_store = HashMap::<&str, String>::new();
-    TABLE_DEF.iter().for_each(|cell_def| {
+    ELEMENT_DEF.iter().for_each(|cell_def| {
         let out_str = cell_def.element;
         key_value_store.insert(cell_def.element, out_str.to_string());
     });
@@ -64,7 +64,7 @@ pub fn print_table(vault: &impl Vault) {
     let length_of_format = expr_parser.measure(&key_value_store, format_string);
 
     // print separator
-    TABLE_DEF.iter().enumerate().for_each(|(idx, cell_def)| {
+    ELEMENT_DEF.iter().enumerate().for_each(|(idx, cell_def)| {
         let bar = "=".repeat(length_of_format[idx + 1]);
         let out_str = bar;
         key_value_store.insert(cell_def.element, out_str);
@@ -74,7 +74,7 @@ pub fn print_table(vault: &impl Vault) {
     // print content
     let mut key_value_store = HashMap::<&str, String>::new();
     for i in vault.flat_iter() {
-        TABLE_DEF.iter().for_each(|cell_def| {
+        ELEMENT_DEF.iter().for_each(|cell_def| {
             let ref_cell = note_element_2_str(&i, vault, cell_def.element);
             let out_str = ref_cell;
             key_value_store.insert(cell_def.element, out_str);
