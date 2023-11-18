@@ -76,10 +76,11 @@ pub fn print_table(vault: &impl Vault) {
         key_value_store.insert(cell_def.element, out_str.to_string());
     });
     println!("{}", expr_parser.parse(&key_value_store, format_string));
+    let length_of_format = expr_parser.measure(&key_value_store, format_string);
 
     // print separator
-    TABLE_DEF.iter().for_each(|cell_def| {
-        let bar = "=".repeat(cell_def.max_width);
+    TABLE_DEF.iter().enumerate().for_each(|(idx, cell_def)| {
+        let bar = "=".repeat(length_of_format[idx + 1]);
         let out_str = bar;
         key_value_store.insert(cell_def.element, out_str);
     });
