@@ -524,55 +524,55 @@ mod tests_interplation {
     );
 
     test!(
-        test_parse_with_left_alignment_and_shorter_value_pads_correctly,
+        test_parse_with_left_alignment_placeholder_and_shorter_value_pads_correctly,
         "Hallo %<(10)%(str4)xx",
         "Hallo 1234      xx"
     );
 
     test!(
-        test_parse_with_left_alignment_and_exact_length_value_keeps_it_unchanged,
+        test_parse_with_left_alignment_placeholder_and_exact_length_value_keeps_it_unchanged,
         "Hallo %<(10)%(str10)xx",
         "Hallo 1234567890xx"
     );
 
     test!(
-        test_parse_with_left_alignment_and_longer_value_keeps_it_unchanged,
+        test_parse_with_left_alignment_placeholder_and_longer_value_keeps_it_unchanged,
         "Hallo %<(10)%(str14)xx",
         "Hallo 1234567890ABCDxx"
     );
 
     test!(
-        test_parse_with_left_align_truncate_and_exact_length_value_keeps_it_unchanged,
+        test_parse_with_left_align_truncate_placeholder_and_exact_length_value_keeps_it_unchanged,
         "Hallo %<(10,trunc)%(str10)xx",
         "Hallo 1234567890xx"
     );
 
     test!(
-        test_parse_with_left_align_truncate_and_exact_length_value_with_spaces_keeps_it_unchanged,
+        test_parse_with_left_align_truncate_placeholder_and_exact_length_value_with_spaces_keeps_it_unchanged,
         "Hallo %<(  10  ,  trunc   )%(str10)xx",
         "Hallo 1234567890xx"
     );
 
     test!(
-        test_parse_with_left_align_truncate_and_longer_value_truncates_correctly,
+        test_parse_with_left_align_truncate_placeholder_and_longer_value_truncates_correctly,
         "Hallo %<(10,trunc)%(str14)xx",
         "Hallo 123456789…xx"
     );
 
     test!(
-        test_parse_with_left_align_truncate_and_shorter_value_with_umlauts_pads_correctly,
+        test_parse_with_left_align_truncate_placeholder_and_shorter_value_with_umlauts_pads_correctly,
         "Hallo %<(10,trunc)%(umlaute)xx",
         "Hallo äöü       xx"
     );
 
     test!(
-        test_parse_with_left_align_truncate_and_longer_value_with_umlauts_truncates_correctly,
+        test_parse_with_left_align_truncate_placeholder_and_longer_value_with_umlauts_truncates_correctly,
         "Hallo %<(10,trunc)%(umlaute_bigger)xx",
         "Hallo äöü123456…xx"
     );
 
     test!(
-        test_parse_with_invalid_left_align_argument_keeps_format_specifier_unchanged,
+        test_parse_with_invalid_left_align_placeholder_keeps_format_specifier_unchanged,
         "Hallo %<(a10)%(str14)xx",
         "Hallo %<(a10)1234567890ABCDxx"
     );
