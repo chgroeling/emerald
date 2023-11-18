@@ -6,33 +6,18 @@ use emerald::{Note, Vault};
 use crate::expr_parser::ExpressionParser;
 
 struct TableRow {
-    max_width: usize,
     element: &'static str,
 }
 
 const TABLE_DEF: &[TableRow] = &[
+    TableRow { element: "title" },
     TableRow {
-        max_width: 30,
-        element: "title",
-    },
-    TableRow {
-        max_width: 19,
         element: "modified",
     },
+    TableRow { element: "created" },
+    TableRow { element: "size" },
+    TableRow { element: "linkcnt" },
     TableRow {
-        max_width: 19,
-        element: "created",
-    },
-    TableRow {
-        max_width: 12,
-        element: "size",
-    },
-    TableRow {
-        max_width: 6,
-        element: "linkcnt",
-    },
-    TableRow {
-        max_width: 6,
         element: "backlinkcnt",
     },
 ];
