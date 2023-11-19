@@ -290,17 +290,31 @@ impl StringFormatter {
         self.parse_generic::<ParsingTaskMeasureSegmentLengths>(key_value, inp)
     }
 
-    /// Extracts all placeholders keys from a format string to identify and list all used and valid placeholders.
+    /// Extracts and lists all valid placeholder keys from a given string.
     ///
-    /// This method parses the input string (`inp`) and collects all placeholders into a vector. Placeholders are defined by specific syntax (e.g., "%(var1)").
-    /// It's useful for extracting the keys of placeholders present in the template without performing any replacement.
+    /// This method analyzes the input string (`inp`) to identify and collect the keys of all
+    /// placeholders defined within it. Placeholders are identified by a specific syntax, typically
+    /// denoted by "%(key)". This function is particularly useful for determining which placeholders
+    /// are used in a string without modifying the string itself. It helps in preparing or validating
+    /// the necessary keys in a key-value map for subsequent processing, like formatting or replacing
+    /// placeholders.
     ///
     /// # Arguments
-    /// * `key_value` - A reference to a HashMap containing key-value pairs that may be used in the placeholder syntax.
-    /// * `inp` - The input string to be analyzed for placeholders.
+    /// * `key_value` - A reference to a HashMap containing key-value pairs. These pairs may be used within the placeholder syntax in the input string.
+    /// * `inp` - The input string to be analyzed for placeholder keys.
     ///
     /// # Returns
-    /// A `Vec<String>` containing all unique placeholder keys identified in the input string.
+    /// A `Vec<String>` containing all distinct placeholder keys found in the input string. If no
+    /// placeholders are found, an empty vector is returned.
+    ///
+    /// # Examples
+    /// ```
+    /// let key_value = HashMap::new(); // Used for placeholder syntax demonstration
+    /// key_value.insert("name", "Alice");
+    /// let formatter = StringFormatter::new();
+    /// let placeholder_keys = formatter.extract_placeholder_keys(&key_value, "Hello, %(name)! Today is %(day).");
+    /// assert_eq!(placeholder_keys, vec!["name");
+    /// ```
     pub fn extract_placeholder_keys(
         &self,
         key_value: &HashMap<&str, String>,
