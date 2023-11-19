@@ -1,9 +1,9 @@
-use std::{cmp::max, collections::HashMap};
+use super::output_format::OutputFormat;
+use super::parsing_context::ParsingContext;
+use super::parsing_task::ParsingTask;
+use super::peek_char_iterator::PeekCharIterator;
 
-use super::{
-    output_format::OutputFormat, parsing_context::ParsingContext, parsing_task::ParsingTask,
-    peek_char_iterator::PeekCharIterator,
-};
+use std::{cmp::max, collections::HashMap};
 
 pub struct ParsingTaskMeasure;
 impl ParsingTask for ParsingTaskMeasure {
