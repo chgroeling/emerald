@@ -243,14 +243,48 @@ impl ExpressionParser {
         T::done(context)
     }
 
+    /// Formats a string based on a given template and key-value pairs.
+    ///
+    /// The method replaces placeholders in the input string (`inp`) with corresponding values from the `key_value` HashMap.
+    /// Placeholders are identified by specific syntax (e.g., "%(var1)") and are replaced with the associated value from the HashMap.
+    /// The method handles various placeholder types, including left alignment and truncation.
+    ///
+    /// # Arguments
+    /// * `key_value` - A reference to a HashMap containing key-value pairs for placeholder replacements.
+    /// * `inp` - The input string containing placeholders to be formatted.
+    ///
+    /// # Returns
+    /// A `String` where all placeholders have been replaced with corresponding values from the `key_value` HashMap.
     pub fn format(&self, key_value: &HashMap<&str, String>, inp: &str) -> String {
         self.parse_generic::<ParsingTaskFormat>(key_value, inp)
     }
 
+    /// Measures the length of segments in a formatted string.
+    ///
+    /// This method processes the input string (`inp`) similar to formatting, but instead of replacing placeholders, it measures the length of each segment, including placeholders.
+    /// This is useful for understanding the layout or size impact of the placeholders in the given string.
+    ///
+    /// # Arguments
+    /// * `key_value` - A reference to a HashMap containing key-value pairs for potential placeholder replacements.
+    /// * `inp` - The input string in which to measure segment lengths.
+    ///
+    /// # Returns
+    /// A `Vec<usize>` representing the length of each segment in the input string, including placeholders.
     pub fn measure(&self, key_value: &HashMap<&str, String>, inp: &str) -> Vec<usize> {
         self.parse_generic::<ParsingTaskMeasure>(key_value, inp)
     }
 
+    /// Analyzes a string to identify and list all placeholders.
+    ///
+    /// This method parses the input string (`inp`) and collects all placeholders into a vector. Placeholders are defined by specific syntax (e.g., "%(var1)").
+    /// It's useful for extracting the keys of placeholders present in the template without performing any replacement.
+    ///
+    /// # Arguments
+    /// * `key_value` - A reference to a HashMap containing key-value pairs that may be used in the placeholder syntax.
+    /// * `inp` - The input string to be analyzed for placeholders.
+    ///
+    /// # Returns
+    /// A `Vec<String>` containing all unique placeholder keys identified in the input string.
     pub fn analyze(&self, key_value: &HashMap<&str, String>, inp: &str) -> Vec<String> {
         self.parse_generic::<ParsingTaskAnalyze>(key_value, inp)
     }
