@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-
 use super::parsing_context::ParsingContext;
+
+use std::collections::HashMap;
 
 pub trait ParsingTask {
     type Item;
