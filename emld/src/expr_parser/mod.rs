@@ -317,7 +317,14 @@ mod tests_analyze {
         "Hallo %(var1)%(vara)",
         vec!["var1"]
     );
+
+    test!(
+        test_analyze_with_incomplete_placeholder_syntax_returns_empty_vec,
+        "Hallo %(var1",
+        Vec::<String>::new()
+    );
 }
+
 #[cfg(test)]
 mod tests_measure {
     use std::collections::HashMap;
