@@ -25,6 +25,17 @@ impl Element {
             Element::BackLinkCnt => "backlinkcnt",
         }
     }
+    fn from(inp: &str) -> Element {
+        match inp {
+            "title" => Element::Title,
+            "modified" => Element::Modified,
+            "created" => Element::Created,
+            "size" => Element::Size,
+            "linkcnt" => Element::LinkCnt,
+            "backlinkcnt" => Element::BackLinkCnt,
+            _ => panic!("undefined placeholder"),
+        }
+    }
 }
 
 const ELEMENT_DEF: &[Element] = &[
@@ -75,22 +86,23 @@ pub fn print_table(vault: &impl Vault) {
     });
     println!("{}", expr_parser.format(&key_value_store, format_string));
     let length_of_format = expr_parser.measure(&key_value_store, format_string);
+    let placeholders = expr_parser.analyze(&key_value_store, format_string);
 
-    // print separator
-    ELEMENT_DEF.iter().enumerate().for_each(|(idx, element)| {
+    // print separator - use valid placeholders for it
+    placeholders.iter().enumerate().for_each(|(idx, element)| {
         let bar = "=".repeat(length_of_format[idx + 1]);
         let out_str = bar;
-        key_value_store.insert(element.value(), out_str);
+        key_value_store.insert(element, out_str);
     });
     println!("{}", expr_parser.format(&key_value_store, format_string));
 
-    // print content
+    // print content - use valid placeholders for it
     let mut key_value_store = HashMap::<&str, String>::new();
     for i in vault.flat_iter() {
-        ELEMENT_DEF.iter().for_each(|elemet| {
-            let ref_cell = note_element_2_str(elemet, &i, vault);
+        placeholders.iter().for_each(|elemet| {
+            let ref_cell = note_element_2_str(&Element::from(&elemet), &i, vault);
             let out_str = ref_cell;
-            key_value_store.insert(elemet.value(), out_str);
+            key_value_store.insert(elemet, out_str);
         });
         println!("{}", expr_parser.format(&key_value_store, format_string));
     }

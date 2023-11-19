@@ -251,7 +251,6 @@ impl ExpressionParser {
         self.parse_generic::<ParsingTaskMeasure>(key_value, inp)
     }
 
-    #[allow(unused_imports, dead_code)]
     pub fn analyze(&self, key_value: &HashMap<&str, String>, inp: &str) -> Vec<String> {
         self.parse_generic::<ParsingTaskAnalyze>(key_value, inp)
     }
