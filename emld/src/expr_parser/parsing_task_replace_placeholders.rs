@@ -5,9 +5,9 @@ use super::peek_char_iterator::PeekCharIterator;
 
 use std::collections::HashMap;
 
-pub struct ParsingTaskFormat;
+pub struct ParsingTaskReplacePlaceholders;
 
-impl ParsingTask for ParsingTaskFormat {
+impl ParsingTask for ParsingTaskReplacePlaceholders {
     type Item = char;
     type Output = String;
 

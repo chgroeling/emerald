@@ -85,7 +85,10 @@ pub fn print_table(vault: &impl Vault) {
         key_value_store.insert(element.value(), out_str.to_string());
     });
 
-    println!("{}", expr_parser.format(&key_value_store, format_string));
+    println!(
+        "{}",
+        expr_parser.replace_placeholders(&key_value_store, format_string)
+    );
 
     // # Determine which placeholders in the given format string are valid
     let placeholders = expr_parser.extract_placeholder_keys(&key_value_store, format_string);
@@ -103,7 +106,10 @@ pub fn print_table(vault: &impl Vault) {
         key_value_store.insert(property.value(), out_str);
     });
 
-    println!("{}", expr_parser.format(&key_value_store, format_string));
+    println!(
+        "{}",
+        expr_parser.replace_placeholders(&key_value_store, format_string)
+    );
 
     // # print content - use valid placeholders for it
     let mut key_value_store = HashMap::<&str, String>::new();
@@ -113,6 +119,9 @@ pub fn print_table(vault: &impl Vault) {
             let out_str = ref_cell;
             key_value_store.insert(property.value(), out_str);
         });
-        println!("{}", expr_parser.format(&key_value_store, format_string));
+        println!(
+            "{}",
+            expr_parser.replace_placeholders(&key_value_store, format_string)
+        );
     }
 }
