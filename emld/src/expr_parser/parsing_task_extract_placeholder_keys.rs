@@ -5,8 +5,8 @@ use super::peek_char_iterator::PeekCharIterator;
 
 use std::collections::HashMap;
 
-pub struct ParsingTaskAnalyze;
-impl ParsingTask for ParsingTaskAnalyze {
+pub struct ParsingTaskExtractPlaceholderKeys;
+impl ParsingTask for ParsingTaskExtractPlaceholderKeys {
     type Item = String;
     type Output = Vec<String>;
 

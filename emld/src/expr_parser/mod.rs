@@ -1,7 +1,7 @@
 mod output_format;
 mod parsing_context;
 mod parsing_task;
-mod parsing_task_analyze;
+mod parsing_task_extract_placeholder_keys;
 mod parsing_task_format;
 mod parsing_task_measure;
 mod peek_char_iterator;
@@ -9,7 +9,7 @@ mod peek_char_iterator;
 use self::output_format::OutputFormat;
 use self::parsing_context::ParsingContext;
 use self::parsing_task::ParsingTask;
-use self::parsing_task_analyze::ParsingTaskAnalyze;
+use self::parsing_task_extract_placeholder_keys::ParsingTaskExtractPlaceholderKeys;
 use self::parsing_task_format::ParsingTaskFormat;
 use self::parsing_task_measure::ParsingTaskMeasure;
 use std::collections::HashMap;
@@ -274,7 +274,7 @@ impl ExpressionParser {
         self.parse_generic::<ParsingTaskMeasure>(key_value, inp)
     }
 
-    /// Analyzes a string to identify and list all placeholders.
+    /// Extracts all placeholders keys from a format string to identify and list all used and valid placeholders.
     ///
     /// This method parses the input string (`inp`) and collects all placeholders into a vector. Placeholders are defined by specific syntax (e.g., "%(var1)").
     /// It's useful for extracting the keys of placeholders present in the template without performing any replacement.
@@ -285,8 +285,12 @@ impl ExpressionParser {
     ///
     /// # Returns
     /// A `Vec<String>` containing all unique placeholder keys identified in the input string.
-    pub fn analyze(&self, key_value: &HashMap<&str, String>, inp: &str) -> Vec<String> {
-        self.parse_generic::<ParsingTaskAnalyze>(key_value, inp)
+    pub fn extract_placeholder_keys(
+        &self,
+        key_value: &HashMap<&str, String>,
+        inp: &str,
+    ) -> Vec<String> {
+        self.parse_generic::<ParsingTaskExtractPlaceholderKeys>(key_value, inp)
     }
 }
 
@@ -309,50 +313,50 @@ mod tests_analyze {
                 key_value.insert("umlaute", "äöü".into());
                 key_value.insert("umlaute_bigger", "äöü12345678".into());
                 let parser = ExpressionParser::new();
-                let out_str = parser.analyze(&key_value, $inp);
+                let out_str = parser.extract_placeholder_keys(&key_value, $inp);
                 assert_eq!(out_str, $expected_output);
             }
         };
     }
 
     test!(
-        test_analyze_with_empty_input_returns_empty_vec,
+        test_extract_placeholder_keys_with_empty_input_returns_empty_vec,
         "",
         Vec::<String>::new()
     );
 
     test!(
-        test_analyze_with_plain_string_returns_empty_vec,
+        test_extract_placeholder_keys_with_plain_string_returns_empty_vec,
         "Conventional string",
         Vec::<String>::new()
     );
 
     test!(
-        test_analyze_with_unicode_string_returns_empty_vec,
+        test_extract_placeholder_keys_with_unicode_string_returns_empty_vec,
         "Smiley 😊 Smiley",
         Vec::<String>::new()
     );
 
     test!(
-        test_analyze_with_single_placeholder_returns_one_placeholder,
+        test_extract_placeholder_keys_with_single_placeholder_returns_one_placeholder,
         "Hello %(var1)", // replaces to "Hello world"
         vec!["var1"]
     );
 
     test!(
-        test_analyze_with_multiple_placeholders_return_two_placeholders,
+        test_extract_placeholder_keys_with_multiple_placeholders_return_two_placeholders,
         "Hello %(var1). Hallo %(var2).", // "Hello world. Hallo welt."
         vec!["var1", "var2"]
     );
 
     test!(
-        test_analyze_with_undefined_second_placeholder_returns_two_placeholders,
+        test_extract_placeholder_keys_with_undefined_second_placeholder_returns_two_placeholders,
         "Hallo %(var1)%(vara)",
         vec!["var1"]
     );
 
     test!(
-        test_analyze_with_incomplete_placeholder_syntax_returns_empty_vec,
+        test_extract_placeholder_keys_with_incomplete_placeholder_syntax_returns_empty_vec,
         "Hallo %(var1",
         Vec::<String>::new()
     );

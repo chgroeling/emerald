@@ -88,7 +88,7 @@ pub fn print_table(vault: &impl Vault) {
     println!("{}", expr_parser.format(&key_value_store, format_string));
 
     // # Determine which placeholders in the given format string are valid
-    let placeholders = expr_parser.analyze(&key_value_store, format_string);
+    let placeholders = expr_parser.extract_placeholder_keys(&key_value_store, format_string);
     let used_props: Vec<_> = placeholders
         .into_iter()
         .map(|placeholder| Property::from(&placeholder))
