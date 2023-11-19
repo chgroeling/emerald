@@ -1,9 +1,11 @@
 mod output_format;
 mod parsing_context;
+mod parsing_task;
 mod peek_char_iterator;
 
 use self::output_format::OutputFormat;
 use self::parsing_context::ParsingContext;
+use self::parsing_task::ParsingTask;
 use self::peek_char_iterator::PeekCharIterator;
 use std::cmp::max;
 use std::collections::HashMap;
@@ -103,31 +105,6 @@ macro_rules! skip_until_neg_char_match {
 pub struct ExpressionParser;
 
 struct ParsingTaskFormat;
-trait ParsingTask {
-    type Item;
-    type Output;
-
-    /// Initializes the parsing context at the start of parsing.
-    fn init<'a>(
-        inp: &'a str,
-        key_value: &'a HashMap<&'a str, String>,
-    ) -> ParsingContext<'a, Self::Item>;
-
-    /// Finalizes the parsing process.
-    fn done(context: ParsingContext<'_, Self::Item>) -> Self::Output;
-
-    /// Handles errors encountered during parsing.
-    fn error(context: &mut ParsingContext<'_, Self::Item>);
-
-    /// Copies a character from the input to the output as is.
-    fn process_char(context: &mut ParsingContext<'_, Self::Item>, ch: char);
-
-    /// Processes a single character placeholder.
-    fn process_char_placeholder(context: &mut ParsingContext<'_, Self::Item>, ch: char);
-
-    /// Processes a placeholder represented by a string.
-    fn process_str_placeholder(context: &mut ParsingContext<'_, Self::Item>, arg: String);
-}
 
 impl ParsingTask for ParsingTaskFormat {
     type Item = char;
