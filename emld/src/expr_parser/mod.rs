@@ -1,6 +1,7 @@
 mod output_format;
 mod parsing_context;
 mod parsing_task;
+mod parsing_task_analyze;
 mod parsing_task_format;
 mod parsing_task_measure;
 mod peek_char_iterator;
@@ -8,6 +9,7 @@ mod peek_char_iterator;
 use self::output_format::OutputFormat;
 use self::parsing_context::ParsingContext;
 use self::parsing_task::ParsingTask;
+use self::parsing_task_analyze::ParsingTaskAnalyze;
 use self::parsing_task_format::ParsingTaskFormat;
 use self::parsing_task_measure::ParsingTaskMeasure;
 use std::collections::HashMap;
@@ -248,6 +250,43 @@ impl ExpressionParser {
     pub fn measure(&self, key_value: &HashMap<&str, String>, inp: &str) -> Vec<usize> {
         self.parse_generic::<ParsingTaskMeasure>(key_value, inp)
     }
+
+    #[allow(unused_imports, dead_code)]
+    pub fn analyze(&self, key_value: &HashMap<&str, String>, inp: &str) -> Vec<String> {
+        self.parse_generic::<ParsingTaskAnalyze>(key_value, inp)
+    }
+}
+
+#[cfg(test)]
+mod tests_analyze {
+    use std::collections::HashMap;
+
+    use crate::expr_parser::ExpressionParser;
+
+    macro_rules! test {
+        ($test_name:ident, $inp:expr, $expected_output:expr) => {
+            #[test]
+            fn $test_name() {
+                let mut key_value = HashMap::<&str, String>::new();
+                key_value.insert("var1", "world".into());
+                key_value.insert("var2", "welt".into());
+                key_value.insert("str4", "1234".into());
+                key_value.insert("str10", "1234567890".into());
+                key_value.insert("str14", "1234567890ABCD".into());
+                key_value.insert("umlaute", "äöü".into());
+                key_value.insert("umlaute_bigger", "äöü12345678".into());
+                let parser = ExpressionParser::new();
+                let out_str = parser.analyze(&key_value, $inp);
+                assert_eq!(out_str, $expected_output);
+            }
+        };
+    }
+
+    test!(
+        test_measure_with_empty_input_returns_vec0,
+        "",
+        Vec::<String>::new()
+    );
 }
 #[cfg(test)]
 mod tests_measure {
