@@ -305,6 +305,12 @@ mod tests_analyze {
         "Hello %(var1)", // replaces to "Hello world"
         vec!["var1"]
     );
+
+    test!(
+        test_measure_with_multiple_placeholders_return_correct_length_of_string_and_placeholders,
+        "Hello %(var1). Hallo %(var2).", // "Hello world. Hallo welt."
+        vec!["var1", "var2"]
+    );
 }
 #[cfg(test)]
 mod tests_measure {
