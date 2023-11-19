@@ -1,6 +1,9 @@
 mod output_format;
+mod parsing_context;
 mod peek_char_iterator;
+
 use self::output_format::OutputFormat;
+use self::parsing_context::ParsingContext;
 use self::peek_char_iterator::PeekCharIterator;
 use std::cmp::max;
 use std::collections::HashMap;
@@ -95,13 +98,6 @@ macro_rules! skip_until_neg_char_match {
             }
         }
     };
-}
-
-struct ParsingContext<'a, T> {
-    key_value: &'a HashMap<&'a str, String>,
-    iter: PeekCharIterator,
-    vout: Vec<T>,
-    format: OutputFormat,
 }
 
 pub struct ExpressionParser;
