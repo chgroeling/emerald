@@ -283,31 +283,31 @@ mod tests_analyze {
     }
 
     test!(
-        test_measure_with_empty_input_returns_vec0,
+        test_analyze_with_empty_input_returns_empty_vec,
         "",
         Vec::<String>::new()
     );
 
     test!(
-        test_measure_with_plain_string_returns_correct_length,
+        test_analyze_with_plain_string_returns_empty_vec,
         "Conventional string",
         Vec::<String>::new()
     );
 
     test!(
-        test_measure_with_unicode_string_returns_correct_length,
+        test_analyze_with_unicode_string_returns_empty_vec,
         "Smiley 😊 Smiley",
         Vec::<String>::new()
     );
 
     test!(
-        test_measure_with_single_placeholder_measures_correctly,
+        test_analyze_with_single_placeholder_returns_one_placeholder,
         "Hello %(var1)", // replaces to "Hello world"
         vec!["var1"]
     );
 
     test!(
-        test_measure_with_multiple_placeholders_return_correct_length_of_string_and_placeholders,
+        test_analyze_with_multiple_placeholders_return_two_placeholders,
         "Hello %(var1). Hallo %(var2).", // "Hello world. Hallo welt."
         vec!["var1", "var2"]
     );
