@@ -5,7 +5,7 @@ use emerald::{Note, Vault};
 
 use crate::expr_parser::ExpressionParser;
 
-enum Element {
+enum Property {
     Title,
     Modified,
     Created,
@@ -14,57 +14,57 @@ enum Element {
     BackLinkCnt,
 }
 
-impl Element {
+impl Property {
     fn value(&self) -> &str {
         match self {
-            Element::Title => "title",
-            Element::Modified => "modified",
-            Element::Created => "created",
-            Element::Size => "size",
-            Element::LinkCnt => "linkcnt",
-            Element::BackLinkCnt => "backlinkcnt",
+            Property::Title => "title",
+            Property::Modified => "modified",
+            Property::Created => "created",
+            Property::Size => "size",
+            Property::LinkCnt => "linkcnt",
+            Property::BackLinkCnt => "backlinkcnt",
         }
     }
-    fn from(inp: &str) -> Element {
+    fn from(inp: &str) -> Property {
         match inp {
-            "title" => Element::Title,
-            "modified" => Element::Modified,
-            "created" => Element::Created,
-            "size" => Element::Size,
-            "linkcnt" => Element::LinkCnt,
-            "backlinkcnt" => Element::BackLinkCnt,
-            _ => panic!("undefined placeholder"),
+            "title" => Property::Title,
+            "modified" => Property::Modified,
+            "created" => Property::Created,
+            "size" => Property::Size,
+            "linkcnt" => Property::LinkCnt,
+            "backlinkcnt" => Property::BackLinkCnt,
+            _ => panic!("undefined property"),
         }
     }
 }
 
-const ELEMENT_DEF: &[Element] = &[
-    Element::Title,
-    Element::Modified,
-    Element::Created,
-    Element::Size,
-    Element::LinkCnt,
-    Element::BackLinkCnt,
+const AVAILABLE_PROPS: &[Property] = &[
+    Property::Title,
+    Property::Modified,
+    Property::Created,
+    Property::Size,
+    Property::LinkCnt,
+    Property::BackLinkCnt,
 ];
 
-fn note_element_2_str(element: &Element, note: &Note, vault: &impl Vault) -> String {
+fn note_property_to_str(element: &Property, note: &Note, vault: &impl Vault) -> String {
     match element {
-        Element::Title => note.title.clone(),
-        Element::Modified => {
+        Property::Title => note.title.clone(),
+        Property::Modified => {
             let modified = Local
                 .timestamp_opt(note.modified.get_raw_value(), 0)
                 .unwrap();
             modified.format("%Y-%m-%d %H:%M:%S").to_string()
         }
-        Element::Created => {
+        Property::Created => {
             let created = Local
                 .timestamp_opt(note.created.get_raw_value(), 0)
                 .unwrap();
             created.format("%Y-%m-%d %H:%M:%S").to_string()
         }
-        Element::Size => note.size.to_string(),
-        Element::LinkCnt => vault.get_links_of(note).count().to_string(),
-        Element::BackLinkCnt => vault.get_backlinks_of(note).count().to_string(),
+        Property::Size => note.size.to_string(),
+        Property::LinkCnt => vault.get_links_of(note).count().to_string(),
+        Property::BackLinkCnt => vault.get_backlinks_of(note).count().to_string(),
     }
 }
 
@@ -80,7 +80,7 @@ pub fn print_table(vault: &impl Vault) {
 
     // # print header
     let mut key_value_store = HashMap::<&str, String>::new();
-    ELEMENT_DEF.iter().for_each(|element| {
+    AVAILABLE_PROPS.iter().for_each(|element| {
         let out_str = element.value();
         key_value_store.insert(element.value(), out_str.to_string());
     });
@@ -89,32 +89,29 @@ pub fn print_table(vault: &impl Vault) {
 
     // # Determine which placeholders in the given format string are valid
     let placeholders = expr_parser.analyze(&key_value_store, format_string);
-    let active_elements: Vec<_> = placeholders
+    let used_props: Vec<_> = placeholders
         .into_iter()
-        .map(|placeholder| Element::from(&placeholder))
+        .map(|placeholder| Property::from(&placeholder))
         .collect();
 
     let length_of_format = expr_parser.measure(&key_value_store, format_string);
 
     // # print separator - use valid placeholders for it
-    active_elements
-        .iter()
-        .enumerate()
-        .for_each(|(idx, element)| {
-            let bar = "=".repeat(length_of_format[idx + 1]);
-            let out_str = bar;
-            key_value_store.insert(element.value(), out_str);
-        });
+    used_props.iter().enumerate().for_each(|(idx, property)| {
+        let bar = "=".repeat(length_of_format[idx + 1]);
+        let out_str = bar;
+        key_value_store.insert(property.value(), out_str);
+    });
 
     println!("{}", expr_parser.format(&key_value_store, format_string));
 
     // # print content - use valid placeholders for it
     let mut key_value_store = HashMap::<&str, String>::new();
     for i in vault.flat_iter() {
-        active_elements.iter().for_each(|elemet| {
-            let ref_cell = note_element_2_str(&elemet, &i, vault);
+        used_props.iter().for_each(|property| {
+            let ref_cell = note_property_to_str(&property, &i, vault);
             let out_str = ref_cell;
-            key_value_store.insert(elemet.value(), out_str);
+            key_value_store.insert(property.value(), out_str);
         });
         println!("{}", expr_parser.format(&key_value_store, format_string));
     }
