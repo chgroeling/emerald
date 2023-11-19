@@ -311,6 +311,12 @@ mod tests_analyze {
         "Hello %(var1). Hallo %(var2).", // "Hello world. Hallo welt."
         vec!["var1", "var2"]
     );
+
+    test!(
+        test_analyze_with_undefined_second_placeholder_returns_two_placeholders,
+        "Hallo %(var1)%(vara)",
+        vec!["var1"]
+    );
 }
 #[cfg(test)]
 mod tests_measure {
