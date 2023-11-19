@@ -271,17 +271,31 @@ impl StringFormatter {
         self.parse_generic::<ParsingTaskReplacePlaceholders>(key_value, inp)
     }
 
-    /// Measures the length of segments in a formatted string.
+    /// Measures the length of the entire string and the lengths of valid placeholders within it.
     ///
-    /// This method processes the input string (`inp`) similar to formatting, but instead of replacing placeholders, it measures the length of each segment, including placeholders.
-    /// This is useful for understanding the layout or size impact of the placeholders in the given string.
+    /// This method processes the input string (`inp`), which is analyzed as if it were to be formatted.
+    /// Instead of replacing the placeholders, it calculates the overall length of the string with
+    /// placeholders hypothetically replaced, followed by the lengths of each valid placeholder. This
+    /// is particularly useful for layout planning and understanding the impact of placeholders on the
+    /// total length of the string.
     ///
     /// # Arguments
-    /// * `key_value` - A reference to a HashMap containing key-value pairs for potential placeholder replacements.
-    /// * `inp` - The input string in which to measure segment lengths.
+    /// * `key_value` - A reference to a HashMap containing key-value pairs. The keys represent placeholders in the input string, and the values are their potential replacements.
+    /// * `inp` - The input string with placeholders to be measured.
     ///
     /// # Returns
-    /// A `Vec<usize>` representing the length of each segment in the input string, including placeholders.
+    /// A `Vec<usize>` where the first element represents the length of the entire string with placeholders
+    /// replaced, and subsequent elements represent the lengths of each valid placeholder. Placeholders
+    /// are replaced with their corresponding values from the `key_value` HashMap for these calculations.
+    ///
+    /// # Examples
+    /// ```
+    /// let key_value = HashMap::new(); // Used for demonstrating placeholder length calculation
+    /// key_value.insert("name", "Alice");
+    /// let formatter = StringFormatter::new();
+    /// let segment_lengths = formatter.measure_segment_lengths(&key_value, "Hello, %(name)! This is a test.");
+    /// assert_eq!(segment_lengths, vec![29, 5]); // Total length with "Alice" as the placeholder, length of "Alice"
+    /// ```
     pub fn measure_segment_lengths(
         &self,
         key_value: &HashMap<&str, String>,
