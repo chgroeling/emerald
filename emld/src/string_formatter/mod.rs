@@ -335,7 +335,7 @@ impl StringFormatter {
 }
 
 #[cfg(test)]
-mod tests_analyze {
+mod tests_extract_placeholder_keys {
     use std::collections::HashMap;
 
     use crate::string_formatter::StringFormatter;
@@ -360,50 +360,50 @@ mod tests_analyze {
     }
 
     test!(
-        test_extract_placeholder_keys_with_empty_input_returns_empty_vec,
+        test_with_empty_input_returns_empty_vec,
         "",
         Vec::<String>::new()
     );
 
     test!(
-        test_extract_placeholder_keys_with_plain_string_returns_empty_vec,
+        test_with_plain_string_returns_empty_vec,
         "Conventional string",
         Vec::<String>::new()
     );
 
     test!(
-        test_extract_placeholder_keys_with_unicode_string_returns_empty_vec,
+        test_with_unicode_string_returns_empty_vec,
         "Smiley 😊 Smiley",
         Vec::<String>::new()
     );
 
     test!(
-        test_extract_placeholder_keys_with_single_placeholder_returns_one_placeholder,
+        test_with_single_placeholder_returns_one_placeholder,
         "Hello %(var1)", // replaces to "Hello world"
         vec!["var1"]
     );
 
     test!(
-        test_extract_placeholder_keys_with_multiple_placeholders_return_two_placeholders,
+        test_with_multiple_placeholders_return_two_placeholders,
         "Hello %(var1). Hallo %(var2).", // "Hello world. Hallo welt."
         vec!["var1", "var2"]
     );
 
     test!(
-        test_extract_placeholder_keys_with_undefined_second_placeholder_returns_two_placeholders,
+        test_with_undefined_second_placeholder_returns_two_placeholders,
         "Hallo %(var1)%(vara)",
         vec!["var1"]
     );
 
     test!(
-        test_extract_placeholder_keys_with_incomplete_placeholder_syntax_returns_empty_vec,
+        test_with_incomplete_placeholder_syntax_returns_empty_vec,
         "Hallo %(var1",
         Vec::<String>::new()
     );
 }
 
 #[cfg(test)]
-mod tests_measure {
+mod tests_measure_lengths {
     use std::collections::HashMap;
 
     use crate::string_formatter::StringFormatter;
@@ -427,86 +427,82 @@ mod tests_measure {
         };
     }
 
+    test!(test_with_empty_input_returns_vec0, "", vec![0usize]);
     test!(
-        test_measure_lengths_with_empty_input_returns_vec0,
-        "",
-        vec![0usize]
-    );
-    test!(
-        test_measure_lengths_with_plain_string_returns_correct_length,
+        test_with_plain_string_returns_correct_length,
         "Conventional string",
         vec![19usize]
     );
 
     test!(
-        test_measure_lengths_with_unicode_string_returns_correct_length,
+        test_with_unicode_string_returns_correct_length,
         "Smiley 😊 Smiley",
         vec![15usize]
     );
 
     test!(
-        test_measure_lengths_with_single_placeholder_measures_correctly,
+        test_with_single_placeholder_measures_correctly,
         "Hello %(var1)", // replaces to "Hello world"
         vec![11usize, 5usize]
     );
 
     test!(
-        test_measure_lengths_with_invalid_token_type_counts_length_of_unreplaced_string,
+        test_with_invalid_token_type_counts_length_of_unreplaced_string,
         "Hallo %z", // replaces nothing
         vec![8usize]
     );
 
     test!(
-        test_measure_lengths_with_multiple_placeholders_return_correct_length_of_string_and_placeholders,
+        test_with_multiple_placeholders_return_correct_length_of_string_and_placeholders,
         "Hello %(var1). Hallo %(var2).", // "Hello world. Hallo welt."
         vec![24usize, 5usize, 4usize]
     );
 
     test!(
-        test_measure_lengths_with_undefined_second_placeholder_return_correct_length_of_string_and_placeholders,
+        test_with_undefined_second_placeholder_return_correct_length_of_string_and_placeholders,
         "Hallo %(var1)%(vara)", // "Hallo world%(vara)"
         vec![18usize, 5usize]
     );
 
     test!(
-        test_measure_lengths_with_left_alignment_placeholder_and_shorter_value_returns_correct_length,
+        test_with_left_alignment_placeholder_and_shorter_value_returns_correct_length,
         "Hallo %<(10)%(str4)xx", // "Hallo 1234      xx"
         vec![18usize, 10usize]
     );
 
     test!(
-        test_measure_lengths_with_left_alignment_placeholder_and_exact_length_value_returns_correct_length,
+        test_with_left_alignment_placeholder_and_exact_length_value_returns_correct_length,
         "Hallo %<(10)%(str10)xx", // "Hallo 1234567890xx"
         vec![18usize, 10usize]
     );
 
     test!(
-        test_measure_lengths_with_left_alignment_placeholder_and_longer_value_returns_correct_length,
+        test_with_left_alignment_placeholder_and_longer_value_returns_correct_length,
         "Hallo %<(10)%(str14)xx", // "Hallo 1234567890ABCDxx"
         vec![22usize, 14usize]
     );
 
     test!(
-        test_measure_lengths_with_left_align_truncate_placeholder_and_shorter_value_with_umlauts_returns_correct_length,
+        test_with_left_align_truncate_placeholder_and_shorter_value_with_umlauts_returns_correct_length,
         "Hallo %<(10,trunc)%(umlaute)xx", // "Hallo äöü       xx"
         vec![18usize, 10usize]
     );
 
     test!(
-        test_measure_lengths_with_left_align_truncate_placeholder_and_exact_length_value_returns_correct_length,
+        test_with_left_align_truncate_placeholder_and_exact_length_value_returns_correct_length,
         "Hallo %<(10,trunc)%(str10)xx", // "Hallo 1234567890xx"
         vec![18usize, 10usize]
     );
 
     test!(
-        test_measure_lengths_with_left_align_truncate_placeholder_and_longer_value_returns_correct_length,
+        test_with_left_align_truncate_placeholder_and_longer_value_returns_correct_length,
         "Hallo %<(10,trunc)%(str14)xx", // "Hallo 123456789…xx"
         vec![18usize, 10usize]
     );
 }
 
 #[cfg(test)]
-mod tests_format {
+mod tests_replace_placeholders {
     use crate::string_formatter::StringFormatter;
     use std::collections::HashMap;
 
@@ -529,146 +525,142 @@ mod tests_format {
         };
     }
 
-    test!(
-        test_replace_placeholders_with_empty_input_returns_empty_string,
-        "",
-        ""
-    );
+    test!(test_with_empty_input_returns_empty_string, "", "");
 
     test!(
-        test_replace_placeholders_with_plain_string_returns_same_string,
+        test_with_plain_string_returns_same_string,
         "Conventional string",
         "Conventional string"
     );
 
     test!(
-        test_replace_placeholders_with_unicode_string_returns_same_string,
+        test_with_unicode_string_returns_same_string,
         "Smiley 😊 Smiley",
         "Smiley 😊 Smiley"
     );
 
     test!(
-        test_replace_placeholders_with_single_placeholder_replaces_correctly,
+        test_with_single_placeholder_replaces_correctly,
         "Hello %(var1)",
         "Hello world"
     );
 
     test!(
-        test_replace_placeholders_with_single_placeholder_alternative_value_replaces_correctly,
+        test_with_single_placeholder_alternative_value_replaces_correctly,
         "Hello %(var2)",
         "Hello welt"
     );
 
     test!(
-        test_replace_placeholders_with_invalid_token_type_leaves_token_unreplaced,
+        test_with_invalid_token_type_leaves_token_unreplaced,
         "Hallo %z",
         "Hallo %z"
     );
 
     test!(
-        test_replace_placeholders_with_multiple_placeholders_replaces_all_correctly,
+        test_with_multiple_placeholders_replaces_all_correctly,
         "Hello %(var1). Hallo %(var2).",
         "Hello world. Hallo welt."
     );
 
     test!(
-        test_replace_placeholders_with_multiple_placeholders_and_delimiters_replaces_correctly,
+        test_with_multiple_placeholders_and_delimiters_replaces_correctly,
         "|%(var1)|%(var2)|",
         "|world|welt|"
     );
 
     test!(
-        test_replace_placeholders_with_undefined_second_placeholder_keeps_it_unreplaced,
+        test_with_undefined_second_placeholder_keeps_it_unreplaced,
         "Hallo %(var1)%(vara)",
         "Hallo world%(vara)"
     );
 
     test!(
-        test_replace_placeholders_with_undefined_first_placeholder_keeps_it_unreplaced,
+        test_with_undefined_first_placeholder_keeps_it_unreplaced,
         "Hallo %(vara)%(var2)",
         "Hallo %(vara)welt"
     );
 
     test!(
-        test_replace_placeholders_with_incorrect_placeholder_syntax_keeps_it_unreplaced,
+        test_with_incorrect_placeholder_syntax_keeps_it_unreplaced,
         "Hallo %var1",
         "Hallo %var1"
     );
 
     test!(
-        test_replace_placeholders_with_incomplete_placeholder_syntax_keeps_it_unreplaced,
+        test_with_incomplete_placeholder_syntax_keeps_it_unreplaced,
         "Hallo %(var1",
         "Hallo %(var1"
     );
 
     test!(
-        test_replace_placeholders_with_newline_placeholder_inserts_newline,
+        test_with_newline_placeholder_inserts_newline,
         "Hallo %nWelt",
         "Hallo \nWelt"
     );
 
     test!(
-        test_replace_placeholders_with_escaped_percent_sign_keeps_it_unchanged,
+        test_with_escaped_percent_sign_keeps_it_unchanged,
         "Hallo %%(var1)",
         "Hallo %(var1)"
     );
 
     test!(
-        test_replace_placeholders_with_newline_placeholder_at_end_inserts_newline,
+        test_with_newline_placeholder_at_end_inserts_newline,
         "Hallo Welt %n",
         "Hallo Welt \n"
     );
 
     test!(
-        test_replace_placeholders_with_left_alignment_placeholder_and_shorter_value_pads_correctly,
+        test_with_left_alignment_placeholder_and_shorter_value_pads_correctly,
         "Hallo %<(10)%(str4)xx",
         "Hallo 1234      xx"
     );
 
     test!(
-        test_replace_placeholders_with_left_alignment_placeholder_and_exact_length_value_keeps_it_unchanged,
+        test_with_left_alignment_placeholder_and_exact_length_value_keeps_it_unchanged,
         "Hallo %<(10)%(str10)xx",
         "Hallo 1234567890xx"
     );
 
     test!(
-        test_replace_placeholders_with_left_alignment_placeholder_and_longer_value_keeps_it_unchanged,
+        test_with_left_alignment_placeholder_and_longer_value_keeps_it_unchanged,
         "Hallo %<(10)%(str14)xx",
         "Hallo 1234567890ABCDxx"
     );
 
     test!(
-        test_replace_placeholders_with_left_align_truncate_placeholder_and_exact_length_value_keeps_it_unchanged,
+        test_with_left_align_truncate_placeholder_and_exact_length_value_keeps_it_unchanged,
         "Hallo %<(10,trunc)%(str10)xx",
         "Hallo 1234567890xx"
     );
 
     test!(
-        test_replace_placeholders_with_left_align_truncate_placeholder_and_exact_length_value_with_spaces_keeps_it_unchanged,
+        test_with_left_align_truncate_placeholder_and_exact_length_value_with_spaces_keeps_it_unchanged,
         "Hallo %<(  10  ,  trunc   )%(str10)xx",
         "Hallo 1234567890xx"
     );
 
     test!(
-        test_replace_placeholders_with_left_align_truncate_placeholder_and_longer_value_truncates_correctly,
+        test_with_left_align_truncate_placeholder_and_longer_value_truncates_correctly,
         "Hallo %<(10,trunc)%(str14)xx",
         "Hallo 123456789…xx"
     );
 
     test!(
-        test_replace_placeholders_with_left_align_truncate_placeholder_and_shorter_value_with_umlauts_pads_correctly,
+        test_with_left_align_truncate_placeholder_and_shorter_value_with_umlauts_pads_correctly,
         "Hallo %<(10,trunc)%(umlaute)xx",
         "Hallo äöü       xx"
     );
 
     test!(
-        test_replace_placeholders_with_left_align_truncate_placeholder_and_longer_value_with_umlauts_truncates_correctly,
+        test_with_left_align_truncate_placeholder_and_longer_value_with_umlauts_truncates_correctly,
         "Hallo %<(10,trunc)%(umlaute_bigger)xx",
         "Hallo äöü123456…xx"
     );
 
     test!(
-        test_replace_placeholders_with_invalid_left_align_placeholder_keeps_format_specifier_unchanged,
+        test_with_invalid_left_align_placeholder_keeps_format_specifier_unchanged,
         "Hallo %<(a10)%(str14)xx",
         "Hallo %<(a10)1234567890ABCDxx"
     );
