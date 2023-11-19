@@ -287,6 +287,18 @@ mod tests_analyze {
         "",
         Vec::<String>::new()
     );
+
+    test!(
+        test_measure_with_plain_string_returns_correct_length,
+        "Conventional string",
+        Vec::<String>::new()
+    );
+
+    test!(
+        test_measure_with_unicode_string_returns_correct_length,
+        "Smiley 😊 Smiley",
+        Vec::<String>::new()
+    );
 }
 #[cfg(test)]
 mod tests_measure {
