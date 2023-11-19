@@ -382,6 +382,12 @@ mod tests_measure {
     );
 
     test!(
+        test_measure_with_undefined_second_placeholder_return_correct_length_of_string_and_placeholders,
+        "Hallo %(var1)%(vara)", // "Hallo world%(vara)"
+        vec![18usize, 5usize]
+    );
+
+    test!(
         test_measure_with_left_alignment_placeholder_and_shorter_value_returns_correct_length,
         "Hallo %<(10)%(str4)xx", // "Hallo 1234      xx"
         vec![18usize, 10usize]
