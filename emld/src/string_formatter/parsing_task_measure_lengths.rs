@@ -5,8 +5,8 @@ use super::peek_char_iterator::PeekCharIterator;
 
 use std::{cmp::max, collections::HashMap};
 
-pub struct ParsingTaskMeasureSegmentLengths;
-impl ParsingTask for ParsingTaskMeasureSegmentLengths {
+pub struct ParsingTaskMeasureLengths;
+impl ParsingTask for ParsingTaskMeasureLengths {
     type Item = usize;
     type Output = Vec<usize>;
 

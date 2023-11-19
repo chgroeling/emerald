@@ -97,7 +97,7 @@ pub fn print_table(vault: &impl Vault) {
         .map(|placeholder| Property::from(&placeholder))
         .collect();
 
-    let length_of_format = expr_parser.measure_segment_lengths(&key_value_store, format_string);
+    let length_of_format = expr_parser.measure_lengths(&key_value_store, format_string);
 
     // # print separator - use valid placeholders for it
     used_props.iter().enumerate().for_each(|(idx, property)| {
