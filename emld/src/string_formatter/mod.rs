@@ -243,18 +243,30 @@ impl StringFormatter {
         T::done(context)
     }
 
-    /// Replaces placeholders in a string based on a given template and key-value pairs.
+    /// Replaces placeholders in the input string with corresponding values from a HashMap.
     ///
-    /// The method replaces placeholders in the input string (`inp`) with corresponding values from the `key_value` HashMap.
-    /// Placeholders are identified by specific syntax (e.g., "%(var1)") and are replaced with the associated value from the HashMap.
-    /// The method handles various placeholder types, including left alignment and truncation.
+    /// This method scans the input string (`inp`) for placeholders, identified by a specific
+    /// syntax (e.g., "%(var1)"), and replaces them with corresponding values from the
+    /// `key_value` HashMap. The replacement process is versatile, accommodating various placeholder
+    /// formats, including those requiring left alignment and truncation. It's ideal for dynamically
+    /// generating strings where placeholders are replaced by context-specific values.
     ///
     /// # Arguments
-    /// * `key_value` - A reference to a HashMap containing key-value pairs for placeholder replacements.
-    /// * `inp` - The input string containing placeholders to be formatted.
+    /// * `key_value` - A reference to a HashMap where keys correspond to placeholder identifiers in the input string and values are their replacements.
+    /// * `inp` - The input string containing placeholders.
     ///
     /// # Returns
-    /// A `String` where all placeholders have been replaced with corresponding values from the `key_value` HashMap.
+    /// A new `String` with placeholders replaced by their respective values from the `key_value` HashMap.
+    /// If a placeholder has no corresponding value in the map, it remains unchanged in the output string.
+    ///
+    /// # Examples
+    /// ```
+    /// let mut key_value = HashMap::new();
+    /// key_value.insert("name", "Alice");
+    /// let formatter = StringFormatter::new();
+    /// let formatted_string = formatter.replace_placeholders(&key_value, "Hello, %(name)!");
+    /// assert_eq!(formatted_string, "Hello, Alice!");
+    /// ```
     pub fn replace_placeholders(&self, key_value: &HashMap<&str, String>, inp: &str) -> String {
         self.parse_generic::<ParsingTaskReplacePlaceholders>(key_value, inp)
     }
