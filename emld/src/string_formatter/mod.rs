@@ -2,7 +2,7 @@ mod output_format;
 mod parsing_context;
 mod parsing_task;
 mod parsing_task_extract_placeholder_keys;
-mod parsing_task_measure_segment_lengths;
+mod parsing_task_measure_lengths;
 mod parsing_task_replace_placeholders;
 mod peek_char_iterator;
 
@@ -10,7 +10,7 @@ use self::output_format::OutputFormat;
 use self::parsing_context::ParsingContext;
 use self::parsing_task::ParsingTask;
 use self::parsing_task_extract_placeholder_keys::ParsingTaskExtractPlaceholderKeys;
-use self::parsing_task_measure_segment_lengths::ParsingTaskMeasureSegmentLengths;
+use self::parsing_task_measure_lengths::ParsingTaskMeasureLengths;
 use self::parsing_task_replace_placeholders::ParsingTaskReplacePlaceholders;
 use std::collections::HashMap;
 
@@ -296,12 +296,8 @@ impl StringFormatter {
     /// let segment_lengths = formatter.measure_segment_lengths(&key_value, "Hello, %(name)! This is a test.");
     /// assert_eq!(segment_lengths, vec![29, 5]); // Total length with "Alice" as the placeholder, length of "Alice"
     /// ```
-    pub fn measure_segment_lengths(
-        &self,
-        key_value: &HashMap<&str, String>,
-        inp: &str,
-    ) -> Vec<usize> {
-        self.parse_generic::<ParsingTaskMeasureSegmentLengths>(key_value, inp)
+    pub fn measure_lengths(&self, key_value: &HashMap<&str, String>, inp: &str) -> Vec<usize> {
+        self.parse_generic::<ParsingTaskMeasureLengths>(key_value, inp)
     }
 
     /// Extracts and lists all valid placeholder keys from a given string.
@@ -425,85 +421,85 @@ mod tests_measure {
                 key_value.insert("umlaute", "äöü".into());
                 key_value.insert("umlaute_bigger", "äöü12345678".into());
                 let parser = StringFormatter::new();
-                let out_str = parser.measure_segment_lengths(&key_value, $inp);
+                let out_str = parser.measure_lengths(&key_value, $inp);
                 assert_eq!(out_str, $expected_output);
             }
         };
     }
 
     test!(
-        test_measure_segment_lengths_with_empty_input_returns_vec0,
+        test_measure_lengths_with_empty_input_returns_vec0,
         "",
         vec![0usize]
     );
     test!(
-        test_measure_segment_lengths_with_plain_string_returns_correct_length,
+        test_measure_lengths_with_plain_string_returns_correct_length,
         "Conventional string",
         vec![19usize]
     );
 
     test!(
-        test_measure_segment_lengths_with_unicode_string_returns_correct_length,
+        test_measure_lengths_with_unicode_string_returns_correct_length,
         "Smiley 😊 Smiley",
         vec![15usize]
     );
 
     test!(
-        test_measure_segment_lengths_with_single_placeholder_measures_correctly,
+        test_measure_lengths_with_single_placeholder_measures_correctly,
         "Hello %(var1)", // replaces to "Hello world"
         vec![11usize, 5usize]
     );
 
     test!(
-        test_measure_segment_lengths_with_invalid_token_type_counts_length_of_unreplaced_string,
+        test_measure_lengths_with_invalid_token_type_counts_length_of_unreplaced_string,
         "Hallo %z", // replaces nothing
         vec![8usize]
     );
 
     test!(
-        test_measure_segment_lengths_with_multiple_placeholders_return_correct_length_of_string_and_placeholders,
+        test_measure_lengths_with_multiple_placeholders_return_correct_length_of_string_and_placeholders,
         "Hello %(var1). Hallo %(var2).", // "Hello world. Hallo welt."
         vec![24usize, 5usize, 4usize]
     );
 
     test!(
-        test_measure_segment_lengths_with_undefined_second_placeholder_return_correct_length_of_string_and_placeholders,
+        test_measure_lengths_with_undefined_second_placeholder_return_correct_length_of_string_and_placeholders,
         "Hallo %(var1)%(vara)", // "Hallo world%(vara)"
         vec![18usize, 5usize]
     );
 
     test!(
-        test_measure_segment_lengths_with_left_alignment_placeholder_and_shorter_value_returns_correct_length,
+        test_measure_lengths_with_left_alignment_placeholder_and_shorter_value_returns_correct_length,
         "Hallo %<(10)%(str4)xx", // "Hallo 1234      xx"
         vec![18usize, 10usize]
     );
 
     test!(
-        test_measure_segment_lengths_with_left_alignment_placeholder_and_exact_length_value_returns_correct_length,
+        test_measure_lengths_with_left_alignment_placeholder_and_exact_length_value_returns_correct_length,
         "Hallo %<(10)%(str10)xx", // "Hallo 1234567890xx"
         vec![18usize, 10usize]
     );
 
     test!(
-        test_measure_segment_lengths_with_left_alignment_placeholder_and_longer_value_returns_correct_length,
+        test_measure_lengths_with_left_alignment_placeholder_and_longer_value_returns_correct_length,
         "Hallo %<(10)%(str14)xx", // "Hallo 1234567890ABCDxx"
         vec![22usize, 14usize]
     );
 
     test!(
-        test_measure_segment_lengths_with_left_align_truncate_placeholder_and_shorter_value_with_umlauts_returns_correct_length,
+        test_measure_lengths_with_left_align_truncate_placeholder_and_shorter_value_with_umlauts_returns_correct_length,
         "Hallo %<(10,trunc)%(umlaute)xx", // "Hallo äöü       xx"
         vec![18usize, 10usize]
     );
 
     test!(
-        test_measure_segment_lengths_with_left_align_truncate_placeholder_and_exact_length_value_returns_correct_length,
+        test_measure_lengths_with_left_align_truncate_placeholder_and_exact_length_value_returns_correct_length,
         "Hallo %<(10,trunc)%(str10)xx", // "Hallo 1234567890xx"
         vec![18usize, 10usize]
     );
 
     test!(
-        test_measure_segment_lengths_with_left_align_truncate_placeholder_and_longer_value_returns_correct_length,
+        test_measure_lengths_with_left_align_truncate_placeholder_and_longer_value_returns_correct_length,
         "Hallo %<(10,trunc)%(str14)xx", // "Hallo 123456789…xx"
         vec![18usize, 10usize]
     );
