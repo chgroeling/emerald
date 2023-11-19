@@ -299,6 +299,12 @@ mod tests_analyze {
         "Smiley 😊 Smiley",
         Vec::<String>::new()
     );
+
+    test!(
+        test_measure_with_single_placeholder_measures_correctly,
+        "Hello %(var1)", // replaces to "Hello world"
+        vec!["var1"]
+    );
 }
 #[cfg(test)]
 mod tests_measure {

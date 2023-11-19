@@ -31,7 +31,9 @@ impl ParsingTask for ParsingTaskAnalyze {
 
     fn process_char_placeholder(_context: &mut ParsingContext<'_, Self::Item>, _ch: char) {}
 
-    fn process_str_placeholder(_cntext: &mut ParsingContext<'_, Self::Item>, _arg: String) {}
+    fn process_str_placeholder(context: &mut ParsingContext<'_, Self::Item>, arg: String) {
+        context.vout.push(arg);
+    }
 
     fn done(context: ParsingContext<'_, Self::Item>) -> Self::Output {
         context.vout
