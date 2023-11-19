@@ -1,5 +1,5 @@
-mod expr_parser;
 mod print_table;
+mod string_formatter;
 use clap::{Parser, Subcommand};
 use emerald::Emerald;
 use emerald::EmeraldError;
