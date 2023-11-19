@@ -106,9 +106,9 @@ macro_rules! skip_until_neg_char_match {
     };
 }
 
-pub struct ExpressionParser;
+pub struct StringFormatter;
 
-impl ExpressionParser {
+impl StringFormatter {
     pub fn new() -> Self {
         Self
     }
@@ -302,7 +302,7 @@ impl ExpressionParser {
 mod tests_analyze {
     use std::collections::HashMap;
 
-    use crate::expr_parser::ExpressionParser;
+    use crate::string_formatter::StringFormatter;
 
     macro_rules! test {
         ($test_name:ident, $inp:expr, $expected_output:expr) => {
@@ -316,7 +316,7 @@ mod tests_analyze {
                 key_value.insert("str14", "1234567890ABCD".into());
                 key_value.insert("umlaute", "äöü".into());
                 key_value.insert("umlaute_bigger", "äöü12345678".into());
-                let parser = ExpressionParser::new();
+                let parser = StringFormatter::new();
                 let out_str = parser.extract_placeholder_keys(&key_value, $inp);
                 assert_eq!(out_str, $expected_output);
             }
@@ -370,7 +370,7 @@ mod tests_analyze {
 mod tests_measure {
     use std::collections::HashMap;
 
-    use crate::expr_parser::ExpressionParser;
+    use crate::string_formatter::StringFormatter;
 
     macro_rules! test {
         ($test_name:ident, $inp:expr, $expected_output:expr) => {
@@ -384,7 +384,7 @@ mod tests_measure {
                 key_value.insert("str14", "1234567890ABCD".into());
                 key_value.insert("umlaute", "äöü".into());
                 key_value.insert("umlaute_bigger", "äöü12345678".into());
-                let parser = ExpressionParser::new();
+                let parser = StringFormatter::new();
                 let out_str = parser.measure_segment_lengths(&key_value, $inp);
                 assert_eq!(out_str, $expected_output);
             }
@@ -471,7 +471,7 @@ mod tests_measure {
 
 #[cfg(test)]
 mod tests_format {
-    use crate::expr_parser::ExpressionParser;
+    use crate::string_formatter::StringFormatter;
     use std::collections::HashMap;
 
     macro_rules! test {
@@ -486,7 +486,7 @@ mod tests_format {
                 key_value.insert("str14", "1234567890ABCD".into());
                 key_value.insert("umlaute", "äöü".into());
                 key_value.insert("umlaute_bigger", "äöü12345678".into());
-                let parser = ExpressionParser::new();
+                let parser = StringFormatter::new();
                 let out_str = parser.replace_placeholders(&key_value, $inp);
                 assert_eq!(out_str, $expected_output);
             }

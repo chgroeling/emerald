@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use chrono::prelude::*;
 use emerald::{Note, Vault};
 
-use crate::expr_parser::ExpressionParser;
+use crate::string_formatter::StringFormatter;
 
 enum Property {
     Title,
@@ -69,7 +69,7 @@ fn note_property_to_str(element: &Property, note: &Note, vault: &impl Vault) -> 
 }
 
 pub fn print_table(vault: &impl Vault) {
-    let expr_parser = ExpressionParser::new();
+    let expr_parser = StringFormatter::new();
     let format_string = "\
           %<(40, trunc)%(title)\
          |%<(19, trunc)%(modified)\
