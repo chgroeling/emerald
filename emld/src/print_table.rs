@@ -2,8 +2,7 @@ use std::collections::HashMap;
 
 use chrono::prelude::*;
 use emerald::{Note, Vault};
-
-use crate::string_formatter::StringFormatter;
+use formatify::StringFormatter;
 
 enum Property {
     Title,
