@@ -12,4 +12,4 @@ log = { version = "0.4.20", features = [
     "release_max_level_info",
 ] }
 emerald = { path = "../emerald" }
-formatify = { git = "https://github.com/chgroeling/formatify.git" }
+formatify = { verison = "0.1.0" }
