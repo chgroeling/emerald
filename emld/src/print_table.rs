@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use chrono::prelude::*;
 use emerald::{Note, Vault};
-use formatify::StringFormatter;
+use formatify::Formatify;
 
 enum Property {
     Title,
@@ -68,7 +68,7 @@ fn note_property_to_str(element: &Property, note: &Note, vault: &impl Vault) -> 
 }
 
 pub fn print_table(vault: &impl Vault) {
-    let expr_parser = StringFormatter::new();
+    let expr_parser = Formatify::new();
     let format_string = "\
           %<(40, trunc)%(title)\
          |%<(19, trunc)%(modified)\
