@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use chrono::prelude::*;
 use emerald::{Note, Vault};
-use formatify::Formatify;
+use formatify::{Formatify, PlaceholderFormatter};
 
 enum Property {
     Title,
@@ -37,15 +37,6 @@ impl Property {
     }
 }
 
-const AVAILABLE_PROPS: &[Property] = &[
-    Property::Title,
-    Property::Modified,
-    Property::Created,
-    Property::Size,
-    Property::LinkCnt,
-    Property::BackLinkCnt,
-];
-
 fn note_property_to_str(element: &Property, note: &Note, vault: &impl Vault) -> String {
     match element {
         Property::Title => note.title.clone(),
@@ -73,13 +64,20 @@ pub fn print_table(vault: &impl Vault) {
           %<(40, trunc)%(title)\
          |%<(19, trunc)%(modified)\
          |%<(19, trunc)%(created)\
-         |%<(12, trunc)%(size)\
-         |%<( 6, trunc)%(linkcnt)\
-         |%<( 6, trunc)%(backlinkcnt)";
+         |%>(12, ltrunc)%(size)\
+         |%>( 6, ltrunc)%(linkcnt)\
+         |%>( 6, ltrunc)%(backlinkcnt)";
+
+    // # Determine which placeholders in the given format string are valid
+    let placeholders = expr_parser.extract_placeholder_keys(format_string);
+    let used_props: Vec<_> = placeholders
+        .into_iter()
+        .map(|placeholder| Property::from(&placeholder))
+        .collect();
 
     // # print header
     let mut key_value_store = HashMap::<&str, String>::new();
-    AVAILABLE_PROPS.iter().for_each(|element| {
+    used_props.iter().for_each(|element| {
         let out_str = element.value();
         key_value_store.insert(element.value(), out_str.to_string());
     });
@@ -88,13 +86,6 @@ pub fn print_table(vault: &impl Vault) {
         "{}",
         expr_parser.replace_placeholders(&key_value_store, format_string)
     );
-
-    // # Determine which placeholders in the given format string are valid
-    let placeholders = expr_parser.extract_placeholder_keys(&key_value_store, format_string);
-    let used_props: Vec<_> = placeholders
-        .into_iter()
-        .map(|placeholder| Property::from(&placeholder))
-        .collect();
 
     let length_of_format = expr_parser.measure_lengths(&key_value_store, format_string);
 
