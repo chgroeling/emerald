@@ -12,6 +12,7 @@ enum Property {
     Size,
     LinkCnt,
     BackLinkCnt,
+    Location,
     Undefined,
 }
 
@@ -24,6 +25,7 @@ impl Property {
             Property::Size => "size",
             Property::LinkCnt => "linkcnt",
             Property::BackLinkCnt => "backlinkcnt",
+            Property::Location => "location",
             Property::Undefined => panic!("undefined property"),
         }
     }
@@ -35,6 +37,7 @@ impl Property {
             "size" => Property::Size,
             "linkcnt" => Property::LinkCnt,
             "backlinkcnt" => Property::BackLinkCnt,
+            "location" => Property::Location,
             _ => Property::Undefined,
         }
     }
@@ -43,6 +46,7 @@ impl Property {
 fn note_property_to_str(element: &Property, note: &Note, vault: &impl Vault) -> String {
     match element {
         Property::Title => note.title.clone(),
+        Property::Location => note.location.clone(),
         Property::Modified => {
             let modified = Local
                 .timestamp_opt(note.modified.get_raw_value(), 0)
@@ -58,7 +62,7 @@ fn note_property_to_str(element: &Property, note: &Note, vault: &impl Vault) -> 
         Property::Size => note.size.to_string(),
         Property::LinkCnt => vault.get_links_of(note).count().to_string(),
         Property::BackLinkCnt => vault.get_backlinks_of(note).count().to_string(),
-        _ => panic!("Undefined property"),
+        Property::Undefined => panic!("Undefined property"),
     }
 }
 

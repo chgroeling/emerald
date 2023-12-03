@@ -30,6 +30,7 @@ impl NoteFactory for NoteFactoryImpl {
         Note::new(
             rid,
             meta_data.title.clone(),
+            meta_data.location.clone(),
             content.0.clone(),
             meta_data.size,
             Timestamp(meta_data.created),

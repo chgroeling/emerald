@@ -3,6 +3,7 @@ use super::resource_type::ResourceType;
 #[derive(Debug, Clone, PartialEq, Hash, Default)]
 pub struct MetaData {
     pub name: String,
+    pub location: String,
     pub resource_type: ResourceType,
     pub size: u64,
     pub modified: i64,
@@ -22,6 +23,14 @@ impl MetaDataBuilder {
 
     pub fn set_name(self, name: String) -> Self {
         let new_prep = MetaData { name, ..self.prep };
+        Self { prep: new_prep }
+    }
+
+    pub fn set_location(self, location: String) -> Self {
+        let new_prep = MetaData {
+            location,
+            ..self.prep
+        };
         Self { prep: new_prep }
     }
 

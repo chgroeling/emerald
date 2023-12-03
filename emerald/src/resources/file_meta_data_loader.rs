@@ -74,6 +74,11 @@ where
         // get meta data from filesystem
         let fs_meta_data = self.fs_meta_data_access.get_meta_data_from_fs(path)?;
 
+        // get location of file
+        let Some(os_location) = path.to_str() else {
+            return Err(ValueError);
+        };
+
         // get name of file
         let os_filename = path.file_stem().ok_or(NotAFile(path.into()))?;
         let name = os_filename.to_str().ok_or(ValueError)?.to_string();
@@ -95,6 +100,7 @@ where
 
         let builder = MetaDataBuilder::new()
             .set_name(name)
+            .set_location(os_location.to_owned())
             .set_size(fs_meta_data.size)
             .set_resource_type(resource_type)
             .set_created(fs_meta_data.created as i64)
