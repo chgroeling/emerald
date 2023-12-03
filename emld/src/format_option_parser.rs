@@ -4,6 +4,7 @@ use formatify::{Formatify, PlaceholderFormatter};
 #[derive(Clone, Debug)]
 pub enum FormatOptions {
     Overview,
+    ShowMarkdown,
     Custom(String),
 }
 
@@ -30,6 +31,7 @@ impl clap::builder::TypedValueParser for FormatOptionParser {
 
         let ret = match ok_val {
             "overview" => FormatOptions::Overview,
+            "all" => FormatOptions::ShowMarkdown,
             _ => {
                 let custom_fmt = ok_val.to_owned();
                 let expr_parser = Formatify::new();

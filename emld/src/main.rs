@@ -73,6 +73,7 @@ fn uc_list(
             |%>( 6, ltrunc)%(linkcnt)\
             |%>( 6, ltrunc)%(backlinkcnt)"
         }
+        FormatOptions::ShowMarkdown => "%(markdown)%n",
         FormatOptions::Custom(custom_fmt_str) => custom_fmt_str,
     };
 
