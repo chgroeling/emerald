@@ -13,6 +13,7 @@ enum Property {
     LinkCnt,
     BackLinkCnt,
     Location,
+    Markdown,
     Undefined,
 }
 
@@ -26,6 +27,7 @@ impl Property {
             Property::LinkCnt => "linkcnt",
             Property::BackLinkCnt => "backlinkcnt",
             Property::Location => "location",
+            Property::Markdown => "markdown",
             Property::Undefined => panic!("undefined property"),
         }
     }
@@ -38,6 +40,7 @@ impl Property {
             "linkcnt" => Property::LinkCnt,
             "backlinkcnt" => Property::BackLinkCnt,
             "location" => Property::Location,
+            "markdown" => Property::Markdown,
             _ => Property::Undefined,
         }
     }
@@ -47,6 +50,7 @@ fn note_property_to_str(element: &Property, note: &Note, vault: &impl Vault) -> 
     match element {
         Property::Title => note.title.clone(),
         Property::Location => note.location.clone(),
+        Property::Markdown => note.markdown.clone(),
         Property::Modified => {
             let modified = Local
                 .timestamp_opt(note.modified.get_raw_value(), 0)
