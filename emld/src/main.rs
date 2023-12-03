@@ -6,7 +6,6 @@ use clap::{Parser, Subcommand};
 use emerald::Emerald;
 use emerald::EmeraldError;
 use emerald::Result;
-use emerald::Vault;
 
 use format_option_parser::{FormatOptionParser, FormatOptions};
 #[allow(unused_imports)]
@@ -40,9 +39,6 @@ enum Commands {
         #[arg(long, required = false, default_value_t = false)]
         no_header: bool,
     },
-
-    /// Shows all notes
-    All {},
 }
 
 fn uc_stats(_vault_path: &Path, emerald: &Emerald) -> Result<()> {
@@ -85,15 +81,6 @@ fn uc_list(
     Ok(())
 }
 
-fn uc_all(_vault_path: &Path, emerald: &Emerald) -> Result<()> {
-    info!("Execute usecase: All");
-    let vault = emerald.get_vault();
-    for i in vault.flat_iter() {
-        println!("{} - {}", i.title, i.markdown);
-    }
-    Ok(())
-}
-
 fn main() -> Result<()> {
     env_logger::init();
 
@@ -113,7 +100,6 @@ fn main() -> Result<()> {
     // execute use-cases
     match &cli.command {
         Commands::Stats {} => uc_stats(&vault_path, &emerald)?,
-        Commands::All {} => uc_all(&vault_path, &emerald)?,
         Commands::List { format, no_header } => uc_list(&vault_path, &emerald, format, !no_header)?,
     }
     debug!("User set vault path to {:?}", vault_path);
