@@ -53,8 +53,16 @@ fn uc_stats(_vault_path: &Path, emerald: &Emerald) -> Result<()> {
 
 fn uc_list(_vault_path: &Path, emerald: &Emerald) -> Result<()> {
     info!("Execute usecase: List");
+    let format_string = "\
+         %<(40, trunc)%(title)\
+        |%<(19, trunc)%(modified)\
+        |%<(19, trunc)%(created)\
+        |%>(12, ltrunc)%(size)\
+        |%>( 6, ltrunc)%(linkcnt)\
+        |%>( 6, ltrunc)%(backlinkcnt)";
+
     let vault = emerald.get_vault();
-    print_table(&vault);
+    print_table(&vault, format_string);
     Ok(())
 }
 

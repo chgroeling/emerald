@@ -62,15 +62,8 @@ fn note_property_to_str(element: &Property, note: &Note, vault: &impl Vault) -> 
     }
 }
 
-pub fn print_table(vault: &impl Vault) {
+pub fn print_table(vault: &impl Vault, format_string: &str) {
     let expr_parser = Formatify::new();
-    let format_string = "\
-          %<(40, trunc)%(title)\
-         |%<(19, trunc)%(modified)\
-         |%<(19, trunc)%(created)\
-         |%>(12, ltrunc)%(size)\
-         |%>( 6, ltrunc)%(linkcnt)\
-         |%>( 6, ltrunc)%(backlinkcnt)";
 
     // # Determine which placeholders in the given format string are valid
     let placeholders = expr_parser.extract_placeholder_keys(format_string);
