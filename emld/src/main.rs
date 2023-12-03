@@ -1,11 +1,14 @@
+mod format_option_parser;
 mod print_table;
 
+use clap;
 use clap::{Parser, Subcommand};
 use emerald::Emerald;
 use emerald::EmeraldError;
 use emerald::Result;
 use emerald::Vault;
 
+use format_option_parser::{FormatOptionParser, FormatOptions};
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 use print_table::print_table;
@@ -30,7 +33,10 @@ enum Commands {
     Stats {},
 
     /// Lists all notes as table.
-    List {},
+    List {
+        #[arg(long, required=false, value_parser =FormatOptionParser, default_value="overview") ]
+        format: FormatOptions,
+    },
 
     /// Shows all notes
     All {},
@@ -51,15 +57,20 @@ fn uc_stats(_vault_path: &Path, emerald: &Emerald) -> Result<()> {
     Ok(())
 }
 
-fn uc_list(_vault_path: &Path, emerald: &Emerald) -> Result<()> {
+fn uc_list(_vault_path: &Path, emerald: &Emerald, format_opt: &FormatOptions) -> Result<()> {
     info!("Execute usecase: List");
-    let format_string = "\
-         %<(40, trunc)%(title)\
-        |%<(19, trunc)%(modified)\
-        |%<(19, trunc)%(created)\
-        |%>(12, ltrunc)%(size)\
-        |%>( 6, ltrunc)%(linkcnt)\
-        |%>( 6, ltrunc)%(backlinkcnt)";
+    let format_string = match format_opt {
+        FormatOptions::Overview => {
+            "\
+             %<(40, trunc)%(title)\
+            |%<(19, trunc)%(modified)\
+            |%<(19, trunc)%(created)\
+            |%>(12, ltrunc)%(size)\
+            |%>( 6, ltrunc)%(linkcnt)\
+            |%>( 6, ltrunc)%(backlinkcnt)"
+        }
+        FormatOptions::Custom(custom_fmt_str) => custom_fmt_str,
+    };
 
     let vault = emerald.get_vault();
     print_table(&vault, format_string);
@@ -95,7 +106,7 @@ fn main() -> Result<()> {
     match &cli.command {
         Commands::Stats {} => uc_stats(&vault_path, &emerald)?,
         Commands::All {} => uc_all(&vault_path, &emerald)?,
-        Commands::List {} => uc_list(&vault_path, &emerald)?,
+        Commands::List { format } => uc_list(&vault_path, &emerald, format)?,
     }
     debug!("User set vault path to {:?}", vault_path);
 
