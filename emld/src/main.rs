@@ -36,6 +36,9 @@ enum Commands {
     List {
         #[arg(long, required=false, value_parser =FormatOptionParser, default_value="overview") ]
         format: FormatOptions,
+
+        #[arg(long, required = false, default_value_t = false)]
+        no_header: bool,
     },
 
     /// Shows all notes
@@ -57,7 +60,12 @@ fn uc_stats(_vault_path: &Path, emerald: &Emerald) -> Result<()> {
     Ok(())
 }
 
-fn uc_list(_vault_path: &Path, emerald: &Emerald, format_opt: &FormatOptions) -> Result<()> {
+fn uc_list(
+    _vault_path: &Path,
+    emerald: &Emerald,
+    format_opt: &FormatOptions,
+    print_header: bool,
+) -> Result<()> {
     info!("Execute usecase: List");
     let format_string = match format_opt {
         FormatOptions::Overview => {
@@ -73,7 +81,7 @@ fn uc_list(_vault_path: &Path, emerald: &Emerald, format_opt: &FormatOptions) ->
     };
 
     let vault = emerald.get_vault();
-    print_table(&vault, format_string);
+    print_table(&vault, format_string, print_header);
     Ok(())
 }
 
@@ -106,7 +114,7 @@ fn main() -> Result<()> {
     match &cli.command {
         Commands::Stats {} => uc_stats(&vault_path, &emerald)?,
         Commands::All {} => uc_all(&vault_path, &emerald)?,
-        Commands::List { format } => uc_list(&vault_path, &emerald, format)?,
+        Commands::List { format, no_header } => uc_list(&vault_path, &emerald, format, !no_header)?,
     }
     debug!("User set vault path to {:?}", vault_path);
 

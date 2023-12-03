@@ -66,7 +66,7 @@ fn note_property_to_str(element: &Property, note: &Note, vault: &impl Vault) -> 
     }
 }
 
-pub fn print_table(vault: &impl Vault, format_string: &str) {
+pub fn print_table(vault: &impl Vault, format_string: &str, print_header: bool) {
     let expr_parser = Formatify::new();
 
     // # Determine which placeholders in the given format string are valid
@@ -77,32 +77,34 @@ pub fn print_table(vault: &impl Vault, format_string: &str) {
         .filter(|prop| prop != &Property::Undefined) // remove all undefined properties
         .collect();
 
-    // # print header
-    let mut key_value_store = HashMap::<&str, String>::new();
-    used_props.iter().for_each(|element| {
-        let out_str = element.value();
-        key_value_store.insert(element.value(), out_str.to_string());
-    });
+    if print_header {
+        let mut key_value_store = HashMap::<&str, String>::new();
 
-    println!(
-        "{}",
-        expr_parser.replace_placeholders(&key_value_store, format_string)
-    );
+        // # print header
+        used_props.iter().for_each(|element| {
+            let out_str = element.value();
+            key_value_store.insert(element.value(), out_str.to_string());
+        });
 
-    let length_of_format = expr_parser.measure_lengths(&key_value_store, format_string);
+        println!(
+            "{}",
+            expr_parser.replace_placeholders(&key_value_store, format_string)
+        );
 
-    // # print separator - use valid placeholders for it
-    used_props.iter().enumerate().for_each(|(idx, property)| {
-        let bar = "=".repeat(length_of_format[idx + 1]);
-        let out_str = bar;
-        key_value_store.insert(property.value(), out_str);
-    });
+        let length_of_format = expr_parser.measure_lengths(&key_value_store, format_string);
 
-    println!(
-        "{}",
-        expr_parser.replace_placeholders(&key_value_store, format_string)
-    );
+        // # print separator - use valid placeholders for it
+        used_props.iter().enumerate().for_each(|(idx, property)| {
+            let bar = "=".repeat(length_of_format[idx + 1]);
+            let out_str = bar;
+            key_value_store.insert(property.value(), out_str);
+        });
 
+        println!(
+            "{}",
+            expr_parser.replace_placeholders(&key_value_store, format_string)
+        );
+    }
     // # print content - use valid placeholders for it
     let mut key_value_store = HashMap::<&str, String>::new();
     for i in vault.flat_iter() {
