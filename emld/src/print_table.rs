@@ -4,6 +4,7 @@ use chrono::prelude::*;
 use emerald::{Note, Vault};
 use formatify::{Formatify, PlaceholderFormatter};
 
+#[derive(PartialEq)]
 enum Property {
     Title,
     Modified,
@@ -11,6 +12,7 @@ enum Property {
     Size,
     LinkCnt,
     BackLinkCnt,
+    Undefined,
 }
 
 impl Property {
@@ -22,6 +24,7 @@ impl Property {
             Property::Size => "size",
             Property::LinkCnt => "linkcnt",
             Property::BackLinkCnt => "backlinkcnt",
+            Property::Undefined => panic!("undefined property"),
         }
     }
     fn from(inp: &str) -> Property {
@@ -32,7 +35,7 @@ impl Property {
             "size" => Property::Size,
             "linkcnt" => Property::LinkCnt,
             "backlinkcnt" => Property::BackLinkCnt,
-            _ => panic!("undefined property"),
+            _ => Property::Undefined,
         }
     }
 }
@@ -55,6 +58,7 @@ fn note_property_to_str(element: &Property, note: &Note, vault: &impl Vault) -> 
         Property::Size => note.size.to_string(),
         Property::LinkCnt => vault.get_links_of(note).count().to_string(),
         Property::BackLinkCnt => vault.get_backlinks_of(note).count().to_string(),
+        _ => panic!("Undefined property"),
     }
 }
 
@@ -73,6 +77,7 @@ pub fn print_table(vault: &impl Vault) {
     let used_props: Vec<_> = placeholders
         .into_iter()
         .map(|placeholder| Property::from(&placeholder))
+        .filter(|prop| prop != &Property::Undefined) // remove all undefined properties
         .collect();
 
     // # print header
