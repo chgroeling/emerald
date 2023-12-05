@@ -60,7 +60,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         cnt
     }
 
-    fn sm_inline_code_block(&mut self, start_idx: usize) -> MarkdownIteratorState {
+    fn detect_inline_code_block(&mut self, start_idx: usize) -> MarkdownIteratorState {
         let open_cnt = 1 + self.consume_char(' ', None);
 
         if open_cnt < 4 {
@@ -96,16 +96,19 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         InlCodeBlockFound(start_idx, act_idx + 1)
     }
 
-    fn sm_inline_code_block_after_nl(&mut self, start_idx: usize) -> MarkdownIteratorState {
+    fn detect_inline_code_block_after_newline(
+        &mut self,
+        start_idx: usize,
+    ) -> MarkdownIteratorState {
         // Is that an inline code block?
         if self.expect_then_consume(' ') {
-            self.sm_inline_code_block(start_idx + 1)
+            self.detect_inline_code_block(start_idx + 1)
         } else {
             IllegalFormat
         }
     }
 
-    fn sm_code_block(&mut self, start_idx: usize) -> MarkdownIteratorState {
+    fn detect_code_block(&mut self, start_idx: usize) -> MarkdownIteratorState {
         let open_cnt = 1 + self.consume_char('`', None);
         let mut next_element = self.it.next();
         if next_element.is_none() {
@@ -139,7 +142,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         IllegalFormat
     }
 
-    fn sm_wiki_link(&mut self, start_idx: usize) -> MarkdownIteratorState {
+    fn detect_wiki_link(&mut self, start_idx: usize) -> MarkdownIteratorState {
         let mut next_element = self.it.next();
         if next_element.is_none() {
             return IllegalFormat;
@@ -168,7 +171,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         IllegalFormat
     }
 
-    fn sm_link(&mut self, start_idx: usize) -> MarkdownIteratorState {
+    fn detect_link(&mut self, start_idx: usize) -> MarkdownIteratorState {
         let mut next_element = self.it.next();
 
         // Opening of an internal link was detected
@@ -196,13 +199,13 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         IllegalFormat
     }
 
-    fn sm_wiki_link_or_link(&mut self, start_idx: usize) -> MarkdownIteratorState {
+    fn detect_link_or_wiki_link(&mut self, start_idx: usize) -> MarkdownIteratorState {
         if self.expect_then_consume('[') {
             // wiki link starts with '[['
-            self.sm_wiki_link(start_idx)
+            self.detect_wiki_link(start_idx)
         } else {
             // conventional link starts with '['
-            self.sm_link(start_idx)
+            self.detect_link(start_idx)
         }
     }
 }
@@ -211,23 +214,23 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
     type Item = types::MdBlock<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let mut next_element = self.it.next();
-        while let Some((idx, i)) = next_element {
-            let iter_state = match i {
-                '[' => self.sm_wiki_link_or_link(idx),
-                '`' => self.sm_code_block(idx),
-                '\n' => self.sm_inline_code_block_after_nl(idx),
-                ' ' if idx == 0 => self.sm_inline_code_block(idx),
+        while let Some((index, i)) = self.it.next() {
+            // Determine the markdown element based on the current character
+            let markdown_element = match i {
+                '[' => self.detect_link_or_wiki_link(index),
+                '`' => self.detect_code_block(index),
+                '\n' => self.detect_inline_code_block_after_newline(index),
+                ' ' if index == 0 => self.detect_inline_code_block(index),
                 _ => IllegalFormat,
             };
 
             use types::MdBlock as ct; // short hand for the following code
-            match iter_state {
+            match markdown_element {
                 WikiLinkFound(s1, e1) => return Some(ct::WikiLink(&self.buf[s1..e1])),
                 LinkFound(s1, e1) => return Some(ct::Link(&self.buf[s1..e1])),
                 CodeBlockFound(s1, e1) => return Some(ct::CodeBlock(&self.buf[s1..e1])),
                 InlCodeBlockFound(s1, e1) => return Some(ct::CodeBlock(&self.buf[s1..e1])),
-                IllegalFormat => next_element = self.it.next(), // search for next valid md
+                IllegalFormat => (), // Skip illegal formats and continue searching
                 _ => panic!("State is not expected here"),
             };
         }
