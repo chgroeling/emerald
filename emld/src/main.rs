@@ -38,6 +38,9 @@ enum Commands {
 
         #[arg(long, required = false, default_value_t = false)]
         no_header: bool,
+
+        #[arg(short = 'r', long, required = false)]
+        regex: Option<String>,
     },
 }
 
@@ -61,6 +64,7 @@ fn uc_list(
     emerald: &Emerald,
     format_opt: &FormatOptions,
     print_header: bool,
+    regex: &Option<String>,
 ) -> Result<()> {
     info!("Execute usecase: List");
     let format_string = match format_opt {
@@ -79,6 +83,10 @@ fn uc_list(
 
     let vault = emerald.get_vault();
     print_table(&vault, format_string, print_header);
+
+    if let Some(rx) = regex {
+        println!("REGEX: '{rx}'\n");
+    }
     Ok(())
 }
 
@@ -101,7 +109,11 @@ fn main() -> Result<()> {
     // execute use-cases
     match &cli.command {
         Commands::Stats {} => uc_stats(&vault_path, &emerald)?,
-        Commands::List { format, no_header } => uc_list(&vault_path, &emerald, format, !no_header)?,
+        Commands::List {
+            format,
+            no_header,
+            regex,
+        } => uc_list(&vault_path, &emerald, format, !no_header, regex)?,
     }
     debug!("User set vault path to {:?}", vault_path);
 
