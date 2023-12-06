@@ -13,4 +13,5 @@ log = { version = "0.4.20", features = [
 ] }
 emerald = { path = "../emerald" }
 formatify = { version = "0.2.0" }
+regex = "1.10.2"
 #formatify = { git = "https://github.com/chgroeling/formatify.git" }
