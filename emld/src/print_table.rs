@@ -1,8 +1,8 @@
-use std::collections::HashMap;
-
 use chrono::prelude::*;
 use emerald::{Note, Vault};
 use formatify::{Formatify, PlaceholderFormatter};
+use regex::Regex;
+use std::collections::HashMap;
 
 #[derive(PartialEq)]
 enum Property {
@@ -70,7 +70,12 @@ fn note_property_to_str(element: &Property, note: &Note, vault: &impl Vault) -> 
     }
 }
 
-pub fn print_table(vault: &impl Vault, format_string: &str, print_header: bool) {
+pub fn print_table(
+    vault: &impl Vault,
+    format_string: &str,
+    print_header: bool,
+    title_regex_predicate: &Option<String>,
+) {
     let expr_parser = Formatify::new();
 
     // # Determine which placeholders in the given format string are valid
@@ -109,9 +114,19 @@ pub fn print_table(vault: &impl Vault, format_string: &str, print_header: bool) 
             expr_parser.replace_placeholders(&key_value_store, format_string)
         );
     }
+
+    let mut opt_regex: Option<Regex> = None;
+    if let Some(title_regex_predicate) = title_regex_predicate {
+        opt_regex = Regex::new(title_regex_predicate).ok()
+    }
     // # print content - use valid placeholders for it
     let mut key_value_store = HashMap::<&str, String>::new();
     for i in vault.flat_iter() {
+        if let Some(ref regex) = opt_regex {
+            if !regex.is_match(&i.title) {
+                continue;
+            }
+        }
         used_props.iter().for_each(|property| {
             let ref_cell = note_property_to_str(&property, &i, vault);
             let out_str = ref_cell;

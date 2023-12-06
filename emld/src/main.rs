@@ -64,7 +64,7 @@ fn uc_list(
     emerald: &Emerald,
     format_opt: &FormatOptions,
     print_header: bool,
-    regex: &Option<String>,
+    title_regex_predicate: &Option<String>,
 ) -> Result<()> {
     info!("Execute usecase: List");
     let format_string = match format_opt {
@@ -82,11 +82,8 @@ fn uc_list(
     };
 
     let vault = emerald.get_vault();
-    print_table(&vault, format_string, print_header);
+    print_table(&vault, format_string, print_header, title_regex_predicate);
 
-    if let Some(rx) = regex {
-        println!("REGEX: '{rx}'\n");
-    }
     Ok(())
 }
 
