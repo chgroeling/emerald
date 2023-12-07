@@ -73,14 +73,24 @@ fn uc_list(
     info!("Execute usecase: List");
     let format_string = match format_opt {
         FormatOptions::Overview => {
-            "\
-             %<(1, trunc)%(depth)\
-            |%<(40, trunc)%(title)\
-            |%<(19, trunc)%(modified)\
-            |%<(19, trunc)%(created)\
-            |%>(12, ltrunc)%(size)\
-            |%>( 6, ltrunc)%(linkcnt)\
-            |%>( 6, ltrunc)%(backlinkcnt)"
+            if follow_links {
+                "\
+                 %<(1, trunc)%(depth)\
+                |%<(40, trunc)%(title)\
+                |%<(19, trunc)%(modified)\
+                |%<(19, trunc)%(created)\
+                |%>(12, ltrunc)%(size)\
+                |%>( 6, ltrunc)%(linkcnt)\
+                |%>( 6, ltrunc)%(backlinkcnt)"
+            } else {
+                "\
+                 %<(40, trunc)%(title)\
+                |%<(19, trunc)%(modified)\
+                |%<(19, trunc)%(created)\
+                |%>(12, ltrunc)%(size)\
+                |%>( 6, ltrunc)%(linkcnt)\
+                |%>( 6, ltrunc)%(backlinkcnt)"
+            }
         }
         FormatOptions::ShowMarkdown => "%(markdown)%n",
         FormatOptions::Custom(custom_fmt_str) => custom_fmt_str,
