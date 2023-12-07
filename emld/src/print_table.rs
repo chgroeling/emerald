@@ -6,6 +6,7 @@ use std::collections::HashMap;
 
 #[derive(PartialEq)]
 enum Property {
+    Depth,
     Title,
     Modified,
     Created,
@@ -20,6 +21,7 @@ enum Property {
 impl Property {
     fn value(&self) -> &str {
         match self {
+            Property::Depth => "depth",
             Property::Title => "title",
             Property::Modified => "modified",
             Property::Created => "created",
@@ -33,6 +35,7 @@ impl Property {
     }
     fn from(inp: &str) -> Property {
         match inp {
+            "depth" => Property::Depth,
             "title" => Property::Title,
             "modified" => Property::Modified,
             "created" => Property::Created,
@@ -46,8 +49,9 @@ impl Property {
     }
 }
 
-fn note_property_to_str(element: &Property, note: &Note, vault: &impl Vault) -> String {
+fn note_property_to_str(element: &Property, note: &Note, vault: &impl Vault, depth: u32) -> String {
     match element {
+        Property::Depth => depth.to_string(),
         Property::Title => note.title.clone(),
         Property::Location => note.location.clone(),
         Property::Markdown => note.markdown.clone(),
@@ -74,6 +78,7 @@ pub fn print_table(
     vault: &impl Vault,
     format_string: &str,
     print_header: bool,
+    follow_links: bool,
     title_regex_predicate: &Option<String>,
 ) {
     let expr_parser = Formatify::new();
@@ -132,7 +137,7 @@ pub fn print_table(
         }
 
         used_props.iter().for_each(|property| {
-            let ref_cell = note_property_to_str(&property, &i, vault);
+            let ref_cell = note_property_to_str(&property, &i, vault, 0);
             let out_str = ref_cell;
             key_value_store.insert(property.value(), out_str);
         });
@@ -142,19 +147,21 @@ pub fn print_table(
             expr_parser.replace_placeholders(&key_value_store, format_string)
         );
 
-        for note_types_depth_1 in vault.get_links_of(&i) {
-            let NoteTypes::Note(note_depth_1) = note_types_depth_1 else {
-                continue;
-            };
-            used_props.iter().for_each(|property| {
-                let ref_cell = note_property_to_str(&property, &note_depth_1, vault);
-                let out_str = ref_cell;
-                key_value_store.insert(property.value(), out_str);
-            });
-            println!(
-                "{}",
-                expr_parser.replace_placeholders(&key_value_store, format_string)
-            );
+        if follow_links {
+            for note_types_d1 in vault.get_links_of(&i) {
+                let NoteTypes::Note(note_depth_1) = note_types_d1 else {
+                    continue;
+                };
+                used_props.iter().for_each(|property| {
+                    let ref_cell = note_property_to_str(&property, &note_depth_1, vault, 1);
+                    let out_str = ref_cell;
+                    key_value_store.insert(property.value(), out_str);
+                });
+                println!(
+                    "{}",
+                    expr_parser.replace_placeholders(&key_value_store, format_string)
+                );
+            }
         }
     }
 }

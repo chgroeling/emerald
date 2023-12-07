@@ -39,6 +39,9 @@ enum Commands {
         #[arg(long, required = false, default_value_t = false)]
         no_header: bool,
 
+        #[arg(short = 'f', long, required = false, default_value_t = false)]
+        follow_links: bool,
+
         #[arg(short = 'r', long, required = false)]
         regex: Option<String>,
     },
@@ -64,13 +67,15 @@ fn uc_list(
     emerald: &Emerald,
     format_opt: &FormatOptions,
     print_header: bool,
+    follow_links: bool,
     title_regex_predicate: &Option<String>,
 ) -> Result<()> {
     info!("Execute usecase: List");
     let format_string = match format_opt {
         FormatOptions::Overview => {
             "\
-             %<(40, trunc)%(title)\
+             %<(1, trunc)%(depth)\
+            |%<(40, trunc)%(title)\
             |%<(19, trunc)%(modified)\
             |%<(19, trunc)%(created)\
             |%>(12, ltrunc)%(size)\
@@ -82,7 +87,13 @@ fn uc_list(
     };
 
     let vault = emerald.get_vault();
-    print_table(&vault, format_string, print_header, title_regex_predicate);
+    print_table(
+        &vault,
+        format_string,
+        print_header,
+        follow_links,
+        title_regex_predicate,
+    );
 
     Ok(())
 }
@@ -110,7 +121,15 @@ fn main() -> Result<()> {
             format,
             no_header,
             regex,
-        } => uc_list(&vault_path, &emerald, format, !no_header, regex)?,
+            follow_links,
+        } => uc_list(
+            &vault_path,
+            &emerald,
+            format,
+            !no_header,
+            follow_links.clone(),
+            regex,
+        )?,
     }
     debug!("User set vault path to {:?}", vault_path);
 
