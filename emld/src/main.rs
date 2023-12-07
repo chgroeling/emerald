@@ -39,8 +39,8 @@ enum Commands {
         #[arg(long, required = false, default_value_t = false)]
         no_header: bool,
 
-        #[arg(short = 'f', long, required = false, default_value_t = false)]
-        follow_links: bool,
+        #[arg(short = 'f', long, required = false, default_value_t = 0)]
+        follow_links: u32,
 
         #[arg(short = 'r', long, required = false)]
         regex: Option<String>,
@@ -67,13 +67,13 @@ fn uc_list(
     emerald: &Emerald,
     format_opt: &FormatOptions,
     print_header: bool,
-    follow_links: bool,
+    follow_links: u32,
     title_regex_predicate: &Option<String>,
 ) -> Result<()> {
     info!("Execute usecase: List");
     let format_string = match format_opt {
         FormatOptions::Overview => {
-            if follow_links {
+            if follow_links > 0 {
                 "\
                  %<(1, trunc)%(depth)\
                 |%<(40, trunc)%(title)\
