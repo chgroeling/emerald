@@ -12,4 +12,5 @@ mod vault;
 pub use crate::emerald::Emerald;
 pub use crate::error::{EmeraldError, Result};
 pub use crate::vault::Note;
+pub use crate::vault::NoteTypes;
 pub use crate::vault::Vault;

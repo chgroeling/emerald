@@ -16,5 +16,6 @@ mod vault_trait;
 pub use note::Note;
 pub use note_factory::NoteFactory;
 pub use note_factory_impl::NoteFactoryImpl;
+pub use note_types::NoteTypes;
 pub use vault_impl::VaultImpl;
 pub use vault_trait::Vault;

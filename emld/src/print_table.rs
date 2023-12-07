@@ -1,5 +1,5 @@
 use chrono::prelude::*;
-use emerald::{Note, Vault};
+use emerald::{Note, NoteTypes, Vault};
 use formatify::{Formatify, PlaceholderFormatter};
 use regex::Regex;
 use std::collections::HashMap;
@@ -130,14 +130,31 @@ pub fn print_table(
                 continue;
             }
         }
+
         used_props.iter().for_each(|property| {
             let ref_cell = note_property_to_str(&property, &i, vault);
             let out_str = ref_cell;
             key_value_store.insert(property.value(), out_str);
         });
+
         println!(
             "{}",
             expr_parser.replace_placeholders(&key_value_store, format_string)
         );
+
+        for note_types_depth_1 in vault.get_links_of(&i) {
+            let NoteTypes::Note(note_depth_1) = note_types_depth_1 else {
+                continue;
+            };
+            used_props.iter().for_each(|property| {
+                let ref_cell = note_property_to_str(&property, &note_depth_1, vault);
+                let out_str = ref_cell;
+                key_value_store.insert(property.value(), out_str);
+            });
+            println!(
+                "{}",
+                expr_parser.replace_placeholders(&key_value_store, format_string)
+            );
+        }
     }
 }
