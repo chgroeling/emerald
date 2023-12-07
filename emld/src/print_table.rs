@@ -74,11 +74,46 @@ fn note_property_to_str(element: &Property, note: &Note, vault: &impl Vault, dep
     }
 }
 
+fn print_follow_links(
+    vault: &impl Vault,
+    format_string: &str,
+    used_props: &Vec<Property>,
+    parent_note: &Note,
+    follow_links: u32,
+    depth: u32,
+) {
+    let mut key_value_store = HashMap::<&str, String>::new();
+    let expr_parser = Formatify::new();
+    for note_types in vault.get_links_of(&parent_note) {
+        let NoteTypes::Note(child) = note_types else {
+            continue;
+        };
+        used_props.iter().for_each(|property| {
+            let ref_cell = note_property_to_str(&property, &child, vault, depth);
+            let out_str = ref_cell;
+            key_value_store.insert(property.value(), out_str);
+        });
+        println!(
+            "{}",
+            expr_parser.replace_placeholders(&key_value_store, format_string)
+        );
+        if follow_links > depth {
+            print_follow_links(
+                vault,
+                format_string,
+                &used_props,
+                &child,
+                follow_links,
+                depth + 1,
+            );
+        }
+    }
+}
 pub fn print_table(
     vault: &impl Vault,
     format_string: &str,
     print_header: bool,
-    follow_links: bool,
+    follow_links: u32,
     title_regex_predicate: &Option<String>,
 ) {
     let expr_parser = Formatify::new();
@@ -147,21 +182,8 @@ pub fn print_table(
             expr_parser.replace_placeholders(&key_value_store, format_string)
         );
 
-        if follow_links {
-            for note_types_d1 in vault.get_links_of(&i) {
-                let NoteTypes::Note(note_depth_1) = note_types_d1 else {
-                    continue;
-                };
-                used_props.iter().for_each(|property| {
-                    let ref_cell = note_property_to_str(&property, &note_depth_1, vault, 1);
-                    let out_str = ref_cell;
-                    key_value_store.insert(property.value(), out_str);
-                });
-                println!(
-                    "{}",
-                    expr_parser.replace_placeholders(&key_value_store, format_string)
-                );
-            }
+        if follow_links > 0 {
+            print_follow_links(vault, format_string, &used_props, &i, follow_links, 1);
         }
     }
 }
