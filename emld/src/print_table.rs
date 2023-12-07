@@ -117,11 +117,14 @@ pub fn print_table(
 
     let mut opt_regex: Option<Regex> = None;
     if let Some(title_regex_predicate) = title_regex_predicate {
+        // Try to create a new Regex object and assign it to opt_regex
         opt_regex = Regex::new(title_regex_predicate).ok()
     }
+
     // # print content - use valid placeholders for it
     let mut key_value_store = HashMap::<&str, String>::new();
     for i in vault.flat_iter() {
+        // Check if opt_regex is Some and if the regex matches the title of the current element
         if let Some(ref regex) = opt_regex {
             if !regex.is_match(&i.title) {
                 continue;
