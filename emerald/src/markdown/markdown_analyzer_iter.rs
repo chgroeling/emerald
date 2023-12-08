@@ -34,6 +34,45 @@ macro_rules! consume_expected_chars{
     };
 }
 
+/// Collects and counts characters from an iterator that match a given pattern.
+///
+/// This macro iterates over characters from a given character iterator,
+/// counting the number of characters that match the specified pattern(s).
+/// The iteration stops either when a non-matching character is found or
+/// when the specified limit is reached, if provided.
+///
+/// # Arguments
+/// * `$iter` - An expression yielding a `Peekable<CharIndices>` iterator.
+/// * `$limit` - An optional limit for the number of characters to count.
+///             If `None`, the macro counts until a non-matching character is encountered.
+/// * `$($a:pat)+` - One or more patterns to match against each character.
+///
+/// # Returns
+/// The count of matching characters found up to the limit, or until a non-matching character.
+/// ```
+macro_rules! gather {
+    ($iter:expr, $limit: expr, $($a:pat)+) => {{
+        // special case .. limit is zero or negative .. do nothing
+        if $limit.is_some_and(|limit| limit <= 0) {
+            0
+        } else {
+            let mut cnt: i32 = 0;
+            loop {
+                if consume_expected_chars!($iter, $($a)|+).is_some() {
+                    cnt += 1;
+
+                    if $limit.is_some_and(|l| cnt >= l) {
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            }
+            cnt
+        }
+    }};
+}
+
 impl<'a> MarkdownAnalyzerIter<'a> {
     pub fn new(buf: &'a str) -> Self {
         Self {
@@ -42,36 +81,8 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         }
     }
 
-    fn consume_char(&mut self, consume_char: char, limit: Option<i32>) -> i32 {
-        let mut cnt: i32 = 0;
-
-        // special case .. limit is zero or negative .. do nothing
-        if limit.is_some_and(|limit| limit <= 0) {
-            return 0;
-        }
-
-        loop {
-            let peek_element = self.it.peek();
-            if let Some((_, ch)) = peek_element {
-                if ch == &consume_char {
-                    cnt += 1;
-                    self.it.next();
-
-                    if limit.is_some_and(|l| cnt >= l) {
-                        break;
-                    }
-                } else {
-                    break;
-                }
-            } else {
-                break;
-            }
-        }
-        cnt
-    }
-
     fn detect_inline_code_block(&mut self, start_idx: usize) -> MarkdownIteratorState {
-        let open_cnt = 1 + self.consume_char(' ', None);
+        let open_cnt = 1 + gather!(self.it, Option::<i32>::None, ' ');
 
         if open_cnt < 4 {
             return IllegalFormat;
@@ -120,7 +131,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
     }
 
     fn detect_code_block(&mut self, start_idx: usize) -> MarkdownIteratorState {
-        let open_cnt = 1 + self.consume_char('`', None);
+        let open_cnt = 1 + gather!(self.it, Option::<i32>::None, '`');
         let mut next_element = self.it.next();
         if next_element.is_none() {
             return IllegalFormat;
@@ -133,7 +144,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
             // determine new state
             iter_state = match iter_state {
                 CodeBlockStart(start_idx) if i == '`' => {
-                    let advance = 1 + self.consume_char('`', Some(open_cnt - 1));
+                    let advance = 1 + gather!(self.it, Option::<i32>::Some(open_cnt - 1), '`');
 
                     if advance == open_cnt {
                         let end_idx = idx + 1 + advance as usize - 1;
