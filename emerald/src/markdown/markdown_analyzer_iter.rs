@@ -12,7 +12,8 @@ pub struct MarkdownAnalyzerIter<'a> {
     it: Peekable<CharIndices<'a>>,
 }
 
-/// `consume_expected_chars` checks and consumes the next char in the iterator if it matches the provided pattern(s).
+/// Checks and consumes the next char in the iterator if it matches the provided pattern(s).
+///
 /// - `$iter`: The iterator containing the input sequence.
 /// - `$($a:pat)+`: Pattern(s) to match against the next char.
 /// If the next char matches, it's consumed and returned as `Some(char)`. Otherwise, returns `None`.
