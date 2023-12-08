@@ -166,6 +166,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
             // determine new state
             iter_state = match iter_state {
                 WikiLinkStart(start_idx) if i == ']' => {
+                    // Match ]] ...
                     if consume_expected_chars!(self.it, ']').is_some() {
                         return WikiLinkFound(start_idx, idx + 2);
                     } else {
@@ -191,6 +192,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         while let Some((idx, i)) = next_element {
             iter_state = match iter_state {
                 LinkStart(start_idx) if i == ']' => {
+                    // next char must be '('
                     if consume_expected_chars!(self.it, '(').is_some() {
                         LinkDescriptionFinished(start_idx)
                     } else {
