@@ -12,24 +12,34 @@ pub struct MarkdownAnalyzerIter<'a> {
     it: Peekable<CharIndices<'a>>,
 }
 
+/// `consume_expected_chars` checks and consumes the next char in the iterator if it matches the provided pattern(s).
+/// - `$iter`: The iterator containing the input sequence.
+/// - `$($a:pat)+`: Pattern(s) to match against the next char.
+/// If the next char matches, it's consumed and returned as `Some(char)`. Otherwise, returns `None`.
+macro_rules! consume_expected_chars{
+    ($iter:expr, $($a:pat)+) => {
+        if let Some((_,ch)) = $iter.peek().cloned() {
+            match ch {
+                $($a)|+ => {
+                    $iter.next(); // consume
+                    Some(ch)
+                }
+                _ => {
+                    None
+                }
+            }
+        } else {
+            None
+        }
+    };
+}
+
 impl<'a> MarkdownAnalyzerIter<'a> {
     pub fn new(buf: &'a str) -> Self {
         Self {
             buf,
             it: buf.char_indices().peekable(),
         }
-    }
-
-    fn expect_then_consume(&mut self, expected_char: char) -> bool {
-        let next_element = self.it.peek();
-
-        if let Some(next_char) = next_element {
-            if next_char.1 == expected_char {
-                self.it.next(); // consume
-                return true;
-            }
-        }
-        false
     }
 
     fn consume_char(&mut self, consume_char: char, limit: Option<i32>) -> i32 {
@@ -101,7 +111,8 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         start_idx: usize,
     ) -> MarkdownIteratorState {
         // Is that an inline code block?
-        if self.expect_then_consume(' ') {
+
+        if consume_expected_chars!(self.it, ' ').is_some() {
             self.detect_inline_code_block(start_idx + 1)
         } else {
             IllegalFormat
@@ -155,7 +166,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
             // determine new state
             iter_state = match iter_state {
                 WikiLinkStart(start_idx) if i == ']' => {
-                    if self.expect_then_consume(']') {
+                    if consume_expected_chars!(self.it, ']').is_some() {
                         return WikiLinkFound(start_idx, idx + 2);
                     } else {
                         return IllegalFormat;
@@ -180,7 +191,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         while let Some((idx, i)) = next_element {
             iter_state = match iter_state {
                 LinkStart(start_idx) if i == ']' => {
-                    if self.expect_then_consume('(') {
+                    if consume_expected_chars!(self.it, '(').is_some() {
                         LinkDescriptionFinished(start_idx)
                     } else {
                         return IllegalFormat;
@@ -200,7 +211,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
     }
 
     fn detect_link_or_wiki_link(&mut self, start_idx: usize) -> MarkdownIteratorState {
-        if self.expect_then_consume('[') {
+        if consume_expected_chars!(self.it, '[').is_some() {
             // wiki link starts with '[['
             self.detect_wiki_link(start_idx)
         } else {
