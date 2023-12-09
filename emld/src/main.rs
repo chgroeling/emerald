@@ -14,6 +14,8 @@ use emerald::Result;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
+use crate::note_table_printer::NoteTablePrinterConfig;
+
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 struct Cli {
@@ -99,12 +101,15 @@ fn uc_list(
     };
 
     let vault = emerald.get_vault();
-    let pt = NoteTablePrinter {
-        vault: &vault,
-        format_string,
+    let note_table_printer_config = NoteTablePrinterConfig {
+        format_string: format_string.to_string(),
         print_header,
         follow_links,
-        title_regex_predicate,
+        title_regex_predicate: title_regex_predicate.clone(),
+    };
+    let pt = NoteTablePrinter {
+        vault: &vault,
+        config: note_table_printer_config,
     };
     pt.print();
 

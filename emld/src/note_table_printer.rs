@@ -110,6 +110,13 @@ impl<'a> NoteLinkTraversal<'a> {
     }
 }
 
+pub struct NoteTablePrinterConfig {
+    pub format_string: String,
+    pub print_header: bool,
+    pub follow_links: u32,
+    pub title_regex_predicate: Option<String>,
+}
+
 /// Represents a utility for printing information about notes in a table format.
 ///
 /// `PrintTable` is designed to work with a `Vault` to retrieve notes and their properties,
@@ -131,10 +138,7 @@ impl<'a> NoteLinkTraversal<'a> {
 /// Note that this struct requires a lifetime parameter `'a`, as it holds references.
 pub struct NoteTablePrinter<'a> {
     pub vault: &'a dyn Vault,
-    pub format_string: &'a str,
-    pub print_header: bool,
-    pub follow_links: u32,
-    pub title_regex_predicate: &'a Option<String>,
+    pub config: NoteTablePrinterConfig,
 }
 
 impl<'a> NoteTablePrinter<'a> {
@@ -142,14 +146,14 @@ impl<'a> NoteTablePrinter<'a> {
         let expr_parser = Formatify::new();
 
         // # Determine which placeholders in the given format string are valid
-        let placeholders = expr_parser.extract_placeholder_keys(self.format_string);
+        let placeholders = expr_parser.extract_placeholder_keys(&self.config.format_string);
         let used_props: Vec<_> = placeholders
             .into_iter()
             .map(|placeholder| NoteProperty::from(&placeholder))
             .filter(|prop| prop != &NoteProperty::Undefined) // remove all undefined properties
             .collect();
 
-        if self.print_header {
+        if self.config.print_header {
             let mut key_value_store = HashMap::<&str, String>::new();
 
             // # print header
@@ -160,11 +164,11 @@ impl<'a> NoteTablePrinter<'a> {
 
             println!(
                 "{}",
-                expr_parser.replace_placeholders(&key_value_store, self.format_string)
+                expr_parser.replace_placeholders(&key_value_store, &self.config.format_string)
             );
 
             let length_of_format =
-                expr_parser.measure_lengths(&key_value_store, self.format_string);
+                expr_parser.measure_lengths(&key_value_store, &self.config.format_string);
 
             // # print separator - use valid placeholders for it
             used_props.iter().enumerate().for_each(|(idx, property)| {
@@ -175,14 +179,14 @@ impl<'a> NoteTablePrinter<'a> {
 
             println!(
                 "{}",
-                expr_parser.replace_placeholders(&key_value_store, self.format_string)
+                expr_parser.replace_placeholders(&key_value_store, &self.config.format_string)
             );
         }
 
         let mut opt_regex: Option<Regex> = None;
-        if let Some(title_regex_predicate) = self.title_regex_predicate {
+        if let Some(title_regex_predicate) = self.config.title_regex_predicate.clone() {
             // Try to create a new Regex object and assign it to opt_regex
-            opt_regex = Regex::new(title_regex_predicate).ok()
+            opt_regex = Regex::new(&title_regex_predicate).ok()
         }
 
         // # print content - use valid placeholders for it
@@ -204,16 +208,16 @@ impl<'a> NoteTablePrinter<'a> {
             let pfl = NoteLinkTraversal {
                 vault: self.vault,
                 used_props: &used_props,
-                format_string: self.format_string,
-                follow_links: self.follow_links,
+                format_string: &self.config.format_string,
+                follow_links: self.config.follow_links,
             };
 
             println!(
                 "{}",
-                expr_parser.replace_placeholders(&key_value_store, self.format_string)
+                expr_parser.replace_placeholders(&key_value_store, &self.config.format_string)
             );
 
-            if self.follow_links > 0 {
+            if self.config.follow_links > 0 {
                 pfl.print(&i, 1);
             }
         }
