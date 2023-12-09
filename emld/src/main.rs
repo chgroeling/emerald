@@ -1,19 +1,18 @@
 mod format_option_parser;
 mod print_table;
-
-use clap;
 use clap::{Parser, Subcommand};
-use emerald::Emerald;
-use emerald::EmeraldError;
-use emerald::Result;
-
 use format_option_parser::{FormatOptionParser, FormatOptions};
-#[allow(unused_imports)]
-use log::{debug, error, info, trace, warn};
 use print_table::PrintTable;
 use std::path::Path;
 use std::path::PathBuf;
 use std::time::Instant;
+
+use emerald::Emerald;
+use emerald::EmeraldError;
+use emerald::Result;
+
+#[allow(unused_imports)]
+use log::{debug, error, info, trace, warn};
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
