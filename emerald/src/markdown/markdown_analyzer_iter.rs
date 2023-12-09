@@ -107,6 +107,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
                 // determine new state
                 iter_state = match iter_state {
                     InlCodeBlockStart(start_idx) if i_peek == '\n' => {
+                        self.it.next();
                         return InlCodeBlockFound(start_idx, idx_peek);
                     }
                     _ => iter_state,
@@ -245,6 +246,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         // check if the following char is a newline
         if let Some((_, ch)) = self.it.peek() {
             if ch == &'\n' {
+                self.it.next();
                 EmptyLineFound
             } else {
                 IllegalFormat
@@ -259,7 +261,6 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
     type Item = types::MdBlock<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let mut newline = true;
         loop {
             let Some((index, i)) = self.it.next() else {
                 break;
@@ -269,23 +270,26 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
             let markdown_element = match i {
                 '[' => self.detect_link_or_wiki_link(index),
                 '`' => self.detect_code_block(index),
-                ' ' if newline => {
+                ' ' => {
                     if self.last_state == EmptyLineFound || self.last_state == StartOfParsing {
                         self.detect_inline_code_block(index)
+                    } else if self.last_state == NewLineFound {
+                        self.detect_empty_line()
                     } else if let InlCodeBlockFound(_, _) = self.last_state {
                         self.detect_inline_code_block(index)
                     } else {
-                        self.detect_empty_line()
+                        IllegalFormat
                     }
                 }
                 '\n' => {
                     // two newlines in a row means the last one was an empty line
-                    if newline {
-                        self.last_state = EmptyLineFound;
-                        continue;
+                    if self.last_state == NewLineFound
+                        || self.last_state == StartOfParsing
+                        || self.last_state == EmptyLineFound
+                    {
+                        EmptyLineFound
                     } else {
-                        newline = true;
-                        continue;
+                        NewLineFound
                     }
                 }
                 _ => IllegalFormat,
@@ -299,10 +303,10 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                 CodeBlockFound(s1, e1) => return Some(ct::CodeBlock(&self.buf[s1..e1])),
                 InlCodeBlockFound(s1, e1) => return Some(ct::CodeBlock(&self.buf[s1..e1])),
                 IllegalFormat => (),
+                NewLineFound => (),
                 EmptyLineFound => (),
                 _ => panic!("State is not expected here"),
             };
-            newline = false;
         }
         None
     }
