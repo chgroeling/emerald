@@ -105,6 +105,25 @@ impl<'a> PrintFollowLinks<'a> {
     }
 }
 
+/// Represents a utility for printing information about notes in a table format.
+///
+/// `PrintTable` is designed to work with a `Vault` to retrieve notes and their properties,
+/// format them according to a specified format string, and then print the formatted output.
+/// It supports regex-based filtering of titles and can follow links to print related notes
+/// to a specified depth.
+///
+/// # Fields
+/// - `vault`: A reference to an object implementing the `Vault` trait, used for accessing notes.
+/// - `format_string`: A string defining the format for printing each note's properties.
+///   This string can contain placeholders that will be replaced with actual property values.
+/// - `print_header`: A boolean flag to determine whether to print the table header.
+/// - `follow_links`: A u32 value indicating the depth to which linked notes should be followed
+///   and printed.
+/// - `title_regex_predicate`: An optional string containing a regex pattern used to filter notes
+///   by their titles. Only notes with titles matching the pattern will be printed.
+///
+///
+/// Note that this struct requires a lifetime parameter `'a`, as it holds references.
 pub struct PrintTable<'a> {
     pub vault: &'a dyn Vault,
     pub format_string: &'a str,
