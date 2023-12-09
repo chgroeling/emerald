@@ -40,7 +40,7 @@ impl clap::builder::TypedValueParser for FormatOptionParser {
                 let placeholders = expr_parser.extract_placeholder_keys(&custom_fmt);
 
                 // check if at least one placeholder can be found
-                if placeholders.len() == 0 {
+                if placeholders.is_empty() {
                     let err =
                         clap::Error::new(clap::error::ErrorKind::ValueValidation).with_cmd(cmd);
 
