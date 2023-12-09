@@ -110,6 +110,20 @@ impl<'a> NoteLinkTraversal<'a> {
     }
 }
 
+/// Configuration for `NoteTablePrinter`.
+///
+/// This struct holds all configuration options for `NoteTablePrinter`.
+/// It allows for a flexible and clear setup of `NoteTablePrinter` by specifying
+/// all relevant settings before instantiation.
+///
+/// # Fields
+/// - `format_string`: A string that defines the format for printing each note's properties.
+///   This string can contain placeholders that will be replaced with actual property values.
+/// - `print_header`: A boolean value to determine whether to print the table header.
+/// - `follow_links`: A u32 value indicating the depth to which linked notes should be followed
+///   and printed.
+/// - `title_regex_predicate`: An optional string containing a regex pattern used to filter notes
+///   by their titles. Only notes with titles matching the pattern will be printed.
 pub struct NoteTablePrinterConfig {
     pub format_string: String,
     pub print_header: bool,
@@ -117,31 +131,33 @@ pub struct NoteTablePrinterConfig {
     pub title_regex_predicate: Option<String>,
 }
 
-/// Represents a utility for printing information about notes in a table format.
+/// `NoteTablePrinter` - A utility for printing information about notes in a table format.
 ///
-/// `PrintTable` is designed to work with a `Vault` to retrieve notes and their properties,
-/// format them according to a specified format string, and then print the formatted output.
-/// It supports regex-based filtering of titles and can follow links to print related notes
+/// This struct works with a `Vault` to retrieve notes and their properties,
+/// format them according to a specified format string, and print the formatted output.
+/// It supports regex-based filtering of titles and can traverse links to print related notes
 /// to a specified depth.
 ///
 /// # Fields
 /// - `vault`: A reference to an object implementing the `Vault` trait, used for accessing notes.
-/// - `format_string`: A string defining the format for printing each note's properties.
-///   This string can contain placeholders that will be replaced with actual property values.
-/// - `print_header`: A boolean flag to determine whether to print the table header.
-/// - `follow_links`: A u32 value indicating the depth to which linked notes should be followed
-///   and printed.
-/// - `title_regex_predicate`: An optional string containing a regex pattern used to filter notes
-///   by their titles. Only notes with titles matching the pattern will be printed.
-///
-///
-/// Note that this struct requires a lifetime parameter `'a`, as it holds references.
+/// - `config`: Configuration settings for printing, including the format string, header printing option, link-following depth, and title regex filter.
+
 pub struct NoteTablePrinter<'a> {
     pub vault: &'a dyn Vault,
     pub config: NoteTablePrinterConfig,
 }
 
 impl<'a> NoteTablePrinter<'a> {
+    /// Prints a formatted table of notes from the vault.
+    ///
+    /// This method iterates over the notes in the vault and prints a formatted table based on
+    /// the `NoteTablePrinterConfig`. The table includes details like note title, creation and
+    /// modification dates, size, and link counts, depending on the configuration. It also supports
+    /// depth-first traversal of linked notes up to a specified depth.
+    ///
+    /// The format of the table is defined by the `format_string` in `NoteTablePrinterConfig`.
+    /// Optional regex-based title filtering is supported to include only specific notes.
+    /// If `print_header` is set to `true` in the configuration, a header row is printed.
     pub fn print(&self) {
         let expr_parser = Formatify::new();
 
