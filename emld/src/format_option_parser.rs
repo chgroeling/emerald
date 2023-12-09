@@ -1,4 +1,3 @@
-use clap;
 use formatify::{Formatify, PlaceholderFormatter};
 
 #[derive(Clone, Debug)]
