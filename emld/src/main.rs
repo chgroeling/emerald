@@ -142,7 +142,7 @@ fn main() -> Result<()> {
             &emerald,
             format,
             !no_header,
-            follow_links.clone(),
+            *follow_links,
             regex,
         )?,
     }
