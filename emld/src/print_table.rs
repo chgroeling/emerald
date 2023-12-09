@@ -124,7 +124,7 @@ impl<'a> PrintFollowLinks<'a> {
 ///
 ///
 /// Note that this struct requires a lifetime parameter `'a`, as it holds references.
-pub struct PrintTable<'a> {
+pub struct NoteTablePrinter<'a> {
     pub vault: &'a dyn Vault,
     pub format_string: &'a str,
     pub print_header: bool,
@@ -132,7 +132,7 @@ pub struct PrintTable<'a> {
     pub title_regex_predicate: &'a Option<String>,
 }
 
-impl<'a> PrintTable<'a> {
+impl<'a> NoteTablePrinter<'a> {
     pub fn print(&self) {
         let expr_parser = Formatify::new();
 
