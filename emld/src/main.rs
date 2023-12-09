@@ -10,7 +10,7 @@ use emerald::Result;
 use format_option_parser::{FormatOptionParser, FormatOptions};
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
-use print_table::print_table;
+use print_table::PrintTable;
 use std::path::Path;
 use std::path::PathBuf;
 use std::time::Instant;
@@ -101,13 +101,14 @@ fn uc_list(
     };
 
     let vault = emerald.get_vault();
-    print_table(
-        &vault,
+    let mut pt = PrintTable {
+        vault: &vault,
         format_string,
         print_header,
         follow_links,
         title_regex_predicate,
-    );
+    };
+    pt.print_table();
 
     Ok(())
 }
