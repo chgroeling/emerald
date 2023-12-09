@@ -265,15 +265,6 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                 break;
             };
 
-            // Detect newlines as boundaries for the parser
-            if i == '\n' {
-                // two newlines in a row means the last one was an empty line
-                if newline {
-                    self.last_state = EmptyLineFound;
-                }
-                newline = true;
-                continue;
-            }
             // Determine the markdown element based on the current character
             let markdown_element = match i {
                 '[' => self.detect_link_or_wiki_link(index),
@@ -285,6 +276,16 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                         self.detect_inline_code_block(index)
                     } else {
                         self.detect_empty_line()
+                    }
+                }
+                '\n' => {
+                    // two newlines in a row means the last one was an empty line
+                    if newline {
+                        self.last_state = EmptyLineFound;
+                        continue;
+                    } else {
+                        newline = true;
+                        continue;
                     }
                 }
                 _ => IllegalFormat,
