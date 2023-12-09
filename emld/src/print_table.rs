@@ -85,7 +85,7 @@ impl<'a> PrintFollowLinks<'a> {
     fn print(&self, parent_note: &Note, depth: u32) {
         let mut key_value_store = HashMap::<&str, String>::new();
         let expr_parser = Formatify::new();
-        for note_types in self.vault.get_links_of(&parent_note) {
+        for note_types in self.vault.get_links_of(parent_note) {
             let NoteTypes::Note(child) = note_types else {
                 continue;
             };
