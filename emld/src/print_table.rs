@@ -49,7 +49,7 @@ impl Property {
     }
 }
 
-fn note_property_to_str(element: &Property, note: &Note, vault: &impl Vault, depth: u32) -> String {
+fn note_property_to_str(element: &Property, note: &Note, vault: &dyn Vault, depth: u32) -> String {
     match element {
         Property::Depth => depth.to_string(),
         Property::Title => note.title.clone(),
@@ -74,38 +74,33 @@ fn note_property_to_str(element: &Property, note: &Note, vault: &impl Vault, dep
     }
 }
 
-fn print_follow_links(
-    vault: &impl Vault,
-    format_string: &str,
-    used_props: &Vec<Property>,
-    parent_note: &Note,
+struct PrintFollowLinks<'a> {
+    vault: &'a dyn Vault,
+    used_props: &'a Vec<Property>,
+    format_string: &'a str,
     follow_links: u32,
-    depth: u32,
-) {
-    let mut key_value_store = HashMap::<&str, String>::new();
-    let expr_parser = Formatify::new();
-    for note_types in vault.get_links_of(&parent_note) {
-        let NoteTypes::Note(child) = note_types else {
-            continue;
-        };
-        used_props.iter().for_each(|property| {
-            let ref_cell = note_property_to_str(&property, &child, vault, depth);
-            let out_str = ref_cell;
-            key_value_store.insert(property.value(), out_str);
-        });
-        println!(
-            "{}",
-            expr_parser.replace_placeholders(&key_value_store, format_string)
-        );
-        if follow_links > depth {
-            print_follow_links(
-                vault,
-                format_string,
-                &used_props,
-                &child,
-                follow_links,
-                depth + 1,
+}
+
+impl<'a> PrintFollowLinks<'a> {
+    fn print(&mut self, parent_note: &Note, depth: u32) {
+        let mut key_value_store = HashMap::<&str, String>::new();
+        let expr_parser = Formatify::new();
+        for note_types in self.vault.get_links_of(&parent_note) {
+            let NoteTypes::Note(child) = note_types else {
+                continue;
+            };
+            self.used_props.iter().for_each(|property| {
+                let ref_cell = note_property_to_str(&property, &child, self.vault, depth);
+                let out_str = ref_cell;
+                key_value_store.insert(property.value(), out_str);
+            });
+            println!(
+                "{}",
+                expr_parser.replace_placeholders(&key_value_store, self.format_string)
             );
+            if self.follow_links > depth {
+                self.print(&child, depth + 1);
+            }
         }
     }
 }
@@ -177,13 +172,20 @@ pub fn print_table(
             key_value_store.insert(property.value(), out_str);
         });
 
+        let mut pfl = PrintFollowLinks {
+            vault,
+            used_props: &used_props,
+            format_string,
+            follow_links,
+        };
+
         println!(
             "{}",
             expr_parser.replace_placeholders(&key_value_store, format_string)
         );
 
         if follow_links > 0 {
-            print_follow_links(vault, format_string, &used_props, &i, follow_links, 1);
+            pfl.print(&i, 1);
         }
     }
 }
