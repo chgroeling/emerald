@@ -66,7 +66,6 @@ fn uc_stats(_vault_path: &Path, emerald: &Emerald) -> Result<()> {
 }
 
 fn uc_list(
-    _vault_path: &Path,
     emerald: &Emerald,
     format_opt: &FormatOptions,
     print_header: bool,
@@ -136,14 +135,7 @@ fn main() -> Result<()> {
             no_header,
             regex,
             follow_links,
-        } => uc_list(
-            &vault_path,
-            &emerald,
-            format,
-            !no_header,
-            *follow_links,
-            regex,
-        )?,
+        } => uc_list(&emerald, format, !no_header, *follow_links, regex)?,
     }
     debug!("User set vault path to {:?}", vault_path);
 
