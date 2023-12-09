@@ -90,7 +90,7 @@ impl<'a> PrintFollowLinks<'a> {
                 continue;
             };
             self.used_props.iter().for_each(|property| {
-                let ref_cell = note_property_to_str(&property, &child, self.vault, depth);
+                let ref_cell = note_property_to_str(property, &child, self.vault, depth);
                 let out_str = ref_cell;
                 key_value_store.insert(property.value(), out_str);
             });
