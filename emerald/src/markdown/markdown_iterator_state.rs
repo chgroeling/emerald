@@ -3,6 +3,7 @@ pub enum MarkdownIteratorState {
     IllegalFormat,
     StartOfParsing, // State at the start of parsing
     EmptyLineFound, // State that an empty line was found
+    NewLineFound,
 
     // Inline Code Block Start
     InlCodeBlockStart(usize),
