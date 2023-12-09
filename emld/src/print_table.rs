@@ -172,7 +172,7 @@ impl<'a> PrintTable<'a> {
             }
 
             used_props.iter().for_each(|property| {
-                let ref_cell = note_property_to_str(&property, &i, self.vault, 0);
+                let ref_cell = note_property_to_str(property, &i, self.vault, 0);
                 let out_str = ref_cell;
                 key_value_store.insert(property.value(), out_str);
             });
