@@ -106,7 +106,7 @@ fn uc_list(
         follow_links,
         title_regex_predicate,
     };
-    pt.print_table();
+    pt.print();
 
     Ok(())
 }
