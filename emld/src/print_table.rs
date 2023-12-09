@@ -82,7 +82,7 @@ struct PrintFollowLinks<'a> {
 }
 
 impl<'a> PrintFollowLinks<'a> {
-    fn print(&mut self, parent_note: &Note, depth: u32) {
+    fn print(&self, parent_note: &Note, depth: u32) {
         let mut key_value_store = HashMap::<&str, String>::new();
         let expr_parser = Formatify::new();
         for note_types in self.vault.get_links_of(&parent_note) {
@@ -114,7 +114,7 @@ pub struct PrintTable<'a> {
 }
 
 impl<'a> PrintTable<'a> {
-    pub fn print_table(&mut self) {
+    pub fn print_table(&self) {
         let expr_parser = Formatify::new();
 
         // # Determine which placeholders in the given format string are valid
@@ -177,7 +177,7 @@ impl<'a> PrintTable<'a> {
                 key_value_store.insert(property.value(), out_str);
             });
 
-            let mut pfl = PrintFollowLinks {
+            let pfl = PrintFollowLinks {
                 vault: self.vault,
                 used_props: &used_props,
                 format_string: self.format_string,
