@@ -101,7 +101,7 @@ fn uc_list(
     };
 
     let vault = emerald.get_vault();
-    let mut pt = PrintTable {
+    let pt = PrintTable {
         vault: &vault,
         format_string,
         print_header,
