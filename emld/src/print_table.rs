@@ -133,7 +133,7 @@ pub struct PrintTable<'a> {
 }
 
 impl<'a> PrintTable<'a> {
-    pub fn print_table(&self) {
+    pub fn print(&self) {
         let expr_parser = Formatify::new();
 
         // # Determine which placeholders in the given format string are valid
