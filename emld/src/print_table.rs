@@ -5,7 +5,7 @@ use regex::Regex;
 use std::collections::HashMap;
 
 #[derive(PartialEq)]
-enum Property {
+enum NoteProperty {
     Depth,
     Title,
     Modified,
@@ -18,65 +18,70 @@ enum Property {
     Undefined,
 }
 
-impl Property {
+impl NoteProperty {
     fn value(&self) -> &str {
         match self {
-            Property::Depth => "depth",
-            Property::Title => "title",
-            Property::Modified => "modified",
-            Property::Created => "created",
-            Property::Size => "size",
-            Property::LinkCnt => "linkcnt",
-            Property::BackLinkCnt => "backlinkcnt",
-            Property::Location => "location",
-            Property::Markdown => "markdown",
-            Property::Undefined => panic!("undefined property"),
+            NoteProperty::Depth => "depth",
+            NoteProperty::Title => "title",
+            NoteProperty::Modified => "modified",
+            NoteProperty::Created => "created",
+            NoteProperty::Size => "size",
+            NoteProperty::LinkCnt => "linkcnt",
+            NoteProperty::BackLinkCnt => "backlinkcnt",
+            NoteProperty::Location => "location",
+            NoteProperty::Markdown => "markdown",
+            NoteProperty::Undefined => panic!("undefined property"),
         }
     }
-    fn from(inp: &str) -> Property {
+    fn from(inp: &str) -> NoteProperty {
         match inp {
-            "depth" => Property::Depth,
-            "title" => Property::Title,
-            "modified" => Property::Modified,
-            "created" => Property::Created,
-            "size" => Property::Size,
-            "linkcnt" => Property::LinkCnt,
-            "backlinkcnt" => Property::BackLinkCnt,
-            "location" => Property::Location,
-            "markdown" => Property::Markdown,
-            _ => Property::Undefined,
+            "depth" => NoteProperty::Depth,
+            "title" => NoteProperty::Title,
+            "modified" => NoteProperty::Modified,
+            "created" => NoteProperty::Created,
+            "size" => NoteProperty::Size,
+            "linkcnt" => NoteProperty::LinkCnt,
+            "backlinkcnt" => NoteProperty::BackLinkCnt,
+            "location" => NoteProperty::Location,
+            "markdown" => NoteProperty::Markdown,
+            _ => NoteProperty::Undefined,
         }
     }
 }
 
-fn note_property_to_str(element: &Property, note: &Note, vault: &dyn Vault, depth: u32) -> String {
+fn note_property_to_str(
+    element: &NoteProperty,
+    note: &Note,
+    vault: &dyn Vault,
+    depth: u32,
+) -> String {
     match element {
-        Property::Depth => depth.to_string(),
-        Property::Title => note.title.clone(),
-        Property::Location => note.location.clone(),
-        Property::Markdown => note.markdown.clone(),
-        Property::Modified => {
+        NoteProperty::Depth => depth.to_string(),
+        NoteProperty::Title => note.title.clone(),
+        NoteProperty::Location => note.location.clone(),
+        NoteProperty::Markdown => note.markdown.clone(),
+        NoteProperty::Modified => {
             let modified = Local
                 .timestamp_opt(note.modified.get_raw_value(), 0)
                 .unwrap();
             modified.format("%Y-%m-%d %H:%M:%S").to_string()
         }
-        Property::Created => {
+        NoteProperty::Created => {
             let created = Local
                 .timestamp_opt(note.created.get_raw_value(), 0)
                 .unwrap();
             created.format("%Y-%m-%d %H:%M:%S").to_string()
         }
-        Property::Size => note.size.to_string(),
-        Property::LinkCnt => vault.get_links_of(note).count().to_string(),
-        Property::BackLinkCnt => vault.get_backlinks_of(note).count().to_string(),
-        Property::Undefined => panic!("Undefined property"),
+        NoteProperty::Size => note.size.to_string(),
+        NoteProperty::LinkCnt => vault.get_links_of(note).count().to_string(),
+        NoteProperty::BackLinkCnt => vault.get_backlinks_of(note).count().to_string(),
+        NoteProperty::Undefined => panic!("Undefined property"),
     }
 }
 
 struct PrintFollowLinks<'a> {
     vault: &'a dyn Vault,
-    used_props: &'a Vec<Property>,
+    used_props: &'a Vec<NoteProperty>,
     format_string: &'a str,
     follow_links: u32,
 }
@@ -140,8 +145,8 @@ impl<'a> NoteTablePrinter<'a> {
         let placeholders = expr_parser.extract_placeholder_keys(self.format_string);
         let used_props: Vec<_> = placeholders
             .into_iter()
-            .map(|placeholder| Property::from(&placeholder))
-            .filter(|prop| prop != &Property::Undefined) // remove all undefined properties
+            .map(|placeholder| NoteProperty::from(&placeholder))
+            .filter(|prop| prop != &NoteProperty::Undefined) // remove all undefined properties
             .collect();
 
         if self.print_header {
