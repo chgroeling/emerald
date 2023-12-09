@@ -347,8 +347,17 @@ mod tests {
     }
 
     #[test]
-    fn test_iter_with_inline_codeblock_second_line() {
-        let test_str = "Text\n    [[no_link]]";
+    fn test_iter_with_4_spaces_after_text_lock() {
+        let test_str = "Text\n    [[link]]";
+        let output = MarkdownAnalyzerIter::new(&test_str);
+        let out_vec: Vec<_> = output.collect();
+
+        assert_eq!(out_vec, [WikiLink("[[link]]".into()),]);
+    }
+
+    #[test]
+    fn test_iter_with_inline_codeblock_second_line_with_newline() {
+        let test_str = "\n    [[no_link]]\nText2";
         let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
@@ -356,8 +365,52 @@ mod tests {
     }
 
     #[test]
-    fn test_iter_with_inline_codeblock_second_line_with_newline() {
-        let test_str = "Text\n    [[no_link]]\nText2";
+    fn test_iter_with_inline_codeblock_second_and_third_line_with_newline() {
+        let test_str = "\n\n    [[no_link]]\nText2";
+        let output = MarkdownAnalyzerIter::new(&test_str);
+        let out_vec: Vec<_> = output.collect();
+
+        assert_eq!(out_vec, [CodeBlock("    [[no_link]]".into()),]);
+    }
+
+    #[test]
+    fn test_iter_with_inline_codeblock_second_and_third_line_with_newline_and_spaces() {
+        let test_str = "  \n   \n    [[no_link]]\nText2";
+        let output = MarkdownAnalyzerIter::new(&test_str);
+        let out_vec: Vec<_> = output.collect();
+
+        assert_eq!(out_vec, [CodeBlock("    [[no_link]]".into()),]);
+    }
+
+    #[test]
+    fn test_iter_with_text_and_newline_do_not_detect_codeblock() {
+        let test_str = "Text\n    [[link]]\nText2";
+        let output = MarkdownAnalyzerIter::new(&test_str);
+        let out_vec: Vec<_> = output.collect();
+
+        assert_eq!(out_vec, [WikiLink("[[link]]".into()),]);
+    }
+
+    #[test]
+    fn test_iter_with_text_and_two_newlines() {
+        let test_str = "Text\n\n    [[no_link]]\nText2";
+        let output = MarkdownAnalyzerIter::new(&test_str);
+        let out_vec: Vec<_> = output.collect();
+
+        assert_eq!(out_vec, [CodeBlock("    [[no_link]]".into()),]);
+    }
+
+    #[test]
+    fn test_iter_with_text_and_two_newlines_with_spaces() {
+        let test_str = "Text   \n   \n    [[no_link]]\nText2";
+        let output = MarkdownAnalyzerIter::new(&test_str);
+        let out_vec: Vec<_> = output.collect();
+
+        assert_eq!(out_vec, [CodeBlock("    [[no_link]]".into()),]);
+    }
+    #[test]
+    fn test_iter_with_text_and_three_newlines_with_spaces() {
+        let test_str = "Text   \n   \n   \n    [[no_link]]\nText2";
         let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 

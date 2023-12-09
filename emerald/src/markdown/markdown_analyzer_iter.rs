@@ -10,6 +10,7 @@ use log::{debug, error, info, trace, warn};
 pub struct MarkdownAnalyzerIter<'a> {
     buf: &'a str,
     it: Peekable<CharIndices<'a>>,
+    last_state: MarkdownIteratorState,
 }
 
 /// Checks and consumes the next char in the iterator if it matches the provided pattern(s).
@@ -79,6 +80,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         Self {
             buf,
             it: buf.char_indices().peekable(),
+            last_state: StartOfParsing,
         }
     }
 
@@ -86,7 +88,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         let open_cnt = 1 + gather!(self.it, Option::<i32>::None, ' ');
 
         if open_cnt < 4 {
-            return IllegalFormat;
+            return EmptyLineFound;
         }
 
         let mut next_element = self.it.next();
@@ -99,13 +101,13 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         let mut iter_state = InlCodeBlockStart(start_idx);
         let mut act_idx = 0usize;
         while let Some((idx, _)) = next_element {
-            let i_peek_opt = self.it.peek();
+            let i_peek_opt = self.it.peek().cloned();
 
             if let Some((idx_peek, i_peek)) = i_peek_opt {
                 // determine new state
                 iter_state = match iter_state {
-                    InlCodeBlockStart(start_idx) if i_peek == &'\n' => {
-                        return InlCodeBlockFound(start_idx, *idx_peek);
+                    InlCodeBlockStart(start_idx) if i_peek == '\n' => {
+                        return InlCodeBlockFound(start_idx, idx_peek);
                     }
                     _ => iter_state,
                 };
@@ -116,19 +118,6 @@ impl<'a> MarkdownAnalyzerIter<'a> {
             next_element = self.it.next();
         }
         InlCodeBlockFound(start_idx, act_idx + 1)
-    }
-
-    fn detect_inline_code_block_after_newline(
-        &mut self,
-        start_idx: usize,
-    ) -> MarkdownIteratorState {
-        // Is that an inline code block?
-
-        if consume_expected_chars!(self.it, ' ').is_some() {
-            self.detect_inline_code_block(start_idx + 1)
-        } else {
-            IllegalFormat
-        }
     }
 
     fn detect_code_block(&mut self, start_idx: usize) -> MarkdownIteratorState {
@@ -233,31 +222,86 @@ impl<'a> MarkdownAnalyzerIter<'a> {
             self.detect_link(start_idx)
         }
     }
+
+    /// Detects an empty line in the markdown input.
+    ///
+    /// This method checks if the current position of the iterator corresponds to
+    /// an empty line in the markdown input. An empty line is defined as a sequence of
+    /// spaces followed by a newline character (`\n`). It consumes all the spaces
+    /// leading up to the newline character.
+    ///
+    /// The method is called when parsing markdown to correctly identify and handle
+    /// empty lines, which can be significant in markdown syntax, especially in
+    /// determining the boundaries of different markdown elements.
+    ///
+    /// # Returns
+    /// * `MarkdownIteratorState::EmptyLineFound` if an empty line is detected.
+    /// * `MarkdownIteratorState::IllegalFormat` if the next character is not a newline
+    ///   or the end of the iterator is reached, which implies an illegal or unexpected format.
+    fn detect_empty_line(&mut self) -> MarkdownIteratorState {
+        // gather all whitespaces
+        gather!(self.it, Option::<i32>::None, ' ');
+
+        // check if the following char is a newline
+        if let Some((_, ch)) = self.it.peek() {
+            if ch == &'\n' {
+                EmptyLineFound
+            } else {
+                IllegalFormat
+            }
+        } else {
+            IllegalFormat
+        }
+    }
 }
 
 impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
     type Item = types::MdBlock<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        while let Some((index, i)) = self.it.next() {
+        let mut newline = true;
+        loop {
+            let Some((index, i)) = self.it.next() else {
+                break;
+            };
+
+            // Detect newlines as boundaries for the parser
+            if i == '\n' {
+                // two newlines in a row means the last one was an empty line
+                if newline {
+                    self.last_state = EmptyLineFound;
+                }
+                newline = true;
+                continue;
+            }
             // Determine the markdown element based on the current character
             let markdown_element = match i {
                 '[' => self.detect_link_or_wiki_link(index),
                 '`' => self.detect_code_block(index),
-                '\n' => self.detect_inline_code_block_after_newline(index),
-                ' ' if index == 0 => self.detect_inline_code_block(index),
+                ' ' if newline => {
+                    if self.last_state == EmptyLineFound || self.last_state == StartOfParsing {
+                        self.detect_inline_code_block(index)
+                    } else if let InlCodeBlockFound(_, _) = self.last_state {
+                        self.detect_inline_code_block(index)
+                    } else {
+                        self.detect_empty_line()
+                    }
+                }
                 _ => IllegalFormat,
             };
 
+            self.last_state = markdown_element.clone();
             use types::MdBlock as ct; // short hand for the following code
             match markdown_element {
                 WikiLinkFound(s1, e1) => return Some(ct::WikiLink(&self.buf[s1..e1])),
                 LinkFound(s1, e1) => return Some(ct::Link(&self.buf[s1..e1])),
                 CodeBlockFound(s1, e1) => return Some(ct::CodeBlock(&self.buf[s1..e1])),
                 InlCodeBlockFound(s1, e1) => return Some(ct::CodeBlock(&self.buf[s1..e1])),
-                IllegalFormat => (), // Skip illegal formats and continue searching
+                IllegalFormat => (),
+                EmptyLineFound => (),
                 _ => panic!("State is not expected here"),
             };
+            newline = false;
         }
         None
     }
