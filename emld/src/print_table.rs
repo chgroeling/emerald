@@ -79,14 +79,14 @@ fn note_property_to_str(
     }
 }
 
-struct PrintFollowLinks<'a> {
+struct NoteLinkTraversal<'a> {
     vault: &'a dyn Vault,
     used_props: &'a Vec<NoteProperty>,
     format_string: &'a str,
     follow_links: u32,
 }
 
-impl<'a> PrintFollowLinks<'a> {
+impl<'a> NoteLinkTraversal<'a> {
     fn print(&self, parent_note: &Note, depth: u32) {
         let mut key_value_store = HashMap::<&str, String>::new();
         let expr_parser = Formatify::new();
@@ -201,7 +201,7 @@ impl<'a> NoteTablePrinter<'a> {
                 key_value_store.insert(property.value(), out_str);
             });
 
-            let pfl = PrintFollowLinks {
+            let pfl = NoteLinkTraversal {
                 vault: self.vault,
                 used_props: &used_props,
                 format_string: self.format_string,
