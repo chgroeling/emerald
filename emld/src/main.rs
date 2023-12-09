@@ -1,8 +1,8 @@
 mod format_option_parser;
-mod print_table;
+mod note_table_printer;
 use clap::{Parser, Subcommand};
 use format_option_parser::{FormatOptionParser, FormatOptions};
-use print_table::NoteTablePrinter;
+use note_table_printer::NoteTablePrinter;
 use std::path::Path;
 use std::path::PathBuf;
 use std::time::Instant;
