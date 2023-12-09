@@ -2,7 +2,7 @@ mod format_option_parser;
 mod print_table;
 use clap::{Parser, Subcommand};
 use format_option_parser::{FormatOptionParser, FormatOptions};
-use print_table::PrintTable;
+use print_table::NoteTablePrinter;
 use std::path::Path;
 use std::path::PathBuf;
 use std::time::Instant;
@@ -99,7 +99,7 @@ fn uc_list(
     };
 
     let vault = emerald.get_vault();
-    let pt = PrintTable {
+    let pt = NoteTablePrinter {
         vault: &vault,
         format_string,
         print_header,
