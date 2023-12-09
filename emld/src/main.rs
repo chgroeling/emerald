@@ -31,17 +31,21 @@ enum Commands {
     /// Return various statistics
     Stats {},
 
-    /// Lists all notes as table.
+    /// Lists all notes as a table.
     List {
+        /// Sets the format of the output table.
         #[arg(long, required=false, value_parser =FormatOptionParser, default_value="overview") ]
         format: FormatOptions,
 
+        ///  If set, the output table will not include a header.
         #[arg(long, required = false, default_value_t = false)]
         no_header: bool,
 
+        /// Determines how many links to follow for each note.
         #[arg(short = 'f', long, required = false, default_value_t = 0)]
         follow_links: u32,
 
+        /// A regular expression to filter the notes.
         #[arg(short = 'r', long, required = false)]
         regex: Option<String>,
     },
