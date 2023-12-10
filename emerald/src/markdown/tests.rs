@@ -477,4 +477,17 @@ mod tests {
 
         assert_eq!(out_vec, [YamlFrontmatter("---\nyaml: true\n---\n".into())]);
     }
+
+    #[test]
+    fn test_iter_with_illegal_yaml_frontmatter_illegal_whitespaces() {
+        let test_str = "--- \n\
+        yaml: true\n\
+        ---\n\
+        Text
+        ";
+        let output = MarkdownAnalyzerIter::new(&test_str);
+        let out_vec: Vec<_> = output.collect();
+
+        assert_eq!(out_vec, []);
+    }
 }
