@@ -150,17 +150,15 @@ impl<'a> MarkdownAnalyzerIter<'a> {
 
     fn detect_wiki_link(&mut self, start_idx: usize) -> MarkdownIteratorState {
         let mut next_element = self.it.next();
+
+        // end of file detection
         if next_element.is_none() {
             return IllegalFormat;
         }
 
-        // Opening of an internal link was detected
-        let mut iter_state = WikiLinkStart(start_idx);
-
         while let Some((idx, i)) = next_element {
-            // determine new state
-            iter_state = match iter_state {
-                WikiLinkStart(start_idx) if i == ']' => {
+            match i {
+                ']' => {
                     // Match ]] ...
                     if consume_expected_chars!(self.it, ']').is_some() {
                         return WikiLinkFound(start_idx, idx + 2);
@@ -168,11 +166,12 @@ impl<'a> MarkdownAnalyzerIter<'a> {
                         return IllegalFormat;
                     }
                 }
-                WikiLinkStart(_) if i == '[' => return IllegalFormat,
-                _ => iter_state,
-            };
 
-            // action for new state
+                '[' => {
+                    return IllegalFormat;
+                }
+                _ => (),
+            }
             next_element = self.it.next()
         }
         IllegalFormat

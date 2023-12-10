@@ -15,7 +15,6 @@ pub enum MarkdownIteratorState {
 
     CodeBlockFound(usize, usize),
 
-    WikiLinkStart(usize),
     WikiLinkFound(usize, usize),
 
     LinkStart(usize),
