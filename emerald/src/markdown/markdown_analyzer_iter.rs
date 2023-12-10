@@ -254,6 +254,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
             return IllegalFormat;
         }
 
+        let mut last_index: usize = 0;
         loop {
             let Some((index, i)) = self.it.next() else {
                 break;
@@ -263,11 +264,14 @@ impl<'a> MarkdownAnalyzerIter<'a> {
                 '\n' => {
                     // assume a dash after a newline
                     if consume_expected_chars!(self.it, '-').is_none() {
+                        last_index += 1;
                         continue;
                     }
 
                     // gather 2 more dashes
-                    if gather!(self.it, Option::<i32>::None, '-') != 2 {
+                    let dash_cnt = gather!(self.it, Option::<i32>::None, '-');
+                    if dash_cnt != 2 {
+                        last_index += dash_cnt as usize;
                         continue;
                     }
                     // +1 since the index relates to the newline
@@ -285,9 +289,11 @@ impl<'a> MarkdownAnalyzerIter<'a> {
                 }
                 _ => (),
             };
+
+            last_index = index;
         }
 
-        IllegalFormat
+        YamlFrontmatterFound(start_idx, last_index + 1)
     }
 }
 
