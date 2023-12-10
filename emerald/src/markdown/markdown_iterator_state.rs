@@ -5,7 +5,6 @@ pub enum MarkdownIteratorState {
     EmptyLineFound, // State that an empty line was found
     NewLineFound,
 
-    YamlFrontmatterStarts(usize),
     YamlFrontmatterFound(usize, usize),
 
     // Inline Code Block Start
