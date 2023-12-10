@@ -92,32 +92,33 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         }
 
         let mut next_element = self.it.next();
+
+        // special case... inline code block at end of file
         if next_element.is_none() {
-            // special case... inline code block at end of file
             return InlCodeBlockFound(start_idx, start_idx + open_cnt as usize);
         }
 
         // Opening Inline Code Block was detected
-        let mut iter_state = InlCodeBlockStart(start_idx);
         let mut act_idx = 0usize;
         while let Some((idx, _)) = next_element {
             let i_peek_opt = self.it.peek().cloned();
 
             if let Some((idx_peek, i_peek)) = i_peek_opt {
-                // determine new state
-                iter_state = match iter_state {
-                    InlCodeBlockStart(start_idx) if i_peek == '\n' => {
+                match i_peek {
+                    '\n' => {
                         self.it.next();
                         return InlCodeBlockFound(start_idx, idx_peek);
                     }
-                    _ => iter_state,
-                };
+                    _ => (),
+                }
             }
             act_idx = idx;
 
             // action for new state
             next_element = self.it.next();
         }
+
+        // end of file handling
         InlCodeBlockFound(start_idx, act_idx + 1)
     }
 
