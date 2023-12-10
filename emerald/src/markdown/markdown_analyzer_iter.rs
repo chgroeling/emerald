@@ -240,7 +240,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
     /// * `MarkdownIteratorState::IllegalFormat` if the next character is not a newline
     ///   or the end of the iterator is reached, which implies an illegal or unexpected format.
     fn detect_empty_line(&mut self) -> MarkdownIteratorState {
-        // gather all whitespaces
+        // gather all whitespaces doesnt matter how many
         gather!(self.it, Option::<i32>::None, ' ');
 
         // check if the following char is a newline
@@ -271,22 +271,23 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                 '[' => self.detect_link_or_wiki_link(index),
                 '`' => self.detect_code_block(index),
                 ' ' => {
-                    if self.last_state == EmptyLineFound || self.last_state == StartOfParsing {
+                    if matches!(
+                        self.last_state,
+                        StartOfParsing | EmptyLineFound | InlCodeBlockFound(_, _)
+                    ) {
                         self.detect_inline_code_block(index)
                     } else if self.last_state == NewLineFound {
                         self.detect_empty_line()
-                    } else if let InlCodeBlockFound(_, _) = self.last_state {
-                        self.detect_inline_code_block(index)
                     } else {
                         IllegalFormat
                     }
                 }
                 '\n' => {
                     // two newlines in a row means the last one was an empty line
-                    if self.last_state == NewLineFound
-                        || self.last_state == StartOfParsing
-                        || self.last_state == EmptyLineFound
-                    {
+                    if matches!(
+                        self.last_state,
+                        NewLineFound | StartOfParsing | EmptyLineFound
+                    ) {
                         EmptyLineFound
                     } else {
                         NewLineFound
