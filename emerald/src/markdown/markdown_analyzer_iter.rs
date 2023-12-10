@@ -162,12 +162,13 @@ impl<'a> MarkdownAnalyzerIter<'a> {
 
     fn detect_code_block(&mut self, start_idx: usize) -> MarkdownIteratorState {
         let open_cnt = 1 + gather!(self.it, Option::<i32>::None, '`');
-        let mut next_element = self.it.next();
-        if next_element.is_none() {
-            return IllegalFormat;
-        }
 
-        while let Some((idx, i)) = next_element {
+        loop {
+            // end of file detection
+            let ConsumeResult::Some((idx, i)) = consume!(self.it) else {
+                break;
+            };
+
             match i {
                 '`' => {
                     let advance = 1 + gather!(self.it, Option::<i32>::Some(open_cnt - 1), '`');
@@ -180,9 +181,6 @@ impl<'a> MarkdownAnalyzerIter<'a> {
                 }
                 _ => (),
             }
-
-            // action for new state
-            next_element = self.it.next()
         }
         IllegalFormat
     }
@@ -193,6 +191,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
             let ConsumeResult::Some((idx, i)) = consume!(self.it) else {
                 break;
             };
+
             match i {
                 ']' => {
                     // Match ]] ...
@@ -213,12 +212,15 @@ impl<'a> MarkdownAnalyzerIter<'a> {
     }
 
     fn detect_link(&mut self, start_idx: usize) -> MarkdownIteratorState {
-        let mut next_element = self.it.next();
-
         // Opening of an internal link was detected
         let mut iter_state = LinkStart(start_idx);
 
-        while let Some((idx, i)) = next_element {
+        loop {
+            // end of file detection
+            let ConsumeResult::Some((idx, i)) = consume!(self.it) else {
+                break;
+            };
+
             iter_state = match iter_state {
                 LinkStart(start_idx) if i == ']' => {
                     // next char must be '('
@@ -234,8 +236,6 @@ impl<'a> MarkdownAnalyzerIter<'a> {
 
                 _ => iter_state,
             };
-
-            next_element = self.it.next();
         }
 
         IllegalFormat
