@@ -1,13 +1,20 @@
 #[derive(PartialEq, Debug, Clone)]
 pub enum MarkdownIteratorState {
     IllegalFormat,
-    StartOfParsing, // State at the start of parsing
-    EmptyLineFound, // State that an empty line was found
+
+    /// This state is assigned at the start of parsing
+    StartOfParsing,
+
+    /// Empty line was found
+    EmptyLineFound,
+
+    /// New line character was found
     NewLineFound,
 
+    /// Yaml Frontmatter was found
     YamlFrontmatterFound(usize, usize),
 
-    /// Inline Code Block Found
+    /// Inline Code Block was found
     InlCodeBlockFound(usize, usize),
 
     CodeBlockFound(usize, usize),
