@@ -19,28 +19,60 @@ enum ConsumeResult {
     Eof,
 }
 
+/// Represents the result of a character consumption operation in a character iterator.
+///
+/// # Variants
+///
+/// - `Some((usize, char))`: Indicates that a character was successfully consumed from the iterator.
+///   It holds a tuple containing the index of the character in the original string and the character itself.
+///   This variant is typically returned when the character meets the criteria specified in the c
+///   onsumption operation.
+///
+/// - `None`: Represents the scenario where the current character in the iterator does not meet the
+///   consumption criteria, and therefore, is not consumed. This variant allows the iterator to remain at
+///   the current character, which can then be re-evaluated or consumed by a subsequent operation.
+///
+/// - `Eof`: Signifies that the end of the input has been reached. This variant is returned when there are
+///   no more characters to consume, indicating that the parsing process has reached the end of the input string.
 impl ConsumeResult {
+    /// Checks if the result contains a index and a character.
     #[allow(dead_code)]
     fn is_some(&self) -> bool {
         matches!(self, ConsumeResult::Some(_))
     }
 
+    /// Checks if the result is `None`.
     #[allow(dead_code)]
     fn is_none(&self) -> bool {
         matches!(self, ConsumeResult::None)
     }
 
+    /// Checks if the result indicates the end of the input (`Eof`).
     #[allow(dead_code)]
     fn is_eof(&self) -> bool {
         matches!(self, ConsumeResult::Eof)
     }
 
+    /// Checks if the result is either `None` or `Eof`.
     #[allow(dead_code)]
     fn is_none_or_eof(&self) -> bool {
         matches!(self, ConsumeResult::None | ConsumeResult::Eof)
     }
 }
 
+/// Consumes the next character from the iterator.
+///
+/// This macro advances the given character iterator and consumes the next character.
+/// If there is a next character, it returns a `ConsumeResult::Some`, containing the index
+/// and character. If the iterator is at the end of the input, it returns `ConsumeResult::Eof`.
+///
+/// # Parameters
+/// - `$iter`: A mutable reference to a `Peekable<CharIndices>` iterator over a string slice.
+///   The iterator must be able to yield pairs of index and character (`(usize, char)`).
+///
+/// # Returns
+/// - `ConsumeResult::Some((usize, char))` if there is a next character in the iterator.
+/// - `ConsumeResult::Eof` if the iterator has reached the end of the input string.
 macro_rules! consume {
     ($iter:expr) => {
         if let Some((idx, ch)) = $iter.next() {
@@ -51,11 +83,23 @@ macro_rules! consume {
     };
 }
 
-/// Checks and consumes the next char in the iterator if it matches the provided pattern(s).
+/// Consumes the next character in the iterator if it matches any of the provided patterns.
 ///
-/// - `$iter`: The iterator containing the input sequence.
-/// - `$($a:pat)+`: Pattern(s) to match against the next char.
-/// If the next char matches, it's consumed and returned as `Some(char)`. Otherwise, returns `None`.
+/// This macro peeks at the next character in the given character iterator. If the character
+/// matches any of the specified patterns, the macro consumes this character (advances the iterator)
+/// and returns a `ConsumeResult::Some` containing the index and character. If the character does not
+/// match any of the patterns, it returns `ConsumeResult::None` without advancing the iterator.
+/// If the iterator is at the end, it returns `ConsumeResult::Eof`.
+///
+/// # Parameters
+/// - `$iter`: A mutable reference to a `Peekable<CharIndices>` iterator over a string slice.
+/// - `$($a:pat)+`: One or more patterns to match against the next character. These can be
+///   simple characters, ranges, or any pattern that can be used in a `match` arm.
+///
+/// # Returns
+/// - `ConsumeResult::Some((usize, char))` if the next character matches any of the provided patterns.
+/// - `ConsumeResult::None` if the next character does not match any of the patterns.
+/// - `ConsumeResult::Eof` if the iterator has reached the end of the input string.
 macro_rules! consume_expected_chars{
     ($iter:expr, $($a:pat)+) => {
         if let Some((index,ch)) = $iter.peek().cloned() {
@@ -264,6 +308,24 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         }
     }
 
+    /// Detects the presence of YAML front matter in markdown input.
+    ///
+    /// YAML front matter is typically used at the beginning of markdown documents to contain metadata,
+    /// enclosed within triple-dashed lines (`---`). This method identifies the start and end of the
+    /// YAML front matter block, if present, and returns a corresponding `MarkdownIteratorState`.
+    ///
+    /// The detection starts from the current position of the iterator and proceeds until it either confirms
+    /// the presence of a valid YAML front matter block or encounters a format that invalidates the block.
+    ///
+    /// # Parameters
+    /// - `start_idx`: The starting index in the markdown text where the detection should begin.
+    ///
+    /// # Returns
+    /// - `MarkdownIteratorState::YamlFrontmatterFound(start_idx, end_idx)` if a YAML front matter block
+    ///   is detected, where `start_idx` is the starting index and `end_idx` is the index immediately after
+    ///   the end of the block.
+    /// - `MarkdownIteratorState::IllegalFormat` if the detected block does not conform to the expected YAML
+    ///    front matter format.
     fn detect_yaml_frontmatter(&mut self, start_idx: usize) -> MarkdownIteratorState {
         // gather 2 more dashes
         if gather!(self.it, Option::<i32>::None, '-') != 2 {
@@ -368,7 +430,7 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                 YamlFrontmatterFound(s1, e1) => {
                     return Some(ct::YamlFrontmatter(&self.buf[s1..e1]))
                 }
-                IllegalFormat => (),
+                IllegalFormat => (), // proceed search for valid content
                 NewLineFound => (),
                 EmptyLineFound => (),
                 _ => panic!("State is not expected here"),
