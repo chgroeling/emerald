@@ -138,11 +138,8 @@ impl<'a> MarkdownAnalyzerIter<'a> {
                 break;
             };
 
-            match i {
-                '\n' => {
-                    return InlCodeBlockFound(start_idx, idx);
-                }
-                _ => (),
+            if i == '\n' {
+                return InlCodeBlockFound(start_idx, idx);
             }
 
             act_idx = idx;
