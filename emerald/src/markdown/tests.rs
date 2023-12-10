@@ -479,9 +479,22 @@ mod tests {
     }
 
     #[test]
-    fn test_iter_with_illegal_yaml_frontmatter_illegal_whitespaces() {
+    fn test_iter_with_illegal_yaml_frontmatter_illegal_whitespaces_at_front() {
         let test_str = "--- \n\
         yaml: true\n\
+        ---\n\
+        Text
+        ";
+        let output = MarkdownAnalyzerIter::new(&test_str);
+        let out_vec: Vec<_> = output.collect();
+
+        assert_eq!(out_vec, []);
+    }
+
+    #[test]
+    fn test_iter_with_illegal_yaml_frontmatter_illegal_whitespaces_at_tail() {
+        let test_str = "---\n\
+        yaml: true\n \
         ---\n\
         Text
         ";
@@ -502,5 +515,39 @@ mod tests {
         let out_vec: Vec<_> = output.collect();
 
         assert_eq!(out_vec, [YamlFrontmatter("---\nyaml: -\n---\n".into())]);
+    }
+
+    #[test]
+    fn test_iter_with_yaml_frontmatter_and_following_inline_codeblock() {
+        let test_str = "---\n\
+        yaml: true\n\
+        ---\n    codeblock";
+        let output = MarkdownAnalyzerIter::new(&test_str);
+        let out_vec: Vec<_> = output.collect();
+
+        assert_eq!(
+            out_vec,
+            [
+                YamlFrontmatter("---\nyaml: true\n---\n".into()),
+                CodeBlock("    codeblock".into())
+            ]
+        );
+    }
+
+    #[test]
+    fn test_iter_with_yaml_frontmatter_and_following_link() {
+        let test_str = "---\n\
+        yaml: true\n\
+        ---\n[[link]]";
+        let output = MarkdownAnalyzerIter::new(&test_str);
+        let out_vec: Vec<_> = output.collect();
+
+        assert_eq!(
+            out_vec,
+            [
+                YamlFrontmatter("---\nyaml: true\n---\n".into()),
+                WikiLink("[[link]]".into())
+            ]
+        );
     }
 }
