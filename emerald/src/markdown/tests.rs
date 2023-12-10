@@ -467,14 +467,14 @@ mod tests {
 
     #[test]
     fn test_iter_with_yaml_frontmatter() {
-        let test_str = "---
-        yaml: true
-        ---
+        let test_str = "---\n\
+        yaml: true\n\
+        ---\n\
         Text
         ";
         let output = MarkdownAnalyzerIter::new(&test_str);
         let out_vec: Vec<_> = output.collect();
 
-        assert_eq!(out_vec, [YamlFrontmatter("---\nyaml: true\n---".into())]);
+        assert_eq!(out_vec, [YamlFrontmatter("---\nyaml: true\n---\n".into())]);
     }
 }

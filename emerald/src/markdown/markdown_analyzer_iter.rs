@@ -250,6 +250,48 @@ impl<'a> MarkdownAnalyzerIter<'a> {
             IllegalFormat
         }
     }
+
+    fn detect_two_more_dashes(&mut self) -> bool {
+        // gather 2 more dashes
+        let dash_cnt = gather!(self.it, Option::<i32>::None, '-');
+
+        if dash_cnt == 2 {
+            true
+        } else {
+            false
+        }
+    }
+    fn detect_yaml_frontmatter(&mut self, start_idx: usize) -> MarkdownIteratorState {
+        if !self.detect_two_more_dashes() {
+            return IllegalFormat;
+        }
+
+        loop {
+            let Some((index, i)) = self.it.next() else {
+                break;
+            };
+
+            match i {
+                '-' => {
+                    if self.detect_two_more_dashes() {
+                        let mut end_index = index + 3; // +3 since 3 dashes were found
+
+                        // gather all whitespaces doesnt matter how many
+                        let ws_count = gather!(self.it, Option::<i32>::None, ' ');
+
+                        end_index += ws_count as usize;
+                        if consume_expected_chars!(self.it, '\n').is_some() {
+                            end_index += 1usize;
+                            return YamlFrontmatterFound(start_idx, end_index);
+                        }
+                    }
+                }
+                _ => (),
+            };
+        }
+
+        IllegalFormat
+    }
 }
 
 impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
@@ -288,6 +330,9 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                         NewLineFound
                     }
                 }
+                '-' if matches!(self.last_state, StartOfParsing) => {
+                    self.detect_yaml_frontmatter(index)
+                }
                 _ => IllegalFormat,
             };
 
@@ -298,6 +343,9 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                 LinkFound(s1, e1) => return Some(ct::Link(&self.buf[s1..e1])),
                 CodeBlockFound(s1, e1) => return Some(ct::CodeBlock(&self.buf[s1..e1])),
                 InlCodeBlockFound(s1, e1) => return Some(ct::CodeBlock(&self.buf[s1..e1])),
+                YamlFrontmatterFound(s1, e1) => {
+                    return Some(ct::YamlFrontmatter(&self.buf[s1..e1]))
+                }
                 IllegalFormat => (),
                 NewLineFound => (),
                 EmptyLineFound => (),
