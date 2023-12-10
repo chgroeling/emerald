@@ -270,7 +270,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
                 '-' => {
                     // gather 2 more dashes
                     if gather!(self.it, Option::<i32>::None, '-') != 2 {
-                        return IllegalFormat;
+                        continue;
                     }
 
                     let mut end_index = index + 3; // +3 since 3 dashes were found
