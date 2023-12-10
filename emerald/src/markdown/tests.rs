@@ -464,4 +464,17 @@ mod tests {
 
         assert_eq!(out_vec, [WikiLink("[[_link]]".into())]);
     }
+
+    #[test]
+    fn test_iter_with_yaml_frontmatter() {
+        let test_str = "---
+        yaml: true
+        ---
+        Text
+        ";
+        let output = MarkdownAnalyzerIter::new(&test_str);
+        let out_vec: Vec<_> = output.collect();
+
+        assert_eq!(out_vec, [YamlFrontmatter("---\nyaml: true\n---".into())]);
+    }
 }
