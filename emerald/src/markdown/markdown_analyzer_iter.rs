@@ -158,17 +158,14 @@ impl<'a> MarkdownAnalyzerIter<'a> {
                 break;
             };
 
-            match i {
-                '`' => {
-                    let advance = 1 + gather!(self.it, Option::<i32>::Some(open_cnt - 1), '`');
+            if i == '`' {
+                let advance = 1 + gather!(self.it, Option::<i32>::Some(open_cnt - 1), '`');
 
-                    if advance == open_cnt {
-                        let end_idx = idx + 1 + advance as usize - 1;
+                if advance == open_cnt {
+                    let end_idx = idx + 1 + advance as usize - 1;
 
-                        return CodeBlockFound(start_idx, end_idx);
-                    }
+                    return CodeBlockFound(start_idx, end_idx);
                 }
-                _ => (),
             }
         }
         IllegalFormat
