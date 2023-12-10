@@ -244,13 +244,8 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         gather!(self.it, Option::<i32>::None, ' ');
 
         // check if the following char is a newline
-        if let Some((_, ch)) = self.it.peek() {
-            if ch == &'\n' {
-                self.it.next();
-                EmptyLineFound
-            } else {
-                IllegalFormat
-            }
+        if consume_expected_chars!(self.it, '\n').is_some() {
+            EmptyLineFound
         } else {
             IllegalFormat
         }
