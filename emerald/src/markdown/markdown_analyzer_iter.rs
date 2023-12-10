@@ -128,26 +128,19 @@ impl<'a> MarkdownAnalyzerIter<'a> {
             return IllegalFormat;
         }
 
-        // Opening code block was detected
-        let mut iter_state = CodeBlockStart(start_idx);
-
         while let Some((idx, i)) = next_element {
-            // determine new state
-            iter_state = match iter_state {
-                CodeBlockStart(start_idx) if i == '`' => {
+            match i {
+                '`' => {
                     let advance = 1 + gather!(self.it, Option::<i32>::Some(open_cnt - 1), '`');
 
                     if advance == open_cnt {
                         let end_idx = idx + 1 + advance as usize - 1;
 
                         return CodeBlockFound(start_idx, end_idx);
-                    } else {
-                        assert!(advance < open_cnt);
-                        iter_state
                     }
                 }
-                _ => iter_state,
-            };
+                _ => (),
+            }
 
             // action for new state
             next_element = self.it.next()

@@ -13,7 +13,6 @@ pub enum MarkdownIteratorState {
     // Inline Code Block Found
     InlCodeBlockFound(usize, usize),
 
-    CodeBlockStart(usize),
     CodeBlockFound(usize, usize),
 
     WikiLinkStart(usize),
