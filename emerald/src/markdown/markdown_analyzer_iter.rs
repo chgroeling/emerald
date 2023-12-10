@@ -14,7 +14,7 @@ pub struct MarkdownAnalyzerIter<'a> {
 }
 
 enum ConsumeResult {
-    Some(char),
+    Some((usize, char)),
     None,
     Eof,
 }
@@ -40,6 +40,17 @@ impl ConsumeResult {
         matches!(self, ConsumeResult::None | ConsumeResult::Eof)
     }
 }
+
+macro_rules! consume {
+    ($iter:expr) => {
+        if let Some((idx, ch)) = $iter.next() {
+            ConsumeResult::Some((idx, ch))
+        } else {
+            ConsumeResult::Eof
+        }
+    };
+}
+
 /// Checks and consumes the next char in the iterator if it matches the provided pattern(s).
 ///
 /// - `$iter`: The iterator containing the input sequence.
@@ -47,11 +58,11 @@ impl ConsumeResult {
 /// If the next char matches, it's consumed and returned as `Some(char)`. Otherwise, returns `None`.
 macro_rules! consume_expected_chars{
     ($iter:expr, $($a:pat)+) => {
-        if let Some((_,ch)) = $iter.peek().cloned() {
+        if let Some((index,ch)) = $iter.peek().cloned() {
             match ch {
                 $($a)|+ => {
                     $iter.next(); // consume
-                    ConsumeResult::Some(ch)
+                    ConsumeResult::Some((index, ch))
                 }
                 _ => {
                     ConsumeResult::None
@@ -177,14 +188,11 @@ impl<'a> MarkdownAnalyzerIter<'a> {
     }
 
     fn detect_wiki_link(&mut self, start_idx: usize) -> MarkdownIteratorState {
-        let mut next_element = self.it.next();
-
-        // end of file detection
-        if next_element.is_none() {
-            return IllegalFormat;
-        }
-
-        while let Some((idx, i)) = next_element {
+        loop {
+            // end of file detection
+            let ConsumeResult::Some((idx, i)) = consume!(self.it) else {
+                break;
+            };
             match i {
                 ']' => {
                     // Match ]] ...
@@ -200,7 +208,6 @@ impl<'a> MarkdownAnalyzerIter<'a> {
                 }
                 _ => (),
             }
-            next_element = self.it.next()
         }
         IllegalFormat
     }
