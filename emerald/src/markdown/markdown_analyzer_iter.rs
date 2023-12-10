@@ -283,36 +283,33 @@ impl<'a> MarkdownAnalyzerIter<'a> {
             };
 
             last_index = index; // needed in case of eof
-            match i {
-                '\n' => {
-                    // assume a dash after a newline
-                    if consume_expected_chars!(self.it, '-').is_none_or_eof() {
-                        continue;
-                    }
-
-                    last_index += 1;
-
-                    // gather 2 more dashes
-                    let dash_cnt = gather!(self.it, Option::<i32>::None, '-');
-                    if dash_cnt != 2 {
-                        last_index += dash_cnt as usize;
-                        continue;
-                    }
-                    // +1 since the index relates to the newline
-                    // +3 since 3 dashes were found
-                    let mut end_index = 1 + index + 3;
-
-                    // gather all whitespaces doesnt matter how many
-                    let ws_count = gather!(self.it, Option::<i32>::None, ' ');
-
-                    end_index += ws_count as usize;
-                    if consume_expected_chars!(self.it, '\n').is_some() {
-                        end_index += 1usize;
-                        return YamlFrontmatterFound(start_idx, end_index);
-                    }
+            if i == '\n' {
+                // assume a dash after a newline
+                if consume_expected_chars!(self.it, '-').is_none_or_eof() {
+                    continue;
                 }
-                _ => (),
-            };
+
+                last_index += 1;
+
+                // gather 2 more dashes
+                let dash_cnt = gather!(self.it, Option::<i32>::None, '-');
+                if dash_cnt != 2 {
+                    last_index += dash_cnt as usize;
+                    continue;
+                }
+                // +1 since the index relates to the newline
+                // +3 since 3 dashes were found
+                let mut end_index = 1 + index + 3;
+
+                // gather all whitespaces doesnt matter how many
+                let ws_count = gather!(self.it, Option::<i32>::None, ' ');
+
+                end_index += ws_count as usize;
+                if consume_expected_chars!(self.it, '\n').is_some() {
+                    end_index += 1usize;
+                    return YamlFrontmatterFound(start_idx, end_index);
+                }
+            }
         }
 
         YamlFrontmatterFound(start_idx, last_index + 1)
