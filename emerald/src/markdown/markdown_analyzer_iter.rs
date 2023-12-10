@@ -267,13 +267,19 @@ impl<'a> MarkdownAnalyzerIter<'a> {
             };
 
             match i {
-                '-' => {
+                '\n' => {
+                    // assume a dash after a newline
+                    if consume_expected_chars!(self.it, '-').is_none() {
+                        continue;
+                    }
+
                     // gather 2 more dashes
                     if gather!(self.it, Option::<i32>::None, '-') != 2 {
                         continue;
                     }
-
-                    let mut end_index = index + 3; // +3 since 3 dashes were found
+                    // +1 since the index relates to the newline
+                    // +3 since 3 dashes were found
+                    let mut end_index = 1 + index + 3;
 
                     // gather all whitespaces doesnt matter how many
                     let ws_count = gather!(self.it, Option::<i32>::None, ' ');
@@ -308,7 +314,10 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                 ' ' => {
                     if matches!(
                         self.last_state,
-                        StartOfParsing | EmptyLineFound | InlCodeBlockFound(_, _)
+                        StartOfParsing
+                            | EmptyLineFound
+                            | YamlFrontmatterFound(_, _)
+                            | InlCodeBlockFound(_, _)
                     ) {
                         self.detect_inline_code_block(index)
                     } else if self.last_state == NewLineFound {
