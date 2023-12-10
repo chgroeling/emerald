@@ -7,10 +7,7 @@ pub enum MarkdownIteratorState {
 
     YamlFrontmatterFound(usize, usize),
 
-    // Inline Code Block Start
-    InlCodeBlockStart(usize),
-
-    // Inline Code Block Found
+    /// Inline Code Block Found
     InlCodeBlockFound(usize, usize),
 
     CodeBlockFound(usize, usize),
