@@ -251,18 +251,9 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         }
     }
 
-    fn detect_two_more_dashes(&mut self) -> bool {
-        // gather 2 more dashes
-        let dash_cnt = gather!(self.it, Option::<i32>::None, '-');
-
-        if dash_cnt == 2 {
-            true
-        } else {
-            false
-        }
-    }
     fn detect_yaml_frontmatter(&mut self, start_idx: usize) -> MarkdownIteratorState {
-        if !self.detect_two_more_dashes() {
+        // gather 2 more dashes
+        if gather!(self.it, Option::<i32>::None, '-') != 2 {
             return IllegalFormat;
         }
 
@@ -273,17 +264,20 @@ impl<'a> MarkdownAnalyzerIter<'a> {
 
             match i {
                 '-' => {
-                    if self.detect_two_more_dashes() {
-                        let mut end_index = index + 3; // +3 since 3 dashes were found
+                    // gather 2 more dashes
+                    if gather!(self.it, Option::<i32>::None, '-') != 2 {
+                        return IllegalFormat;
+                    }
 
-                        // gather all whitespaces doesnt matter how many
-                        let ws_count = gather!(self.it, Option::<i32>::None, ' ');
+                    let mut end_index = index + 3; // +3 since 3 dashes were found
 
-                        end_index += ws_count as usize;
-                        if consume_expected_chars!(self.it, '\n').is_some() {
-                            end_index += 1usize;
-                            return YamlFrontmatterFound(start_idx, end_index);
-                        }
+                    // gather all whitespaces doesnt matter how many
+                    let ws_count = gather!(self.it, Option::<i32>::None, ' ');
+
+                    end_index += ws_count as usize;
+                    if consume_expected_chars!(self.it, '\n').is_some() {
+                        end_index += 1usize;
+                        return YamlFrontmatterFound(start_idx, end_index);
                     }
                 }
                 _ => (),
