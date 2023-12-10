@@ -257,6 +257,10 @@ impl<'a> MarkdownAnalyzerIter<'a> {
             return IllegalFormat;
         }
 
+        if consume_expected_chars!(self.it, '\n').is_none() {
+            return IllegalFormat;
+        }
+
         loop {
             let Some((index, i)) = self.it.next() else {
                 break;
