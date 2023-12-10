@@ -490,4 +490,17 @@ mod tests {
 
         assert_eq!(out_vec, []);
     }
+
+    #[test]
+    fn test_iter_with_yaml_frontmatter_with_dash_inside() {
+        let test_str = "---\n\
+        yaml: -\n\
+        ---\n\
+        Text
+        ";
+        let output = MarkdownAnalyzerIter::new(&test_str);
+        let out_vec: Vec<_> = output.collect();
+
+        assert_eq!(out_vec, [YamlFrontmatter("---\nyaml: -\n---\n".into())]);
+    }
 }
