@@ -129,31 +129,23 @@ impl<'a> MarkdownAnalyzerIter<'a> {
             return EmptyLineFound;
         }
 
-        let mut next_element = self.it.next();
-
-        // special case... inline code block at end of file
-        if next_element.is_none() {
-            return InlCodeBlockFound(start_idx, start_idx + open_cnt as usize);
-        }
-
         // Opening Inline Code Block was detected
-        let mut act_idx = 0usize;
-        while let Some((idx, _)) = next_element {
-            let i_peek_opt = self.it.peek().cloned();
+        let mut act_idx = start_idx + open_cnt as usize - 1; // -1 because the first char doesn't count
 
-            if let Some((idx_peek, i_peek)) = i_peek_opt {
-                match i_peek {
-                    '\n' => {
-                        self.it.next();
-                        return InlCodeBlockFound(start_idx, idx_peek);
-                    }
-                    _ => (),
+        loop {
+            // end of file detection
+            let ConsumeResult::Some((idx, i)) = consume!(self.it) else {
+                break;
+            };
+
+            match i {
+                '\n' => {
+                    return InlCodeBlockFound(start_idx, idx);
                 }
+                _ => (),
             }
-            act_idx = idx;
 
-            // action for new state
-            next_element = self.it.next();
+            act_idx = idx;
         }
 
         // end of file handling
