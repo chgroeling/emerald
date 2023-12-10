@@ -13,6 +13,33 @@ pub struct MarkdownAnalyzerIter<'a> {
     last_state: MarkdownIteratorState,
 }
 
+enum ConsumeResult {
+    Some(char),
+    None,
+    Eof,
+}
+
+impl ConsumeResult {
+    #[allow(dead_code)]
+    fn is_some(&self) -> bool {
+        matches!(self, ConsumeResult::Some(_))
+    }
+
+    #[allow(dead_code)]
+    fn is_none(&self) -> bool {
+        matches!(self, ConsumeResult::None)
+    }
+
+    #[allow(dead_code)]
+    fn is_eof(&self) -> bool {
+        matches!(self, ConsumeResult::Eof)
+    }
+
+    #[allow(dead_code)]
+    fn is_none_or_eof(&self) -> bool {
+        matches!(self, ConsumeResult::None | ConsumeResult::Eof)
+    }
+}
 /// Checks and consumes the next char in the iterator if it matches the provided pattern(s).
 ///
 /// - `$iter`: The iterator containing the input sequence.
@@ -24,14 +51,14 @@ macro_rules! consume_expected_chars{
             match ch {
                 $($a)|+ => {
                     $iter.next(); // consume
-                    Some(ch)
+                    ConsumeResult::Some(ch)
                 }
                 _ => {
-                    None
+                    ConsumeResult::None
                 }
             }
         } else {
-            None
+            ConsumeResult::Eof
         }
     };
 }
@@ -249,8 +276,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         if gather!(self.it, Option::<i32>::None, '-') != 2 {
             return IllegalFormat;
         }
-
-        if consume_expected_chars!(self.it, '\n').is_none() {
+        if consume_expected_chars!(self.it, '\n').is_none_or_eof() {
             return IllegalFormat;
         }
 
@@ -260,13 +286,15 @@ impl<'a> MarkdownAnalyzerIter<'a> {
                 break;
             };
 
+            last_index = index; // needed in case of eof
             match i {
                 '\n' => {
                     // assume a dash after a newline
-                    if consume_expected_chars!(self.it, '-').is_none() {
-                        last_index += 1;
+                    if consume_expected_chars!(self.it, '-').is_none_or_eof() {
                         continue;
                     }
+
+                    last_index += 1;
 
                     // gather 2 more dashes
                     let dash_cnt = gather!(self.it, Option::<i32>::None, '-');
@@ -289,8 +317,6 @@ impl<'a> MarkdownAnalyzerIter<'a> {
                 }
                 _ => (),
             };
-
-            last_index = index;
         }
 
         YamlFrontmatterFound(start_idx, last_index + 1)
