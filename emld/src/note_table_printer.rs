@@ -8,6 +8,7 @@ use std::collections::HashMap;
 enum NoteProperty {
     Depth,
     Title,
+    Yaml,
     Modified,
     Created,
     Size,
@@ -23,6 +24,7 @@ impl NoteProperty {
         match self {
             NoteProperty::Depth => "depth",
             NoteProperty::Title => "title",
+            NoteProperty::Yaml => "yaml",
             NoteProperty::Modified => "modified",
             NoteProperty::Created => "created",
             NoteProperty::Size => "size",
@@ -37,6 +39,7 @@ impl NoteProperty {
         match inp {
             "depth" => NoteProperty::Depth,
             "title" => NoteProperty::Title,
+            "yaml" => NoteProperty::Yaml,
             "modified" => NoteProperty::Modified,
             "created" => NoteProperty::Created,
             "size" => NoteProperty::Size,
@@ -58,6 +61,7 @@ fn note_property_to_str(
     match element {
         NoteProperty::Depth => depth.to_string(),
         NoteProperty::Title => note.title.clone(),
+        NoteProperty::Yaml => note.yaml.clone(),
         NoteProperty::Location => note.location.clone(),
         NoteProperty::Markdown => note.markdown.clone(),
         NoteProperty::Modified => {
