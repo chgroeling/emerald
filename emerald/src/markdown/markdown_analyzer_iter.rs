@@ -300,6 +300,9 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         // gather all whitespaces doesnt matter how many
         gather!(self.it, Option::<i32>::None, ' ');
 
+        // consume optional carriage return
+        consume_expected_chars!(self.it, '\r');
+
         // check if the following char is a newline
         if consume_expected_chars!(self.it, '\n').is_some() {
             EmptyLineFound
@@ -331,6 +334,9 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         if gather!(self.it, Option::<i32>::None, '-') != 2 {
             return IllegalFormat;
         }
+        // consume optional carriage return
+        consume_expected_chars!(self.it, '\r');
+
         if consume_expected_chars!(self.it, '\n').is_none_or_eof() {
             return IllegalFormat;
         }
@@ -362,8 +368,13 @@ impl<'a> MarkdownAnalyzerIter<'a> {
 
                 // gather all whitespaces doesnt matter how many
                 let ws_count = gather!(self.it, Option::<i32>::None, ' ');
-
                 end_index += ws_count as usize;
+
+                // consume optional carriage return
+                if consume_expected_chars!(self.it, '\r').is_some() {
+                    end_index += 1;
+                }
+
                 if consume_expected_chars!(self.it, '\n').is_some() {
                     end_index += 1usize;
                     return YamlFrontmatterFound(start_idx, end_index);
