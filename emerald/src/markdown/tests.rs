@@ -477,6 +477,21 @@ mod tests {
 
         assert_eq!(out_vec, [YamlFrontmatter("---\nyaml: true\n---\n".into())]);
     }
+    #[test]
+    fn test_iter_with_yaml_frontmatter_alternative_line_endings() {
+        let test_str = "---\r\n\
+        yaml: true\r\n\
+        ---\r\n\
+        Text
+        ";
+        let output = MarkdownAnalyzerIter::new(&test_str);
+        let out_vec: Vec<_> = output.collect();
+
+        assert_eq!(
+            out_vec,
+            [YamlFrontmatter("---\r\nyaml: true\r\n---\r\n".into())]
+        );
+    }
 
     #[test]
     fn test_iter_with_yaml_frontmatter_without_end_delimiter() {
