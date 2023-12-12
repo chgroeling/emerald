@@ -285,8 +285,8 @@ impl<'a> MarkdownAnalyzerIter<'a> {
     ///
     /// This method checks if the current position of the iterator corresponds to
     /// an empty line in the markdown input. An empty line is defined as a sequence of
-    /// spaces followed by a newline character (`\n`). It consumes all the spaces
-    /// leading up to the newline character.
+    /// spaces followed by an optional carriage return ('\r') and a newline character (`\n`).
+    /// It consumes all the spaces leading up to the newline character.
     ///
     /// The method is called when parsing markdown to correctly identify and handle
     /// empty lines, which can be significant in markdown syntax, especially in
