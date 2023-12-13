@@ -4,7 +4,7 @@ use super::Note;
 use crate::markdown;
 use crate::markdown::MarkdownAnalyzer;
 use crate::model::{content, note};
-use crate::types;
+use crate::types::{self};
 use std::rc::Rc;
 
 #[derive(Clone)]
@@ -36,8 +36,11 @@ impl NoteFactory for NoteFactoryImpl {
 
         let mut yaml_str = "".to_string();
         let first_element = md_iter.next();
+        let mut start_of_markdown = 0;
         if let Some(md) = first_element {
             if let types::MdBlock::YamlFrontmatter(yaml) = md {
+                // markdown starts when yaml ends
+                start_of_markdown = yaml.len();
                 yaml_str = yaml.to_string();
             }
         }
@@ -47,7 +50,7 @@ impl NoteFactory for NoteFactoryImpl {
             meta_data.title.clone(),
             yaml_str,
             meta_data.location.clone(),
-            content.0.clone(),
+            content.0[start_of_markdown..].to_string(),
             meta_data.size,
             Timestamp(meta_data.created),
             Timestamp(meta_data.modified),
