@@ -25,30 +25,38 @@ impl NoteFactoryImpl {
     }
 }
 
-// TODO: Separate this in one class
-fn split(content: &Content) -> (String, String) {
-    let md_analyzer = markdown::MarkdownAnalyzerImpl::new();
-    let mut md_iter = md_analyzer.analyze(&content.0);
-    let mut yaml_str = "".to_string();
-    let first_element = md_iter.next();
-    let mut start_of_markdown = 0;
-    if let Some(md) = first_element {
-        if let types::MdBlock::YamlFrontmatter(yaml) = md {
-            // markdown starts when yaml ends
-            start_of_markdown = yaml.len();
-            yaml_str = yaml.to_string();
-        }
+struct MarkdownSplitter();
+
+impl MarkdownSplitter {
+    fn new() -> Self {
+        Self()
     }
 
-    return (yaml_str, content.0[start_of_markdown..].to_string());
+    fn split_yaml_from_md(&self, content: &Content) -> (String, String) {
+        let md_analyzer = markdown::MarkdownAnalyzerImpl::new();
+        let mut md_iter = md_analyzer.analyze(&content.0);
+        let mut yaml_str = "".to_string();
+        let first_element = md_iter.next();
+        let mut start_of_markdown = 0;
+        if let Some(md) = first_element {
+            if let types::MdBlock::YamlFrontmatter(yaml) = md {
+                // markdown starts when yaml ends
+                start_of_markdown = yaml.len();
+                yaml_str = yaml.to_string();
+            }
+        }
+
+        return (yaml_str, content.0[start_of_markdown..].to_string());
+    }
 }
 
 impl NoteFactory for NoteFactoryImpl {
     fn create_note(&self, rid: types::ResourceId) -> Note {
         let meta_data = self.meta_data_retriever.retrieve(&rid);
         let content = self.content_retriever.retrieve(&rid);
+        let content_splitter = MarkdownSplitter::new();
 
-        let (yaml_str, markdown) = split(&content);
+        let (yaml_str, markdown) = content_splitter.split_yaml_from_md(&content);
 
         Note::new(
             rid,
