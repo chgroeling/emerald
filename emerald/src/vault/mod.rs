@@ -4,6 +4,7 @@ mod get_links;
 mod get_links_impl;
 mod link_query_result;
 mod link_query_result_builder;
+mod markdown_splitter;
 mod note;
 mod note_factory;
 mod note_factory_impl;
