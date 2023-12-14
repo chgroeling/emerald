@@ -1,4 +1,4 @@
-/// Module for working with Markdown splitting.
+/// Module contains markdown splitters.
 ///
 /// This module provides a struct, `MarkdownFrontMatterSplitter`, that can be used to split the YAML
 /// frontmatter from the markdown content.
@@ -7,9 +7,9 @@ use super::markdown_analyzer::MarkdownAnalyzer;
 use super::markdown_analyzer_impl::MarkdownAnalyzerImpl;
 use crate::types;
 
+/// A struct representing a MarkdownFrontMatterSplitter.
 pub struct MarkdownFrontMatterSplitter();
 
-/// A struct representing a MarkdownFrontMatterSplitter.
 impl MarkdownFrontMatterSplitter {
     /// Creates a new instance of MarkdownSplitter.
     ///
