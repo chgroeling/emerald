@@ -30,7 +30,7 @@ impl NoteFactory for NoteFactoryImpl {
         let content = self.content_retriever.retrieve(&rid);
         let markdown_splitter = MarkdownSplitter::new();
 
-        let (yaml_str, markdown) = markdown_splitter.split_yaml_from_md(&content);
+        let (yaml_str, markdown) = markdown_splitter.split_yaml_frontmatter(&content);
 
         Note::new(
             rid,
