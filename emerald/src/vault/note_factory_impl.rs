@@ -28,9 +28,9 @@ impl NoteFactory for NoteFactoryImpl {
     fn create_note(&self, rid: types::ResourceId) -> Note {
         let meta_data = self.meta_data_retriever.retrieve(&rid);
         let content = self.content_retriever.retrieve(&rid);
-        let content_splitter = MarkdownSplitter::new();
+        let markdown_splitter = MarkdownSplitter::new();
 
-        let (yaml_str, markdown) = content_splitter.split_yaml_from_md(&content);
+        let (yaml_str, markdown) = markdown_splitter.split_yaml_from_md(&content);
 
         Note::new(
             rid,
