@@ -29,7 +29,7 @@ impl MarkdownFrontMatterSplitter {
     /// # Returns
     ///
     /// A tuple containing the YAML frontmatter and the remaining markdown content.
-    pub fn split_yaml_frontmatter(&self, content: &types::Content) -> (String, String) {
+    pub fn split(&self, content: &types::Content) -> (String, String) {
         let md_analyzer = MarkdownAnalyzerImpl::new();
         let mut md_iter = md_analyzer.analyze(&content.0);
         let mut yaml_str = "".to_string();
