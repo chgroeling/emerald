@@ -1,7 +1,6 @@
-use crate::{
-    markdown::{self, MarkdownAnalyzer},
-    types::{self, Content},
-};
+use super::markdown_analyzer::MarkdownAnalyzer;
+use super::markdown_analyzer_impl::MarkdownAnalyzerImpl;
+use crate::types;
 
 pub struct MarkdownSplitter();
 
@@ -10,8 +9,8 @@ impl MarkdownSplitter {
         Self()
     }
 
-    pub fn split_yaml_from_md(&self, content: &Content) -> (String, String) {
-        let md_analyzer = markdown::MarkdownAnalyzerImpl::new();
+    pub fn split_yaml_from_md(&self, content: &types::Content) -> (String, String) {
+        let md_analyzer = MarkdownAnalyzerImpl::new();
         let mut md_iter = md_analyzer.analyze(&content.0);
         let mut yaml_str = "".to_string();
         let first_element = md_iter.next();

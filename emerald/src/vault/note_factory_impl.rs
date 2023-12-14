@@ -1,7 +1,7 @@
-use super::markdown_splitter::MarkdownSplitter;
 use super::note_factory::NoteFactory;
 use super::timestamp::Timestamp;
 use super::Note;
+use crate::markdown::MarkdownSplitter;
 use crate::model::{content, note};
 use crate::types;
 use std::rc::Rc;
