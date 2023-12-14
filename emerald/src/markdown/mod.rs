@@ -7,4 +7,4 @@ mod tests;
 
 pub use markdown_analyzer::MarkdownAnalyzer;
 pub use markdown_analyzer_impl::MarkdownAnalyzerImpl;
-pub use markdown_splitter::MarkdownSplitter;
+pub use markdown_splitter::MarkdownFrontMatterSplitter;

@@ -1,7 +1,7 @@
 use super::note_factory::NoteFactory;
 use super::timestamp::Timestamp;
 use super::Note;
-use crate::markdown::MarkdownSplitter;
+use crate::markdown::MarkdownFrontMatterSplitter;
 use crate::model::{content, note};
 use crate::types;
 use std::rc::Rc;
@@ -28,7 +28,7 @@ impl NoteFactory for NoteFactoryImpl {
     fn create_note(&self, rid: types::ResourceId) -> Note {
         let meta_data = self.meta_data_retriever.retrieve(&rid);
         let content = self.content_retriever.retrieve(&rid);
-        let markdown_splitter = MarkdownSplitter::new();
+        let markdown_splitter = MarkdownFrontMatterSplitter::new();
 
         let (yaml_str, markdown) = markdown_splitter.split_yaml_frontmatter(&content);
 
