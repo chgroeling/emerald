@@ -407,39 +407,39 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
             let markdown_element = match i {
                 '[' => self.detect_link_or_wiki_link(index),
                 '`' => self.detect_code_block(index),
-                ' ' => {
-                    if matches!(
-                        self.last_state,
-                        StartOfParsing
-                            | EmptyLineFound
-                            | YamlFrontmatterFound(_, _)
-                            | InlCodeBlockFound(_, _)
-                    ) {
-                        self.detect_inline_code_block(index)
-                    } else if self.last_state == NewLineFound {
-                        self.detect_empty_line()
-                    } else {
-                        self.it.next();
-                        IllegalFormat
-                    }
+                ' ' if matches!(self.last_state, StartOfParsing) => {
+                    self.detect_inline_code_block(index)
                 }
+                ' ' if matches!(self.last_state, EmptyLineFound) => {
+                    self.detect_inline_code_block(index)
+                }
+                ' ' if matches!(self.last_state, YamlFrontmatterFound(_, _)) => {
+                    self.detect_inline_code_block(index)
+                }
+                ' ' if matches!(self.last_state, InlCodeBlockFound(_, _)) => {
+                    self.detect_inline_code_block(index)
+                }
+                ' ' if matches!(self.last_state, NewLineFound) => self.detect_empty_line(),
+
+                '\n' if matches!(
+                    self.last_state,
+                    NewLineFound | StartOfParsing | EmptyLineFound
+                ) =>
+                {
+                    consume!(self.it);
+                    EmptyLineFound
+                }
+
                 '\n' => {
-                    self.it.next();
-                    // two newlines in a row means the last one was an empty line
-                    if matches!(
-                        self.last_state,
-                        NewLineFound | StartOfParsing | EmptyLineFound
-                    ) {
-                        EmptyLineFound
-                    } else {
-                        NewLineFound
-                    }
+                    consume!(self.it);
+                    NewLineFound
                 }
+
                 '-' if matches!(self.last_state, StartOfParsing) => {
                     self.detect_yaml_frontmatter(index)
                 }
                 _ => {
-                    self.it.next();
+                    consume!(self.it);
                     IllegalFormat
                 }
             };
