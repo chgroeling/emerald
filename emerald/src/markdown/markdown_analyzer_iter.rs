@@ -167,7 +167,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
     }
 
     fn detect_inline_code_block(&mut self, start_idx: usize) -> MarkdownIteratorState {
-        let open_cnt = 1 + gather!(self.it, Option::<i32>::None, ' ');
+        let open_cnt = gather!(self.it, Option::<i32>::None, ' ');
 
         if open_cnt < 4 {
             return EmptyLineFound;
@@ -194,6 +194,10 @@ impl<'a> MarkdownAnalyzerIter<'a> {
     }
 
     fn detect_code_block(&mut self, start_idx: usize) -> MarkdownIteratorState {
+        if consume_expected_chars!(self.it, '`').is_none() {
+            return IllegalFormat;
+        }
+
         let open_cnt = 1 + gather!(self.it, Option::<i32>::None, '`');
 
         loop {
@@ -272,6 +276,10 @@ impl<'a> MarkdownAnalyzerIter<'a> {
     }
 
     fn detect_link_or_wiki_link(&mut self, start_idx: usize) -> MarkdownIteratorState {
+        if consume_expected_chars!(self.it, '[').is_none() {
+            return IllegalFormat;
+        }
+
         if consume_expected_chars!(self.it, '[').is_some() {
             // wiki link starts with '[['
             self.detect_wiki_link(start_idx)
@@ -330,8 +338,8 @@ impl<'a> MarkdownAnalyzerIter<'a> {
     /// - `MarkdownIteratorState::IllegalFormat` if the detected block does not conform to the expected YAML
     ///    front matter format.
     fn detect_yaml_frontmatter(&mut self, start_idx: usize) -> MarkdownIteratorState {
-        // gather 2 more dashes
-        if gather!(self.it, Option::<i32>::None, '-') != 2 {
+        // gather 3 dashes
+        if gather!(self.it, Option::<i32>::None, '-') != 3 {
             return IllegalFormat;
         }
         // consume optional carriage return
@@ -391,7 +399,7 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
 
     fn next(&mut self) -> Option<Self::Item> {
         loop {
-            let Some((index, i)) = self.it.next() else {
+            let Some((index, i)) = self.it.peek().cloned() else {
                 break;
             };
 
@@ -411,10 +419,12 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                     } else if self.last_state == NewLineFound {
                         self.detect_empty_line()
                     } else {
+                        self.it.next();
                         IllegalFormat
                     }
                 }
                 '\n' => {
+                    self.it.next();
                     // two newlines in a row means the last one was an empty line
                     if matches!(
                         self.last_state,
@@ -428,7 +438,10 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                 '-' if matches!(self.last_state, StartOfParsing) => {
                     self.detect_yaml_frontmatter(index)
                 }
-                _ => IllegalFormat,
+                _ => {
+                    self.it.next();
+                    IllegalFormat
+                }
             };
 
             self.last_state = markdown_element.clone();
