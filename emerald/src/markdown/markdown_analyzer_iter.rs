@@ -405,106 +405,143 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                 break;
             };
 
-            // Determine the markdown element based on the current character
-            let markdown_element = match i {
-                // # Start of parsing
-                '-' if matches!(self.last_state, StartOfParsing) => {
-                    let res = self.detect_yaml_frontmatter(index);
+            self.last_state = match self.last_state {
+                StartOfParsing => {
+                    match i {
+                        // # Start of parsing
+                        '-' => {
+                            let res = self.detect_yaml_frontmatter(index);
 
-                    // EMIT
-                    if let YamlFrontmatterFound(s, e) = res {
-                        return Some(ct::YamlFrontmatter(&self.buf[s..e]));
-                    }
-                    res
-                }
-                ' ' if matches!(self.last_state, StartOfParsing) => {
-                    let res = self.detect_inline_code_block(index);
+                            // EMIT
+                            if let YamlFrontmatterFound(s, e) = res {
+                                self.last_state = res;
+                                return Some(ct::YamlFrontmatter(&self.buf[s..e]));
+                            }
+                            res
+                        }
+                        ' ' => {
+                            let res = self.detect_inline_code_block(index);
 
-                    // EMIT
-                    if let InlCodeBlockFound(s, e) = res {
-                        return Some(ct::CodeBlock(&self.buf[s..e]));
-                    }
-                    res
-                }
-                '\n' if matches!(self.last_state, StartOfParsing) => {
-                    consume!(self.it);
-                    EmptyLineFound
-                }
-
-                // # Empty Line found
-                '\n' if matches!(self.last_state, EmptyLineFound) => {
-                    consume!(self.it);
-                    EmptyLineFound
-                }
-                ' ' if matches!(self.last_state, EmptyLineFound) => {
-                    let res = self.detect_inline_code_block(index);
-
-                    // EMIT
-                    if let InlCodeBlockFound(s, e) = res {
-                        return Some(ct::CodeBlock(&self.buf[s..e]));
-                    }
-                    res
-                }
-
-                // # New line found
-                ' ' if matches!(self.last_state, NewLineFound) => self.detect_empty_line(),
-
-                '\n' if matches!(self.last_state, NewLineFound) => {
-                    consume!(self.it);
-                    EmptyLineFound
-                }
-
-                // # Text
-                '[' => {
-                    let res = self.detect_link_or_wiki_link(index);
-
-                    // EMIT
-                    match res {
-                        WikiLinkFound(s1, e1) => return Some(ct::WikiLink(&self.buf[s1..e1])),
-                        LinkFound(s1, e1) => return Some(ct::Link(&self.buf[s1..e1])),
-                        _ => res,
+                            // EMIT
+                            if let InlCodeBlockFound(s, e) = res {
+                                self.last_state = res;
+                                return Some(ct::CodeBlock(&self.buf[s..e]));
+                            }
+                            res
+                        }
+                        '\n' => {
+                            consume!(self.it);
+                            EmptyLineFound
+                        }
+                        _ => IllegalFormat,
                     }
                 }
-                '`' => {
-                    let res = self.detect_code_block(index);
+                EmptyLineFound => {
+                    match i {
+                        // # Empty Line found
+                        '\n' => {
+                            consume!(self.it);
+                            EmptyLineFound
+                        }
+                        ' ' => {
+                            let res = self.detect_inline_code_block(index);
 
-                    // EMIT
-                    if let CodeBlockFound(s, e) = res {
-                        return Some(ct::CodeBlock(&self.buf[s..e]));
+                            // EMIT
+                            if let InlCodeBlockFound(s, e) = res {
+                                self.last_state = res;
+                                return Some(ct::CodeBlock(&self.buf[s..e]));
+                            }
+                            res
+                        }
+                        _ => IllegalFormat,
                     }
-                    res
                 }
-                ' ' if matches!(self.last_state, YamlFrontmatterFound(_, _)) => {
-                    let res = self.detect_inline_code_block(index);
+                NewLineFound => {
+                    match i {
+                        // # New line found
+                        ' ' => self.detect_empty_line(),
 
-                    // EMIT
-                    if let InlCodeBlockFound(s, e) = res {
-                        return Some(ct::CodeBlock(&self.buf[s..e]));
+                        '\n' => {
+                            consume!(self.it);
+                            EmptyLineFound
+                        }
+                        _ => IllegalFormat,
                     }
-                    res
                 }
-                ' ' if matches!(self.last_state, InlCodeBlockFound(_, _)) => {
-                    let res = self.detect_inline_code_block(index);
 
-                    // EMIT
-                    if let InlCodeBlockFound(s, e) = res {
-                        return Some(ct::CodeBlock(&self.buf[s..e]));
+                YamlFrontmatterFound(_, _) => {
+                    match i {
+                        ' ' if matches!(self.last_state, YamlFrontmatterFound(_, _)) => {
+                            let res = self.detect_inline_code_block(index);
+
+                            // EMIT
+                            if let InlCodeBlockFound(s, e) = res {
+                                self.last_state = res;
+                                return Some(ct::CodeBlock(&self.buf[s..e]));
+                            }
+                            res
+                        }
+                        _ => IllegalFormat,
                     }
-                    res
                 }
+                InlCodeBlockFound(_, _) => {
+                    match i {
+                        ' ' if matches!(self.last_state, InlCodeBlockFound(_, _)) => {
+                            let res = self.detect_inline_code_block(index);
 
-                '\n' => {
-                    consume!(self.it);
-                    NewLineFound
+                            // EMIT
+                            if let InlCodeBlockFound(s, e) = res {
+                                self.last_state = res;
+                                return Some(ct::CodeBlock(&self.buf[s..e]));
+                            }
+                            res
+                        }
+                        _ => IllegalFormat,
+                    }
                 }
-
                 _ => {
-                    consume!(self.it);
-                    IllegalFormat
+                    match i {
+                        // # Text
+                        '[' => {
+                            let res = self.detect_link_or_wiki_link(index);
+
+                            // EMIT
+                            match res {
+                                WikiLinkFound(s1, e1) => {
+                                    self.last_state = res;
+                                    return Some(ct::WikiLink(&self.buf[s1..e1]));
+                                }
+                                LinkFound(s1, e1) => {
+                                    self.last_state = res;
+                                    return Some(ct::Link(&self.buf[s1..e1]));
+                                }
+
+                                _ => res,
+                            }
+                        }
+                        '`' => {
+                            let res = self.detect_code_block(index);
+
+                            // EMIT
+                            if let CodeBlockFound(s, e) = res {
+                                self.last_state = res;
+                                return Some(ct::CodeBlock(&self.buf[s..e]));
+                            }
+                            res
+                        }
+
+                        '\n' => {
+                            consume!(self.it);
+                            NewLineFound
+                        }
+
+                        _ => {
+                            consume!(self.it);
+                            IllegalFormat
+                        }
+                    }
                 }
             };
-
-            self.last_state = markdown_element.clone();
         }
         None
     }
