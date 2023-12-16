@@ -398,6 +398,8 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
     type Item = types::MdBlock<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
+        use types::MdBlock as ct; // short hand for the following code
+
         loop {
             let Some((index, i)) = self.it.peek().cloned() else {
                 break;
@@ -407,10 +409,22 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
             let markdown_element = match i {
                 // # Start of parsing
                 '-' if matches!(self.last_state, StartOfParsing) => {
-                    self.detect_yaml_frontmatter(index)
+                    let res = self.detect_yaml_frontmatter(index);
+
+                    // EMIT
+                    if let YamlFrontmatterFound(s, e) = res {
+                        return Some(ct::YamlFrontmatter(&self.buf[s..e]));
+                    }
+                    res
                 }
                 ' ' if matches!(self.last_state, StartOfParsing) => {
-                    self.detect_inline_code_block(index)
+                    let res = self.detect_inline_code_block(index);
+
+                    // EMIT
+                    if let InlCodeBlockFound(s, e) = res {
+                        return Some(ct::CodeBlock(&self.buf[s..e]));
+                    }
+                    res
                 }
                 '\n' if matches!(self.last_state, StartOfParsing) => {
                     consume!(self.it);
@@ -423,7 +437,13 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                     EmptyLineFound
                 }
                 ' ' if matches!(self.last_state, EmptyLineFound) => {
-                    self.detect_inline_code_block(index)
+                    let res = self.detect_inline_code_block(index);
+
+                    // EMIT
+                    if let InlCodeBlockFound(s, e) = res {
+                        return Some(ct::CodeBlock(&self.buf[s..e]));
+                    }
+                    res
                 }
 
                 // # New line found
@@ -435,13 +455,42 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                 }
 
                 // # Text
-                '[' => self.detect_link_or_wiki_link(index),
-                '`' => self.detect_code_block(index),
+                '[' => {
+                    let res = self.detect_link_or_wiki_link(index);
+
+                    // EMIT
+                    match res {
+                        WikiLinkFound(s1, e1) => return Some(ct::WikiLink(&self.buf[s1..e1])),
+                        LinkFound(s1, e1) => return Some(ct::Link(&self.buf[s1..e1])),
+                        _ => res,
+                    }
+                }
+                '`' => {
+                    let res = self.detect_code_block(index);
+
+                    // EMIT
+                    if let CodeBlockFound(s, e) = res {
+                        return Some(ct::CodeBlock(&self.buf[s..e]));
+                    }
+                    res
+                }
                 ' ' if matches!(self.last_state, YamlFrontmatterFound(_, _)) => {
-                    self.detect_inline_code_block(index)
+                    let res = self.detect_inline_code_block(index);
+
+                    // EMIT
+                    if let InlCodeBlockFound(s, e) = res {
+                        return Some(ct::CodeBlock(&self.buf[s..e]));
+                    }
+                    res
                 }
                 ' ' if matches!(self.last_state, InlCodeBlockFound(_, _)) => {
-                    self.detect_inline_code_block(index)
+                    let res = self.detect_inline_code_block(index);
+
+                    // EMIT
+                    if let InlCodeBlockFound(s, e) = res {
+                        return Some(ct::CodeBlock(&self.buf[s..e]));
+                    }
+                    res
                 }
 
                 '\n' => {
@@ -456,20 +505,6 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
             };
 
             self.last_state = markdown_element.clone();
-            use types::MdBlock as ct; // short hand for the following code
-            match markdown_element {
-                WikiLinkFound(s1, e1) => return Some(ct::WikiLink(&self.buf[s1..e1])),
-                LinkFound(s1, e1) => return Some(ct::Link(&self.buf[s1..e1])),
-                CodeBlockFound(s1, e1) => return Some(ct::CodeBlock(&self.buf[s1..e1])),
-                InlCodeBlockFound(s1, e1) => return Some(ct::CodeBlock(&self.buf[s1..e1])),
-                YamlFrontmatterFound(s1, e1) => {
-                    return Some(ct::YamlFrontmatter(&self.buf[s1..e1]))
-                }
-                IllegalFormat => (), // proceed search for valid content
-                NewLineFound => (),
-                EmptyLineFound => (),
-                _ => panic!("State is not expected here"),
-            };
         }
         None
     }
