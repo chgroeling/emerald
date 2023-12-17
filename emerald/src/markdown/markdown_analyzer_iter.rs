@@ -421,6 +421,22 @@ impl<'a> MarkdownAnalyzerIter<'a> {
             _ => ActionResult::NextState(TextState),
         }
     }
+
+    fn empty_line_state(state_data: &mut StateData) -> ActionResult {
+        let Some((index, i)) = state_data.it.peek().cloned() else {
+            return ActionResult::NextState(TextState);
+        };
+
+        match i {
+            // # Empty Line found
+            '\n' => {
+                consume!(state_data.it);
+                ActionResult::NextState(EmptyLineState)
+            }
+            ' ' => Self::detect_inline_code_block(state_data, index),
+            _ => ActionResult::NextState(TextState),
+        }
+    }
     fn convert_yield_res_to_md_block(&self, inp: Yield) -> types::MdBlock<'a> {
         match inp {
             YamlFrontmatter(s, e) => types::MdBlock::YamlFrontmatter(&self.buf[s..e]),
@@ -442,17 +458,7 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
 
             let ar: ActionResult = match self.state_data.state {
                 DocumentStartState => Self::document_start_state(&mut self.state_data),
-                EmptyLineState => {
-                    match i {
-                        // # Empty Line found
-                        '\n' => {
-                            consume!(self.state_data.it);
-                            ActionResult::NextState(EmptyLineState)
-                        }
-                        ' ' => Self::detect_inline_code_block(&mut self.state_data, index),
-                        _ => ActionResult::NextState(TextState),
-                    }
-                }
+                EmptyLineState => Self::empty_line_state(&mut self.state_data),
                 NewLineState => {
                     match i {
                         // # New line found
