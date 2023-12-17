@@ -1,7 +1,8 @@
-use super::markdown_iterator_state::{ActionResult, MarkdownIteratorState, StateData};
+use super::markdown_iterator_state::{ActionResult, MarkdownIteratorState, StateData, YieldResut};
 use crate::types;
 
 use MarkdownIteratorState::*;
+use YieldResut::*;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
@@ -184,20 +185,14 @@ impl<'a> MarkdownAnalyzerIter<'a> {
             };
 
             if i == '\n' {
-                return ActionResult::YieldState(
-                    InlCodeBlockFound(start_idx, idx),
-                    InlCodeBlockFound(start_idx, idx),
-                );
+                return ActionResult::YieldState(InlCodeBlockFound, CodeBlock(start_idx, idx));
             }
 
             act_idx = idx;
         }
 
         // end of file handling
-        ActionResult::YieldState(
-            InlCodeBlockFound(start_idx, act_idx + 1),
-            InlCodeBlockFound(start_idx, act_idx + 1),
-        )
+        ActionResult::YieldState(InlCodeBlockFound, CodeBlock(start_idx, act_idx + 1))
     }
 
     fn detect_code_block(state_data: &mut StateData, start_idx: usize) -> ActionResult {
@@ -219,7 +214,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
                 if advance == open_cnt {
                     let end_idx = idx + 1 + advance as usize - 1;
 
-                    return ActionResult::YieldState(Text, CodeBlockFound(start_idx, end_idx));
+                    return ActionResult::YieldState(Text, CodeBlock(start_idx, end_idx));
                 }
             }
         }
@@ -237,7 +232,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
                 ']' => {
                     // Match ]] ...
                     if consume_expected_chars!(state_data.it, ']').is_some() {
-                        return ActionResult::YieldState(Text, WikiLinkFound(start_idx, idx + 2));
+                        return ActionResult::YieldState(Text, WikiLink(start_idx, idx + 2));
                     } else {
                         return ActionResult::NextState(Text);
                     }
@@ -272,7 +267,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
                     }
                 }
                 LinkDescriptionFinished(start_idx) if i == ')' => {
-                    return ActionResult::YieldState(Text, LinkFound(start_idx, idx + 1));
+                    return ActionResult::YieldState(Text, Link(start_idx, idx + 1));
                 }
 
                 _ => iter_state,
@@ -393,33 +388,25 @@ impl<'a> MarkdownAnalyzerIter<'a> {
                 if consume_expected_chars!(state_data.it, '\n').is_some() {
                     end_index += 1usize;
                     return ActionResult::YieldState(
-                        YamlFrontmatterFound(start_idx, end_index),
-                        YamlFrontmatterFound(start_idx, end_index),
+                        YamlFrontmatterFound,
+                        YamlFrontmatter(start_idx, end_index),
                     );
                 }
             }
         }
 
         ActionResult::YieldState(
-            YamlFrontmatterFound(start_idx, last_index + 1),
-            YamlFrontmatterFound(start_idx, last_index + 1),
+            YamlFrontmatterFound,
+            YamlFrontmatter(start_idx, last_index + 1),
         )
     }
 
-    fn convert_state_to_md_block(&self, inp: MarkdownIteratorState) -> types::MdBlock<'a> {
-        let yield_panic = || panic!("This state has now yield representation");
+    fn convert_yield_res_to_md_block(&self, inp: YieldResut) -> types::MdBlock<'a> {
         match inp {
-            YamlFrontmatterFound(s, e) => types::MdBlock::YamlFrontmatter(&self.buf[s..e]),
-            InlCodeBlockFound(s, e) => types::MdBlock::CodeBlock(&self.buf[s..e]),
-            CodeBlockFound(s, e) => types::MdBlock::CodeBlock(&self.buf[s..e]),
-            WikiLinkFound(s, e) => types::MdBlock::WikiLink(&self.buf[s..e]),
-            LinkFound(s, e) => types::MdBlock::Link(&self.buf[s..e]),
-            Text => yield_panic(),
-            DocumentStart => yield_panic(),
-            EmptyLineFound => yield_panic(),
-            NewLineFound => yield_panic(),
-            LinkStart(_) => yield_panic(),
-            LinkDescriptionFinished(_) => yield_panic(),
+            YamlFrontmatter(s, e) => types::MdBlock::YamlFrontmatter(&self.buf[s..e]),
+            CodeBlock(s, e) => types::MdBlock::CodeBlock(&self.buf[s..e]),
+            WikiLink(s, e) => types::MdBlock::WikiLink(&self.buf[s..e]),
+            Link(s, e) => types::MdBlock::Link(&self.buf[s..e]),
         }
     }
 }
@@ -470,11 +457,11 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                     }
                 }
 
-                YamlFrontmatterFound(_, _) => match i {
+                YamlFrontmatterFound => match i {
                     ' ' => Self::detect_inline_code_block(&mut self.state_data, index),
                     _ => ActionResult::NextState(Text),
                 },
-                InlCodeBlockFound(_, _) => match i {
+                InlCodeBlockFound => match i {
                     ' ' => Self::detect_inline_code_block(&mut self.state_data, index),
                     _ => ActionResult::NextState(Text),
                 },
@@ -507,7 +494,7 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                 }
                 ActionResult::YieldState(state, yield_state) => {
                     self.state_data.state = state;
-                    return Some(self.convert_state_to_md_block(yield_state));
+                    return Some(self.convert_yield_res_to_md_block(yield_state));
                 }
             }
         }

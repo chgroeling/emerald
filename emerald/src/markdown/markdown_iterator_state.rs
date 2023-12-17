@@ -15,23 +15,29 @@ pub enum MarkdownIteratorState {
     NewLineFound,
 
     /// Yaml Frontmatter was found
-    YamlFrontmatterFound(usize, usize),
+    YamlFrontmatterFound,
 
     /// Inline Code Block was found
-    InlCodeBlockFound(usize, usize),
-
-    CodeBlockFound(usize, usize),
-
-    WikiLinkFound(usize, usize),
+    InlCodeBlockFound,
 
     LinkStart(usize),
     LinkDescriptionFinished(usize),
-    LinkFound(usize, usize),
+}
+
+pub enum YieldResut {
+    /// Yaml Frontmatter was found
+    YamlFrontmatter(usize, usize),
+
+    CodeBlock(usize, usize),
+
+    WikiLink(usize, usize),
+
+    Link(usize, usize),
 }
 
 pub enum ActionResult {
     NextState(MarkdownIteratorState),
-    YieldState(MarkdownIteratorState, MarkdownIteratorState),
+    YieldState(MarkdownIteratorState, YieldResut),
 }
 
 #[derive(Debug)]
