@@ -29,6 +29,7 @@ pub enum Yield {
 }
 
 pub enum ActionResult {
+    EndOfFile,
     NextState(State),
     YieldState(State, Yield),
 }

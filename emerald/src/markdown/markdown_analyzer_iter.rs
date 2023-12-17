@@ -408,7 +408,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
 
     fn document_start_state(state_data: &mut StateData) -> ActionResult {
         let Some((index, i)) = state_data.it.peek().cloned() else {
-            return ActionResult::NextState(TextState);
+            return ActionResult::EndOfFile;
         };
         match i {
             // # Start of parsing
@@ -424,7 +424,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
 
     fn empty_line_state(state_data: &mut StateData) -> ActionResult {
         let Some((index, i)) = state_data.it.peek().cloned() else {
-            return ActionResult::NextState(TextState);
+            return ActionResult::EndOfFile;
         };
 
         match i {
@@ -440,7 +440,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
 
     fn new_line_state(state_data: &mut StateData) -> ActionResult {
         let Some((_, i)) = state_data.it.peek().cloned() else {
-            return ActionResult::NextState(TextState);
+            return ActionResult::EndOfFile;
         };
 
         match i {
@@ -457,7 +457,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
 
     fn yaml_frontmatter_state(state_data: &mut StateData) -> ActionResult {
         let Some((index, i)) = state_data.it.peek().cloned() else {
-            return ActionResult::NextState(TextState);
+            return ActionResult::EndOfFile;
         };
 
         match i {
@@ -468,7 +468,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
 
     fn inline_codeblock_state(state_data: &mut StateData) -> ActionResult {
         let Some((index, i)) = state_data.it.peek().cloned() else {
-            return ActionResult::NextState(TextState);
+            return ActionResult::EndOfFile;
         };
 
         match i {
@@ -479,7 +479,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
 
     fn text_state(state_data: &mut StateData) -> ActionResult {
         let Some((index, i)) = state_data.it.peek().cloned() else {
-            return ActionResult::NextState(TextState);
+            return ActionResult::EndOfFile;
         };
 
         match i {
@@ -523,6 +523,9 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
             };
 
             match ar {
+                ActionResult::EndOfFile => {
+                    return None;
+                }
                 ActionResult::NextState(state) => {
                     self.state_data.state = state;
                 }
@@ -532,6 +535,5 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                 }
             }
         }
-        None
     }
 }
