@@ -1,7 +1,7 @@
-use super::markdown_iterator_state::{ActionResult, MarkdownIteratorState, StateData, YieldResult};
+use super::markdown_iterator_state::{ActionResult, State, StateData, YieldResult};
 use crate::types;
 
-use MarkdownIteratorState::*;
+use State::*;
 use YieldResult::*;
 
 #[allow(unused_imports)]

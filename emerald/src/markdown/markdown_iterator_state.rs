@@ -1,7 +1,7 @@
 use std::{iter::Peekable, str::CharIndices};
 
 #[derive(PartialEq, Debug, Clone)]
-pub enum MarkdownIteratorState {
+pub enum State {
     // This state is assigned when parsing text.
     TextState,
 
@@ -29,12 +29,12 @@ pub enum YieldResult {
 }
 
 pub enum ActionResult {
-    NextState(MarkdownIteratorState),
-    YieldState(MarkdownIteratorState, YieldResult),
+    NextState(State),
+    YieldState(State, YieldResult),
 }
 
 #[derive(Debug)]
 pub struct StateData<'a> {
-    pub state: MarkdownIteratorState,
+    pub state: State,
     pub it: Peekable<CharIndices<'a>>,
 }
