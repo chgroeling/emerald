@@ -305,7 +305,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
     /// * `MarkdownIteratorState::EmptyLineFound` if an empty line is detected.
     /// * `MarkdownIteratorState::IllegalFormat` if the next character is not a newline
     ///   or the end of the iterator is reached, which implies an illegal or unexpected format.
-    fn detect_empty_line(state_data: &mut StateData) -> MarkdownIteratorState {
+    fn detect_empty_line(state_data: &mut StateData) -> ActionResult {
         // gather all whitespaces doesnt matter how many
         gather!(state_data.it, Option::<i32>::None, ' ');
 
@@ -314,9 +314,9 @@ impl<'a> MarkdownAnalyzerIter<'a> {
 
         // check if the following char is a newline
         if consume_expected_chars!(state_data.it, '\n').is_some() {
-            EmptyLineFound
+            ActionResult::NextState(EmptyLineFound)
         } else {
-            IllegalFormat
+            ActionResult::NextState(IllegalFormat)
         }
     }
 
@@ -448,9 +448,7 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                 NewLineFound => {
                     match i {
                         // # New line found
-                        ' ' => {
-                            ActionResult::NextState(Self::detect_empty_line(&mut self.state_data))
-                        }
+                        ' ' => Self::detect_empty_line(&mut self.state_data),
 
                         '\n' => {
                             consume!(self.state_data.it);
