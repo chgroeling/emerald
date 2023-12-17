@@ -392,20 +392,35 @@ impl<'a> MarkdownAnalyzerIter<'a> {
 
         YamlFrontmatterFound(start_idx, last_index + 1)
     }
+
+    fn convert_state_to_md_block(&self, inp: MarkdownIteratorState) -> types::MdBlock<'a> {
+        let yield_panic = || panic!("This state has now yield representation");
+        match inp {
+            YamlFrontmatterFound(s, e) => types::MdBlock::YamlFrontmatter(&self.buf[s..e]),
+            InlCodeBlockFound(s, e) => types::MdBlock::CodeBlock(&self.buf[s..e]),
+            CodeBlockFound(s, e) => types::MdBlock::CodeBlock(&self.buf[s..e]),
+            WikiLinkFound(s, e) => types::MdBlock::WikiLink(&self.buf[s..e]),
+            LinkFound(s, e) => types::MdBlock::Link(&self.buf[s..e]),
+            IllegalFormat => yield_panic(),
+            StartOfParsing => yield_panic(),
+            EmptyLineFound => yield_panic(),
+            NewLineFound => yield_panic(),
+            LinkStart(_) => yield_panic(),
+            LinkDescriptionFinished(_) => yield_panic(),
+        }
+    }
 }
 
 impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
     type Item = types::MdBlock<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        use types::MdBlock as ct; // short hand for the following code
-
         loop {
             let Some((index, i)) = self.it.peek().cloned() else {
                 break;
             };
 
-            let ar = match self.last_state {
+            let ar: ActionResult = match self.last_state {
                 StartOfParsing => {
                     match i {
                         // # Start of parsing
@@ -413,9 +428,9 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                             let res = self.detect_yaml_frontmatter(index);
 
                             // EMIT
-                            if let YamlFrontmatterFound(s, e) = res {
-                                self.last_state = res;
-                                return Some(ct::YamlFrontmatter(&self.buf[s..e]));
+                            if let YamlFrontmatterFound(_, _) = res {
+                                self.last_state = res.clone();
+                                return Some(self.convert_state_to_md_block(res));
                             }
                             ActionResult::NextState(res)
                         }
@@ -423,9 +438,9 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                             let res = self.detect_inline_code_block(index);
 
                             // EMIT
-                            if let InlCodeBlockFound(s, e) = res {
-                                self.last_state = res;
-                                return Some(ct::CodeBlock(&self.buf[s..e]));
+                            if let InlCodeBlockFound(_, _) = res {
+                                self.last_state = res.clone();
+                                return Some(self.convert_state_to_md_block(res));
                             }
                             ActionResult::NextState(res)
                         }
@@ -447,9 +462,9 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                             let res = self.detect_inline_code_block(index);
 
                             // EMIT
-                            if let InlCodeBlockFound(s, e) = res {
-                                self.last_state = res;
-                                return Some(ct::CodeBlock(&self.buf[s..e]));
+                            if let InlCodeBlockFound(_, _) = res {
+                                self.last_state = res.clone();
+                                return Some(self.convert_state_to_md_block(res));
                             }
                             ActionResult::NextState(res)
                         }
@@ -475,9 +490,9 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                             let res = self.detect_inline_code_block(index);
 
                             // EMIT
-                            if let InlCodeBlockFound(s, e) = res {
-                                self.last_state = res;
-                                return Some(ct::CodeBlock(&self.buf[s..e]));
+                            if let InlCodeBlockFound(_, _) = res {
+                                self.last_state = res.clone();
+                                return Some(self.convert_state_to_md_block(res));
                             }
                             ActionResult::NextState(res)
                         }
@@ -490,9 +505,9 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                             let res = self.detect_inline_code_block(index);
 
                             // EMIT
-                            if let InlCodeBlockFound(s, e) = res {
-                                self.last_state = res;
-                                return Some(ct::CodeBlock(&self.buf[s..e]));
+                            if let InlCodeBlockFound(_, _) = res {
+                                self.last_state = res.clone();
+                                return Some(self.convert_state_to_md_block(res));
                             }
                             ActionResult::NextState(res)
                         }
@@ -507,13 +522,13 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
 
                             // EMIT
                             ActionResult::NextState(match res {
-                                WikiLinkFound(s1, e1) => {
-                                    self.last_state = res;
-                                    return Some(ct::WikiLink(&self.buf[s1..e1]));
+                                WikiLinkFound(_, _) => {
+                                    self.last_state = res.clone();
+                                    return Some(self.convert_state_to_md_block(res));
                                 }
-                                LinkFound(s1, e1) => {
-                                    self.last_state = res;
-                                    return Some(ct::Link(&self.buf[s1..e1]));
+                                LinkFound(_, _) => {
+                                    self.last_state = res.clone();
+                                    return Some(self.convert_state_to_md_block(res));
                                 }
 
                                 _ => res,
@@ -523,9 +538,10 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                             let res = self.detect_code_block(index);
 
                             // EMIT
-                            if let CodeBlockFound(s, e) = res {
-                                self.last_state = res;
-                                return Some(ct::CodeBlock(&self.buf[s..e]));
+                            if let CodeBlockFound(_, _) = res {
+                                self.last_state = res.clone();
+
+                                return Some(self.convert_state_to_md_block(res));
                             }
                             ActionResult::NextState(res)
                         }
@@ -544,9 +560,9 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
             };
 
             self.last_state = match ar {
-                ActionResult::Stay => todo!(),
+                // => todo!(),
                 ActionResult::NextState(state) => state,
-                ActionResult::Emit(_) => todo!(),
+                //ActionResult::Emit(_) => todo!(),
             }
         }
         None
