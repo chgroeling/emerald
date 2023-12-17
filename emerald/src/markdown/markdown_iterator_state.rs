@@ -19,19 +19,12 @@ pub enum MarkdownIteratorState {
 
     /// Inline Code Block was found
     InlCodeBlockFound,
-
-    LinkStart(usize),
-    LinkDescriptionFinished(usize),
 }
 
 pub enum YieldResult {
-    /// Yaml Frontmatter was found
     YamlFrontmatter(usize, usize),
-
     CodeBlock(usize, usize),
-
     WikiLink(usize, usize),
-
     Link(usize, usize),
 }
 
