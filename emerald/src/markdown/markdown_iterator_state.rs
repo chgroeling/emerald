@@ -1,3 +1,5 @@
+use std::{iter::Peekable, str::CharIndices};
+
 #[derive(PartialEq, Debug, Clone)]
 pub enum MarkdownIteratorState {
     IllegalFormat,
@@ -30,4 +32,10 @@ pub enum ActionResult {
     // Stay,
     NextState(MarkdownIteratorState),
     Yield(MarkdownIteratorState),
+}
+
+#[derive(Debug)]
+pub struct StateData<'a> {
+    pub state: MarkdownIteratorState,
+    pub it: Peekable<CharIndices<'a>>,
 }

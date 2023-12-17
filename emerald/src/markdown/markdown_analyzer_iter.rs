@@ -1,6 +1,6 @@
-use super::markdown_iterator_state::{ActionResult, MarkdownIteratorState};
+use super::markdown_iterator_state::{ActionResult, MarkdownIteratorState, StateData};
 use crate::types;
-use std::{iter::Peekable, str::CharIndices};
+
 use MarkdownIteratorState::*;
 
 #[allow(unused_imports)]
@@ -9,8 +9,7 @@ use log::{debug, error, info, trace, warn};
 #[derive(Debug)]
 pub struct MarkdownAnalyzerIter<'a> {
     buf: &'a str,
-    it: Peekable<CharIndices<'a>>,
-    last_state: MarkdownIteratorState,
+    state_data: StateData<'a>,
 }
 
 enum ConsumeResult {
@@ -161,13 +160,15 @@ impl<'a> MarkdownAnalyzerIter<'a> {
     pub fn new(buf: &'a str) -> Self {
         Self {
             buf,
-            it: buf.char_indices().peekable(),
-            last_state: StartOfParsing,
+            state_data: StateData {
+                state: StartOfParsing,
+                it: buf.char_indices().peekable(),
+            },
         }
     }
 
-    fn detect_inline_code_block(&mut self, start_idx: usize) -> ActionResult {
-        let open_cnt = gather!(self.it, Option::<i32>::None, ' ');
+    fn detect_inline_code_block(state_data: &mut StateData, start_idx: usize) -> ActionResult {
+        let open_cnt = gather!(state_data.it, Option::<i32>::None, ' ');
 
         if open_cnt < 4 {
             return ActionResult::NextState(EmptyLineFound);
@@ -178,7 +179,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
 
         loop {
             // end of file detection
-            let ConsumeResult::Some((idx, i)) = consume!(self.it) else {
+            let ConsumeResult::Some((idx, i)) = consume!(state_data.it) else {
                 break;
             };
 
@@ -193,21 +194,21 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         ActionResult::Yield(InlCodeBlockFound(start_idx, act_idx + 1))
     }
 
-    fn detect_code_block(&mut self, start_idx: usize) -> ActionResult {
-        if consume_expected_chars!(self.it, '`').is_none() {
+    fn detect_code_block(state_data: &mut StateData, start_idx: usize) -> ActionResult {
+        if consume_expected_chars!(state_data.it, '`').is_none() {
             return ActionResult::NextState(IllegalFormat);
         }
 
-        let open_cnt = 1 + gather!(self.it, Option::<i32>::None, '`');
+        let open_cnt = 1 + gather!(state_data.it, Option::<i32>::None, '`');
 
         loop {
             // end of file detection
-            let ConsumeResult::Some((idx, i)) = consume!(self.it) else {
+            let ConsumeResult::Some((idx, i)) = consume!(state_data.it) else {
                 break;
             };
 
             if i == '`' {
-                let advance = 1 + gather!(self.it, Option::<i32>::Some(open_cnt - 1), '`');
+                let advance = 1 + gather!(state_data.it, Option::<i32>::Some(open_cnt - 1), '`');
 
                 if advance == open_cnt {
                     let end_idx = idx + 1 + advance as usize - 1;
@@ -219,17 +220,17 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         ActionResult::NextState(IllegalFormat)
     }
 
-    fn detect_wiki_link(&mut self, start_idx: usize) -> ActionResult {
+    fn detect_wiki_link(state_data: &mut StateData, start_idx: usize) -> ActionResult {
         loop {
             // end of file detection
-            let ConsumeResult::Some((idx, i)) = consume!(self.it) else {
+            let ConsumeResult::Some((idx, i)) = consume!(state_data.it) else {
                 break;
             };
 
             match i {
                 ']' => {
                     // Match ]] ...
-                    if consume_expected_chars!(self.it, ']').is_some() {
+                    if consume_expected_chars!(state_data.it, ']').is_some() {
                         return ActionResult::Yield(WikiLinkFound(start_idx, idx + 2));
                     } else {
                         return ActionResult::NextState(IllegalFormat);
@@ -245,20 +246,20 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         ActionResult::NextState(IllegalFormat)
     }
 
-    fn detect_link(&mut self, start_idx: usize) -> ActionResult {
+    fn detect_link(state_data: &mut StateData, start_idx: usize) -> ActionResult {
         // Opening of an internal link was detected
         let mut iter_state = LinkStart(start_idx);
 
         loop {
             // end of file detection
-            let ConsumeResult::Some((idx, i)) = consume!(self.it) else {
+            let ConsumeResult::Some((idx, i)) = consume!(state_data.it) else {
                 break;
             };
 
             iter_state = match iter_state {
                 LinkStart(start_idx) if i == ']' => {
                     // next char must be '('
-                    if consume_expected_chars!(self.it, '(').is_some() {
+                    if consume_expected_chars!(state_data.it, '(').is_some() {
                         LinkDescriptionFinished(start_idx)
                     } else {
                         return ActionResult::NextState(IllegalFormat);
@@ -275,17 +276,17 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         ActionResult::NextState(IllegalFormat)
     }
 
-    fn detect_link_or_wiki_link(&mut self, start_idx: usize) -> ActionResult {
-        if consume_expected_chars!(self.it, '[').is_none() {
+    fn detect_link_or_wiki_link(state_data: &mut StateData, start_idx: usize) -> ActionResult {
+        if consume_expected_chars!(state_data.it, '[').is_none() {
             return ActionResult::NextState(IllegalFormat);
         }
 
-        if consume_expected_chars!(self.it, '[').is_some() {
+        if consume_expected_chars!(state_data.it, '[').is_some() {
             // wiki link starts with '[['
-            self.detect_wiki_link(start_idx)
+            Self::detect_wiki_link(state_data, start_idx)
         } else {
             // conventional link starts with '['
-            self.detect_link(start_idx)
+            Self::detect_link(state_data, start_idx)
         }
     }
 
@@ -304,15 +305,15 @@ impl<'a> MarkdownAnalyzerIter<'a> {
     /// * `MarkdownIteratorState::EmptyLineFound` if an empty line is detected.
     /// * `MarkdownIteratorState::IllegalFormat` if the next character is not a newline
     ///   or the end of the iterator is reached, which implies an illegal or unexpected format.
-    fn detect_empty_line(&mut self) -> MarkdownIteratorState {
+    fn detect_empty_line(state_data: &mut StateData) -> MarkdownIteratorState {
         // gather all whitespaces doesnt matter how many
-        gather!(self.it, Option::<i32>::None, ' ');
+        gather!(state_data.it, Option::<i32>::None, ' ');
 
         // consume optional carriage return
-        consume_expected_chars!(self.it, '\r');
+        consume_expected_chars!(state_data.it, '\r');
 
         // check if the following char is a newline
-        if consume_expected_chars!(self.it, '\n').is_some() {
+        if consume_expected_chars!(state_data.it, '\n').is_some() {
             EmptyLineFound
         } else {
             IllegalFormat
@@ -337,35 +338,35 @@ impl<'a> MarkdownAnalyzerIter<'a> {
     ///   the end of the block.
     /// - `MarkdownIteratorState::IllegalFormat` if the detected block does not conform to the expected YAML
     ///    front matter format.
-    fn detect_yaml_frontmatter(&mut self, start_idx: usize) -> ActionResult {
+    fn detect_yaml_frontmatter(state_data: &mut StateData, start_idx: usize) -> ActionResult {
         // gather 3 dashes
-        if gather!(self.it, Option::<i32>::None, '-') != 3 {
+        if gather!(state_data.it, Option::<i32>::None, '-') != 3 {
             return ActionResult::NextState(IllegalFormat);
         }
         // consume optional carriage return
-        consume_expected_chars!(self.it, '\r');
+        consume_expected_chars!(state_data.it, '\r');
 
-        if consume_expected_chars!(self.it, '\n').is_none_or_eof() {
+        if consume_expected_chars!(state_data.it, '\n').is_none_or_eof() {
             return ActionResult::NextState(IllegalFormat);
         }
 
         let mut last_index: usize = 0;
         loop {
-            let Some((index, i)) = self.it.next() else {
+            let Some((index, i)) = state_data.it.next() else {
                 break;
             };
 
             last_index = index; // needed in case of eof
             if i == '\n' {
                 // assume a dash after a newline
-                if consume_expected_chars!(self.it, '-').is_none_or_eof() {
+                if consume_expected_chars!(state_data.it, '-').is_none_or_eof() {
                     continue;
                 }
 
                 last_index += 1;
 
                 // gather 2 more dashes
-                let dash_cnt = gather!(self.it, Option::<i32>::None, '-');
+                let dash_cnt = gather!(state_data.it, Option::<i32>::None, '-');
                 if dash_cnt != 2 {
                     last_index += dash_cnt as usize;
                     continue;
@@ -375,15 +376,15 @@ impl<'a> MarkdownAnalyzerIter<'a> {
                 let mut end_index = 1 + index + 3;
 
                 // gather all whitespaces doesnt matter how many
-                let ws_count = gather!(self.it, Option::<i32>::None, ' ');
+                let ws_count = gather!(state_data.it, Option::<i32>::None, ' ');
                 end_index += ws_count as usize;
 
                 // consume optional carriage return
-                if consume_expected_chars!(self.it, '\r').is_some() {
+                if consume_expected_chars!(state_data.it, '\r').is_some() {
                     end_index += 1;
                 }
 
-                if consume_expected_chars!(self.it, '\n').is_some() {
+                if consume_expected_chars!(state_data.it, '\n').is_some() {
                     end_index += 1usize;
                     return ActionResult::Yield(YamlFrontmatterFound(start_idx, end_index));
                 }
@@ -416,18 +417,18 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
 
     fn next(&mut self) -> Option<Self::Item> {
         loop {
-            let Some((index, i)) = self.it.peek().cloned() else {
+            let Some((index, i)) = self.state_data.it.peek().cloned() else {
                 break;
             };
 
-            let ar: ActionResult = match self.last_state {
+            let ar: ActionResult = match self.state_data.state {
                 StartOfParsing => {
                     match i {
                         // # Start of parsing
-                        '-' => self.detect_yaml_frontmatter(index),
-                        ' ' => self.detect_inline_code_block(index),
+                        '-' => Self::detect_yaml_frontmatter(&mut self.state_data, index),
+                        ' ' => Self::detect_inline_code_block(&mut self.state_data, index),
                         '\n' => {
-                            consume!(self.it);
+                            consume!(self.state_data.it);
                             ActionResult::NextState(EmptyLineFound)
                         }
                         _ => ActionResult::NextState(IllegalFormat),
@@ -437,20 +438,22 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                     match i {
                         // # Empty Line found
                         '\n' => {
-                            consume!(self.it);
+                            consume!(self.state_data.it);
                             ActionResult::NextState(EmptyLineFound)
                         }
-                        ' ' => self.detect_inline_code_block(index),
+                        ' ' => Self::detect_inline_code_block(&mut self.state_data, index),
                         _ => ActionResult::NextState(IllegalFormat),
                     }
                 }
                 NewLineFound => {
                     match i {
                         // # New line found
-                        ' ' => ActionResult::NextState(self.detect_empty_line()),
+                        ' ' => {
+                            ActionResult::NextState(Self::detect_empty_line(&mut self.state_data))
+                        }
 
                         '\n' => {
-                            consume!(self.it);
+                            consume!(self.state_data.it);
                             ActionResult::NextState(EmptyLineFound)
                         }
                         _ => ActionResult::NextState(IllegalFormat),
@@ -458,25 +461,25 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                 }
 
                 YamlFrontmatterFound(_, _) => match i {
-                    ' ' => self.detect_inline_code_block(index),
+                    ' ' => Self::detect_inline_code_block(&mut self.state_data, index),
                     _ => ActionResult::NextState(IllegalFormat),
                 },
                 InlCodeBlockFound(_, _) => match i {
-                    ' ' => self.detect_inline_code_block(index),
+                    ' ' => Self::detect_inline_code_block(&mut self.state_data, index),
                     _ => ActionResult::NextState(IllegalFormat),
                 },
                 _ => {
                     match i {
                         // # Text
-                        '[' => self.detect_link_or_wiki_link(index),
-                        '`' => self.detect_code_block(index),
+                        '[' => Self::detect_link_or_wiki_link(&mut self.state_data, index),
+                        '`' => Self::detect_code_block(&mut self.state_data, index),
                         '\n' => {
-                            consume!(self.it);
+                            consume!(self.state_data.it);
                             ActionResult::NextState(NewLineFound)
                         }
 
                         _ => {
-                            consume!(self.it);
+                            consume!(self.state_data.it);
                             ActionResult::NextState(IllegalFormat)
                         }
                     }
@@ -486,10 +489,10 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
             match ar {
                 // => todo!(),
                 ActionResult::NextState(state) => {
-                    self.last_state = state;
+                    self.state_data.state = state;
                 }
                 ActionResult::Yield(state) => {
-                    self.last_state = state.clone();
+                    self.state_data.state = state.clone();
                     return Some(self.convert_state_to_md_block(state));
                 }
             }
