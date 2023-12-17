@@ -455,6 +455,17 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         }
     }
 
+    fn yaml_frontmatter_state(state_data: &mut StateData) -> ActionResult {
+        let Some((index, i)) = state_data.it.peek().cloned() else {
+            return ActionResult::NextState(TextState);
+        };
+
+        match i {
+            ' ' => Self::detect_inline_code_block(state_data, index),
+            _ => ActionResult::NextState(TextState),
+        }
+    }
+
     fn convert_yield_res_to_md_block(&self, inp: Yield) -> types::MdBlock<'a> {
         match inp {
             YamlFrontmatter(s, e) => types::MdBlock::YamlFrontmatter(&self.buf[s..e]),
@@ -479,10 +490,8 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                 EmptyLineState => Self::empty_line_state(&mut self.state_data),
                 NewLineState => Self::new_line_state(&mut self.state_data),
 
-                YamlFrontmatterState => match i {
-                    ' ' => Self::detect_inline_code_block(&mut self.state_data, index),
-                    _ => ActionResult::NextState(TextState),
-                },
+                YamlFrontmatterState => Self::yaml_frontmatter_state(&mut self.state_data),
+
                 InlCodeBlockState => match i {
                     ' ' => Self::detect_inline_code_block(&mut self.state_data, index),
                     _ => ActionResult::NextState(TextState),
