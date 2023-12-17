@@ -24,7 +24,7 @@ pub enum MarkdownIteratorState {
     LinkDescriptionFinished(usize),
 }
 
-pub enum YieldResut {
+pub enum YieldResult {
     /// Yaml Frontmatter was found
     YamlFrontmatter(usize, usize),
 
@@ -37,7 +37,7 @@ pub enum YieldResut {
 
 pub enum ActionResult {
     NextState(MarkdownIteratorState),
-    YieldState(MarkdownIteratorState, YieldResut),
+    YieldState(MarkdownIteratorState, YieldResult),
 }
 
 #[derive(Debug)]
