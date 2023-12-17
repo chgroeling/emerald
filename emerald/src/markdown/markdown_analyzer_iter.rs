@@ -458,15 +458,11 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                 }
 
                 YamlFrontmatterFound(_, _) => match i {
-                    ' ' if matches!(self.last_state, YamlFrontmatterFound(_, _)) => {
-                        self.detect_inline_code_block(index)
-                    }
+                    ' ' => self.detect_inline_code_block(index),
                     _ => ActionResult::NextState(IllegalFormat),
                 },
                 InlCodeBlockFound(_, _) => match i {
-                    ' ' if matches!(self.last_state, InlCodeBlockFound(_, _)) => {
-                        self.detect_inline_code_block(index)
-                    }
+                    ' ' => self.detect_inline_code_block(index),
                     _ => ActionResult::NextState(IllegalFormat),
                 },
                 _ => {
