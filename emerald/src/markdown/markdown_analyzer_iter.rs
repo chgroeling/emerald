@@ -190,7 +190,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         }
 
         // end of file handling
-        return ActionResult::Yield(InlCodeBlockFound(start_idx, act_idx + 1));
+        ActionResult::Yield(InlCodeBlockFound(start_idx, act_idx + 1))
     }
 
     fn detect_code_block(&mut self, start_idx: usize) -> ActionResult {
@@ -390,7 +390,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
             }
         }
 
-        return ActionResult::Yield(YamlFrontmatterFound(start_idx, last_index + 1));
+        ActionResult::Yield(YamlFrontmatterFound(start_idx, last_index + 1))
     }
 
     fn convert_state_to_md_block(&self, inp: MarkdownIteratorState) -> types::MdBlock<'a> {
