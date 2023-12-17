@@ -25,3 +25,9 @@ pub enum MarkdownIteratorState {
     LinkDescriptionFinished(usize),
     LinkFound(usize, usize),
 }
+
+pub enum ActionResult {
+    Stay,
+    NextState(MarkdownIteratorState),
+    Emit(MarkdownIteratorState),
+}

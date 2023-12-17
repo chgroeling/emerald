@@ -1,4 +1,4 @@
-use super::markdown_iterator_state::MarkdownIteratorState;
+use super::markdown_iterator_state::{ActionResult, MarkdownIteratorState};
 use crate::types;
 use std::{iter::Peekable, str::CharIndices};
 use MarkdownIteratorState::*;
@@ -405,7 +405,7 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                 break;
             };
 
-            self.last_state = match self.last_state {
+            let ar = match self.last_state {
                 StartOfParsing => {
                     match i {
                         // # Start of parsing
@@ -417,7 +417,7 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                                 self.last_state = res;
                                 return Some(ct::YamlFrontmatter(&self.buf[s..e]));
                             }
-                            res
+                            ActionResult::NextState(res)
                         }
                         ' ' => {
                             let res = self.detect_inline_code_block(index);
@@ -427,13 +427,13 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                                 self.last_state = res;
                                 return Some(ct::CodeBlock(&self.buf[s..e]));
                             }
-                            res
+                            ActionResult::NextState(res)
                         }
                         '\n' => {
                             consume!(self.it);
-                            EmptyLineFound
+                            ActionResult::NextState(EmptyLineFound)
                         }
-                        _ => IllegalFormat,
+                        _ => ActionResult::NextState(IllegalFormat),
                     }
                 }
                 EmptyLineFound => {
@@ -441,7 +441,7 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                         // # Empty Line found
                         '\n' => {
                             consume!(self.it);
-                            EmptyLineFound
+                            ActionResult::NextState(EmptyLineFound)
                         }
                         ' ' => {
                             let res = self.detect_inline_code_block(index);
@@ -451,21 +451,21 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                                 self.last_state = res;
                                 return Some(ct::CodeBlock(&self.buf[s..e]));
                             }
-                            res
+                            ActionResult::NextState(res)
                         }
-                        _ => IllegalFormat,
+                        _ => ActionResult::NextState(IllegalFormat),
                     }
                 }
                 NewLineFound => {
                     match i {
                         // # New line found
-                        ' ' => self.detect_empty_line(),
+                        ' ' => ActionResult::NextState(self.detect_empty_line()),
 
                         '\n' => {
                             consume!(self.it);
-                            EmptyLineFound
+                            ActionResult::NextState(EmptyLineFound)
                         }
-                        _ => IllegalFormat,
+                        _ => ActionResult::NextState(IllegalFormat),
                     }
                 }
 
@@ -479,9 +479,9 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                                 self.last_state = res;
                                 return Some(ct::CodeBlock(&self.buf[s..e]));
                             }
-                            res
+                            ActionResult::NextState(res)
                         }
-                        _ => IllegalFormat,
+                        _ => ActionResult::NextState(IllegalFormat),
                     }
                 }
                 InlCodeBlockFound(_, _) => {
@@ -494,9 +494,9 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                                 self.last_state = res;
                                 return Some(ct::CodeBlock(&self.buf[s..e]));
                             }
-                            res
+                            ActionResult::NextState(res)
                         }
-                        _ => IllegalFormat,
+                        _ => ActionResult::NextState(IllegalFormat),
                     }
                 }
                 _ => {
@@ -506,7 +506,7 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                             let res = self.detect_link_or_wiki_link(index);
 
                             // EMIT
-                            match res {
+                            ActionResult::NextState(match res {
                                 WikiLinkFound(s1, e1) => {
                                     self.last_state = res;
                                     return Some(ct::WikiLink(&self.buf[s1..e1]));
@@ -517,7 +517,7 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                                 }
 
                                 _ => res,
-                            }
+                            })
                         }
                         '`' => {
                             let res = self.detect_code_block(index);
@@ -527,21 +527,27 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                                 self.last_state = res;
                                 return Some(ct::CodeBlock(&self.buf[s..e]));
                             }
-                            res
+                            ActionResult::NextState(res)
                         }
 
                         '\n' => {
                             consume!(self.it);
-                            NewLineFound
+                            ActionResult::NextState(NewLineFound)
                         }
 
                         _ => {
                             consume!(self.it);
-                            IllegalFormat
+                            ActionResult::NextState(IllegalFormat)
                         }
                     }
                 }
             };
+
+            self.last_state = match ar {
+                ActionResult::Stay => todo!(),
+                ActionResult::NextState(state) => state,
+                ActionResult::Emit(_) => todo!(),
+            }
         }
         None
     }
