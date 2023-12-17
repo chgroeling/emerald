@@ -35,12 +35,10 @@ impl MarkdownFrontMatterSplitter {
         let mut yaml_str = "".to_string();
         let first_element = md_iter.next();
         let mut start_of_markdown = 0;
-        if let Some(md) = first_element {
-            if let types::MdBlock::YamlFrontmatter(yaml) = md {
-                // markdown starts when yaml ends
-                start_of_markdown = yaml.len();
-                yaml_str = yaml.to_string();
-            }
+        if let Some(types::MdBlock::YamlFrontmatter(yaml)) = first_element {
+            // markdown starts when yaml ends
+            start_of_markdown = yaml.len();
+            yaml_str = yaml.to_string();
         }
 
         return (yaml_str, content.0[start_of_markdown..].to_string());
