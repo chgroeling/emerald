@@ -2,10 +2,11 @@ use std::{iter::Peekable, str::CharIndices};
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum MarkdownIteratorState {
-    IllegalFormat,
+    // This state is assigned when parsing text.
+    Text,
 
     /// This state is assigned at the start of parsing
-    StartOfParsing,
+    DocumentStart,
 
     /// Empty line was found
     EmptyLineFound,
@@ -30,7 +31,7 @@ pub enum MarkdownIteratorState {
 
 pub enum ActionResult {
     NextState(MarkdownIteratorState),
-    YieldState(MarkdownIteratorState),
+    YieldState(MarkdownIteratorState, MarkdownIteratorState),
 }
 
 #[derive(Debug)]

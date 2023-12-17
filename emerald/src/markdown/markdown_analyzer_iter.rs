@@ -161,7 +161,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         Self {
             buf,
             state_data: StateData {
-                state: StartOfParsing,
+                state: DocumentStart,
                 it: buf.char_indices().peekable(),
             },
         }
@@ -184,19 +184,25 @@ impl<'a> MarkdownAnalyzerIter<'a> {
             };
 
             if i == '\n' {
-                return ActionResult::YieldState(InlCodeBlockFound(start_idx, idx));
+                return ActionResult::YieldState(
+                    InlCodeBlockFound(start_idx, idx),
+                    InlCodeBlockFound(start_idx, idx),
+                );
             }
 
             act_idx = idx;
         }
 
         // end of file handling
-        ActionResult::YieldState(InlCodeBlockFound(start_idx, act_idx + 1))
+        ActionResult::YieldState(
+            InlCodeBlockFound(start_idx, act_idx + 1),
+            InlCodeBlockFound(start_idx, act_idx + 1),
+        )
     }
 
     fn detect_code_block(state_data: &mut StateData, start_idx: usize) -> ActionResult {
         if consume_expected_chars!(state_data.it, '`').is_none() {
-            return ActionResult::NextState(IllegalFormat);
+            return ActionResult::NextState(Text);
         }
 
         let open_cnt = 1 + gather!(state_data.it, Option::<i32>::None, '`');
@@ -213,11 +219,11 @@ impl<'a> MarkdownAnalyzerIter<'a> {
                 if advance == open_cnt {
                     let end_idx = idx + 1 + advance as usize - 1;
 
-                    return ActionResult::YieldState(CodeBlockFound(start_idx, end_idx));
+                    return ActionResult::YieldState(Text, CodeBlockFound(start_idx, end_idx));
                 }
             }
         }
-        ActionResult::NextState(IllegalFormat)
+        ActionResult::NextState(Text)
     }
 
     fn detect_wiki_link(state_data: &mut StateData, start_idx: usize) -> ActionResult {
@@ -231,19 +237,19 @@ impl<'a> MarkdownAnalyzerIter<'a> {
                 ']' => {
                     // Match ]] ...
                     if consume_expected_chars!(state_data.it, ']').is_some() {
-                        return ActionResult::YieldState(WikiLinkFound(start_idx, idx + 2));
+                        return ActionResult::YieldState(Text, WikiLinkFound(start_idx, idx + 2));
                     } else {
-                        return ActionResult::NextState(IllegalFormat);
+                        return ActionResult::NextState(Text);
                     }
                 }
 
                 '[' => {
-                    return ActionResult::NextState(IllegalFormat);
+                    return ActionResult::NextState(Text);
                 }
                 _ => (),
             }
         }
-        ActionResult::NextState(IllegalFormat)
+        ActionResult::NextState(Text)
     }
 
     fn detect_link(state_data: &mut StateData, start_idx: usize) -> ActionResult {
@@ -262,23 +268,23 @@ impl<'a> MarkdownAnalyzerIter<'a> {
                     if consume_expected_chars!(state_data.it, '(').is_some() {
                         LinkDescriptionFinished(start_idx)
                     } else {
-                        return ActionResult::NextState(IllegalFormat);
+                        return ActionResult::NextState(Text);
                     }
                 }
                 LinkDescriptionFinished(start_idx) if i == ')' => {
-                    return ActionResult::YieldState(LinkFound(start_idx, idx + 1));
+                    return ActionResult::YieldState(Text, LinkFound(start_idx, idx + 1));
                 }
 
                 _ => iter_state,
             };
         }
 
-        ActionResult::NextState(IllegalFormat)
+        ActionResult::NextState(Text)
     }
 
     fn detect_link_or_wiki_link(state_data: &mut StateData, start_idx: usize) -> ActionResult {
         if consume_expected_chars!(state_data.it, '[').is_none() {
-            return ActionResult::NextState(IllegalFormat);
+            return ActionResult::NextState(Text);
         }
 
         if consume_expected_chars!(state_data.it, '[').is_some() {
@@ -316,7 +322,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         if consume_expected_chars!(state_data.it, '\n').is_some() {
             ActionResult::NextState(EmptyLineFound)
         } else {
-            ActionResult::NextState(IllegalFormat)
+            ActionResult::NextState(Text)
         }
     }
 
@@ -341,13 +347,13 @@ impl<'a> MarkdownAnalyzerIter<'a> {
     fn detect_yaml_frontmatter(state_data: &mut StateData, start_idx: usize) -> ActionResult {
         // gather 3 dashes
         if gather!(state_data.it, Option::<i32>::None, '-') != 3 {
-            return ActionResult::NextState(IllegalFormat);
+            return ActionResult::NextState(Text);
         }
         // consume optional carriage return
         consume_expected_chars!(state_data.it, '\r');
 
         if consume_expected_chars!(state_data.it, '\n').is_none_or_eof() {
-            return ActionResult::NextState(IllegalFormat);
+            return ActionResult::NextState(Text);
         }
 
         let mut last_index: usize = 0;
@@ -386,12 +392,18 @@ impl<'a> MarkdownAnalyzerIter<'a> {
 
                 if consume_expected_chars!(state_data.it, '\n').is_some() {
                     end_index += 1usize;
-                    return ActionResult::YieldState(YamlFrontmatterFound(start_idx, end_index));
+                    return ActionResult::YieldState(
+                        YamlFrontmatterFound(start_idx, end_index),
+                        YamlFrontmatterFound(start_idx, end_index),
+                    );
                 }
             }
         }
 
-        ActionResult::YieldState(YamlFrontmatterFound(start_idx, last_index + 1))
+        ActionResult::YieldState(
+            YamlFrontmatterFound(start_idx, last_index + 1),
+            YamlFrontmatterFound(start_idx, last_index + 1),
+        )
     }
 
     fn convert_state_to_md_block(&self, inp: MarkdownIteratorState) -> types::MdBlock<'a> {
@@ -402,8 +414,8 @@ impl<'a> MarkdownAnalyzerIter<'a> {
             CodeBlockFound(s, e) => types::MdBlock::CodeBlock(&self.buf[s..e]),
             WikiLinkFound(s, e) => types::MdBlock::WikiLink(&self.buf[s..e]),
             LinkFound(s, e) => types::MdBlock::Link(&self.buf[s..e]),
-            IllegalFormat => yield_panic(),
-            StartOfParsing => yield_panic(),
+            Text => yield_panic(),
+            DocumentStart => yield_panic(),
             EmptyLineFound => yield_panic(),
             NewLineFound => yield_panic(),
             LinkStart(_) => yield_panic(),
@@ -422,7 +434,7 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
             };
 
             let ar: ActionResult = match self.state_data.state {
-                StartOfParsing => {
+                DocumentStart => {
                     match i {
                         // # Start of parsing
                         '-' => Self::detect_yaml_frontmatter(&mut self.state_data, index),
@@ -431,7 +443,7 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                             consume!(self.state_data.it);
                             ActionResult::NextState(EmptyLineFound)
                         }
-                        _ => ActionResult::NextState(IllegalFormat),
+                        _ => ActionResult::NextState(Text),
                     }
                 }
                 EmptyLineFound => {
@@ -442,7 +454,7 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                             ActionResult::NextState(EmptyLineFound)
                         }
                         ' ' => Self::detect_inline_code_block(&mut self.state_data, index),
-                        _ => ActionResult::NextState(IllegalFormat),
+                        _ => ActionResult::NextState(Text),
                     }
                 }
                 NewLineFound => {
@@ -454,19 +466,19 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                             consume!(self.state_data.it);
                             ActionResult::NextState(EmptyLineFound)
                         }
-                        _ => ActionResult::NextState(IllegalFormat),
+                        _ => ActionResult::NextState(Text),
                     }
                 }
 
                 YamlFrontmatterFound(_, _) => match i {
                     ' ' => Self::detect_inline_code_block(&mut self.state_data, index),
-                    _ => ActionResult::NextState(IllegalFormat),
+                    _ => ActionResult::NextState(Text),
                 },
                 InlCodeBlockFound(_, _) => match i {
                     ' ' => Self::detect_inline_code_block(&mut self.state_data, index),
-                    _ => ActionResult::NextState(IllegalFormat),
+                    _ => ActionResult::NextState(Text),
                 },
-                _ => {
+                Text => {
                     match i {
                         // # Text
                         '[' => Self::detect_link_or_wiki_link(&mut self.state_data, index),
@@ -478,9 +490,13 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
 
                         _ => {
                             consume!(self.state_data.it);
-                            ActionResult::NextState(IllegalFormat)
+                            ActionResult::NextState(Text)
                         }
                     }
+                }
+                _ => {
+                    let state = &self.state_data.state;
+                    panic!("State {state:?} should not be possible here")
                 }
             };
 
@@ -489,9 +505,9 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                 ActionResult::NextState(state) => {
                     self.state_data.state = state;
                 }
-                ActionResult::YieldState(state) => {
-                    self.state_data.state = state.clone();
-                    return Some(self.convert_state_to_md_block(state));
+                ActionResult::YieldState(state, yield_state) => {
+                    self.state_data.state = state;
+                    return Some(self.convert_state_to_md_block(yield_state));
                 }
             }
         }
