@@ -1,8 +1,8 @@
-use super::markdown_iterator_state::{ActionResult, State, StateData, YieldResult};
+use super::markdown_iterator_state::{ActionResult, State, StateData, Yield};
 use crate::types;
 
 use State::*;
-use YieldResult::*;
+use Yield::*;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
@@ -406,7 +406,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         )
     }
 
-    fn convert_yield_res_to_md_block(&self, inp: YieldResult) -> types::MdBlock<'a> {
+    fn convert_yield_res_to_md_block(&self, inp: Yield) -> types::MdBlock<'a> {
         match inp {
             YamlFrontmatter(s, e) => types::MdBlock::YamlFrontmatter(&self.buf[s..e]),
             CodeBlock(s, e) => types::MdBlock::CodeBlock(&self.buf[s..e]),
