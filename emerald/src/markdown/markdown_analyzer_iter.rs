@@ -166,11 +166,11 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         }
     }
 
-    fn detect_inline_code_block(&mut self, start_idx: usize) -> MarkdownIteratorState {
+    fn detect_inline_code_block(&mut self, start_idx: usize) -> ActionResult {
         let open_cnt = gather!(self.it, Option::<i32>::None, ' ');
 
         if open_cnt < 4 {
-            return EmptyLineFound;
+            return ActionResult::NextState(EmptyLineFound);
         }
 
         // Opening Inline Code Block was detected
@@ -183,14 +183,14 @@ impl<'a> MarkdownAnalyzerIter<'a> {
             };
 
             if i == '\n' {
-                return InlCodeBlockFound(start_idx, idx);
+                return ActionResult::Yield(InlCodeBlockFound(start_idx, idx));
             }
 
             act_idx = idx;
         }
 
         // end of file handling
-        InlCodeBlockFound(start_idx, act_idx + 1)
+        return ActionResult::Yield(InlCodeBlockFound(start_idx, act_idx + 1));
     }
 
     fn detect_code_block(&mut self, start_idx: usize) -> MarkdownIteratorState {
@@ -425,16 +425,7 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                     match i {
                         // # Start of parsing
                         '-' => self.detect_yaml_frontmatter(index),
-                        ' ' => {
-                            let res = self.detect_inline_code_block(index);
-
-                            // YIELD
-                            if let InlCodeBlockFound(_, _) = res {
-                                ActionResult::Yield(res)
-                            } else {
-                                ActionResult::NextState(res)
-                            }
-                        }
+                        ' ' => self.detect_inline_code_block(index),
                         '\n' => {
                             consume!(self.it);
                             ActionResult::NextState(EmptyLineFound)
@@ -449,16 +440,7 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                             consume!(self.it);
                             ActionResult::NextState(EmptyLineFound)
                         }
-                        ' ' => {
-                            let res = self.detect_inline_code_block(index);
-
-                            // YIELD
-                            if let InlCodeBlockFound(_, _) = res {
-                                ActionResult::Yield(res)
-                            } else {
-                                ActionResult::NextState(res)
-                            }
-                        }
+                        ' ' => self.detect_inline_code_block(index),
                         _ => ActionResult::NextState(IllegalFormat),
                     }
                 }
@@ -475,36 +457,18 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                     }
                 }
 
-                YamlFrontmatterFound(_, _) => {
-                    match i {
-                        ' ' if matches!(self.last_state, YamlFrontmatterFound(_, _)) => {
-                            let res = self.detect_inline_code_block(index);
-
-                            // YIELD
-                            if let InlCodeBlockFound(_, _) = res {
-                                ActionResult::Yield(res)
-                            } else {
-                                ActionResult::NextState(res)
-                            }
-                        }
-                        _ => ActionResult::NextState(IllegalFormat),
+                YamlFrontmatterFound(_, _) => match i {
+                    ' ' if matches!(self.last_state, YamlFrontmatterFound(_, _)) => {
+                        self.detect_inline_code_block(index)
                     }
-                }
-                InlCodeBlockFound(_, _) => {
-                    match i {
-                        ' ' if matches!(self.last_state, InlCodeBlockFound(_, _)) => {
-                            let res = self.detect_inline_code_block(index);
-
-                            // YIELD
-                            if let InlCodeBlockFound(_, _) = res {
-                                ActionResult::Yield(res)
-                            } else {
-                                ActionResult::NextState(res)
-                            }
-                        }
-                        _ => ActionResult::NextState(IllegalFormat),
+                    _ => ActionResult::NextState(IllegalFormat),
+                },
+                InlCodeBlockFound(_, _) => match i {
+                    ' ' if matches!(self.last_state, InlCodeBlockFound(_, _)) => {
+                        self.detect_inline_code_block(index)
                     }
-                }
+                    _ => ActionResult::NextState(IllegalFormat),
+                },
                 _ => {
                     match i {
                         // # Text
