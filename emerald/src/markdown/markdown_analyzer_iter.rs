@@ -248,8 +248,13 @@ impl<'a> MarkdownAnalyzerIter<'a> {
     }
 
     fn detect_link(state_data: &mut StateData, start_idx: usize) -> ActionResult {
+        enum LinkState {
+            LinkStart(usize),
+            LinkDescriptionFinished(usize),
+        }
+
         // Opening of an internal link was detected
-        let mut iter_state = LinkStart(start_idx);
+        let mut link_state: LinkState = LinkState::LinkStart(start_idx);
 
         loop {
             // end of file detection
@@ -257,20 +262,20 @@ impl<'a> MarkdownAnalyzerIter<'a> {
                 break;
             };
 
-            iter_state = match iter_state {
-                LinkStart(start_idx) if i == ']' => {
+            link_state = match link_state {
+                LinkState::LinkStart(start_idx) if i == ']' => {
                     // next char must be '('
                     if consume_expected_chars!(state_data.it, '(').is_some() {
-                        LinkDescriptionFinished(start_idx)
+                        LinkState::LinkDescriptionFinished(start_idx)
                     } else {
                         return ActionResult::NextState(Text);
                     }
                 }
-                LinkDescriptionFinished(start_idx) if i == ')' => {
+                LinkState::LinkDescriptionFinished(start_idx) if i == ')' => {
                     return ActionResult::YieldState(Text, Link(start_idx, idx + 1));
                 }
 
-                _ => iter_state,
+                _ => link_state,
             };
         }
 
@@ -480,10 +485,6 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                             ActionResult::NextState(Text)
                         }
                     }
-                }
-                _ => {
-                    let state = &self.state_data.state;
-                    panic!("State {state:?} should not be possible here")
                 }
             };
 
