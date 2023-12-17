@@ -337,16 +337,16 @@ impl<'a> MarkdownAnalyzerIter<'a> {
     ///   the end of the block.
     /// - `MarkdownIteratorState::IllegalFormat` if the detected block does not conform to the expected YAML
     ///    front matter format.
-    fn detect_yaml_frontmatter(&mut self, start_idx: usize) -> MarkdownIteratorState {
+    fn detect_yaml_frontmatter(&mut self, start_idx: usize) -> ActionResult {
         // gather 3 dashes
         if gather!(self.it, Option::<i32>::None, '-') != 3 {
-            return IllegalFormat;
+            return ActionResult::NextState(IllegalFormat);
         }
         // consume optional carriage return
         consume_expected_chars!(self.it, '\r');
 
         if consume_expected_chars!(self.it, '\n').is_none_or_eof() {
-            return IllegalFormat;
+            return ActionResult::NextState(IllegalFormat);
         }
 
         let mut last_index: usize = 0;
@@ -385,12 +385,12 @@ impl<'a> MarkdownAnalyzerIter<'a> {
 
                 if consume_expected_chars!(self.it, '\n').is_some() {
                     end_index += 1usize;
-                    return YamlFrontmatterFound(start_idx, end_index);
+                    return ActionResult::Yield(YamlFrontmatterFound(start_idx, end_index));
                 }
             }
         }
 
-        YamlFrontmatterFound(start_idx, last_index + 1)
+        return ActionResult::Yield(YamlFrontmatterFound(start_idx, last_index + 1));
     }
 
     fn convert_state_to_md_block(&self, inp: MarkdownIteratorState) -> types::MdBlock<'a> {
@@ -424,16 +424,7 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                 StartOfParsing => {
                     match i {
                         // # Start of parsing
-                        '-' => {
-                            let res = self.detect_yaml_frontmatter(index);
-
-                            // YIELD
-                            if let YamlFrontmatterFound(_, _) = res {
-                                ActionResult::Yield(res)
-                            } else {
-                                ActionResult::NextState(res)
-                            }
-                        }
+                        '-' => self.detect_yaml_frontmatter(index),
                         ' ' => {
                             let res = self.detect_inline_code_block(index);
 
