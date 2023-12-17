@@ -193,9 +193,9 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         return ActionResult::Yield(InlCodeBlockFound(start_idx, act_idx + 1));
     }
 
-    fn detect_code_block(&mut self, start_idx: usize) -> MarkdownIteratorState {
+    fn detect_code_block(&mut self, start_idx: usize) -> ActionResult {
         if consume_expected_chars!(self.it, '`').is_none() {
-            return IllegalFormat;
+            return ActionResult::NextState(IllegalFormat);
         }
 
         let open_cnt = 1 + gather!(self.it, Option::<i32>::None, '`');
@@ -212,11 +212,11 @@ impl<'a> MarkdownAnalyzerIter<'a> {
                 if advance == open_cnt {
                     let end_idx = idx + 1 + advance as usize - 1;
 
-                    return CodeBlockFound(start_idx, end_idx);
+                    return ActionResult::Yield(CodeBlockFound(start_idx, end_idx));
                 }
             }
         }
-        IllegalFormat
+        ActionResult::NextState(IllegalFormat)
     }
 
     fn detect_wiki_link(&mut self, start_idx: usize) -> ActionResult {
@@ -469,17 +469,7 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                     match i {
                         // # Text
                         '[' => self.detect_link_or_wiki_link(index),
-                        '`' => {
-                            let res = self.detect_code_block(index);
-
-                            // YIELD
-                            if let CodeBlockFound(_, _) = res {
-                                ActionResult::Yield(res)
-                            } else {
-                                ActionResult::NextState(res)
-                            }
-                        }
-
+                        '`' => self.detect_code_block(index),
                         '\n' => {
                             consume!(self.it);
                             ActionResult::NextState(NewLineFound)
