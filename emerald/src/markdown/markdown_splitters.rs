@@ -41,6 +41,6 @@ impl MarkdownFrontMatterSplitter {
             yaml_str = yaml.to_string();
         }
 
-        return (yaml_str, content.0[start_of_markdown..].to_string());
+        (yaml_str, content.0[start_of_markdown..].to_string())
     }
 }
