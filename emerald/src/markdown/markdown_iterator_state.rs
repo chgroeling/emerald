@@ -3,22 +3,22 @@ use std::{iter::Peekable, str::CharIndices};
 #[derive(PartialEq, Debug, Clone)]
 pub enum MarkdownIteratorState {
     // This state is assigned when parsing text.
-    Text,
+    TextState,
 
     /// This state is assigned at the start of parsing
-    DocumentStart,
+    DocumentStartState,
 
     /// Empty line was found
-    EmptyLineFound,
+    EmptyLineState,
 
     /// New line character was found
-    NewLineFound,
+    NewLineState,
 
     /// Yaml Frontmatter was found
-    YamlFrontmatterFound,
+    YamlFrontmatterState,
 
     /// Inline Code Block was found
-    InlCodeBlockFound,
+    InlCodeBlockState,
 }
 
 pub enum YieldResult {
