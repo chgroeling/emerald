@@ -29,9 +29,8 @@ pub enum MarkdownIteratorState {
 }
 
 pub enum ActionResult {
-    // Stay,
     NextState(MarkdownIteratorState),
-    Yield(MarkdownIteratorState),
+    YieldState(MarkdownIteratorState),
 }
 
 #[derive(Debug)]
