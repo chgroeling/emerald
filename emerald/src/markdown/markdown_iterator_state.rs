@@ -27,7 +27,7 @@ pub enum MarkdownIteratorState {
 }
 
 pub enum ActionResult {
-    Stay,
+    // Stay,
     NextState(MarkdownIteratorState),
-    Emit(MarkdownIteratorState),
+    // Emit(MarkdownIteratorState),
 }
