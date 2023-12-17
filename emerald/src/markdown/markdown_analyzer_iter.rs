@@ -406,6 +406,21 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         )
     }
 
+    fn document_start_state(state_data: &mut StateData) -> ActionResult {
+        let Some((index, i)) = state_data.it.peek().cloned() else {
+            return ActionResult::NextState(TextState);
+        };
+        match i {
+            // # Start of parsing
+            '-' => Self::detect_yaml_frontmatter(state_data, index),
+            ' ' => Self::detect_inline_code_block(state_data, index),
+            '\n' => {
+                consume!(state_data.it);
+                ActionResult::NextState(EmptyLineState)
+            }
+            _ => ActionResult::NextState(TextState),
+        }
+    }
     fn convert_yield_res_to_md_block(&self, inp: Yield) -> types::MdBlock<'a> {
         match inp {
             YamlFrontmatter(s, e) => types::MdBlock::YamlFrontmatter(&self.buf[s..e]),
@@ -426,18 +441,7 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
             };
 
             let ar: ActionResult = match self.state_data.state {
-                DocumentStartState => {
-                    match i {
-                        // # Start of parsing
-                        '-' => Self::detect_yaml_frontmatter(&mut self.state_data, index),
-                        ' ' => Self::detect_inline_code_block(&mut self.state_data, index),
-                        '\n' => {
-                            consume!(self.state_data.it);
-                            ActionResult::NextState(EmptyLineState)
-                        }
-                        _ => ActionResult::NextState(TextState),
-                    }
-                }
+                DocumentStartState => Self::document_start_state(&mut self.state_data),
                 EmptyLineState => {
                     match i {
                         // # Empty Line found
