@@ -21,7 +21,7 @@ pub enum State {
     InlCodeBlockState,
 }
 
-pub enum YieldResult {
+pub enum Yield {
     YamlFrontmatter(usize, usize),
     CodeBlock(usize, usize),
     WikiLink(usize, usize),
@@ -30,7 +30,7 @@ pub enum YieldResult {
 
 pub enum ActionResult {
     NextState(State),
-    YieldState(State, YieldResult),
+    YieldState(State, Yield),
 }
 
 #[derive(Debug)]
