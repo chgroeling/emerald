@@ -219,7 +219,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         IllegalFormat
     }
 
-    fn detect_wiki_link(&mut self, start_idx: usize) -> MarkdownIteratorState {
+    fn detect_wiki_link(&mut self, start_idx: usize) -> ActionResult {
         loop {
             // end of file detection
             let ConsumeResult::Some((idx, i)) = consume!(self.it) else {
@@ -230,22 +230,22 @@ impl<'a> MarkdownAnalyzerIter<'a> {
                 ']' => {
                     // Match ]] ...
                     if consume_expected_chars!(self.it, ']').is_some() {
-                        return WikiLinkFound(start_idx, idx + 2);
+                        return ActionResult::Yield(WikiLinkFound(start_idx, idx + 2));
                     } else {
-                        return IllegalFormat;
+                        return ActionResult::NextState(IllegalFormat);
                     }
                 }
 
                 '[' => {
-                    return IllegalFormat;
+                    return ActionResult::NextState(IllegalFormat);
                 }
                 _ => (),
             }
         }
-        IllegalFormat
+        ActionResult::NextState(IllegalFormat)
     }
 
-    fn detect_link(&mut self, start_idx: usize) -> MarkdownIteratorState {
+    fn detect_link(&mut self, start_idx: usize) -> ActionResult {
         // Opening of an internal link was detected
         let mut iter_state = LinkStart(start_idx);
 
@@ -261,23 +261,23 @@ impl<'a> MarkdownAnalyzerIter<'a> {
                     if consume_expected_chars!(self.it, '(').is_some() {
                         LinkDescriptionFinished(start_idx)
                     } else {
-                        return IllegalFormat;
+                        return ActionResult::NextState(IllegalFormat);
                     }
                 }
                 LinkDescriptionFinished(start_idx) if i == ')' => {
-                    return LinkFound(start_idx, idx + 1)
+                    return ActionResult::Yield(LinkFound(start_idx, idx + 1));
                 }
 
                 _ => iter_state,
             };
         }
 
-        IllegalFormat
+        ActionResult::NextState(IllegalFormat)
     }
 
-    fn detect_link_or_wiki_link(&mut self, start_idx: usize) -> MarkdownIteratorState {
+    fn detect_link_or_wiki_link(&mut self, start_idx: usize) -> ActionResult {
         if consume_expected_chars!(self.it, '[').is_none() {
-            return IllegalFormat;
+            return ActionResult::NextState(IllegalFormat);
         }
 
         if consume_expected_chars!(self.it, '[').is_some() {
@@ -468,16 +468,7 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                 _ => {
                     match i {
                         // # Text
-                        '[' => {
-                            let res = self.detect_link_or_wiki_link(index);
-
-                            // EMIT
-                            match res {
-                                WikiLinkFound(_, _) => ActionResult::Yield(res),
-                                LinkFound(_, _) => ActionResult::Yield(res),
-                                _ => ActionResult::NextState(res),
-                            }
-                        }
+                        '[' => self.detect_link_or_wiki_link(index),
                         '`' => {
                             let res = self.detect_code_block(index);
 
