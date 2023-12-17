@@ -427,22 +427,22 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                         '-' => {
                             let res = self.detect_yaml_frontmatter(index);
 
-                            // EMIT
+                            // YIELD
                             if let YamlFrontmatterFound(_, _) = res {
-                                self.last_state = res.clone();
-                                return Some(self.convert_state_to_md_block(res));
+                                ActionResult::Yield(res)
+                            } else {
+                                ActionResult::NextState(res)
                             }
-                            ActionResult::NextState(res)
                         }
                         ' ' => {
                             let res = self.detect_inline_code_block(index);
 
-                            // EMIT
+                            // YIELD
                             if let InlCodeBlockFound(_, _) = res {
-                                self.last_state = res.clone();
-                                return Some(self.convert_state_to_md_block(res));
+                                ActionResult::Yield(res)
+                            } else {
+                                ActionResult::NextState(res)
                             }
-                            ActionResult::NextState(res)
                         }
                         '\n' => {
                             consume!(self.it);
@@ -461,12 +461,12 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                         ' ' => {
                             let res = self.detect_inline_code_block(index);
 
-                            // EMIT
+                            // YIELD
                             if let InlCodeBlockFound(_, _) = res {
-                                self.last_state = res.clone();
-                                return Some(self.convert_state_to_md_block(res));
+                                ActionResult::Yield(res)
+                            } else {
+                                ActionResult::NextState(res)
                             }
-                            ActionResult::NextState(res)
                         }
                         _ => ActionResult::NextState(IllegalFormat),
                     }
@@ -489,12 +489,12 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                         ' ' if matches!(self.last_state, YamlFrontmatterFound(_, _)) => {
                             let res = self.detect_inline_code_block(index);
 
-                            // EMIT
+                            // YIELD
                             if let InlCodeBlockFound(_, _) = res {
-                                self.last_state = res.clone();
-                                return Some(self.convert_state_to_md_block(res));
+                                ActionResult::Yield(res)
+                            } else {
+                                ActionResult::NextState(res)
                             }
-                            ActionResult::NextState(res)
                         }
                         _ => ActionResult::NextState(IllegalFormat),
                     }
@@ -504,12 +504,12 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                         ' ' if matches!(self.last_state, InlCodeBlockFound(_, _)) => {
                             let res = self.detect_inline_code_block(index);
 
-                            // EMIT
+                            // YIELD
                             if let InlCodeBlockFound(_, _) = res {
-                                self.last_state = res.clone();
-                                return Some(self.convert_state_to_md_block(res));
+                                ActionResult::Yield(res)
+                            } else {
+                                ActionResult::NextState(res)
                             }
-                            ActionResult::NextState(res)
                         }
                         _ => ActionResult::NextState(IllegalFormat),
                     }
@@ -521,29 +521,21 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                             let res = self.detect_link_or_wiki_link(index);
 
                             // EMIT
-                            ActionResult::NextState(match res {
-                                WikiLinkFound(_, _) => {
-                                    self.last_state = res.clone();
-                                    return Some(self.convert_state_to_md_block(res));
-                                }
-                                LinkFound(_, _) => {
-                                    self.last_state = res.clone();
-                                    return Some(self.convert_state_to_md_block(res));
-                                }
-
-                                _ => res,
-                            })
+                            match res {
+                                WikiLinkFound(_, _) => ActionResult::Yield(res),
+                                LinkFound(_, _) => ActionResult::Yield(res),
+                                _ => ActionResult::NextState(res),
+                            }
                         }
                         '`' => {
                             let res = self.detect_code_block(index);
 
-                            // EMIT
+                            // YIELD
                             if let CodeBlockFound(_, _) = res {
-                                self.last_state = res.clone();
-
-                                return Some(self.convert_state_to_md_block(res));
+                                ActionResult::Yield(res)
+                            } else {
+                                ActionResult::NextState(res)
                             }
-                            ActionResult::NextState(res)
                         }
 
                         '\n' => {
@@ -559,10 +551,15 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                 }
             };
 
-            self.last_state = match ar {
+            match ar {
                 // => todo!(),
-                ActionResult::NextState(state) => state,
-                //ActionResult::Emit(_) => todo!(),
+                ActionResult::NextState(state) => {
+                    self.last_state = state;
+                }
+                ActionResult::Yield(state) => {
+                    self.last_state = state.clone();
+                    return Some(self.convert_state_to_md_block(state));
+                }
             }
         }
         None
