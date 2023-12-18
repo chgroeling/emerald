@@ -56,113 +56,6 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         )
     }
 
-    fn detect_code_block(state_data: &mut StateData, start_idx: usize) -> ActionResult {
-        if consume_expected_chars!(state_data.it, '`').is_none() {
-            return ActionResult::NextState(State::Text);
-        }
-
-        let open_cnt = 1 + gather!(state_data.it, Option::<i32>::None, '`');
-
-        loop {
-            // end of file detection
-            let ConsumeResult::Some((idx, i)) = consume!(state_data.it) else {
-                break;
-            };
-
-            if i == '`' {
-                let advance = 1 + gather!(state_data.it, Option::<i32>::Some(open_cnt - 1), '`');
-
-                if advance == open_cnt {
-                    let end_idx = idx + 1 + advance as usize - 1;
-
-                    return ActionResult::YieldState(
-                        State::Text,
-                        Yield::CodeBlock(start_idx, end_idx),
-                    );
-                }
-            }
-        }
-        ActionResult::NextState(State::Text)
-    }
-
-    fn detect_wiki_link(state_data: &mut StateData, start_idx: usize) -> ActionResult {
-        loop {
-            // end of file detection
-            let ConsumeResult::Some((idx, i)) = consume!(state_data.it) else {
-                break;
-            };
-
-            match i {
-                ']' => {
-                    // Match ]] ...
-                    if consume_expected_chars!(state_data.it, ']').is_some() {
-                        return ActionResult::YieldState(
-                            State::Text,
-                            Yield::WikiLink(start_idx, idx + 2),
-                        );
-                    } else {
-                        return ActionResult::NextState(State::Text);
-                    }
-                }
-
-                '[' => {
-                    return ActionResult::NextState(State::Text);
-                }
-                _ => (),
-            }
-        }
-        ActionResult::NextState(State::Text)
-    }
-
-    fn detect_link(state_data: &mut StateData, start_idx: usize) -> ActionResult {
-        enum LinkState {
-            LinkStart(usize),
-            LinkDescriptionFinished(usize),
-        }
-
-        // Opening of an internal link was detected
-        let mut link_state: LinkState = LinkState::LinkStart(start_idx);
-
-        loop {
-            // end of file detection
-            let ConsumeResult::Some((idx, i)) = consume!(state_data.it) else {
-                break;
-            };
-
-            link_state = match link_state {
-                LinkState::LinkStart(start_idx) if i == ']' => {
-                    // next char must be '('
-                    if consume_expected_chars!(state_data.it, '(').is_some() {
-                        LinkState::LinkDescriptionFinished(start_idx)
-                    } else {
-                        return ActionResult::NextState(State::Text);
-                    }
-                }
-                LinkState::LinkDescriptionFinished(start_idx) if i == ')' => {
-                    return ActionResult::YieldState(State::Text, Yield::Link(start_idx, idx + 1));
-                }
-
-                _ => link_state,
-            };
-        }
-
-        ActionResult::NextState(State::Text)
-    }
-
-    fn detect_link_or_wiki_link(state_data: &mut StateData, start_idx: usize) -> ActionResult {
-        if consume_expected_chars!(state_data.it, '[').is_none() {
-            return ActionResult::NextState(State::Text);
-        }
-
-        if consume_expected_chars!(state_data.it, '[').is_some() {
-            // wiki link starts with '[['
-            Self::detect_wiki_link(state_data, start_idx)
-        } else {
-            // conventional link starts with '['
-            Self::detect_link(state_data, start_idx)
-        }
-    }
-
     /// Detects an empty line in the markdown input.
     ///
     /// This method checks if the current position of the iterator corresponds to
@@ -328,27 +221,6 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         }
     }
 
-    fn text_state(state_data: &mut StateData) -> ActionResult {
-        let Some((index, i)) = state_data.it.peek().cloned() else {
-            return ActionResult::EndOfFile;
-        };
-
-        match i {
-            // # Text
-            '[' => Self::detect_link_or_wiki_link(state_data, index),
-            '`' => Self::detect_code_block(state_data, index),
-            '\n' => {
-                consume!(state_data.it);
-                ActionResult::NextState(State::NewLine)
-            }
-
-            _ => {
-                consume!(state_data.it);
-                ActionResult::NextState(State::Text)
-            }
-        }
-    }
-
     fn convert_yield_res_to_md_block(&self, inp: Yield) -> types::MdBlock<'a> {
         match inp {
             Yield::YamlFrontmatter(s, e) => types::MdBlock::YamlFrontmatter(&self.buf[s..e]),
@@ -370,7 +242,7 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                 State::NewLine => Self::new_line_state(&mut self.state_data),
                 State::YamlFrontmatter => Self::yaml_frontmatter_state(&mut self.state_data),
                 State::InlCodeBlock => Self::inline_codeblock_state(&mut self.state_data),
-                State::Text => Self::text_state(&mut self.state_data),
+                State::Text => states::text(&mut self.state_data),
             };
 
             match ar {
