@@ -1,4 +1,4 @@
-use super::markdown_iterator_state::{ActionResult, State, StateData};
+use super::markdown_iterator_state::{ActionResult, State, StateData, Yield};
 use super::parsers;
 use crate::markdown::utils::*;
 
@@ -11,8 +11,20 @@ pub(crate) fn document_start(state_data: &mut StateData) -> ActionResult {
     };
     match i {
         // # Start of parsing
-        '-' => parsers::yaml_frontmatter(state_data, index),
-        ' ' => parsers::inline_code_block(state_data, index),
+        '-' => match parsers::yaml_frontmatter(state_data, index) {
+            parsers::ParseResult::Failed => ActionResult::NextState(State::Text),
+            parsers::ParseResult::Ok => panic!("Must yield"),
+            parsers::ParseResult::Yield(s, e) => {
+                ActionResult::YieldState(State::YamlFrontmatter, Yield::YamlFrontmatter(s, e))
+            }
+        },
+        ' ' => match parsers::inline_code_block(state_data, index) {
+            parsers::ParseResult::Failed => ActionResult::NextState(State::EmptyLine),
+            parsers::ParseResult::Ok => panic!("Must yield"),
+            parsers::ParseResult::Yield(s, e) => {
+                ActionResult::YieldState(State::InlCodeBlock, Yield::CodeBlock(s, e))
+            }
+        },
         '\n' => {
             consume!(state_data.it);
             ActionResult::NextState(State::EmptyLine)

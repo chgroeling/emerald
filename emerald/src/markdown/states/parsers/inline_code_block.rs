@@ -1,14 +1,15 @@
-use crate::markdown::states::markdown_iterator_state::{ActionResult, State, StateData, Yield};
+use super::ParseResult;
+use crate::markdown::states::markdown_iterator_state::StateData;
 use crate::markdown::utils::*;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-pub(crate) fn inline_code_block(state_data: &mut StateData, start_idx: usize) -> ActionResult {
+pub(crate) fn inline_code_block(state_data: &mut StateData, start_idx: usize) -> ParseResult {
     let open_cnt = gather!(state_data.it, Option::<i32>::None, ' ');
 
     if open_cnt < 4 {
-        return ActionResult::NextState(State::EmptyLine);
+        return ParseResult::Failed;
     }
 
     // Opening Inline Code Block was detected
@@ -21,15 +22,12 @@ pub(crate) fn inline_code_block(state_data: &mut StateData, start_idx: usize) ->
         };
 
         if i == '\n' {
-            return ActionResult::YieldState(State::InlCodeBlock, Yield::CodeBlock(start_idx, idx));
+            return ParseResult::Yield(start_idx, idx);
         }
 
         act_idx = idx;
     }
 
     // end of file handling
-    ActionResult::YieldState(
-        State::InlCodeBlock,
-        Yield::CodeBlock(start_idx, act_idx + 1),
-    )
+    ParseResult::Yield(start_idx, act_idx + 1)
 }
