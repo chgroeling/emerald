@@ -1,4 +1,4 @@
-pub(crate) enum ConsumeResult {
+pub(crate) enum IterResult {
     Some((usize, char)),
     None,
     Eof,
@@ -19,51 +19,51 @@ pub(crate) enum ConsumeResult {
 ///
 /// - `Eof`: Signifies that the end of the input has been reached. This variant is returned when there are
 ///   no more characters to consume, indicating that the parsing process has reached the end of the input string.
-impl ConsumeResult {
+impl IterResult {
     /// Checks if the result contains a index and a character.
     #[allow(dead_code)]
     pub(crate) fn is_some(&self) -> bool {
-        matches!(self, ConsumeResult::Some(_))
+        matches!(self, IterResult::Some(_))
     }
 
     /// Checks if the result is `None`.
     #[allow(dead_code)]
     pub(crate) fn is_none(&self) -> bool {
-        matches!(self, ConsumeResult::None)
+        matches!(self, IterResult::None)
     }
 
     /// Checks if the result indicates the end of the input (`Eof`).
     #[allow(dead_code)]
     pub(crate) fn is_eof(&self) -> bool {
-        matches!(self, ConsumeResult::Eof)
+        matches!(self, IterResult::Eof)
     }
 
     /// Checks if the result is either `None` or `Eof`.
     #[allow(dead_code)]
     pub(crate) fn is_none_or_eof(&self) -> bool {
-        matches!(self, ConsumeResult::None | ConsumeResult::Eof)
+        matches!(self, IterResult::None | IterResult::Eof)
     }
 }
 
 /// Consumes the next character from the iterator.
 ///
 /// This macro advances the given character iterator and consumes the next character.
-/// If there is a next character, it returns a `ConsumeResult::Some`, containing the index
-/// and character. If the iterator is at the end of the input, it returns `ConsumeResult::Eof`.
+/// If there is a next character, it returns a `IterResult::Some`, containing the index
+/// and character. If the iterator is at the end of the input, it returns `IterResult::Eof`.
 ///
 /// # Parameters
 /// - `$iter`: A mutable reference to a `Peekable<CharIndices>` iterator over a string slice.
 ///   The iterator must be able to yield pairs of index and character (`(usize, char)`).
 ///
 /// # Returns
-/// - `ConsumeResult::Some((usize, char))` if there is a next character in the iterator.
-/// - `ConsumeResult::Eof` if the iterator has reached the end of the input string.
+/// - `IterResult::Some((usize, char))` if there is a next character in the iterator.
+/// - `IterResult::Eof` if the iterator has reached the end of the input string.
 macro_rules! consume {
     ($iter:expr) => {
         if let Some((idx, ch)) = $iter.next() {
-            ConsumeResult::Some((idx, ch))
+            IterResult::Some((idx, ch))
         } else {
-            ConsumeResult::Eof
+            IterResult::Eof
         }
     };
 }
@@ -72,9 +72,9 @@ macro_rules! consume {
 ///
 /// This macro peeks at the next character in the given character iterator. If the character
 /// matches any of the specified patterns, the macro consumes this character (advances the iterator)
-/// and returns a `ConsumeResult::Some` containing the index and character. If the character does not
-/// match any of the patterns, it returns `ConsumeResult::None` without advancing the iterator.
-/// If the iterator is at the end, it returns `ConsumeResult::Eof`.
+/// and returns a `IterResult::Some` containing the index and character. If the character does not
+/// match any of the patterns, it returns `IterResult::None` without advancing the iterator.
+/// If the iterator is at the end, it returns `IterResult::Eof`.
 ///
 /// # Parameters
 /// - `$iter`: A mutable reference to a `Peekable<CharIndices>` iterator over a string slice.
@@ -82,23 +82,23 @@ macro_rules! consume {
 ///   simple characters, ranges, or any pattern that can be used in a `match` arm.
 ///
 /// # Returns
-/// - `ConsumeResult::Some((usize, char))` if the next character matches any of the provided patterns.
-/// - `ConsumeResult::None` if the next character does not match any of the patterns.
-/// - `ConsumeResult::Eof` if the iterator has reached the end of the input string.
+/// - `IterResult::Some((usize, char))` if the next character matches any of the provided patterns.
+/// - `IterResult::None` if the next character does not match any of the patterns.
+/// - `IterResult::Eof` if the iterator has reached the end of the input string.
 macro_rules! consume_expected_chars{
     ($iter:expr, $($a:pat)+) => {
         if let Some((index,ch)) = $iter.peek().cloned() {
             match ch {
                 $($a)|+ => {
                     $iter.next(); // consume
-                    ConsumeResult::Some((index, ch))
+                    IterResult::Some((index, ch))
                 }
                 _ => {
-                    ConsumeResult::None
+                    IterResult::None
                 }
             }
         } else {
-            ConsumeResult::Eof
+            IterResult::Eof
         }
     };
 }
