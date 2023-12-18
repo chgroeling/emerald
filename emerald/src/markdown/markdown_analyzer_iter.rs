@@ -56,36 +56,6 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         )
     }
 
-    /// Detects an empty line in the markdown input.
-    ///
-    /// This method checks if the current position of the iterator corresponds to
-    /// an empty line in the markdown input. An empty line is defined as a sequence of
-    /// spaces followed by an optional carriage return ('\r') and a newline character (`\n`).
-    /// It consumes all the spaces leading up to the newline character.
-    ///
-    /// The method is called when parsing markdown to correctly identify and handle
-    /// empty lines, which can be significant in markdown syntax, especially in
-    /// determining the boundaries of different markdown elements.
-    ///
-    /// # Returns
-    /// * `MarkdownIteratorState::EmptyLineFound` if an empty line is detected.
-    /// * `MarkdownIteratorState::IllegalFormat` if the next character is not a newline
-    ///   or the end of the iterator is reached, which implies an illegal or unexpected format.
-    fn detect_empty_line(state_data: &mut StateData) -> ActionResult {
-        // gather all whitespaces doesnt matter how many
-        gather!(state_data.it, Option::<i32>::None, ' ');
-
-        // consume optional carriage return
-        consume_expected_chars!(state_data.it, '\r');
-
-        // check if the following char is a newline
-        if consume_expected_chars!(state_data.it, '\n').is_some() {
-            ActionResult::NextState(State::EmptyLine)
-        } else {
-            ActionResult::NextState(State::Text)
-        }
-    }
-
     /// Detects the presence of YAML front matter in markdown input.
     ///
     /// YAML front matter is typically used at the beginning of markdown documents to contain metadata,
@@ -182,23 +152,6 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         }
     }
 
-    fn new_line_state(state_data: &mut StateData) -> ActionResult {
-        let Some((_, i)) = state_data.it.peek().cloned() else {
-            return ActionResult::EndOfFile;
-        };
-
-        match i {
-            // # New line found
-            ' ' => Self::detect_empty_line(state_data),
-
-            '\n' => {
-                consume!(state_data.it);
-                ActionResult::NextState(State::EmptyLine)
-            }
-            _ => ActionResult::NextState(State::Text),
-        }
-    }
-
     fn yaml_frontmatter_state(state_data: &mut StateData) -> ActionResult {
         let Some((index, i)) = state_data.it.peek().cloned() else {
             return ActionResult::EndOfFile;
@@ -239,7 +192,7 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
             let ar: ActionResult = match self.state_data.state {
                 State::DocumentStart => Self::document_start_state(&mut self.state_data),
                 State::EmptyLine => states::empty_line(&mut self.state_data),
-                State::NewLine => Self::new_line_state(&mut self.state_data),
+                State::NewLine => states::new_line(&mut self.state_data),
                 State::YamlFrontmatter => Self::yaml_frontmatter_state(&mut self.state_data),
                 State::InlCodeBlock => Self::inline_codeblock_state(&mut self.state_data),
                 State::Text => states::text(&mut self.state_data),
