@@ -7,7 +7,7 @@ use log::{debug, error, info, trace, warn};
 fn detect_wiki_link(state_data: &mut StateData, start_idx: usize) -> ActionResult {
     loop {
         // end of file detection
-        let ConsumeResult::Some((idx, i)) = consume!(state_data.it) else {
+        let IterResult::Some((idx, i)) = consume!(state_data.it) else {
             break;
         };
 
@@ -44,7 +44,7 @@ fn detect_link(state_data: &mut StateData, start_idx: usize) -> ActionResult {
 
     loop {
         // end of file detection
-        let ConsumeResult::Some((idx, i)) = consume!(state_data.it) else {
+        let IterResult::Some((idx, i)) = consume!(state_data.it) else {
             break;
         };
 

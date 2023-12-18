@@ -14,7 +14,7 @@ pub(crate) fn code_block(state_data: &mut StateData, start_idx: usize) -> ParseR
 
     loop {
         // end of file detection
-        let ConsumeResult::Some((idx, i)) = consume!(state_data.it) else {
+        let IterResult::Some((idx, i)) = consume!(state_data.it) else {
             break;
         };
 
