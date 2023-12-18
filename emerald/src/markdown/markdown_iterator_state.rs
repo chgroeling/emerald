@@ -3,22 +3,22 @@ use std::{iter::Peekable, str::CharIndices};
 #[derive(PartialEq, Debug, Clone)]
 pub enum State {
     // This state is assigned when parsing text.
-    TextState,
+    Text,
 
     /// This state is assigned at the start of parsing
-    DocumentStartState,
+    DocumentStart,
 
     /// Empty line was found
-    EmptyLineState,
+    EmptyLine,
 
     /// New line character was found
-    NewLineState,
+    NewLine,
 
     /// Yaml Frontmatter was found
-    YamlFrontmatterState,
+    YamlFrontmatter,
 
     /// Inline Code Block was found
-    InlCodeBlockState,
+    InlCodeBlock,
 }
 
 pub enum Yield {
