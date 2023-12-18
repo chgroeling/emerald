@@ -1,4 +1,5 @@
-use crate::markdown::states::markdown_iterator_state::{ActionResult, State, StateData, Yield};
+use super::ParseResult;
+use crate::markdown::states::markdown_iterator_state::StateData;
 use crate::markdown::utils::*;
 
 #[allow(unused_imports)]
@@ -22,16 +23,16 @@ use log::{debug, error, info, trace, warn};
 ///   the end of the block.
 /// - `MarkdownIteratorState::IllegalFormat` if the detected block does not conform to the expected YAML
 ///    front matter format.
-pub(crate) fn yaml_frontmatter(state_data: &mut StateData, start_idx: usize) -> ActionResult {
+pub(crate) fn yaml_frontmatter(state_data: &mut StateData, start_idx: usize) -> ParseResult {
     // gather 3 dashes
     if gather!(state_data.it, Option::<i32>::None, '-') != 3 {
-        return ActionResult::NextState(State::Text);
+        return ParseResult::Failed;
     }
     // consume optional carriage return
     consume_expected_chars!(state_data.it, '\r');
 
     if consume_expected_chars!(state_data.it, '\n').is_none_or_eof() {
-        return ActionResult::NextState(State::Text);
+        return ParseResult::Failed;
     }
 
     let mut last_index: usize = 0;
@@ -70,16 +71,10 @@ pub(crate) fn yaml_frontmatter(state_data: &mut StateData, start_idx: usize) -> 
 
             if consume_expected_chars!(state_data.it, '\n').is_some() {
                 end_index += 1usize;
-                return ActionResult::YieldState(
-                    State::YamlFrontmatter,
-                    Yield::YamlFrontmatter(start_idx, end_index),
-                );
+                return ParseResult::Yield(start_idx, end_index);
             }
         }
     }
 
-    ActionResult::YieldState(
-        State::YamlFrontmatter,
-        Yield::YamlFrontmatter(start_idx, last_index + 1),
-    )
+    ParseResult::Yield(start_idx, last_index + 1)
 }

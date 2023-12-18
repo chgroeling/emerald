@@ -1,4 +1,4 @@
-use super::markdown_iterator_state::{ActionResult, State, StateData};
+use super::markdown_iterator_state::{ActionResult, State, StateData, Yield};
 use super::parsers;
 
 #[allow(unused_imports)]
@@ -10,7 +10,13 @@ pub(crate) fn inline_codeblock(state_data: &mut StateData) -> ActionResult {
     };
 
     match i {
-        ' ' => parsers::inline_code_block(state_data, index),
+        ' ' => match parsers::inline_code_block(state_data, index) {
+            parsers::ParseResult::Failed => ActionResult::NextState(State::EmptyLine),
+            parsers::ParseResult::Ok => panic!("Must yield"),
+            parsers::ParseResult::Yield(s, e) => {
+                ActionResult::YieldState(State::InlCodeBlock, Yield::CodeBlock(s, e))
+            }
+        },
         _ => ActionResult::NextState(State::Text),
     }
 }

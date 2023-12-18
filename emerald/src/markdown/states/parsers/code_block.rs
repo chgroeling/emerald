@@ -1,12 +1,13 @@
-use crate::markdown::states::markdown_iterator_state::{ActionResult, State, StateData, Yield};
+use super::ParseResult;
+use crate::markdown::states::markdown_iterator_state::StateData;
 use crate::markdown::utils::*;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-pub(crate) fn code_block(state_data: &mut StateData, start_idx: usize) -> ActionResult {
+pub(crate) fn code_block(state_data: &mut StateData, start_idx: usize) -> ParseResult {
     if consume_expected_chars!(state_data.it, '`').is_none() {
-        return ActionResult::NextState(State::Text);
+        return ParseResult::Failed;
     }
 
     let open_cnt = 1 + gather!(state_data.it, Option::<i32>::None, '`');
@@ -23,9 +24,9 @@ pub(crate) fn code_block(state_data: &mut StateData, start_idx: usize) -> Action
             if advance == open_cnt {
                 let end_idx = idx + 1 + advance as usize - 1;
 
-                return ActionResult::YieldState(State::Text, Yield::CodeBlock(start_idx, end_idx));
+                return ParseResult::Yield(start_idx, end_idx);
             }
         }
     }
-    ActionResult::NextState(State::Text)
+    ParseResult::Failed
 }
