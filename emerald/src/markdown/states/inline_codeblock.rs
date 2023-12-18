@@ -1,5 +1,5 @@
+use super::markdown_iterator_state::{ActionResult, State, StateData};
 use super::parsers;
-use crate::markdown::markdown_iterator_state::{ActionResult, State, StateData};
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
