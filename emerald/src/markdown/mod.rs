@@ -4,6 +4,7 @@ mod markdown_analyzer_iter;
 mod markdown_iterator_state;
 mod markdown_splitters;
 mod tests;
+mod utils;
 
 pub use markdown_analyzer::MarkdownAnalyzer;
 pub use markdown_analyzer_impl::MarkdownAnalyzerImpl;
