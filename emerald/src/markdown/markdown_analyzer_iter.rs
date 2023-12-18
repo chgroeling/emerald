@@ -1,4 +1,5 @@
 use super::markdown_iterator_state::{ActionResult, State, StateData, Yield};
+use super::states;
 use super::utils::*;
 use crate::types;
 
@@ -288,22 +289,6 @@ impl<'a> MarkdownAnalyzerIter<'a> {
         }
     }
 
-    fn empty_line_state(state_data: &mut StateData) -> ActionResult {
-        let Some((index, i)) = state_data.it.peek().cloned() else {
-            return ActionResult::EndOfFile;
-        };
-
-        match i {
-            // # Empty Line found
-            '\n' => {
-                consume!(state_data.it);
-                ActionResult::NextState(State::EmptyLine)
-            }
-            ' ' => Self::detect_inline_code_block(state_data, index),
-            _ => ActionResult::NextState(State::Text),
-        }
-    }
-
     fn new_line_state(state_data: &mut StateData) -> ActionResult {
         let Some((_, i)) = state_data.it.peek().cloned() else {
             return ActionResult::EndOfFile;
@@ -381,7 +366,7 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
         loop {
             let ar: ActionResult = match self.state_data.state {
                 State::DocumentStart => Self::document_start_state(&mut self.state_data),
-                State::EmptyLine => Self::empty_line_state(&mut self.state_data),
+                State::EmptyLine => states::empty_line(&mut self.state_data),
                 State::NewLine => Self::new_line_state(&mut self.state_data),
                 State::YamlFrontmatter => Self::yaml_frontmatter_state(&mut self.state_data),
                 State::InlCodeBlock => Self::inline_codeblock_state(&mut self.state_data),
