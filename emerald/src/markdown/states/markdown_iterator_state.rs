@@ -1,4 +1,4 @@
-use std::{iter::Peekable, str::CharIndices};
+use crate::markdown::utf8_iterator::Utf8Iterator;
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum State {
@@ -37,5 +37,5 @@ pub enum ActionResult {
 #[derive(Debug)]
 pub struct StateData<'a> {
     pub state: State,
-    pub it: Peekable<CharIndices<'a>>,
+    pub it: Utf8Iterator<'a>,
 }
