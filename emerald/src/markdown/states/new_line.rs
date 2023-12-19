@@ -6,16 +6,15 @@ use crate::markdown::utils::*;
 use log::{debug, error, info, trace, warn};
 
 pub(crate) fn new_line(state_data: &mut StateData) -> ActionResult {
-    let Some((_, i)) = state_data.it.peek().cloned() else {
+    let Some((index, i)) = state_data.it.peek().cloned() else {
         return ActionResult::EndOfFile;
     };
 
     match i {
         // # New line found
-        ' ' => match parsers::empty_line(state_data) {
+        ' ' => match parsers::empty_line(state_data, index) {
             parsers::ParseResult::Failed => ActionResult::NextState(State::Text),
-            parsers::ParseResult::Ok => ActionResult::NextState(State::EmptyLine),
-            parsers::ParseResult::Yield(_, _) => panic!("Doesn't yield"),
+            parsers::ParseResult::Yield(_, _) => ActionResult::NextState(State::EmptyLine),
         },
         '\n' => {
             consume!(state_data.it);
