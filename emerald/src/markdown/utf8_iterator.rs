@@ -46,6 +46,14 @@ impl<'a> Utf8Iterator<'a> {
             None
         }
     }
+    pub fn get_pos(&self) -> usize {
+        self.byte_pos
+    }
+
+    pub fn set_pos(&mut self, pos: usize) {
+        self.byte_pos = pos;
+        self.next_char = self.peek_next();
+    }
 
     pub fn peek(&self) -> Option<&(usize, char)> {
         self.next_char.as_ref()
@@ -63,5 +71,49 @@ impl<'a> Iterator for Utf8Iterator<'a> {
         } else {
             None
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Utf8Iterator;
+
+    #[test]
+    fn test_get_pos_initial_pos() {
+        let test_str = "012345";
+        let it = Utf8Iterator::new(test_str);
+        assert_eq!(it.get_pos(), 0);
+    }
+
+    #[test]
+    fn test_get_pos_next_called_once() {
+        let test_str = "012345";
+        let mut it = Utf8Iterator::new(test_str);
+        it.next();
+        assert_eq!(it.get_pos(), 1);
+    }
+
+    #[test]
+    fn test_set_pos_set_to_zero() {
+        let test_str = "012345";
+        let mut it = Utf8Iterator::new(test_str);
+        it.set_pos(0);
+
+        let peek = it.peek().unwrap().clone();
+        let next = it.next().unwrap();
+        assert_eq!(peek, (0, '0'));
+        assert_eq!(next, (0, '0'));
+    }
+
+    #[test]
+    fn test_set_pos_set_to_one() {
+        let test_str = "012345";
+        let mut it = Utf8Iterator::new(test_str);
+        it.set_pos(1);
+
+        let peek = it.peek().unwrap().clone();
+        let next = it.next().unwrap();
+        assert_eq!(peek, (1, '1'));
+        assert_eq!(next, (1, '1'));
     }
 }
