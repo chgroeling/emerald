@@ -1,10 +1,18 @@
-use crate::markdown::states::markdown_iterator_state::{ActionResult, State, StateData, Yield};
+use super::ParseResult;
+use crate::markdown::states::markdown_iterator_state::StateData;
 use crate::markdown::utils::*;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-fn detect_wiki_link(state_data: &mut StateData, start_idx: usize) -> ActionResult {
+pub(crate) fn detect_wiki_link(state_data: &mut StateData, start_idx: usize) -> ParseResult {
+    if consume_expected_chars!(state_data.it, '[').is_none() {
+        return ParseResult::Failed;
+    }
+
+    if consume_expected_chars!(state_data.it, '[').is_none() {
+        return ParseResult::Failed;
+    }
     loop {
         // end of file detection
         let IterResult::Some((idx, i)) = consume!(state_data.it) else {
@@ -15,25 +23,26 @@ fn detect_wiki_link(state_data: &mut StateData, start_idx: usize) -> ActionResul
             ']' => {
                 // Match ]] ...
                 if consume_expected_chars!(state_data.it, ']').is_some() {
-                    return ActionResult::YieldState(
-                        State::Text,
-                        Yield::WikiLink(start_idx, idx + 2),
-                    );
+                    return ParseResult::Yield(start_idx, idx + 2);
                 } else {
-                    return ActionResult::NextState(State::Text);
+                    return ParseResult::Failed;
                 }
             }
 
             '[' => {
-                return ActionResult::NextState(State::Text);
+                return ParseResult::Failed;
             }
             _ => (),
         }
     }
-    ActionResult::NextState(State::Text)
+    ParseResult::Failed
 }
 
-fn detect_link(state_data: &mut StateData, start_idx: usize) -> ActionResult {
+pub(crate) fn detect_link(state_data: &mut StateData, start_idx: usize) -> ParseResult {
+    if consume_expected_chars!(state_data.it, '[').is_none() {
+        return ParseResult::Failed;
+    }
+
     enum LinkState {
         LinkStart(usize),
         LinkDescriptionFinished(usize),
@@ -54,30 +63,16 @@ fn detect_link(state_data: &mut StateData, start_idx: usize) -> ActionResult {
                 if consume_expected_chars!(state_data.it, '(').is_some() {
                     LinkState::LinkDescriptionFinished(start_idx)
                 } else {
-                    return ActionResult::NextState(State::Text);
+                    return ParseResult::Failed;
                 }
             }
             LinkState::LinkDescriptionFinished(start_idx) if i == ')' => {
-                return ActionResult::YieldState(State::Text, Yield::Link(start_idx, idx + 1));
+                return ParseResult::Yield(start_idx, idx + 1);
             }
 
             _ => link_state,
         };
     }
 
-    ActionResult::NextState(State::Text)
-}
-
-pub(crate) fn link_or_wikilink(state_data: &mut StateData, start_idx: usize) -> ActionResult {
-    if consume_expected_chars!(state_data.it, '[').is_none() {
-        return ActionResult::NextState(State::Text);
-    }
-
-    if consume_expected_chars!(state_data.it, '[').is_some() {
-        // wiki link starts with '[['
-        detect_wiki_link(state_data, start_idx)
-    } else {
-        // conventional link starts with '['
-        detect_link(state_data, start_idx)
-    }
+    ParseResult::Failed
 }
