@@ -6,11 +6,15 @@ use crate::markdown::utils::*;
 use log::{debug, error, info, trace, warn};
 
 pub(crate) fn wiki_link(state_data: &mut StateData, start_idx: usize) -> ParseResult {
+    // save position of iterator ... needed for backtracking
+    let it_pos = state_data.it.get_pos();
     if consume_expected_chars!(state_data.it, '[').is_none() {
         return ParseResult::Failed;
     }
 
     if consume_expected_chars!(state_data.it, '[').is_none() {
+        // backtrack if the link was not a wikilink
+        state_data.it.set_pos(it_pos);
         return ParseResult::Failed;
     }
     loop {
@@ -25,15 +29,21 @@ pub(crate) fn wiki_link(state_data: &mut StateData, start_idx: usize) -> ParseRe
                 if consume_expected_chars!(state_data.it, ']').is_some() {
                     return ParseResult::Yield(start_idx, idx + 2);
                 } else {
+                    // backtrack if the link was not a wikilink
+                    state_data.it.set_pos(it_pos);
                     return ParseResult::Failed;
                 }
             }
 
             '[' => {
+                // backtrack if the link was not a wikilink
+                state_data.it.set_pos(it_pos);
                 return ParseResult::Failed;
             }
             _ => (),
         }
     }
+    // backtrack if the link was not a wikilink
+    state_data.it.set_pos(it_pos);
     ParseResult::Failed
 }
