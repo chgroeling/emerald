@@ -1,4 +1,5 @@
 use super::states;
+use super::utf8_iterator::Utf8Iterator;
 use crate::markdown::states::markdown_iterator_state::{ActionResult, State, StateData, Yield};
 use crate::types;
 
@@ -17,7 +18,7 @@ impl<'a> MarkdownAnalyzerIter<'a> {
             buf,
             state_data: StateData {
                 state: State::DocumentStart,
-                it: buf.char_indices().peekable(),
+                it: Utf8Iterator::new(buf),
             },
         }
     }
