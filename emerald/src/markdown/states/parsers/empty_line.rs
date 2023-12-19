@@ -20,7 +20,7 @@ use log::{debug, error, info, trace, warn};
 /// * `MarkdownIteratorState::EmptyLineFound` if an empty line is detected.
 /// * `MarkdownIteratorState::IllegalFormat` if the next character is not a newline
 ///   or the end of the iterator is reached, which implies an illegal or unexpected format.
-pub(crate) fn empty_line(state_data: &mut StateData) -> ParseResult {
+pub(crate) fn empty_line(state_data: &mut StateData, start_idx: usize) -> ParseResult {
     // gather all whitespaces doesnt matter how many
     gather!(state_data.it, Option::<i32>::None, ' ');
 
@@ -28,8 +28,8 @@ pub(crate) fn empty_line(state_data: &mut StateData) -> ParseResult {
     consume_expected_chars!(state_data.it, '\r');
 
     // check if the following char is a newline
-    if consume_expected_chars!(state_data.it, '\n').is_some() {
-        ParseResult::Ok // TODO: switch to yield
+    if let IterResult::Some((index, _)) = consume_expected_chars!(state_data.it, '\n') {
+        ParseResult::Yield(start_idx, index)
     } else {
         ParseResult::Failed
     }

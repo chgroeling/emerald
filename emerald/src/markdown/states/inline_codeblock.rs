@@ -12,7 +12,6 @@ pub(crate) fn inline_codeblock(state_data: &mut StateData) -> ActionResult {
     match i {
         ' ' => match parsers::inline_code_block(state_data, index) {
             parsers::ParseResult::Failed => ActionResult::NextState(State::EmptyLine),
-            parsers::ParseResult::Ok => panic!("Must yield"),
             parsers::ParseResult::Yield(s, e) => {
                 ActionResult::YieldState(State::InlCodeBlock, Yield::CodeBlock(s, e))
             }

@@ -22,24 +22,20 @@ pub(crate) fn text(state_data: &mut StateData) -> ActionResult {
 
                     match res2 {
                         parsers::ParseResult::Failed => ActionResult::NextState(State::NewLine),
-                        parsers::ParseResult::Ok => todo!(),
                         parsers::ParseResult::Yield(s, e) => {
                             ActionResult::YieldState(State::Text, Yield::Link(s, e))
                         }
                     }
                 }
-                parsers::ParseResult::Ok => todo!(),
                 parsers::ParseResult::Yield(s, e) => {
                     ActionResult::YieldState(State::Text, Yield::WikiLink(s, e))
                 }
             };
 
-            //state_data.it.set_pos(it_pos);
             out
         }
         '`' => match parsers::code_block(state_data, index) {
             parsers::ParseResult::Failed => ActionResult::NextState(State::NewLine),
-            parsers::ParseResult::Ok => panic!("Must yield"),
             parsers::ParseResult::Yield(s, e) => {
                 ActionResult::YieldState(State::Text, Yield::CodeBlock(s, e))
             }
