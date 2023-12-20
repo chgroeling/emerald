@@ -1,9 +1,9 @@
 mod document_start;
 mod empty_line;
 mod inline_codeblock;
-pub(crate) mod markdown_iterator_state;
 mod new_line;
 mod parsers;
+pub(crate) mod state;
 mod text;
 mod yaml_frontmatter;
 

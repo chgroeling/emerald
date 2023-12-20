@@ -1,5 +1,5 @@
-use super::markdown_iterator_state::{ActionResult, State, StateData, Yield};
 use super::parsers;
+use super::state::{ActionResult, State, StateData, Yield};
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
