@@ -1,5 +1,5 @@
 use super::ParseResult;
-use crate::markdown::states::markdown_iterator_state::StateData;
+use crate::markdown::utf8_iterator::Utf8Iterator;
 use crate::markdown::utils::*;
 
 #[allow(unused_imports)]
@@ -20,15 +20,15 @@ use log::{debug, error, info, trace, warn};
 /// * `MarkdownIteratorState::EmptyLineFound` if an empty line is detected.
 /// * `MarkdownIteratorState::IllegalFormat` if the next character is not a newline
 ///   or the end of the iterator is reached, which implies an illegal or unexpected format.
-pub(crate) fn empty_line(state_data: &mut StateData, start_idx: usize) -> ParseResult {
+pub(crate) fn empty_line(it: &mut Utf8Iterator, start_idx: usize) -> ParseResult {
     // gather all whitespaces doesnt matter how many
-    gather!(state_data.it, Option::<i32>::None, ' ');
+    gather!(it, Option::<i32>::None, ' ');
 
     // consume optional carriage return
-    consume_expected_chars!(state_data.it, '\r');
+    consume_expected_chars!(it, '\r');
 
     // check if the following char is a newline
-    if let IterResult::Some((index, _)) = consume_expected_chars!(state_data.it, '\n') {
+    if let IterResult::Some((index, _)) = consume_expected_chars!(it, '\n') {
         ParseResult::Yield(start_idx, index)
     } else {
         ParseResult::Failed

@@ -1,12 +1,12 @@
 use super::ParseResult;
-use crate::markdown::states::markdown_iterator_state::StateData;
+use crate::markdown::utf8_iterator::Utf8Iterator;
 use crate::markdown::utils::*;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-pub(crate) fn inline_code_block(state_data: &mut StateData, start_idx: usize) -> ParseResult {
-    let open_cnt = gather!(state_data.it, Option::<i32>::None, ' ');
+pub(crate) fn inline_code_block(it: &mut Utf8Iterator, start_idx: usize) -> ParseResult {
+    let open_cnt = gather!(it, Option::<i32>::None, ' ');
 
     if open_cnt < 4 {
         return ParseResult::Failed;
@@ -17,7 +17,7 @@ pub(crate) fn inline_code_block(state_data: &mut StateData, start_idx: usize) ->
 
     loop {
         // end of file detection
-        let IterResult::Some((idx, i)) = consume!(state_data.it) else {
+        let IterResult::Some((idx, i)) = consume!(it) else {
             break;
         };
 
