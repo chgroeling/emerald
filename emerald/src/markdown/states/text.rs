@@ -25,14 +25,18 @@ pub(crate) fn text(state_data: &mut StateData) -> ActionResult {
                 }
             };
             match parsers::link(&mut state_data.it, index) {
-                parsers::ParseResult::Failed => ActionResult::NextState(State::NewLine),
+                parsers::ParseResult::Failed => {
+                    // backtrack if the link was not a wikilink
+                    state_data.it.set_pos(it_pos);
+                    ActionResult::Error(State::NewLine)
+                }
                 parsers::ParseResult::Yield(s, e) => {
                     ActionResult::YieldState(State::Text, Yield::Link(s, e))
                 }
             }
         }
         '`' => match parsers::code_block(&mut state_data.it, index) {
-            parsers::ParseResult::Failed => ActionResult::NextState(State::NewLine),
+            parsers::ParseResult::Failed => ActionResult::Error(State::NewLine),
             parsers::ParseResult::Yield(s, e) => {
                 ActionResult::YieldState(State::Text, Yield::CodeBlock(s, e))
             }

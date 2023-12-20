@@ -12,7 +12,7 @@ pub(crate) fn document_start(state_data: &mut StateData) -> ActionResult {
     match i {
         // # Start of parsing
         '-' => match parsers::yaml_frontmatter(&mut state_data.it, index) {
-            parsers::ParseResult::Failed => ActionResult::NextState(State::Text),
+            parsers::ParseResult::Failed => ActionResult::Error(State::Text),
             parsers::ParseResult::Yield(s, e) => {
                 ActionResult::YieldState(State::YamlFrontmatter, Yield::YamlFrontmatter(s, e))
             }
