@@ -18,10 +18,10 @@ use log::{debug, error, info, trace, warn};
 /// - `start_idx`: The starting index in the markdown text where the detection should begin.
 ///
 /// # Returns
-/// - `MarkdownIteratorState::YamlFrontmatterFound(start_idx, end_idx)` if a YAML front matter block
+/// - `ParseResult::Yield(start_idx, end_idx)` if a YAML front matter block
 ///   is detected, where `start_idx` is the starting index and `end_idx` is the index immediately after
 ///   the end of the block.
-/// - `MarkdownIteratorState::IllegalFormat` if the detected block does not conform to the expected YAML
+/// - `ParseResult::Failed` if the detected block does not conform to the expected YAML
 ///    front matter format.
 pub(crate) fn yaml_frontmatter(it: &mut Utf8Iterator, start_idx: usize) -> ParseResult {
     // gather 3 dashes
@@ -37,7 +37,7 @@ pub(crate) fn yaml_frontmatter(it: &mut Utf8Iterator, start_idx: usize) -> Parse
 
     let mut last_index: usize = 0;
     loop {
-        let Some((index, i)) = it.next() else {
+        let IterResult::Some((index, i)) = consume!(it) else {
             break;
         };
 
