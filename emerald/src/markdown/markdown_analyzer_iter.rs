@@ -51,6 +51,10 @@ impl<'a> Iterator for MarkdownAnalyzerIter<'a> {
                 ActionResult::EndOfFile => {
                     return None;
                 }
+                ActionResult::Error(state) => {
+                    self.state_data.it.next();
+                    self.state_data.state = state;
+                }
                 ActionResult::NextState(state) => {
                     self.state_data.state = state;
                 }
