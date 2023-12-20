@@ -1,3 +1,10 @@
+//! # Markdown Module
+//!
+//! This module provides functionality to parse and analyze Markdown text.
+//! It includes utilities for iterating over Markdown elements, analyzing
+//! content, and more.
+//!
+
 mod markdown_analyzer;
 mod markdown_analyzer_impl;
 mod markdown_analyzer_iter;

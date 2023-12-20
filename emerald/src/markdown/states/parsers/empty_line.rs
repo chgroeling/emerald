@@ -17,8 +17,8 @@ use log::{debug, error, info, trace, warn};
 /// determining the boundaries of different markdown elements.
 ///
 /// # Returns
-/// * `MarkdownIteratorState::EmptyLineFound` if an empty line is detected.
-/// * `MarkdownIteratorState::IllegalFormat` if the next character is not a newline
+/// * `ParseResult::Yield` if an empty line is detected.
+/// * `ParseResult::Failed` if the next character is not a newline
 ///   or the end of the iterator is reached, which implies an illegal or unexpected format.
 pub(crate) fn empty_line(it: &mut Utf8Iterator, start_idx: usize) -> ParseResult {
     // gather all whitespaces doesnt matter how many
