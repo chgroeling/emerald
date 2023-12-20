@@ -12,7 +12,7 @@ pub(crate) fn new_line(state_data: &mut StateData) -> ActionResult {
 
     match i {
         // # New line found
-        ' ' => match parsers::empty_line(state_data, index) {
+        ' ' => match parsers::empty_line(&mut state_data.it, index) {
             parsers::ParseResult::Failed => ActionResult::NextState(State::Text),
             parsers::ParseResult::Yield(_, _) => ActionResult::NextState(State::EmptyLine),
         },

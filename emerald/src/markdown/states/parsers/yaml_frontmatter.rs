@@ -1,5 +1,5 @@
 use super::ParseResult;
-use crate::markdown::states::markdown_iterator_state::StateData;
+use crate::markdown::utf8_iterator::Utf8Iterator;
 use crate::markdown::utils::*;
 
 #[allow(unused_imports)]
@@ -23,35 +23,35 @@ use log::{debug, error, info, trace, warn};
 ///   the end of the block.
 /// - `MarkdownIteratorState::IllegalFormat` if the detected block does not conform to the expected YAML
 ///    front matter format.
-pub(crate) fn yaml_frontmatter(state_data: &mut StateData, start_idx: usize) -> ParseResult {
+pub(crate) fn yaml_frontmatter(it: &mut Utf8Iterator, start_idx: usize) -> ParseResult {
     // gather 3 dashes
-    if gather!(state_data.it, Option::<i32>::None, '-') != 3 {
+    if gather!(it, Option::<i32>::None, '-') != 3 {
         return ParseResult::Failed;
     }
     // consume optional carriage return
-    consume_expected_chars!(state_data.it, '\r');
+    consume_expected_chars!(it, '\r');
 
-    if consume_expected_chars!(state_data.it, '\n').is_none_or_eof() {
+    if consume_expected_chars!(it, '\n').is_none_or_eof() {
         return ParseResult::Failed;
     }
 
     let mut last_index: usize = 0;
     loop {
-        let Some((index, i)) = state_data.it.next() else {
+        let Some((index, i)) = it.next() else {
             break;
         };
 
         last_index = index; // needed in case of eof
         if i == '\n' {
             // assume a dash after a newline
-            if consume_expected_chars!(state_data.it, '-').is_none_or_eof() {
+            if consume_expected_chars!(it, '-').is_none_or_eof() {
                 continue;
             }
 
             last_index += 1;
 
             // gather 2 more dashes
-            let dash_cnt = gather!(state_data.it, Option::<i32>::None, '-');
+            let dash_cnt = gather!(it, Option::<i32>::None, '-');
             if dash_cnt != 2 {
                 last_index += dash_cnt as usize;
                 continue;
@@ -61,15 +61,15 @@ pub(crate) fn yaml_frontmatter(state_data: &mut StateData, start_idx: usize) -> 
             let mut end_index = 1 + index + 3;
 
             // gather all whitespaces doesnt matter how many
-            let ws_count = gather!(state_data.it, Option::<i32>::None, ' ');
+            let ws_count = gather!(it, Option::<i32>::None, ' ');
             end_index += ws_count as usize;
 
             // consume optional carriage return
-            if consume_expected_chars!(state_data.it, '\r').is_some() {
+            if consume_expected_chars!(it, '\r').is_some() {
                 end_index += 1;
             }
 
-            if consume_expected_chars!(state_data.it, '\n').is_some() {
+            if consume_expected_chars!(it, '\n').is_some() {
                 end_index += 1usize;
                 return ParseResult::Yield(start_idx, end_index);
             }

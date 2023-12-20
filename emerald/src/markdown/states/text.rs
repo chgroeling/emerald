@@ -15,7 +15,7 @@ pub(crate) fn text(state_data: &mut StateData) -> ActionResult {
         '[' => {
             // save position of iterator ... needed for backtracking
             let it_pos = state_data.it.get_pos();
-            match parsers::wiki_link(state_data, index) {
+            match parsers::wiki_link(&mut state_data.it, index) {
                 parsers::ParseResult::Failed => {
                     // backtrack if the link was not a wikilink
                     state_data.it.set_pos(it_pos);
@@ -24,14 +24,14 @@ pub(crate) fn text(state_data: &mut StateData) -> ActionResult {
                     return ActionResult::YieldState(State::Text, Yield::WikiLink(s, e))
                 }
             };
-            match parsers::link(state_data, index) {
+            match parsers::link(&mut state_data.it, index) {
                 parsers::ParseResult::Failed => ActionResult::NextState(State::NewLine),
                 parsers::ParseResult::Yield(s, e) => {
                     ActionResult::YieldState(State::Text, Yield::Link(s, e))
                 }
             }
         }
-        '`' => match parsers::code_block(state_data, index) {
+        '`' => match parsers::code_block(&mut state_data.it, index) {
             parsers::ParseResult::Failed => ActionResult::NextState(State::NewLine),
             parsers::ParseResult::Yield(s, e) => {
                 ActionResult::YieldState(State::Text, Yield::CodeBlock(s, e))
