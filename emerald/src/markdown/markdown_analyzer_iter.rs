@@ -1,6 +1,6 @@
 use super::states;
 use super::utf8_iterator::Utf8Iterator;
-use crate::markdown::states::markdown_iterator_state::{ActionResult, State, StateData, Yield};
+use crate::markdown::states::state::{ActionResult, State, StateData, Yield};
 use crate::types;
 
 #[allow(unused_imports)]
