@@ -49,7 +49,7 @@ impl FsMetaDataAccess for FsMetaDataAccessImpl {
     }
 }
 #[derive(Clone)]
-pub struct FileMetaDataLoader<I, U = FsMetaDataAccessImpl>
+pub struct FilesystemMetaDataLoader<I, U = FsMetaDataAccessImpl>
 where
     I: ResourceObjectRetriever,
     U: FsMetaDataAccess,
@@ -58,7 +58,7 @@ where
     fs_meta_data_access: U,
 }
 
-impl<I, U> FileMetaDataLoader<I, U>
+impl<I, U> FilesystemMetaDataLoader<I, U>
 where
     I: ResourceObjectRetriever,
     U: FsMetaDataAccess,
@@ -109,7 +109,7 @@ where
     }
 }
 
-impl<I, U> MetaDataLoader for FileMetaDataLoader<I, U>
+impl<I, U> MetaDataLoader for FilesystemMetaDataLoader<I, U>
 where
     I: ResourceObjectRetriever,
     U: FsMetaDataAccess,
@@ -127,9 +127,9 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::FileMetaDataLoader;
+    use super::FilesystemMetaDataLoader;
     use super::MockFsMetaDataAccess;
-    use crate::resources::file_meta_data_loader::FsMetaData;
+    use crate::resources::filesystem_meta_data_loader::FsMetaData;
     use crate::resources::resource_object::ResourceObject;
     use crate::resources::{MetaDataLoader, MockResourceObjectRetriever};
     use crate::types;
@@ -137,7 +137,7 @@ mod tests {
 
     fn create_test_case(
         path: PathBuf,
-    ) -> FileMetaDataLoader<MockResourceObjectRetriever, MockFsMetaDataAccess> {
+    ) -> FilesystemMetaDataLoader<MockResourceObjectRetriever, MockFsMetaDataAccess> {
         let mut mock = MockResourceObjectRetriever::new();
         mock.expect_retrieve()
             .returning(move |_f| Ok(ResourceObject::File(path.clone())));
@@ -152,7 +152,7 @@ mod tests {
                     created: 0,
                 })
             });
-        FileMetaDataLoader::new(mock, mock_fs_access)
+        FilesystemMetaDataLoader::new(mock, mock_fs_access)
     }
 
     #[test]
