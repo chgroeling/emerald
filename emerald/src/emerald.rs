@@ -108,7 +108,8 @@ impl Emerald {
         let md_analyzer = markdown::MarkdownAnalyzerImpl::new();
         let c_it = adapters::adapter_to_rids_and_content(md_rids.iter(), cmod.as_ref());
         let ct_it = adapters::adapter_to_yaml(c_it, md_analyzer);
-        let md_doc_meta_data: Vec<_> = adapters::adapter_to_btree(ct_it).collect();
+        let md_doc_meta_data: Vec<_> =
+            adapters::adapter_to_rid_and_document_metadata(ct_it).collect();
         /*
                 for i in md_doc_meta_data {
                     let yaml = i.1;
