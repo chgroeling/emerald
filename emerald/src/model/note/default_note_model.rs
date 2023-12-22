@@ -1,34 +1,34 @@
 use super::note_count::NoteCount;
-use super::note_meta_data::NoteMetaData;
-use super::note_meta_data_map::NoteMetaDataMap;
-use super::note_meta_data_retriever::NoteMetaDataRetriever;
+use super::note_metadata::NoteMetadata;
+use super::note_metadata_map::NoteMetadataMap;
+use super::note_metadata_retriever::NoteMetadataRetriever;
 use super::notes_iter_src::NotesIterSrc;
 
 use crate::types;
 
 pub struct DefaultNoteModel {
     note_index: Vec<types::ResourceId>,
-    meta_data_map: NoteMetaDataMap,
+    meta_data_map: NoteMetadataMap,
 }
 
 impl DefaultNoteModel {
     pub fn new(
-        it_note_meta_data: impl IntoIterator<Item = (types::ResourceId, types::FilesystemMetaData)>,
+        it_note_meta_data: impl IntoIterator<Item = (types::ResourceId, types::FilesystemMetadata)>,
     ) -> DefaultNoteModel {
-        let it_note_meta: Vec<(_, NoteMetaData)> = it_note_meta_data
+        let it_note_meta: Vec<(_, NoteMetadata)> = it_note_meta_data
             .into_iter()
             .map(|f| (f.0, f.1.into()))
             .collect();
         DefaultNoteModel {
             note_index: it_note_meta.iter().map(|f| f.0.clone()).collect(),
 
-            meta_data_map: NoteMetaDataMap::new(it_note_meta),
+            meta_data_map: NoteMetadataMap::new(it_note_meta),
         }
     }
 }
 
-impl NoteMetaDataRetriever for DefaultNoteModel {
-    fn retrieve(&self, md: &types::ResourceId) -> &NoteMetaData {
+impl NoteMetadataRetriever for DefaultNoteModel {
+    fn retrieve(&self, md: &types::ResourceId) -> &NoteMetadata {
         // Option is not returned because meta data should be consistent at this point
         self.meta_data_map.retrieve(md)
     }

@@ -1,4 +1,4 @@
-use crate::resources::FsMetaDataAccessImpl;
+use crate::resources::FsMetadataAccessImpl;
 
 use super::adapters;
 use super::error::Result;
@@ -54,18 +54,18 @@ impl Emerald {
         debug!("Creation of FileContentLoader: {:?}", elapsed);
 
         let start = Instant::now();
-        let fs_meta_data_loader = resources::FilesystemMetaDataLoaderImpl::new(
+        let fs_meta_data_loader = resources::FilesystemMetadataLoaderImpl::new(
             ro_retriever.clone(),
-            FsMetaDataAccessImpl(),
+            FsMetadataAccessImpl(),
         );
         let elapsed = start.elapsed();
-        debug!("Creation of FilesystemMetaDataLoader: {:?}", elapsed);
+        debug!("Creation of FilesystemMetadataLoader: {:?}", elapsed);
 
         let start = Instant::now();
 
         // load all meta data and ensure that there were no errors
         let all_fs_meta_data: Vec<_> =
-            adapters::adapter_to_rid_and_filesystem_meta_data(&all_vec, &fs_meta_data_loader)?
+            adapters::adapter_to_rid_and_filesystem_metadata(&all_vec, &fs_meta_data_loader)?
                 .collect();
 
         let md_fs_meta_data: Vec<_> =

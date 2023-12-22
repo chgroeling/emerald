@@ -1,7 +1,7 @@
 use super::resource_type::ResourceType;
 
 #[derive(Debug, Clone, PartialEq, Hash, Default)]
-pub struct FilesystemMetaData {
+pub struct FilesystemMetadata {
     pub name: String,
     pub location: String,
     pub resource_type: ResourceType,
@@ -10,11 +10,11 @@ pub struct FilesystemMetaData {
     pub created: i64,
 }
 
-pub struct FilesystemMetaDataBuilder {
-    prep: FilesystemMetaData,
+pub struct FilesystemMetadataBuilder {
+    prep: FilesystemMetadata,
 }
 
-impl FilesystemMetaDataBuilder {
+impl FilesystemMetadataBuilder {
     pub fn new() -> Self {
         Self {
             prep: Default::default(),
@@ -22,12 +22,12 @@ impl FilesystemMetaDataBuilder {
     }
 
     pub fn set_name(self, name: String) -> Self {
-        let new_prep = FilesystemMetaData { name, ..self.prep };
+        let new_prep = FilesystemMetadata { name, ..self.prep };
         Self { prep: new_prep }
     }
 
     pub fn set_location(self, location: String) -> Self {
-        let new_prep = FilesystemMetaData {
+        let new_prep = FilesystemMetadata {
             location,
             ..self.prep
         };
@@ -35,7 +35,7 @@ impl FilesystemMetaDataBuilder {
     }
 
     pub fn set_resource_type(self, resource_type: ResourceType) -> Self {
-        let new_prep = FilesystemMetaData {
+        let new_prep = FilesystemMetadata {
             resource_type,
             ..self.prep
         };
@@ -43,12 +43,12 @@ impl FilesystemMetaDataBuilder {
     }
 
     pub fn set_size(self, size: u64) -> Self {
-        let new_prep = FilesystemMetaData { size, ..self.prep };
+        let new_prep = FilesystemMetadata { size, ..self.prep };
         Self { prep: new_prep }
     }
 
     pub fn set_modified(self, modified: i64) -> Self {
-        let new_prep = FilesystemMetaData {
+        let new_prep = FilesystemMetadata {
             modified,
             ..self.prep
         };
@@ -56,14 +56,14 @@ impl FilesystemMetaDataBuilder {
     }
 
     pub fn set_created(self, created: i64) -> Self {
-        let new_prep = FilesystemMetaData {
+        let new_prep = FilesystemMetadata {
             created,
             ..self.prep
         };
         Self { prep: new_prep }
     }
 
-    pub fn build(self) -> FilesystemMetaData {
+    pub fn build(self) -> FilesystemMetadata {
         self.prep
     }
 }

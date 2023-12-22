@@ -1,7 +1,7 @@
 use crate::types;
 
 #[derive(Clone)]
-pub struct NoteMetaData {
+pub struct NoteMetadata {
     pub title: String,
     pub location: String,
     pub size: u64,
@@ -9,8 +9,8 @@ pub struct NoteMetaData {
     pub created: i64,
 }
 
-impl From<types::FilesystemMetaData> for NoteMetaData {
-    fn from(value: types::FilesystemMetaData) -> Self {
+impl From<types::FilesystemMetadata> for NoteMetadata {
+    fn from(value: types::FilesystemMetadata) -> Self {
         Self {
             title: value.name,
             location: value.location,

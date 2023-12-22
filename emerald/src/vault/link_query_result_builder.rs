@@ -1,5 +1,5 @@
 use super::link_query_result::LinkQueryResult;
-use crate::model::resource::ResourceMetaDataRetriever;
+use crate::model::resource::ResourceMetadataRetriever;
 use crate::types;
 
 #[derive(Clone)]
@@ -7,7 +7,7 @@ pub struct LinkQueryResultBuilderImpl;
 
 pub trait LinkQueryResultBuilder {
     fn convert_to_link_query_result(
-        res_meta_data_retriever: &dyn ResourceMetaDataRetriever,
+        res_meta_data_retriever: &dyn ResourceMetadataRetriever,
         rid: types::ResourceId,
     ) -> LinkQueryResult {
         let rmd = res_meta_data_retriever.retrieve(&rid);

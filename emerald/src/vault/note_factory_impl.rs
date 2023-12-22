@@ -8,13 +8,13 @@ use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct NoteFactoryImpl {
-    meta_data_retriever: Rc<dyn note::NoteMetaDataRetriever>,
+    meta_data_retriever: Rc<dyn note::NoteMetadataRetriever>,
     content_retriever: Rc<dyn content::MdContentRetriever>,
 }
 
 impl NoteFactoryImpl {
     pub fn new(
-        meta_data_retriever: Rc<dyn note::NoteMetaDataRetriever>,
+        meta_data_retriever: Rc<dyn note::NoteMetadataRetriever>,
         content_retriever: Rc<dyn content::MdContentRetriever>,
     ) -> Self {
         Self {

@@ -1,25 +1,25 @@
 use super::resource_count::ResourceCount;
 use super::resource_iter_src::ResourceIterSrc;
-use super::resource_meta_data::ResourceMetaData;
-use super::resource_meta_data_map::ResourceMetaDataMap;
-use super::resource_meta_data_retriever::ResourceMetaDataRetriever;
+use super::resource_metadata::ResourceMetadata;
+use super::resource_metadata_map::ResourceMetadataMap;
+use super::resource_metadata_retriever::ResourceMetadataRetriever;
 use crate::types;
 
 pub struct DefaultResourceModel {
     file_index: Vec<types::ResourceId>,
-    meta_data_map: ResourceMetaDataMap,
+    meta_data_map: ResourceMetadataMap,
 }
 
 impl DefaultResourceModel {
     pub fn new(
-        it_files: impl IntoIterator<Item = (types::ResourceId, types::FilesystemMetaData)>,
+        it_files: impl IntoIterator<Item = (types::ResourceId, types::FilesystemMetadata)>,
     ) -> DefaultResourceModel {
-        let files: Vec<(_, ResourceMetaData)> =
+        let files: Vec<(_, ResourceMetadata)> =
             it_files.into_iter().map(|f| (f.0, f.1.into())).collect();
 
         DefaultResourceModel {
             file_index: files.iter().map(|f| f.0.clone()).collect(),
-            meta_data_map: ResourceMetaDataMap::new(files),
+            meta_data_map: ResourceMetadataMap::new(files),
         }
     }
 }
@@ -31,8 +31,8 @@ impl ResourceIterSrc for DefaultResourceModel {
     }
 }
 
-impl ResourceMetaDataRetriever for DefaultResourceModel {
-    fn retrieve(&self, tgt: &types::ResourceId) -> &ResourceMetaData {
+impl ResourceMetadataRetriever for DefaultResourceModel {
+    fn retrieve(&self, tgt: &types::ResourceId) -> &ResourceMetadata {
         // Option is not returned because meta data should be consistent at this point
         self.meta_data_map.retrieve(tgt)
     }

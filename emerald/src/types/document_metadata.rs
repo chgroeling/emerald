@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub struct DocumentMetaData {
+pub struct DocumentMetadata {
     tags: Option<String>,
     aliases: Option<Vec<String>>,
     created: Option<String>,
