@@ -2,7 +2,7 @@ use super::meta_data_loader::MetaDataLoader;
 use super::resource_object::ResourceObject;
 use super::resource_object_retriever::ResourceObjectRetriever;
 use crate::error::{EmeraldError::*, Result};
-use crate::types::MetaDataBuilder;
+use crate::types::FilesystemMetaDataBuilder;
 use crate::{types, utils, EmeraldError};
 use std::fs;
 use std::path::Path;
@@ -98,7 +98,7 @@ where
             types::ResourceType::NoType()
         };
 
-        let builder = MetaDataBuilder::new()
+        let builder = FilesystemMetaDataBuilder::new()
             .set_name(name)
             .set_location(os_location.to_owned())
             .set_size(fs_meta_data.size)
