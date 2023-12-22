@@ -1,3 +1,4 @@
+mod adapters_to_btree;
 mod adapters_to_link_2_tgt;
 mod adapters_to_link_src_2_tgt;
 mod adapters_to_links;
@@ -8,6 +9,7 @@ mod adapters_to_rid_and_content_type;
 mod adapters_to_rid_and_meta_data;
 mod adapters_to_yaml;
 
+pub use adapters_to_btree::adapter_to_btree;
 pub use adapters_to_link_src_2_tgt::adapter_to_link_src_2_tgt;
 pub use adapters_to_name::adapter_to_rid_and_name;
 pub use adapters_to_rid::filter_rid_and_meta_data;
