@@ -4,13 +4,15 @@ use crate::{resources, types};
 pub fn adapter_to_rid_and_meta_data<'a>(
     it_src: impl IntoIterator<Item = &'a types::ResourceId> + 'a,
     meta_data_loader: &'a impl resources::MetaDataLoader,
-) -> Result<impl Iterator<Item = (types::ResourceId, types::MetaData)> + 'a> {
+) -> Result<impl Iterator<Item = (types::ResourceId, types::FilesystemMetaData)> + 'a> {
     let ret: Result<Vec<_>> = it_src
         .into_iter()
-        .map(|f| -> Result<(types::ResourceId, types::MetaData)> {
-            let res_meta_data = meta_data_loader.load(f)?;
-            Ok((f.clone(), res_meta_data))
-        })
+        .map(
+            |f| -> Result<(types::ResourceId, types::FilesystemMetaData)> {
+                let res_meta_data = meta_data_loader.load(f)?;
+                Ok((f.clone(), res_meta_data))
+            },
+        )
         .collect();
 
     match ret {
@@ -24,7 +26,7 @@ mod tests {
     use crate::types;
     use crate::{adapters::adapter_to_rid_and_meta_data, resources::MockMetaDataLoader};
 
-    pub fn create_meta_data(resource_type: types::ResourceType) -> types::MetaData {
+    pub fn create_meta_data(resource_type: types::ResourceType) -> types::FilesystemMetaData {
         types::MetaDataBuilder::new()
             .set_name("".into())
             .set_resource_type(resource_type)
@@ -34,7 +36,7 @@ mod tests {
     fn create_rid_and_meta_data(
         rid: &str,
         resource_type: types::ResourceType,
-    ) -> (types::ResourceId, types::MetaData) {
+    ) -> (types::ResourceId, types::FilesystemMetaData) {
         (rid.into(), create_meta_data(resource_type))
     }
 

@@ -12,7 +12,7 @@ pub struct DefaultResourceModel {
 
 impl DefaultResourceModel {
     pub fn new(
-        it_files: impl IntoIterator<Item = (types::ResourceId, types::MetaData)>,
+        it_files: impl IntoIterator<Item = (types::ResourceId, types::FilesystemMetaData)>,
     ) -> DefaultResourceModel {
         let files: Vec<(_, ResourceMetaData)> =
             it_files.into_iter().map(|f| (f.0, f.1.into())).collect();

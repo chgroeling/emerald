@@ -9,8 +9,8 @@ pub struct NoteMetaData {
     pub created: i64,
 }
 
-impl From<types::MetaData> for NoteMetaData {
-    fn from(value: types::MetaData) -> Self {
+impl From<types::FilesystemMetaData> for NoteMetaData {
+    fn from(value: types::FilesystemMetaData) -> Self {
         Self {
             title: value.name,
             location: value.location,
