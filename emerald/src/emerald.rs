@@ -66,13 +66,14 @@ impl Emerald {
             adapters::adapter_to_rid_and_meta_data(&all_vec, &meta_data_loader)?.collect();
 
         let md_meta_data: Vec<_> = adapters::filter_rid_and_meta_data(&all_meta_data).collect();
-        let md_it = md_meta_data.iter().map(|f| &f.0);
+        let md_notes: Vec<_> = md_meta_data.iter().map(|f| f.0.clone()).collect();
 
         let elapsed = start.elapsed();
         debug!("Creation of ResourceId md vec: {:?}", elapsed);
 
         let start = Instant::now();
-        let md_content_vec = resources::adapter_to_rid_and_content(md_it.clone(), &content_loader)?;
+        let md_content_vec =
+            resources::adapter_to_rid_and_content(md_notes.iter(), &content_loader)?;
         let cmod = Rc::new(content::DefaultContentModel::new(md_content_vec));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultContentModel: {:?}", elapsed);
@@ -92,15 +93,21 @@ impl Emerald {
 
         let start = Instant::now();
         let md_analyzer = markdown::MarkdownAnalyzerImpl::new();
-        let c_it = adapters::adapter_to_rids_and_content(md_it.clone(), cmod.as_ref());
+        let c_it = adapters::adapter_to_rids_and_content(md_notes.iter(), cmod.as_ref());
         let ct_it = adapters::adapter_to_rid_and_content_type(c_it, md_analyzer);
         let s2t_idx: Vec<_> = adapters::adapter_to_link_src_2_tgt(ct_it, lrmod.as_ref()).collect();
         let elapsed = start.elapsed();
         debug!("Link and Backlink extraction: {:?}", elapsed);
 
         let start = Instant::now();
-        //let c_it = adapters::adapter_to_rids_and_content(md_it, cmod.as_ref());
-        //let ct_it = adapters::adapter_to_rid_and_content_type(c_it, md_analyzer);
+        let md_analyzer = markdown::MarkdownAnalyzerImpl::new();
+        let c_it = adapters::adapter_to_rids_and_content(md_notes.iter(), cmod.as_ref());
+        let ct_it = adapters::adapter_to_btree(c_it, md_analyzer);
+        /*for i in ct_it {
+            let yaml = i.1;
+            println!("{yaml}");
+        }*/
+
         //let yaml: Vec<_> = adapters::adapter_to_btree(ct_it, lrmod.as_ref()).collect();
         let elapsed = start.elapsed();
         debug!("YAML extraction: {:?}", elapsed);
