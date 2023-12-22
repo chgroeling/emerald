@@ -1,11 +1,11 @@
 mod adapters_to_link_2_tgt;
 mod adapters_to_link_src_2_tgt;
-mod adapters_to_links;
 mod adapters_to_rid;
 mod adapters_to_rid_and_content;
 mod adapters_to_rid_and_content_type;
 mod adapters_to_rid_and_document_metadata;
 mod adapters_to_rid_and_filesystem_metadata;
+mod adapters_to_rid_and_links;
 mod adapters_to_rid_and_name;
 mod adapters_to_yaml;
 

@@ -1,5 +1,5 @@
 use super::adapters_to_link_2_tgt::adapter_to_link_2_tgt;
-use super::adapters_to_links::adapter_to_rid_and_links;
+use super::adapters_to_rid_and_links::adapter_to_rid_and_links;
 use crate::{model::resource_id_resolver, types};
 
 pub fn adapter_to_link_src_2_tgt<'a>(
