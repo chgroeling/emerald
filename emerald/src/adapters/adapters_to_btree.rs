@@ -6,11 +6,11 @@ use std::collections::BTreeMap;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct Frontmatter {
-    tags: String,
-    aliases: Vec<String>,
-    created: String,
-    modified: String,
-    keywords: Option<String>,
+    tags: Option<String>,
+    aliases: Option<Vec<String>>,
+    created: Option<String>,
+    modified: Option<String>,
+    keywords: Option<Vec<String>>,
 }
 
 pub fn adapter_to_btree<'a>(
