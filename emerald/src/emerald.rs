@@ -55,7 +55,7 @@ impl Emerald {
 
         let start = Instant::now();
         let meta_data_loader =
-            resources::FileMetaDataLoader::new(ro_retriever.clone(), FsMetaDataAccessImpl());
+            resources::FilesystemMetaDataLoader::new(ro_retriever.clone(), FsMetaDataAccessImpl());
         let elapsed = start.elapsed();
         debug!("Creation of FileMetaDataLoader: {:?}", elapsed);
 
