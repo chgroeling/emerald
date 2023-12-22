@@ -70,7 +70,7 @@ where
         }
     }
 
-    fn get_file_meta_data(&self, path: &Path) -> Result<types::MetaData> {
+    fn get_file_meta_data(&self, path: &Path) -> Result<types::FilesystemMetaData> {
         // get meta data from filesystem
         let fs_meta_data = self.fs_meta_data_access.get_meta_data_from_fs(path)?;
 
@@ -114,7 +114,7 @@ where
     I: ResourceObjectRetriever,
     U: FsMetaDataAccess,
 {
-    fn load(&self, rid: &types::ResourceId) -> Result<types::MetaData> {
+    fn load(&self, rid: &types::ResourceId) -> Result<types::FilesystemMetaData> {
         let ro = self.ro_retriever.retrieve(rid)?;
         #[allow(irrefutable_let_patterns)]
         if let ResourceObject::File(path) = ro {

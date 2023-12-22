@@ -1,7 +1,7 @@
 use super::resource_type::ResourceType;
 
 #[derive(Debug, Clone, PartialEq, Hash, Default)]
-pub struct MetaData {
+pub struct FilesystemMetaData {
     pub name: String,
     pub location: String,
     pub resource_type: ResourceType,
@@ -11,7 +11,7 @@ pub struct MetaData {
 }
 
 pub struct MetaDataBuilder {
-    prep: MetaData,
+    prep: FilesystemMetaData,
 }
 
 impl MetaDataBuilder {
@@ -22,12 +22,12 @@ impl MetaDataBuilder {
     }
 
     pub fn set_name(self, name: String) -> Self {
-        let new_prep = MetaData { name, ..self.prep };
+        let new_prep = FilesystemMetaData { name, ..self.prep };
         Self { prep: new_prep }
     }
 
     pub fn set_location(self, location: String) -> Self {
-        let new_prep = MetaData {
+        let new_prep = FilesystemMetaData {
             location,
             ..self.prep
         };
@@ -35,7 +35,7 @@ impl MetaDataBuilder {
     }
 
     pub fn set_resource_type(self, resource_type: ResourceType) -> Self {
-        let new_prep = MetaData {
+        let new_prep = FilesystemMetaData {
             resource_type,
             ..self.prep
         };
@@ -43,12 +43,12 @@ impl MetaDataBuilder {
     }
 
     pub fn set_size(self, size: u64) -> Self {
-        let new_prep = MetaData { size, ..self.prep };
+        let new_prep = FilesystemMetaData { size, ..self.prep };
         Self { prep: new_prep }
     }
 
     pub fn set_modified(self, modified: i64) -> Self {
-        let new_prep = MetaData {
+        let new_prep = FilesystemMetaData {
             modified,
             ..self.prep
         };
@@ -56,14 +56,14 @@ impl MetaDataBuilder {
     }
 
     pub fn set_created(self, created: i64) -> Self {
-        let new_prep = MetaData {
+        let new_prep = FilesystemMetaData {
             created,
             ..self.prep
         };
         Self { prep: new_prep }
     }
 
-    pub fn build(self) -> MetaData {
+    pub fn build(self) -> FilesystemMetaData {
         self.prep
     }
 }

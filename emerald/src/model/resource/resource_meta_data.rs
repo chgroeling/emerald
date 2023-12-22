@@ -9,8 +9,8 @@ pub struct ResourceMetaData {
     pub created: i64,
 }
 
-impl From<types::MetaData> for ResourceMetaData {
-    fn from(value: types::MetaData) -> Self {
+impl From<types::FilesystemMetaData> for ResourceMetaData {
+    fn from(value: types::FilesystemMetaData) -> Self {
         Self {
             name: value.name,
             resource_type: value.resource_type,

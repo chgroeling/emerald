@@ -13,7 +13,7 @@ pub struct DefaultNoteModel {
 
 impl DefaultNoteModel {
     pub fn new(
-        it_note_meta_data: impl IntoIterator<Item = (types::ResourceId, types::MetaData)>,
+        it_note_meta_data: impl IntoIterator<Item = (types::ResourceId, types::FilesystemMetaData)>,
     ) -> DefaultNoteModel {
         let it_note_meta: Vec<(_, NoteMetaData)> = it_note_meta_data
             .into_iter()
