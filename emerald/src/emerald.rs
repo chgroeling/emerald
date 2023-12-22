@@ -103,9 +103,9 @@ impl Emerald {
         let md_analyzer = markdown::MarkdownAnalyzerImpl::new();
         let c_it = adapters::adapter_to_rids_and_content(md_notes.iter(), cmod.as_ref());
         let ct_it = adapters::adapter_to_yaml(c_it, md_analyzer);
-        let yaml_meta_data: Vec<_> = adapters::adapter_to_btree(ct_it).collect();
+        let document_meta_data: Vec<_> = adapters::adapter_to_btree(ct_it).collect();
         /*
-                for i in yaml_meta_data {
+                for i in document_meta_data {
                     let yaml = i.1;
                     println!("{:?}", yaml);
                 }
