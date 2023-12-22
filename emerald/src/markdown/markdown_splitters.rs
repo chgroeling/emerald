@@ -29,18 +29,18 @@ impl MarkdownFrontMatterSplitter {
     /// # Returns
     ///
     /// A tuple containing the YAML frontmatter and the remaining markdown content.
-    pub fn split(&self, content: &types::Content) -> (String, String) {
+    pub fn split<'a>(&self, content: &'a types::Content) -> (&'a str, &'a str) {
         let md_analyzer = MarkdownAnalyzerImpl::new();
         let mut md_iter = md_analyzer.analyze(&content.0);
-        let mut yaml_str = "".to_string();
+        let mut yaml_str = "";
         let first_element = md_iter.next();
         let mut start_of_markdown = 0;
         if let Some(types::MdBlock::YamlFrontmatter(yaml)) = first_element {
             // markdown starts when yaml ends
             start_of_markdown = yaml.len();
-            yaml_str = yaml.to_string();
+            yaml_str = yaml;
         }
 
-        (yaml_str, content.0[start_of_markdown..].to_string())
+        (yaml_str, &content.0[start_of_markdown..])
     }
 }
