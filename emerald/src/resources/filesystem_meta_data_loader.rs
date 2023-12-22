@@ -5,6 +5,6 @@ use crate::types;
 use mockall::{automock, predicate::*};
 
 #[cfg_attr(test, automock)]
-pub trait MetaDataLoader {
+pub trait FilesystemMetaDataLoader {
     fn load(&self, rid: &types::ResourceId) -> Result<types::FilesystemMetaData>;
 }

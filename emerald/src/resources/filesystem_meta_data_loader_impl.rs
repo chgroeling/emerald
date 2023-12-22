@@ -1,4 +1,4 @@
-use super::meta_data_loader::MetaDataLoader;
+use super::filesystem_meta_data_loader::FilesystemMetaDataLoader;
 use super::resource_object::ResourceObject;
 use super::resource_object_retriever::ResourceObjectRetriever;
 use crate::error::{EmeraldError::*, Result};
@@ -109,7 +109,7 @@ where
     }
 }
 
-impl<I, U> MetaDataLoader for FilesystemMetaDataLoaderImpl<I, U>
+impl<I, U> FilesystemMetaDataLoader for FilesystemMetaDataLoaderImpl<I, U>
 where
     I: ResourceObjectRetriever,
     U: FsMetaDataAccess,
@@ -131,7 +131,7 @@ mod tests {
     use super::MockFsMetaDataAccess;
     use crate::resources::filesystem_meta_data_loader_impl::FsMetaData;
     use crate::resources::resource_object::ResourceObject;
-    use crate::resources::{MetaDataLoader, MockResourceObjectRetriever};
+    use crate::resources::{FilesystemMetaDataLoader, MockResourceObjectRetriever};
     use crate::types;
     use std::path::PathBuf;
 

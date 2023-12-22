@@ -3,7 +3,7 @@ use crate::{resources, types};
 
 pub fn adapter_to_rid_and_meta_data<'a>(
     it_src: impl IntoIterator<Item = &'a types::ResourceId> + 'a,
-    meta_data_loader: &'a impl resources::MetaDataLoader,
+    meta_data_loader: &'a impl resources::FilesystemMetaDataLoader,
 ) -> Result<impl Iterator<Item = (types::ResourceId, types::FilesystemMetaData)> + 'a> {
     let ret: Result<Vec<_>> = it_src
         .into_iter()
@@ -24,7 +24,7 @@ pub fn adapter_to_rid_and_meta_data<'a>(
 #[cfg(test)]
 mod tests {
     use crate::types;
-    use crate::{adapters::adapter_to_rid_and_meta_data, resources::MockMetaDataLoader};
+    use crate::{adapters::adapter_to_rid_and_meta_data, resources::MockFilesystemMetaDataLoader};
 
     pub fn create_meta_data(resource_type: types::ResourceType) -> types::FilesystemMetaData {
         types::FilesystemMetaDataBuilder::new()
@@ -47,7 +47,7 @@ mod tests {
             types::ResourceId("[[rid2]]".into()),
         ];
         let mut count = 0;
-        let mut mock_md_loader = MockMetaDataLoader::new();
+        let mut mock_md_loader = MockFilesystemMetaDataLoader::new();
         mock_md_loader.expect_load().returning(move |_| {
             use types::ResourceType;
             count += 1;
