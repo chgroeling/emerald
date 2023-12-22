@@ -17,7 +17,7 @@ mod tests {
     use crate::adapters::filter_rid_and_meta_data;
 
     pub fn create_meta_data(resource_type: types::ResourceType) -> types::FilesystemMetaData {
-        types::MetaDataBuilder::new()
+        types::FilesystemMetaDataBuilder::new()
             .set_name("".into())
             .set_resource_type(resource_type)
             .build()

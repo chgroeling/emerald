@@ -10,11 +10,11 @@ pub struct FilesystemMetaData {
     pub created: i64,
 }
 
-pub struct MetaDataBuilder {
+pub struct FilesystemMetaDataBuilder {
     prep: FilesystemMetaData,
 }
 
-impl MetaDataBuilder {
+impl FilesystemMetaDataBuilder {
     pub fn new() -> Self {
         Self {
             prep: Default::default(),
