@@ -1,7 +1,7 @@
 use crate::markdown;
 use crate::types;
 
-pub fn adapter_to_yaml<'a, I: markdown::MarkdownAnalyzer<'a> + 'a + Copy>(
+pub fn adapter_to_rid_and_yaml<'a, I: markdown::MarkdownAnalyzer<'a> + 'a + Copy>(
     it_src: impl IntoIterator<Item = (&'a types::ResourceId, &'a types::Content)> + 'a,
     md_analyzer: I,
 ) -> impl Iterator<Item = (&'a types::ResourceId, &'a str)> + 'a {

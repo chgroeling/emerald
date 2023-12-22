@@ -107,7 +107,7 @@ impl Emerald {
         let start = Instant::now();
         let md_analyzer = markdown::MarkdownAnalyzerImpl::new();
         let c_it = adapters::adapter_to_rids_and_content(md_rids.iter(), cmod.as_ref());
-        let ct_it = adapters::adapter_to_yaml(c_it, md_analyzer);
+        let ct_it = adapters::adapter_to_rid_and_yaml(c_it, md_analyzer);
         let md_doc_meta_data: Vec<_> =
             adapters::adapter_to_rid_and_document_metadata(ct_it).collect();
         /*
