@@ -2,6 +2,7 @@
 /// It demonstrates the conversion of various Rust data structures to and from YAML format.
 #[cfg(test)]
 mod tests {
+    use serde::{Deserialize, Serialize};
     use serde_yaml;
     use std::collections::{BTreeMap, HashMap}; // 0.8.7
 
@@ -54,9 +55,64 @@ mod tests {
         assert_eq!(map, deserialized_map);
     }
 
-    /// Tests error handling for YAML frontmatter with document separators.
-    /// Verifies that deserializing YAML containing dcoument separators results in an error,
-    /// ensuring correct parser behavior for such cases.
+    /// Tests deserialization of a YAML string into a custom struct `Frontmatter`.
+    /// This test checks if a YAML string can be correctly deserialized into a struct,
+    /// handling fields such as tags, aliases, creation and modification dates, and keywords.
+    #[test]
+    fn deserialize_yaml_frontmatter_to_dedicated_struct() {
+        #[derive(Debug, PartialEq, Serialize, Deserialize)]
+        struct Frontmatter {
+            tags: String,
+            aliases: Vec<String>,
+            created: String,
+            modified: String,
+            keywords: String,
+        }
+
+        // You have some type.
+        let yaml =
+            "tags: \"#Typ/Notiz\"\naliases:\n- \"embedded\"\ncreated: \nmodified:\nkeywords:\n";
+
+        // Deserialize it back to a Rust type.
+        let frontmatter: Frontmatter = serde_yaml::from_str(&yaml).unwrap();
+        assert_eq!(frontmatter.tags, "#Typ/Notiz");
+        assert_eq!(frontmatter.aliases, ["embedded"]);
+        assert_eq!(frontmatter.created, "");
+        assert_eq!(frontmatter.modified, "");
+        assert_eq!(frontmatter.keywords, "");
+    }
+
+    /// Tests deserialization of a YAML string with superfluous fields into a custom struct `Frontmatter`.
+    /// This test ensures that extra fields in the YAML string that are not defined in the `Frontmatter` struct
+    /// do not affect the deserialization process.
+    #[test]
+    fn deserialize_yaml_frontmatter_to_dedicated_struct_superflous_field_in_input() {
+        #[derive(Debug, PartialEq, Serialize, Deserialize)]
+        struct Frontmatter {
+            tags: String,
+            aliases: Vec<String>,
+            created: String,
+            modified: String,
+            keywords: String,
+        }
+
+        // You have some type.
+        let yaml =
+            "not_included1: blabla\ntags: \"#Typ/Notiz\"\naliases:\n- \"embedded\"\nnot_included2: blabla\ncreated: \nmodified:\nkeywords:\nnot_included3: blabla\n";
+
+        // Deserialize it back to a Rust type.
+        let frontmatter: Frontmatter = serde_yaml::from_str(&yaml).unwrap();
+
+        assert_eq!(frontmatter.tags, "#Typ/Notiz");
+        assert_eq!(frontmatter.aliases, ["embedded"]);
+        assert_eq!(frontmatter.created, "");
+        assert_eq!(frontmatter.modified, "");
+        assert_eq!(frontmatter.keywords, "");
+    }
+
+    /// Tests error handling during deserialization of YAML frontmatter containing document separators.
+    /// This test checks if the YAML deserializer correctly returns an error when trying to deserialize
+    /// YAML frontmatter with document separators, which is not supported.
     #[test]
     fn deserialize_yaml_frontmatter_with_dashes_returns_error() {
         // You have some type.
