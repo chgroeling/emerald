@@ -91,12 +91,19 @@ impl Emerald {
         debug!("Creation of DefaultResourceModel: {:?}", elapsed);
 
         let start = Instant::now();
-        let c_it = adapters::adapter_to_rids_and_content(md_it, cmod.as_ref());
         let md_analyzer = markdown::MarkdownAnalyzerImpl::new();
+        let c_it = adapters::adapter_to_rids_and_content(md_it.clone(), cmod.as_ref());
         let ct_it = adapters::adapter_to_rid_and_content_type(c_it, md_analyzer);
         let s2t_idx: Vec<_> = adapters::adapter_to_link_src_2_tgt(ct_it, lrmod.as_ref()).collect();
         let elapsed = start.elapsed();
         debug!("Link and Backlink extraction: {:?}", elapsed);
+
+        let start = Instant::now();
+        //let c_it = adapters::adapter_to_rids_and_content(md_it, cmod.as_ref());
+        //let ct_it = adapters::adapter_to_rid_and_content_type(c_it, md_analyzer);
+        //let yaml: Vec<_> = adapters::adapter_to_btree(ct_it, lrmod.as_ref()).collect();
+        let elapsed = start.elapsed();
+        debug!("YAML extraction: {:?}", elapsed);
 
         let start = Instant::now();
         let lmod = Rc::new(link::DefaultLinkModel::new(s2t_idx));
