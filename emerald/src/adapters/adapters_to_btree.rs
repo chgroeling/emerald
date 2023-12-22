@@ -15,5 +15,14 @@ pub fn adapter_to_btree<'a, I: markdown::MarkdownAnalyzer<'a> + 'a + Copy>(
         }
     });
 
-    it1
+    it1.map(|f| {
+        (
+            f.0,
+            f.1.trim_start_matches("---")
+                .trim_start_matches('\n')
+                .trim_end_matches('\n')
+                .trim_end_matches("---")
+                .trim_end_matches('\n'),
+        )
+    })
 }
