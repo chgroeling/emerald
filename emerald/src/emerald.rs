@@ -65,7 +65,8 @@ impl Emerald {
 
         // load all meta data and ensure that there were no errors
         let all_fs_meta_data: Vec<_> =
-            adapters::adapter_to_rid_and_meta_data(&all_vec, &fs_meta_data_loader)?.collect();
+            adapters::adapter_to_rid_and_filesystem_meta_data(&all_vec, &fs_meta_data_loader)?
+                .collect();
 
         let md_fs_meta_data: Vec<_> =
             adapters::filter_rid_and_meta_data(&all_fs_meta_data).collect();

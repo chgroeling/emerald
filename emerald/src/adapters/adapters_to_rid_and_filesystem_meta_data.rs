@@ -1,7 +1,7 @@
 use crate::error::Result;
 use crate::{resources, types};
 
-pub fn adapter_to_rid_and_meta_data<'a>(
+pub fn adapter_to_rid_and_filesystem_meta_data<'a>(
     it_src: impl IntoIterator<Item = &'a types::ResourceId> + 'a,
     meta_data_loader: &'a impl resources::FilesystemMetaDataLoader,
 ) -> Result<impl Iterator<Item = (types::ResourceId, types::FilesystemMetaData)> + 'a> {
@@ -24,7 +24,9 @@ pub fn adapter_to_rid_and_meta_data<'a>(
 #[cfg(test)]
 mod tests {
     use crate::types;
-    use crate::{adapters::adapter_to_rid_and_meta_data, resources::MockFilesystemMetaDataLoader};
+    use crate::{
+        adapters::adapter_to_rid_and_filesystem_meta_data, resources::MockFilesystemMetaDataLoader,
+    };
 
     pub fn create_meta_data(resource_type: types::ResourceType) -> types::FilesystemMetaData {
         types::FilesystemMetaDataBuilder::new()
@@ -59,7 +61,7 @@ mod tests {
         });
 
         // Act
-        let result = adapter_to_rid_and_meta_data(&all_res_ids, &mock_md_loader);
+        let result = adapter_to_rid_and_filesystem_meta_data(&all_res_ids, &mock_md_loader);
         let result: Vec<_> = result.unwrap().collect();
 
         // Assert
