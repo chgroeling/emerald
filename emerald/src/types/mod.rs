@@ -1,6 +1,6 @@
 mod content;
-mod document_meta_data;
-mod filesystem_meta_data;
+mod document_metadata;
+mod filesystem_metadata;
 mod link;
 mod link_2_tgt;
 mod link_comps;
@@ -12,9 +12,9 @@ mod resource_id_comps;
 mod resource_type;
 
 pub use self::content::Content;
-pub use self::document_meta_data::DocumentMetaData;
-pub use self::filesystem_meta_data::FilesystemMetaData;
-pub use self::filesystem_meta_data::FilesystemMetaDataBuilder;
+pub use self::document_metadata::DocumentMetadata;
+pub use self::filesystem_metadata::FilesystemMetadata;
+pub use self::filesystem_metadata::FilesystemMetadataBuilder;
 pub use self::link::Link;
 pub use self::link_2_tgt::Link2Tgt;
 pub use self::link_frm_src::LinkFrmSrc;

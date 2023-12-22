@@ -32,7 +32,7 @@ where
         notes_iter_src: Rc<dyn note::NotesIterSrc<Iter = I>>,
         tgt_link_retriever: Rc<dyn link::TgtIterRetriever>,
         src_link_retriever: Rc<dyn link::SrcIterRetriever>,
-        res_meta_data_ret: Rc<dyn resource::ResourceMetaDataRetriever>,
+        res_meta_data_ret: Rc<dyn resource::ResourceMetadataRetriever>,
     ) -> Self
     where
         I: Iterator<Item = types::ResourceId>,

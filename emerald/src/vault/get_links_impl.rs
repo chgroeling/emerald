@@ -8,14 +8,14 @@ use std::rc::Rc;
 #[derive(Clone)]
 pub struct GetLinksImpl<I = LinkQueryResultBuilderImpl> {
     tgt_link_retriever: Rc<dyn link::TgtIterRetriever>,
-    res_meta_data_ret: Rc<dyn resource::ResourceMetaDataRetriever>,
+    res_meta_data_ret: Rc<dyn resource::ResourceMetadataRetriever>,
     pd: PhantomData<I>,
 }
 
 impl<I> GetLinksImpl<I> {
     pub fn new(
         tgt_link_retriever: Rc<dyn link::TgtIterRetriever>,
-        res_meta_data_ret: Rc<dyn resource::ResourceMetaDataRetriever>,
+        res_meta_data_ret: Rc<dyn resource::ResourceMetadataRetriever>,
     ) -> Self {
         Self {
             tgt_link_retriever,

@@ -14,7 +14,7 @@ pub enum EmeraldError {
     ResourceObjectNotFound,
 
     #[error("No meta data is available.")]
-    NoMetaData,
+    NoMetadata,
 
     #[error("The link {0} was not found.")]
     LinkNotFound(String),

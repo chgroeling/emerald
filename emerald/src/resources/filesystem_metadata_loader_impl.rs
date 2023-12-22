@@ -1,8 +1,8 @@
-use super::filesystem_meta_data_loader::FilesystemMetaDataLoader;
+use super::filesystem_metadata_loader::FilesystemMetadataLoader;
 use super::resource_object::ResourceObject;
 use super::resource_object_retriever::ResourceObjectRetriever;
 use crate::error::{EmeraldError::*, Result};
-use crate::types::FilesystemMetaDataBuilder;
+use crate::types::FilesystemMetadataBuilder;
 use crate::{types, utils, EmeraldError};
 use std::fs;
 use std::path::Path;
@@ -14,18 +14,18 @@ use mockall::{predicate::*, *};
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-pub struct FsMetaData {
+pub struct FsMetadata {
     size: u64,
     modified: u64,
     created: u64,
 }
 #[cfg_attr(test, automock)]
-pub trait FsMetaDataAccess {
-    fn get_meta_data_from_fs(&self, path: &Path) -> Result<FsMetaData>;
+pub trait FsMetadataAccess {
+    fn get_meta_data_from_fs(&self, path: &Path) -> Result<FsMetadata>;
 }
-pub struct FsMetaDataAccessImpl();
-impl FsMetaDataAccess for FsMetaDataAccessImpl {
-    fn get_meta_data_from_fs(&self, path: &Path) -> Result<FsMetaData> {
+pub struct FsMetadataAccessImpl();
+impl FsMetadataAccess for FsMetadataAccessImpl {
+    fn get_meta_data_from_fs(&self, path: &Path) -> Result<FsMetadata> {
         if let Ok(meta_data) = fs::metadata(path) {
             if !meta_data.is_file() {
                 return Err(EmeraldError::NotAFile(path.to_owned()));
@@ -38,30 +38,30 @@ impl FsMetaDataAccess for FsMetaDataAccessImpl {
             let created_dur = created.duration_since(UNIX_EPOCH).unwrap();
             let created_u64 = created_dur.as_secs();
 
-            Ok(FsMetaData {
+            Ok(FsMetadata {
                 size: meta_data.len(),
                 modified: modified_u64,
                 created: created_u64,
             })
         } else {
-            Err(EmeraldError::NoMetaData)
+            Err(EmeraldError::NoMetadata)
         }
     }
 }
 #[derive(Clone)]
-pub struct FilesystemMetaDataLoaderImpl<I, U = FsMetaDataAccessImpl>
+pub struct FilesystemMetadataLoaderImpl<I, U = FsMetadataAccessImpl>
 where
     I: ResourceObjectRetriever,
-    U: FsMetaDataAccess,
+    U: FsMetadataAccess,
 {
     ro_retriever: I,
     fs_meta_data_access: U,
 }
 
-impl<I, U> FilesystemMetaDataLoaderImpl<I, U>
+impl<I, U> FilesystemMetadataLoaderImpl<I, U>
 where
     I: ResourceObjectRetriever,
-    U: FsMetaDataAccess,
+    U: FsMetadataAccess,
 {
     pub fn new(ro_retriever: I, fs_meta_data_access: U) -> Self {
         Self {
@@ -70,7 +70,7 @@ where
         }
     }
 
-    fn get_file_meta_data(&self, path: &Path) -> Result<types::FilesystemMetaData> {
+    fn get_file_meta_data(&self, path: &Path) -> Result<types::FilesystemMetadata> {
         // get meta data from filesystem
         let fs_meta_data = self.fs_meta_data_access.get_meta_data_from_fs(path)?;
 
@@ -98,7 +98,7 @@ where
             types::ResourceType::NoType()
         };
 
-        let builder = FilesystemMetaDataBuilder::new()
+        let builder = FilesystemMetadataBuilder::new()
             .set_name(name)
             .set_location(os_location.to_owned())
             .set_size(fs_meta_data.size)
@@ -109,50 +109,50 @@ where
     }
 }
 
-impl<I, U> FilesystemMetaDataLoader for FilesystemMetaDataLoaderImpl<I, U>
+impl<I, U> FilesystemMetadataLoader for FilesystemMetadataLoaderImpl<I, U>
 where
     I: ResourceObjectRetriever,
-    U: FsMetaDataAccess,
+    U: FsMetadataAccess,
 {
-    fn load(&self, rid: &types::ResourceId) -> Result<types::FilesystemMetaData> {
+    fn load(&self, rid: &types::ResourceId) -> Result<types::FilesystemMetadata> {
         let ro = self.ro_retriever.retrieve(rid)?;
         #[allow(irrefutable_let_patterns)]
         if let ResourceObject::File(path) = ro {
             self.get_file_meta_data(&path)
         } else {
-            Err(EmeraldError::NoMetaData)
+            Err(EmeraldError::NoMetadata)
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::FilesystemMetaDataLoaderImpl;
-    use super::MockFsMetaDataAccess;
-    use crate::resources::filesystem_meta_data_loader_impl::FsMetaData;
+    use super::FilesystemMetadataLoaderImpl;
+    use super::MockFsMetadataAccess;
+    use crate::resources::filesystem_metadata_loader_impl::FsMetadata;
     use crate::resources::resource_object::ResourceObject;
-    use crate::resources::{FilesystemMetaDataLoader, MockResourceObjectRetriever};
+    use crate::resources::{FilesystemMetadataLoader, MockResourceObjectRetriever};
     use crate::types;
     use std::path::PathBuf;
 
     fn create_test_case(
         path: PathBuf,
-    ) -> FilesystemMetaDataLoaderImpl<MockResourceObjectRetriever, MockFsMetaDataAccess> {
+    ) -> FilesystemMetadataLoaderImpl<MockResourceObjectRetriever, MockFsMetadataAccess> {
         let mut mock = MockResourceObjectRetriever::new();
         mock.expect_retrieve()
             .returning(move |_f| Ok(ResourceObject::File(path.clone())));
 
-        let mut mock_fs_access = MockFsMetaDataAccess::new();
+        let mut mock_fs_access = MockFsMetadataAccess::new();
         mock_fs_access
             .expect_get_meta_data_from_fs()
             .returning(|_| {
-                Ok(FsMetaData {
+                Ok(FsMetadata {
                     size: 0,
                     modified: 0,
                     created: 0,
                 })
             });
-        FilesystemMetaDataLoaderImpl::new(mock, mock_fs_access)
+        FilesystemMetadataLoaderImpl::new(mock, mock_fs_access)
     }
 
     #[test]

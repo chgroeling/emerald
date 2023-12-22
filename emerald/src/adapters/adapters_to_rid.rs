@@ -3,8 +3,8 @@ use crate::types;
 use log::{debug, error, info, trace, warn};
 
 pub fn filter_rid_and_meta_data<'a>(
-    it_src: impl IntoIterator<Item = &'a (types::ResourceId, types::FilesystemMetaData)> + 'a,
-) -> impl Iterator<Item = (types::ResourceId, types::FilesystemMetaData)> + 'a {
+    it_src: impl IntoIterator<Item = &'a (types::ResourceId, types::FilesystemMetadata)> + 'a,
+) -> impl Iterator<Item = (types::ResourceId, types::FilesystemMetadata)> + 'a {
     it_src
         .into_iter()
         .filter(|pred| matches!(pred.1.resource_type, types::ResourceType::Markdown()))
@@ -16,8 +16,8 @@ mod tests {
     use super::types;
     use crate::adapters::filter_rid_and_meta_data;
 
-    pub fn create_meta_data(resource_type: types::ResourceType) -> types::FilesystemMetaData {
-        types::FilesystemMetaDataBuilder::new()
+    pub fn create_meta_data(resource_type: types::ResourceType) -> types::FilesystemMetadata {
+        types::FilesystemMetadataBuilder::new()
             .set_name("".into())
             .set_resource_type(resource_type)
             .build()
@@ -26,7 +26,7 @@ mod tests {
     fn create_rid_meta_data(
         rid: &str,
         ft: types::ResourceType,
-    ) -> (types::ResourceId, types::FilesystemMetaData) {
+    ) -> (types::ResourceId, types::FilesystemMetadata) {
         (rid.into(), create_meta_data(ft))
     }
 
