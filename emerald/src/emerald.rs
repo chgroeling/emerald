@@ -109,8 +109,7 @@ impl Emerald {
             println!("{yaml}");
         }
         */
-
-        //let yaml: Vec<_> = adapters::adapter_to_btree(ct_it, lrmod.as_ref()).collect();
+        let yaml_meta_data: Vec<_> = adapters::adapter_to_btree(ct_it).collect();
         let elapsed = start.elapsed();
         debug!("YAML extraction: {:?}", elapsed);
 
