@@ -3,7 +3,7 @@
 #[cfg(test)]
 mod tests {
     use serde::{Deserialize, Serialize};
-    use serde_yaml;
+    use serde_yaml::{self, Value};
     use std::collections::{BTreeMap, HashMap}; // 0.8.7
 
     /// Tests the serialization of a `BTreeMap` to a YAML string.
@@ -80,6 +80,33 @@ mod tests {
         assert_eq!(frontmatter.created, "");
         assert_eq!(frontmatter.modified, "");
         assert_eq!(frontmatter.keywords, "");
+    }
+
+    /// Tests the deserialization of a YAML string into a `serde_yaml::Value`.
+    /// This test demonstrates how a YAML string is deserialized into a more generic `Value` type,
+    /// allowing for dynamic access to the data, which is useful in cases where the structure of
+    /// the YAML data is not known ahead of time or is highly variable.
+    #[test]
+    fn deserialize_yaml_frontmatter_to_value() {
+        // You have some type.
+        let yaml =
+            "tags: \"#Typ/Notiz\"\naliases:\n- \"embedded\"\ncreated: \nmodified:\nkeywords:\n";
+
+        // Deserialize it back to a Rust type.
+        let mut val: Value = serde_yaml::from_str(&yaml).unwrap();
+        assert_eq!(val.get_mut("tags").unwrap(), "#Typ/Notiz");
+        let aliases = val.get_mut("aliases").unwrap();
+
+        if let Value::Sequence(aliases) = aliases {
+            assert_eq!(aliases.len(), 1);
+            assert_eq!(aliases[0], "embedded");
+        } else {
+            panic!("Not a sequence")
+        }
+
+        assert!(matches!(val.get_mut("created").unwrap(), Value::Null));
+        assert!(matches!(val.get_mut("modified").unwrap(), Value::Null));
+        assert!(matches!(val.get_mut("keywords").unwrap(), Value::Null));
     }
 
     /// Tests deserialization of a YAML string with superfluous fields into a custom struct `Frontmatter`.
