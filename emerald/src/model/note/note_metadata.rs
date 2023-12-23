@@ -9,14 +9,14 @@ pub struct NoteMetadata {
     pub created: i64,
 }
 
-impl From<types::FilesystemMetadata> for NoteMetadata {
-    fn from(value: types::FilesystemMetadata) -> Self {
+impl From<(types::FilesystemMetadata, types::DocumentMetadata)> for NoteMetadata {
+    fn from(value: (types::FilesystemMetadata, types::DocumentMetadata)) -> Self {
         Self {
-            title: value.name,
-            location: value.location,
-            size: value.size,
-            modified: value.modified,
-            created: value.created,
+            title: value.0.name,
+            location: value.0.location,
+            size: value.0.size,
+            modified: value.0.modified,
+            created: value.0.created,
         }
     }
 }
