@@ -65,9 +65,11 @@ impl Emerald {
         let start = Instant::now();
 
         // load all meta data and ensure that there were no errors
-        let all_fs_meta_data: Vec<_> =
-            adapters::adapter_to_rid_and_filesystem_metadata(&all_vec, &fs_meta_data_loader)?
-                .collect();
+        let all_fs_meta_data: Vec<_> = adapters::adapter_to_rid_and_filesystem_metadata(
+            all_vec.clone(),
+            &fs_meta_data_loader,
+        )?
+        .collect();
 
         let md_fs_meta_data: Vec<_> =
             adapters::filter_rid_and_meta_data(&all_fs_meta_data).collect();
@@ -85,7 +87,7 @@ impl Emerald {
         debug!("Creation of DefaultContentModel: {:?}", elapsed);
 
         let start = Instant::now();
-        let name_iter = adapters::adapter_to_rid_and_name(&all_vec)?;
+        let name_iter = adapters::adapter_to_rid_and_name(all_vec)?;
         let lrmod = Rc::new(resource_id_resolver::DefaultResourceIdResolverModel::new(
             name_iter,
         ));
