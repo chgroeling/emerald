@@ -118,14 +118,6 @@ impl Emerald {
             (f.0 .0, f.0 .1, f.1 .1)
         });
 
-        /*
-        for i in combined {
-            let file = i.1;
-            let yaml = i.2;
-            println!("{:?} {:?}", file, yaml);
-        }
-        */
-
         let elapsed = start.elapsed();
         debug!("YAML extraction: {:?}", elapsed);
 
@@ -135,7 +127,7 @@ impl Emerald {
         debug!("Creation of DefaultLinkModel: {:?}", elapsed);
 
         let start = Instant::now();
-        let nmod = Rc::new(note::DefaultNoteModel::new(md_fs_meta_data));
+        let nmod = Rc::new(note::DefaultNoteModel::new(md_meta_data));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultNoteModel: {:?}", elapsed);
 
