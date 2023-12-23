@@ -2,14 +2,14 @@ use crate::error::Result;
 use crate::{resources, types};
 
 pub fn adapter_to_rid_and_filesystem_metadata<'a>(
-    it_src: impl IntoIterator<Item = &'a types::ResourceId> + 'a,
+    it_src: impl IntoIterator<Item = types::ResourceId> + 'a,
     meta_data_loader: &'a impl resources::FilesystemMetadataLoader,
 ) -> Result<impl Iterator<Item = (types::ResourceId, types::FilesystemMetadata)> + 'a> {
     let ret: Result<Vec<_>> = it_src
         .into_iter()
         .map(
             |f| -> Result<(types::ResourceId, types::FilesystemMetadata)> {
-                let res_meta_data = meta_data_loader.load(f)?;
+                let res_meta_data = meta_data_loader.load(&f)?;
                 Ok((f.clone(), res_meta_data))
             },
         )
@@ -61,7 +61,7 @@ mod tests {
         });
 
         // Act
-        let result = adapter_to_rid_and_filesystem_metadata(&all_res_ids, &mock_md_loader);
+        let result = adapter_to_rid_and_filesystem_metadata(all_res_ids, &mock_md_loader);
         let result: Vec<_> = result.unwrap().collect();
 
         // Assert
