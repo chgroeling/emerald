@@ -14,6 +14,7 @@ use super::vault;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
+use std::iter::zip;
 use std::rc::Rc;
 use std::{path::Path, time::Instant};
 
@@ -110,12 +111,17 @@ impl Emerald {
         let ct_it = adapters::adapter_to_rid_and_yaml(c_it, md_analyzer);
         let md_doc_meta_data: Vec<_> =
             adapters::adapter_to_rid_and_document_metadata(ct_it).collect();
+        let md_meta_data =
+            zip(md_fs_meta_data.clone(), md_doc_meta_data).map(|f| (f.0 .0, f.0 .1, f.1 .1));
+
         /*
-                for i in md_doc_meta_data {
-                    let yaml = i.1;
-                    println!("{:?}", yaml);
-                }
+        for i in combined {
+            let file = i.1;
+            let yaml = i.2;
+            println!("{:?} {:?}", file, yaml);
+        }
         */
+
         let elapsed = start.elapsed();
         debug!("YAML extraction: {:?}", elapsed);
 
