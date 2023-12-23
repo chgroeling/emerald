@@ -23,7 +23,7 @@ impl From<(types::FilesystemMetadata, types::DocumentMetadata)> for NoteMetadata
             size: value.0.size,
             modified: value.0.modified,
             created: value.0.created,
-            aliases: aliases,
+            aliases,
         }
     }
 }
