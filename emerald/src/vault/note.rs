@@ -5,6 +5,7 @@ use super::timestamp::Timestamp;
 pub struct Note {
     pub rid: types::ResourceId,
     pub title: String,
+    pub aliases: Vec<String>,
     pub yaml: String,
     pub markdown: String,
     pub location: String,
@@ -17,6 +18,7 @@ impl Note {
     pub fn new(
         rid: types::ResourceId,
         title: String,
+        aliases: Vec<String>,
         yaml: String,
         location: String,
         md: String,
@@ -27,6 +29,7 @@ impl Note {
         Self {
             rid,
             title,
+            aliases,
             yaml,
             location,
             markdown: md,

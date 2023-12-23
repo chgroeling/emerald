@@ -26,7 +26,7 @@ impl NoteFactoryImpl {
 
 impl NoteFactory for NoteFactoryImpl {
     fn create_note(&self, rid: types::ResourceId) -> Note {
-        let meta_data = self.meta_data_retriever.retrieve(&rid);
+        let metadata = self.meta_data_retriever.retrieve(&rid);
         let content = self.content_retriever.retrieve(&rid);
         let markdown_splitter = MarkdownFrontMatterSplitter::new();
 
@@ -34,13 +34,14 @@ impl NoteFactory for NoteFactoryImpl {
 
         Note::new(
             rid,
-            meta_data.title.clone(),
+            metadata.title.clone(),
+            metadata.aliases.clone(),
             yaml_str.to_string(),
-            meta_data.location.clone(),
+            metadata.location.clone(),
             markdown.to_string(),
-            meta_data.size,
-            Timestamp(meta_data.created),
-            Timestamp(meta_data.modified),
+            metadata.size,
+            Timestamp(metadata.created),
+            Timestamp(metadata.modified),
         )
     }
 }
