@@ -16,6 +16,7 @@ enum NoteProperty {
     BackLinkCnt,
     Location,
     Markdown,
+    Aliases,
     Undefined,
 }
 
@@ -24,6 +25,7 @@ impl NoteProperty {
         match self {
             NoteProperty::Depth => "depth",
             NoteProperty::Title => "title",
+            NoteProperty::Aliases => "aliases",
             NoteProperty::Yaml => "yaml",
             NoteProperty::Modified => "modified",
             NoteProperty::Created => "created",
@@ -39,6 +41,7 @@ impl NoteProperty {
         match inp {
             "depth" => NoteProperty::Depth,
             "title" => NoteProperty::Title,
+            "aliases" => NoteProperty::Aliases,
             "yaml" => NoteProperty::Yaml,
             "modified" => NoteProperty::Modified,
             "created" => NoteProperty::Created,
@@ -61,6 +64,7 @@ fn note_property_to_str(
     match element {
         NoteProperty::Depth => depth.to_string(),
         NoteProperty::Title => note.title.clone(),
+        NoteProperty::Aliases => format!("{:?}", note.aliases),
         NoteProperty::Yaml => note.yaml.clone(),
         NoteProperty::Location => note.location.clone(),
         NoteProperty::Markdown => note.markdown.clone(),
