@@ -23,7 +23,7 @@ impl DefaultNoteModel {
     ) -> DefaultNoteModel {
         let it_note_meta: Vec<(_, NoteMetadata)> = it_note_meta_data
             .into_iter()
-            .map(|f| (f.0, f.1.into()))
+            .map(|f| (f.0, (f.1, f.2).into()))
             .collect();
         DefaultNoteModel {
             note_index: it_note_meta.iter().map(|f| f.0.clone()).collect(),
