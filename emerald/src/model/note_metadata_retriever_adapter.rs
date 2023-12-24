@@ -1,8 +1,7 @@
-use crate::model::note;
+use super::note;
+use super::vault;
 use crate::types;
 use std::rc::Rc;
-
-use super::vault::{DocumentMetadata, FilesystemMetadata, NoteMetadataRetriever, ResourceId};
 
 #[derive(Clone)]
 pub struct NoteMetadataRetrieverAdapter {
@@ -17,12 +16,15 @@ impl NoteMetadataRetrieverAdapter {
     }
 }
 
-impl NoteMetadataRetriever for NoteMetadataRetrieverAdapter {
-    fn retrieve(&self, tgt: &ResourceId) -> (String, FilesystemMetadata, DocumentMetadata) {
+impl vault::NoteMetadataRetriever for NoteMetadataRetrieverAdapter {
+    fn retrieve(
+        &self,
+        tgt: &vault::ResourceId,
+    ) -> (String, vault::FilesystemMetadata, vault::DocumentMetadata) {
         let rid: types::ResourceId = tgt.clone().into();
         let note_metadata = self.metadata_retriever.retrieve(&rid);
-        let filesystem_md: FilesystemMetadata = note_metadata.into();
-        let document_md: DocumentMetadata = note_metadata.into();
+        let filesystem_md: vault::FilesystemMetadata = note_metadata.into();
+        let document_md: vault::DocumentMetadata = note_metadata.into();
 
         (note_metadata.title.clone(), filesystem_md, document_md)
     }
