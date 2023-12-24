@@ -1,11 +1,11 @@
-use crate::types;
+use super::resource_id::ResourceId;
 
 pub struct ResourceRef {
-    pub rid: types::ResourceId,
+    pub rid: ResourceId,
 }
 
 impl ResourceRef {
-    pub fn new(rid: types::ResourceId) -> Self {
+    pub fn new(rid: ResourceId) -> Self {
         Self { rid }
     }
 }

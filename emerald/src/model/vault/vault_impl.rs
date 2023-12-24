@@ -8,9 +8,10 @@ use super::link_query_result::LinkQueryResult;
 use super::note::Note;
 use super::note_types::NoteTypes;
 use super::resource_ref::ResourceRef;
+use super::vault_trait::Vault;
 use super::NoteFactory;
 use crate::model::{link, note, resource};
-use crate::{types, Vault};
+use crate::types;
 
 #[derive(Clone)]
 pub struct VaultImpl<I, U: GetLinks = GetLinksImpl, L: GetBacklinks = GetBacklinksImpl>
@@ -67,7 +68,9 @@ where
         let factory_clone = self.note_factory.clone();
         Box::new(self.get_links.get_links_of(note).map(move |f| match f {
             LinkQueryResult::LinkToNote(rid) => NoteTypes::Note(factory_clone.create_note(rid)),
-            LinkQueryResult::LinkToResource(rid) => NoteTypes::ResourceRef(ResourceRef::new(rid)),
+            LinkQueryResult::LinkToResource(rid) => {
+                NoteTypes::ResourceRef(ResourceRef::new(rid.into()))
+            }
         }))
     }
 
@@ -81,7 +84,7 @@ where
                         NoteTypes::Note(factory_clone.create_note(rid))
                     }
                     LinkQueryResult::LinkToResource(rid) => {
-                        NoteTypes::ResourceRef(ResourceRef::new(rid))
+                        NoteTypes::ResourceRef(ResourceRef::new(rid.into()))
                     }
                 }),
         )
