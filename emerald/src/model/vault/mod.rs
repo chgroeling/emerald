@@ -1,3 +1,4 @@
+mod content_retriever;
 mod get_backlinks;
 mod get_links;
 mod link_query_result;
@@ -11,6 +12,7 @@ mod resource_ref;
 mod vault_impl;
 mod vault_trait;
 
+pub use content_retriever::MdContentRetriever;
 pub use get_backlinks::GetBacklinks;
 pub use get_links::GetLinks;
 pub use link_query_result::LinkQueryResult;
