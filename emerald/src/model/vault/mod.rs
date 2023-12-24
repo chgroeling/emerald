@@ -1,5 +1,3 @@
-mod document_metadata_from;
-mod filesystem_metadata_from;
 mod get_backlinks;
 mod get_backlinks_impl;
 mod get_links;
@@ -25,5 +23,6 @@ pub use vault_trait::Vault;
 
 pub use note::DocumentMetadata;
 pub use note::FilesystemMetadata;
+pub use note::Timestamp;
 pub use note_metadata_retriever::NoteMetadataRetriever;
 pub use resource_id::ResourceId;
