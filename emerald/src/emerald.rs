@@ -132,26 +132,32 @@ impl Emerald {
         debug!("Creation of DefaultNoteModel: {:?}", elapsed);
 
         let start = Instant::now();
-        let nmod_adapter = Rc::new(adapters::to_vault::NoteMetadataRetriever::new(nmod.clone()));
+        let md_retriever_adapter =
+            Rc::new(adapters::to_vault::NoteMetadataRetriever::new(nmod.clone()));
         let content_retriever_adapter =
             Rc::new(adapters::to_vault::ContentRetriever::new(cmod.clone()));
         let note_factory = Rc::new(vault::NoteFactoryImpl::new(
-            nmod_adapter,
+            md_retriever_adapter,
             content_retriever_adapter,
         ));
         let elapsed = start.elapsed();
         debug!("Creation of NoteFactoryImpl: {:?}", elapsed);
 
         let start = Instant::now();
-        let get_backlinks = Rc::new(adapters::to_vault::GetBacklinks::new(
+        let get_backlinks_adapter = Rc::new(adapters::to_vault::GetBacklinks::new(
             lmod.clone(),
             rmod.clone(),
         ));
-        let get_links = Rc::new(adapters::to_vault::GetLinks::new(
+        let get_links_adapter = Rc::new(adapters::to_vault::GetLinks::new(
             lmod.clone(),
             rmod.clone(),
         ));
-        let vault = vault::VaultImpl::new(note_factory, nmod.clone(), get_backlinks, get_links);
+        let vault = vault::VaultImpl::new(
+            note_factory,
+            nmod.clone(),
+            get_backlinks_adapter,
+            get_links_adapter,
+        );
         let elapsed = start.elapsed();
         debug!("Creation of Vault: {:?}", elapsed);
 
