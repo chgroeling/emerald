@@ -1,5 +1,5 @@
 use super::link_query_result_builder::{LinkQueryResultBuilder, LinkQueryResultBuilderImpl};
-use super::vault;
+use crate::model::vault;
 use crate::model::{link, resource};
 use crate::types;
 use std::marker::PhantomData;
