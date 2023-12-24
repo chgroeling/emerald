@@ -1,7 +1,7 @@
 use super::resource_id_comps::ResourceIdComps;
 use crate::error::{EmeraldError::*, Result};
 
-#[derive(Debug, Clone, PartialEq, Hash)]
+#[derive(Debug, Clone, PartialEq, Hash, Default)]
 
 /// A ResourceId points to a unique Resource
 ///
