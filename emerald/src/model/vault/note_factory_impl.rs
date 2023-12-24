@@ -1,19 +1,19 @@
 use super::note_factory::NoteFactory;
 use super::resource_id::ResourceId;
-use super::{MdContentRetriever, Note, NoteMetadataRetriever};
+use super::{ContentRetriever, Note, NoteMetadataRetriever};
 use crate::markdown::MarkdownFrontMatterSplitter;
 use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct NoteFactoryImpl {
     metadata_retriever: Rc<dyn NoteMetadataRetriever>,
-    content_retriever: Rc<dyn MdContentRetriever>,
+    content_retriever: Rc<dyn ContentRetriever>,
 }
 
 impl NoteFactoryImpl {
     pub fn new(
         meta_data_retriever: Rc<dyn NoteMetadataRetriever>,
-        content_retriever: Rc<dyn MdContentRetriever>,
+        content_retriever: Rc<dyn ContentRetriever>,
     ) -> Self {
         Self {
             metadata_retriever: meta_data_retriever,
