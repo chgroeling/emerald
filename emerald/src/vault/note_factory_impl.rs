@@ -35,13 +35,13 @@ impl NoteFactory for NoteFactoryImpl {
         Note::new(
             rid,
             metadata.title.clone(),
-            metadata.aliases.clone(),
+            metadata.document.aliases.clone(),
             yaml_str.to_string(),
-            metadata.location.clone(),
+            metadata.filesystem.location.clone(),
             markdown.to_string(),
-            metadata.size,
-            Timestamp(metadata.created),
-            Timestamp(metadata.modified),
+            metadata.filesystem.size,
+            Timestamp(metadata.filesystem.created),
+            Timestamp(metadata.filesystem.modified),
         )
     }
 }
