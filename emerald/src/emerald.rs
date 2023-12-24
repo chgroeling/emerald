@@ -1,5 +1,4 @@
-use crate::model::note::NoteMetadata;
-use crate::model::vault::NoteMetadataRetrieverAdapter;
+use crate::model::NoteMetadataRetrieverAdapter;
 use crate::resources::FsMetadataAccessImpl;
 
 use super::adapters;
