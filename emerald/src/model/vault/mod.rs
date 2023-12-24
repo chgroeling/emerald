@@ -12,7 +12,7 @@ mod resource_ref;
 mod vault_impl;
 mod vault_trait;
 
-pub use content_retriever::MdContentRetriever;
+pub use content_retriever::ContentRetriever;
 pub use get_backlinks::GetBacklinks;
 pub use get_links::GetLinks;
 pub use link_query_result::LinkQueryResult;
