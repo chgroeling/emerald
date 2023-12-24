@@ -1,9 +1,8 @@
-use crate::model::note::NoteMetadata;
+use super::note;
+use super::vault;
 
-use super::note::DocumentMetadata;
-
-impl From<&NoteMetadata> for DocumentMetadata {
-    fn from(value: &NoteMetadata) -> Self {
+impl From<&note::NoteMetadata> for vault::DocumentMetadata {
+    fn from(value: &note::NoteMetadata) -> Self {
         Self {
             tags: value.document.tags.to_owned(),
             aliases: value.document.aliases.to_owned(),
