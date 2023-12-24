@@ -10,7 +10,6 @@ mod note_factory_impl;
 mod note_metadata_retriever;
 mod note_types;
 mod resource_id;
-mod resource_id_from;
 mod resource_ref;
 mod vault_impl;
 mod vault_trait;

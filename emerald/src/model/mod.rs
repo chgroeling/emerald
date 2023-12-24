@@ -5,6 +5,7 @@ pub mod link;
 pub mod note;
 mod note_metadata_retriever_adapter;
 pub mod resource;
+mod resource_id_from;
 pub mod resource_id_resolver;
 pub mod vault;
 
