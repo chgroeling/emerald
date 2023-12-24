@@ -143,11 +143,11 @@ impl Emerald {
         debug!("Creation of NoteFactoryImpl: {:?}", elapsed);
 
         let start = Instant::now();
-        let get_backlinks = Rc::new(adapters::to_vault::GetBacklinksImpl::new(
+        let get_backlinks = Rc::new(adapters::to_vault::GetBacklinks::new(
             lmod.clone(),
             rmod.clone(),
         ));
-        let get_links = Rc::new(adapters::to_vault::GetLinksImpl::new(
+        let get_links = Rc::new(adapters::to_vault::GetLinks::new(
             lmod.clone(),
             rmod.clone(),
         ));
