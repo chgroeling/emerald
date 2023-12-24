@@ -2,6 +2,7 @@ use super::link_query_result_builder::{LinkQueryResultBuilder, LinkQueryResultBu
 use super::note::Note;
 use super::{get_links::GetLinks, link_query_result::LinkQueryResult};
 use crate::model::{link, resource};
+use crate::types;
 use std::marker::PhantomData;
 use std::rc::Rc;
 
@@ -30,7 +31,7 @@ where
     I: LinkQueryResultBuilder,
 {
     fn get_links_of(&self, note: &Note) -> Box<dyn Iterator<Item = LinkQueryResult>> {
-        let rid = note.rid.clone();
+        let rid: types::ResourceId = note.rid.clone().into();
         let Some(out_itr) = self.tgt_link_retriever.retrieve(&rid) else {
             return Box::new(std::iter::empty());
         };

@@ -30,7 +30,7 @@ where
     I: LinkQueryResultBuilder,
 {
     fn get_backlinks_of(&self, note: &Note) -> Box<dyn Iterator<Item = LinkQueryResult>> {
-        let rid = note.rid.clone();
+        let rid = note.rid.clone().into();
         let Some(out_itr) = self.src_link_retriever.retrieve(&rid) else {
             return Box::new(std::iter::empty());
         };
