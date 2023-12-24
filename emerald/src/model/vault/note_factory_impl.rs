@@ -1,7 +1,6 @@
 use super::note_factory::NoteFactory;
-use super::note_metadata_retriever_adapter::NoteMetadataRetriever;
 use super::resource_id::ResourceId;
-use super::Note;
+use super::{Note, NoteMetadataRetriever};
 use crate::markdown::MarkdownFrontMatterSplitter;
 use crate::model::content;
 use crate::types;

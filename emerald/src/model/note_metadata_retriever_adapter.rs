@@ -1,13 +1,8 @@
-use super::note::{DocumentMetadata, FilesystemMetadata};
-use super::resource_id::ResourceId;
 use crate::model::note;
 use crate::types;
 use std::rc::Rc;
 
-/// This trait is used to query an target id for all contained links and their pointing resource ids.
-pub trait NoteMetadataRetriever {
-    fn retrieve(&self, tgt: &ResourceId) -> (String, FilesystemMetadata, DocumentMetadata);
-}
+use super::vault::{DocumentMetadata, FilesystemMetadata, NoteMetadataRetriever, ResourceId};
 
 #[derive(Clone)]
 pub struct NoteMetadataRetrieverAdapter {
