@@ -4,11 +4,11 @@ use crate::types;
 use std::rc::Rc;
 
 #[derive(Clone)]
-pub struct NoteMetadataRetrieverAdapter {
+pub struct NoteMetadataRetriever {
     metadata_retriever: Rc<dyn note::NoteMetadataRetriever>,
 }
 
-impl NoteMetadataRetrieverAdapter {
+impl NoteMetadataRetriever {
     pub fn new(meta_data_retriever: Rc<dyn note::NoteMetadataRetriever>) -> Self {
         Self {
             metadata_retriever: meta_data_retriever,
@@ -16,7 +16,7 @@ impl NoteMetadataRetrieverAdapter {
     }
 }
 
-impl vault::NoteMetadataRetriever for NoteMetadataRetrieverAdapter {
+impl vault::NoteMetadataRetriever for NoteMetadataRetriever {
     fn retrieve(
         &self,
         tgt: &vault::ResourceId,

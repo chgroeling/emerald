@@ -3,11 +3,11 @@ use crate::model::vault;
 use std::rc::Rc;
 
 #[derive(Clone)]
-pub struct ContentRetrieverAdapter {
+pub struct ContentRetriever {
     content_retriever: Rc<dyn content::MdContentRetriever>,
 }
 
-impl ContentRetrieverAdapter {
+impl ContentRetriever {
     pub fn new(meta_data_retriever: Rc<dyn content::MdContentRetriever>) -> Self {
         Self {
             content_retriever: meta_data_retriever,
@@ -15,7 +15,7 @@ impl ContentRetrieverAdapter {
     }
 }
 
-impl vault::ContentRetriever for ContentRetrieverAdapter {
+impl vault::ContentRetriever for ContentRetriever {
     fn retrieve(&self, rid: &vault::ResourceId) -> &str {
         let content = self.content_retriever.retrieve(&rid.clone().into());
 

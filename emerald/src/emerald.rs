@@ -132,12 +132,9 @@ impl Emerald {
         debug!("Creation of DefaultNoteModel: {:?}", elapsed);
 
         let start = Instant::now();
-        let nmod_adapter = Rc::new(adapters::to_vault::NoteMetadataRetrieverAdapter::new(
-            nmod.clone(),
-        ));
-        let content_retriever_adapter = Rc::new(adapters::to_vault::ContentRetrieverAdapter::new(
-            cmod.clone(),
-        ));
+        let nmod_adapter = Rc::new(adapters::to_vault::NoteMetadataRetriever::new(nmod.clone()));
+        let content_retriever_adapter =
+            Rc::new(adapters::to_vault::ContentRetriever::new(cmod.clone()));
         let note_factory = Rc::new(vault::NoteFactoryImpl::new(
             nmod_adapter,
             content_retriever_adapter,
