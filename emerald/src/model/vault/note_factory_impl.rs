@@ -31,7 +31,7 @@ impl NoteFactory for NoteFactoryImpl {
         let (yaml_str, markdown) = markdown_splitter.split(content);
 
         Note::new(
-            rid.into(),
+            rid,
             title,
             yaml_str.to_string(),
             markdown.to_string(),

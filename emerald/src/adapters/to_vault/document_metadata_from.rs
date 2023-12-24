@@ -9,7 +9,6 @@ impl From<&note::NoteMetadata> for vault::DocumentMetadata {
             keywords: value.document.keywords.to_owned(),
             created: value.document.created.to_owned(),
             modified: value.document.modified.to_owned(),
-            ..Default::default()
         }
     }
 }
