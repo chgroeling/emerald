@@ -8,9 +8,9 @@ use super::model::link;
 use super::model::note;
 use super::model::resource;
 use super::model::resource_id_resolver;
+use super::model::vault;
 use super::resources;
 use super::stats;
-use super::vault;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
