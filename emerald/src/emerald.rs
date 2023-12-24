@@ -18,9 +18,13 @@ use std::iter::zip;
 use std::rc::Rc;
 use std::{path::Path, time::Instant};
 
+type IterartorDefaultNoteModel = <note::DefaultNoteModel as note::NotesIterSrc>::Iter;
+type IteratorNotesIterSrcAdapter =
+    <adapters::to_vault::NotesIterSrc<IterartorDefaultNoteModel> as vault::NotesIterSrc>::Iter;
+
 #[allow(dead_code)]
 pub struct Emerald {
-    pub vault: vault::VaultImpl<<note::DefaultNoteModel as note::NotesIterSrc>::Iter>,
+    pub vault: vault::VaultImpl<IteratorNotesIterSrcAdapter>,
     pub stats: stats::VaultStats,
 }
 
@@ -152,9 +156,11 @@ impl Emerald {
             lmod.clone(),
             rmod.clone(),
         ));
+
+        let notes_iter_src_adapter = Rc::new(adapters::to_vault::NotesIterSrc::new(nmod.clone()));
         let vault = vault::VaultImpl::new(
             note_factory,
-            nmod.clone(),
+            notes_iter_src_adapter,
             get_backlinks_adapter,
             get_links_adapter,
         );
@@ -178,9 +184,7 @@ impl Emerald {
 }
 
 impl Emerald {
-    pub fn get_vault(
-        &self,
-    ) -> vault::VaultImpl<<note::DefaultNoteModel as note::NotesIterSrc>::Iter> {
+    pub fn get_vault(&self) -> vault::VaultImpl<IteratorNotesIterSrcAdapter> {
         self.vault.clone()
     }
 
