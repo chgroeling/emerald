@@ -1,3 +1,5 @@
+use crate::model::note::NoteMetadata;
+use crate::model::vault::NoteMetadataRetrieverAdapter;
 use crate::resources::FsMetadataAccessImpl;
 
 use super::adapters;
@@ -132,7 +134,8 @@ impl Emerald {
         debug!("Creation of DefaultNoteModel: {:?}", elapsed);
 
         let start = Instant::now();
-        let note_factory = Rc::new(vault::NoteFactoryImpl::new(nmod.clone(), cmod.clone()));
+        let nmod_adapter = Rc::new(NoteMetadataRetrieverAdapter::new(nmod.clone()));
+        let note_factory = Rc::new(vault::NoteFactoryImpl::new(nmod_adapter, cmod.clone()));
         let elapsed = start.elapsed();
         debug!("Creation of NoteFactoryImpl: {:?}", elapsed);
 
