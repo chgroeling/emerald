@@ -1,6 +1,6 @@
-use crate::types;
+use super::ResourceId;
 
 pub enum LinkQueryResult {
-    LinkToNote(types::ResourceId),
-    LinkToResource(types::ResourceId),
+    LinkToNote(ResourceId),
+    LinkToResource(ResourceId),
 }

@@ -58,7 +58,7 @@ where
         let note_vec: Vec<Note> = self
             .notes_iter_src
             .create_iter()
-            .map(|rid| self.note_factory.create_note(rid))
+            .map(|rid| self.note_factory.create_note(rid.into()))
             .collect();
 
         note_vec.into_iter()
