@@ -1,5 +1,5 @@
-use super::note;
-use super::vault;
+use crate::model::note;
+use crate::model::vault;
 use crate::types;
 use std::rc::Rc;
 

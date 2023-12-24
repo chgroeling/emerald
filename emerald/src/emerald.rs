@@ -1,4 +1,3 @@
-use crate::model::NoteMetadataRetrieverAdapter;
 use crate::resources::FsMetadataAccessImpl;
 
 use super::adapters;
@@ -133,7 +132,9 @@ impl Emerald {
         debug!("Creation of DefaultNoteModel: {:?}", elapsed);
 
         let start = Instant::now();
-        let nmod_adapter = Rc::new(NoteMetadataRetrieverAdapter::new(nmod.clone()));
+        let nmod_adapter = Rc::new(adapters::to_vault::NoteMetadataRetrieverAdapter::new(
+            nmod.clone(),
+        ));
         let content_retriever_adapter = Rc::new(adapters::to_vault::ContentRetrieverAdapter::new(
             cmod.clone(),
         ));
