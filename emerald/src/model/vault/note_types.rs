@@ -1,7 +1,6 @@
-use super::resource_ref::ResourceRef;
-use super::Note;
+use super::{Note, ResourceId};
 
 pub enum NoteTypes {
     Note(Note),
-    ResourceRef(ResourceRef),
+    ResourceRef(ResourceId),
 }
