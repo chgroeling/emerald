@@ -1,5 +1,6 @@
 use crate::model::GetBacklinksImpl;
 use crate::model::GetLinksImpl;
+use crate::model::MdContentRetrieverAdapter;
 use crate::model::NoteMetadataRetrieverAdapter;
 use crate::resources::FsMetadataAccessImpl;
 
@@ -136,7 +137,11 @@ impl Emerald {
 
         let start = Instant::now();
         let nmod_adapter = Rc::new(NoteMetadataRetrieverAdapter::new(nmod.clone()));
-        let note_factory = Rc::new(vault::NoteFactoryImpl::new(nmod_adapter, cmod.clone()));
+        let content_retriever_adapter = Rc::new(MdContentRetrieverAdapter::new(cmod.clone()));
+        let note_factory = Rc::new(vault::NoteFactoryImpl::new(
+            nmod_adapter,
+            content_retriever_adapter,
+        ));
         let elapsed = start.elapsed();
         debug!("Creation of NoteFactoryImpl: {:?}", elapsed);
 
