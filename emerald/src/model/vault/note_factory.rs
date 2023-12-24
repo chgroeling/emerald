@@ -1,6 +1,5 @@
-use super::Note;
-use crate::types;
+use super::{Note, ResourceId};
 
 pub trait NoteFactory {
-    fn create_note(&self, rid: types::ResourceId) -> Note;
+    fn create_note(&self, rid: ResourceId) -> Note;
 }
