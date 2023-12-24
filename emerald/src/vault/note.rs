@@ -1,41 +1,31 @@
+use super::{document_metadata::DocumentMetadata, filesystem_metadata::FilesystemMetadata};
 use crate::types;
-
-use super::timestamp::Timestamp;
 
 pub struct Note {
     pub rid: types::ResourceId,
     pub title: String,
-    pub aliases: Vec<String>,
     pub yaml: String,
     pub markdown: String,
-    pub location: String,
-    pub size: u64,
-    pub created: Timestamp,
-    pub modified: Timestamp,
+    pub fs_metadata: FilesystemMetadata,
+    pub doc_metadata: DocumentMetadata,
 }
 
 impl Note {
     pub fn new(
         rid: types::ResourceId,
         title: String,
-        aliases: Vec<String>,
         yaml: String,
-        location: String,
         md: String,
-        size: u64,
-        created: Timestamp,
-        modified: Timestamp,
+        fs_metadata: FilesystemMetadata,
+        doc_metadata: DocumentMetadata,
     ) -> Self {
         Self {
             rid,
             title,
-            aliases,
             yaml,
-            location,
             markdown: md,
-            size,
-            created,
-            modified,
+            fs_metadata,
+            doc_metadata,
         }
     }
 }
