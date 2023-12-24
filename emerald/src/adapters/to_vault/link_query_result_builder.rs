@@ -1,5 +1,5 @@
-use super::vault;
 use crate::model::resource::ResourceMetadataRetriever;
+use crate::model::vault;
 use crate::types;
 
 #[derive(Clone)]
