@@ -8,6 +8,7 @@ impl From<(types::FilesystemMetadata, types::DocumentMetadata)> for NoteMetadata
             size: value.0.size,
             modified: value.0.modified,
             created: value.0.created,
+            ..Default::default()
         };
 
         let doc_md = DocumentMetadata {
@@ -16,12 +17,14 @@ impl From<(types::FilesystemMetadata, types::DocumentMetadata)> for NoteMetadata
             modified: value.1.modified,
             created: value.1.created,
             tags: value.1.tags,
+            ..Default::default()
         };
 
         Self {
             title: value.0.name,
             filesystem: fs_md,
             document: doc_md,
+            ..Default::default()
         }
     }
 }

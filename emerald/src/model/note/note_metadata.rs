@@ -15,7 +15,7 @@ pub struct DocumentMetadata {
     pub modified: Option<String>,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone, PartialEq, Hash, Default)]
 pub struct NoteMetadata {
     pub title: String,
     pub filesystem: FilesystemMetadata,
