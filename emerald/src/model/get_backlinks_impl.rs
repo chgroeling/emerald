@@ -1,7 +1,6 @@
-use super::link_query_result::LinkQueryResult;
+use super::link_query_result_builder::LinkQueryResultBuilder;
 use super::link_query_result_builder::LinkQueryResultBuilderImpl;
-use super::note::Note;
-use super::{get_backlinks::GetBacklinks, link_query_result_builder::LinkQueryResultBuilder};
+use super::vault;
 use crate::model::{link, resource};
 use std::marker::PhantomData;
 use std::rc::Rc;
@@ -25,11 +24,14 @@ impl GetBacklinksImpl {
         }
     }
 }
-impl<I> GetBacklinks for GetBacklinksImpl<I>
+impl<I> vault::GetBacklinks for GetBacklinksImpl<I>
 where
     I: LinkQueryResultBuilder,
 {
-    fn get_backlinks_of(&self, note: &Note) -> Box<dyn Iterator<Item = LinkQueryResult>> {
+    fn get_backlinks_of(
+        &self,
+        note: &vault::Note,
+    ) -> Box<dyn Iterator<Item = vault::LinkQueryResult>> {
         let rid = note.rid.clone().into();
         let Some(out_itr) = self.src_link_retriever.retrieve(&rid) else {
             return Box::new(std::iter::empty());

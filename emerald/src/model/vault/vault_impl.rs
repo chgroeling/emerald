@@ -1,46 +1,40 @@
 use std::rc::Rc;
 
 use super::get_backlinks::GetBacklinks;
-use super::get_backlinks_impl::GetBacklinksImpl;
 use super::get_links::GetLinks;
-use super::get_links_impl::GetLinksImpl;
 use super::link_query_result::LinkQueryResult;
 use super::note::Note;
 use super::note_types::NoteTypes;
 use super::resource_ref::ResourceRef;
 use super::vault_trait::Vault;
 use super::NoteFactory;
-use crate::model::{link, note, resource};
+use crate::model::note;
 use crate::types;
 
 #[derive(Clone)]
-pub struct VaultImpl<I, U: GetLinks = GetLinksImpl, L: GetBacklinks = GetBacklinksImpl>
+pub struct VaultImpl<I>
 where
     I: Iterator<Item = types::ResourceId>,
 {
     note_factory: Rc<dyn NoteFactory>,
     notes_iter_src: Rc<dyn note::NotesIterSrc<Iter = I>>,
-    get_links: U,
-    get_backlinks: L,
+    get_backlinks: Rc<dyn GetBacklinks>,
+    get_links: Rc<dyn GetLinks>,
 }
 
-impl<I> VaultImpl<I, GetLinksImpl, GetBacklinksImpl>
+impl<I> VaultImpl<I>
 where
     I: Iterator<Item = types::ResourceId>,
 {
     pub fn new(
         note_factory: Rc<dyn NoteFactory>,
         notes_iter_src: Rc<dyn note::NotesIterSrc<Iter = I>>,
-        tgt_link_retriever: Rc<dyn link::TgtIterRetriever>,
-        src_link_retriever: Rc<dyn link::SrcIterRetriever>,
-        res_meta_data_ret: Rc<dyn resource::ResourceMetadataRetriever>,
+        get_backlinks: Rc<dyn GetBacklinks>,
+        get_links: Rc<dyn GetLinks>,
     ) -> Self
     where
         I: Iterator<Item = types::ResourceId>,
     {
-        let get_links = GetLinksImpl::new(tgt_link_retriever.clone(), res_meta_data_ret.clone());
-        let get_backlinks =
-            GetBacklinksImpl::new(src_link_retriever.clone(), res_meta_data_ret.clone());
         Self {
             notes_iter_src,
             note_factory,
@@ -50,7 +44,7 @@ where
     }
 }
 
-impl<I, U: GetLinks> Vault for VaultImpl<I, U>
+impl<I> Vault for VaultImpl<I>
 where
     I: Iterator<Item = types::ResourceId>,
 {
