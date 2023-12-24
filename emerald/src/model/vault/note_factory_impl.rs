@@ -8,7 +8,7 @@ use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct NoteFactoryImpl {
-    meta_data_retriever: Rc<dyn note::NoteMetadataRetriever>,
+    metadata_retriever: Rc<dyn note::NoteMetadataRetriever>,
     content_retriever: Rc<dyn content::MdContentRetriever>,
 }
 
@@ -18,7 +18,7 @@ impl NoteFactoryImpl {
         content_retriever: Rc<dyn content::MdContentRetriever>,
     ) -> Self {
         Self {
-            meta_data_retriever,
+            metadata_retriever: meta_data_retriever,
             content_retriever,
         }
     }
@@ -26,7 +26,7 @@ impl NoteFactoryImpl {
 
 impl NoteFactory for NoteFactoryImpl {
     fn create_note(&self, rid: types::ResourceId) -> Note {
-        let note_md = self.meta_data_retriever.retrieve(&rid);
+        let note_md = self.metadata_retriever.retrieve(&rid);
 
         let filesystem_md: FilesystemMetadata = note_md.into();
         let document_md: DocumentMetadata = note_md.into();
