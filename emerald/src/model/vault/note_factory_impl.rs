@@ -1,20 +1,21 @@
-use super::note::{DocumentMetadata, FilesystemMetadata};
 use super::note_factory::NoteFactory;
+use super::note_metadata_retriever_adapter::NoteMetadataRetriever;
+use super::resource_id::ResourceId;
 use super::Note;
 use crate::markdown::MarkdownFrontMatterSplitter;
-use crate::model::{content, note};
+use crate::model::content;
 use crate::types;
 use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct NoteFactoryImpl {
-    metadata_retriever: Rc<dyn note::NoteMetadataRetriever>,
+    metadata_retriever: Rc<dyn NoteMetadataRetriever>,
     content_retriever: Rc<dyn content::MdContentRetriever>,
 }
 
 impl NoteFactoryImpl {
     pub fn new(
-        meta_data_retriever: Rc<dyn note::NoteMetadataRetriever>,
+        meta_data_retriever: Rc<dyn NoteMetadataRetriever>,
         content_retriever: Rc<dyn content::MdContentRetriever>,
     ) -> Self {
         Self {
@@ -26,10 +27,9 @@ impl NoteFactoryImpl {
 
 impl NoteFactory for NoteFactoryImpl {
     fn create_note(&self, rid: types::ResourceId) -> Note {
-        let note_md = self.metadata_retriever.retrieve(&rid);
+        let rid_conv: ResourceId = rid.clone().into();
+        let (title, filesystem_md, document_md) = self.metadata_retriever.retrieve(&rid_conv);
 
-        let filesystem_md: FilesystemMetadata = note_md.into();
-        let document_md: DocumentMetadata = note_md.into();
         let content = self.content_retriever.retrieve(&rid);
         let markdown_splitter = MarkdownFrontMatterSplitter::new();
 
@@ -37,7 +37,7 @@ impl NoteFactory for NoteFactoryImpl {
 
         Note::new(
             rid.into(),
-            note_md.title.clone(),
+            title,
             yaml_str.to_string(),
             markdown.to_string(),
             filesystem_md,
