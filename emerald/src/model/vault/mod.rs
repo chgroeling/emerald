@@ -1,6 +1,4 @@
-mod document_metadata;
 mod document_metadata_from;
-mod filesystem_metadata;
 mod filesystem_metadata_from;
 mod get_backlinks;
 mod get_backlinks_impl;
@@ -13,7 +11,6 @@ mod note_factory;
 mod note_factory_impl;
 mod note_types;
 mod resource_ref;
-mod timestamp;
 mod vault_impl;
 mod vault_trait;
 
