@@ -64,23 +64,23 @@ fn note_property_to_str(
     match element {
         NoteProperty::Depth => depth.to_string(),
         NoteProperty::Title => note.title.clone(),
-        NoteProperty::Aliases => format!("{:?}", note.aliases),
+        NoteProperty::Aliases => format!("{:?}", note.doc_metadata.aliases),
         NoteProperty::Yaml => note.yaml.clone(),
-        NoteProperty::Location => note.location.clone(),
+        NoteProperty::Location => note.fs_metadata.location.clone(),
         NoteProperty::Markdown => note.markdown.clone(),
         NoteProperty::Modified => {
             let modified = Local
-                .timestamp_opt(note.modified.get_raw_value(), 0)
+                .timestamp_opt(note.fs_metadata.modified.get_raw_value(), 0)
                 .unwrap();
             modified.format("%Y-%m-%d %H:%M:%S").to_string()
         }
         NoteProperty::Created => {
             let created = Local
-                .timestamp_opt(note.created.get_raw_value(), 0)
+                .timestamp_opt(note.fs_metadata.created.get_raw_value(), 0)
                 .unwrap();
             created.format("%Y-%m-%d %H:%M:%S").to_string()
         }
-        NoteProperty::Size => note.size.to_string(),
+        NoteProperty::Size => note.fs_metadata.size.to_string(),
         NoteProperty::LinkCnt => vault.get_links_of(note).count().to_string(),
         NoteProperty::BackLinkCnt => vault.get_backlinks_of(note).count().to_string(),
         NoteProperty::Undefined => panic!("Undefined property"),

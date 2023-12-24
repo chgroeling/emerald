@@ -1,3 +1,5 @@
+mod document_metadata;
+mod filesystem_metadata;
 mod get_backlinks;
 mod get_backlinks_impl;
 mod get_links;

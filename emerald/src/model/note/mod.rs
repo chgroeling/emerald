@@ -8,5 +8,6 @@ mod notes_iter_src;
 
 pub use default_note_model::DefaultNoteModel;
 pub use note_count::NoteCount;
+pub use note_metadata::NoteMetadata;
 pub use note_metadata_retriever::NoteMetadataRetriever;
 pub use notes_iter_src::NotesIterSrc;
