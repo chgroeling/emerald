@@ -5,34 +5,34 @@ use super::get_links::GetLinks;
 use super::link_query_result::LinkQueryResult;
 use super::note::Note;
 use super::note_types::NoteTypes;
+use super::notes_iter_src::NotesIterSrc;
 use super::vault_trait::Vault;
-use super::NoteFactory;
+use super::{NoteFactory, ResourceId};
 use crate::model::note;
-use crate::types;
 
 #[derive(Clone)]
 pub struct VaultImpl<I>
 where
-    I: Iterator<Item = types::ResourceId>,
+    I: Iterator<Item = ResourceId>,
 {
     note_factory: Rc<dyn NoteFactory>,
-    notes_iter_src: Rc<dyn note::NotesIterSrc<Iter = I>>,
+    notes_iter_src: Rc<dyn NotesIterSrc<Iter = I>>,
     get_backlinks: Rc<dyn GetBacklinks>,
     get_links: Rc<dyn GetLinks>,
 }
 
 impl<I> VaultImpl<I>
 where
-    I: Iterator<Item = types::ResourceId>,
+    I: Iterator<Item = ResourceId>,
 {
     pub fn new(
         note_factory: Rc<dyn NoteFactory>,
-        notes_iter_src: Rc<dyn note::NotesIterSrc<Iter = I>>,
+        notes_iter_src: Rc<dyn NotesIterSrc<Iter = I>>,
         get_backlinks: Rc<dyn GetBacklinks>,
         get_links: Rc<dyn GetLinks>,
     ) -> Self
     where
-        I: Iterator<Item = types::ResourceId>,
+        I: Iterator<Item = ResourceId>,
     {
         Self {
             notes_iter_src,
@@ -45,7 +45,7 @@ where
 
 impl<I> Vault for VaultImpl<I>
 where
-    I: Iterator<Item = types::ResourceId>,
+    I: Iterator<Item = ResourceId>,
 {
     fn flat_iter(&self) -> std::vec::IntoIter<Note> {
         let note_vec: Vec<Note> = self
