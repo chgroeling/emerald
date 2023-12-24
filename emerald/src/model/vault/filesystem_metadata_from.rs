@@ -1,5 +1,6 @@
-use super::{filesystem_metadata::FilesystemMetadata, timestamp::Timestamp};
 use crate::model::note::NoteMetadata;
+
+use super::note::{FilesystemMetadata, Timestamp};
 
 impl From<&NoteMetadata> for FilesystemMetadata {
     fn from(value: &NoteMetadata) -> Self {

@@ -1,5 +1,12 @@
-use super::{document_metadata::DocumentMetadata, filesystem_metadata::FilesystemMetadata};
+mod document_metadata;
+mod filesystem_metadata;
+mod timestamp;
+
 use crate::types;
+
+pub use self::document_metadata::DocumentMetadata;
+pub use self::filesystem_metadata::FilesystemMetadata;
+pub use self::timestamp::Timestamp;
 
 pub struct Note {
     pub rid: types::ResourceId,

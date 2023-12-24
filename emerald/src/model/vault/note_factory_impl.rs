@@ -1,5 +1,4 @@
-use super::document_metadata::DocumentMetadata;
-use super::filesystem_metadata::FilesystemMetadata;
+use super::note::{DocumentMetadata, FilesystemMetadata};
 use super::note_factory::NoteFactory;
 use super::Note;
 use crate::markdown::MarkdownFrontMatterSplitter;

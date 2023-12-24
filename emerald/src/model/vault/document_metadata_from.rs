@@ -1,6 +1,6 @@
 use crate::model::note::NoteMetadata;
 
-use super::document_metadata::DocumentMetadata;
+use super::note::DocumentMetadata;
 
 impl From<&NoteMetadata> for DocumentMetadata {
     fn from(value: &NoteMetadata) -> Self {
