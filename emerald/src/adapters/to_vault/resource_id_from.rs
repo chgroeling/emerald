@@ -1,4 +1,4 @@
-use super::vault;
+use crate::model::vault;
 use crate::types;
 
 impl From<types::ResourceId> for vault::ResourceId {
