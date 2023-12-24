@@ -1,5 +1,5 @@
-use super::content;
-use super::vault;
+use crate::model::content;
+use crate::model::vault;
 use std::rc::Rc;
 
 #[derive(Clone)]
