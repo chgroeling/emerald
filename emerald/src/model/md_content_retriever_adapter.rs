@@ -1,6 +1,5 @@
 use super::content;
 use super::vault;
-use crate::types;
 use std::rc::Rc;
 
 #[derive(Clone)]
@@ -17,8 +16,8 @@ impl MdContentRetrieverAdapter {
 }
 
 impl vault::MdContentRetriever for MdContentRetrieverAdapter {
-    fn retrieve(&self, rid: &types::ResourceId) -> &str {
-        let content = self.content_retriever.retrieve(rid);
+    fn retrieve(&self, rid: &vault::ResourceId) -> &str {
+        let content = self.content_retriever.retrieve(&rid.clone().into());
 
         &content.0
     }
