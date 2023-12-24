@@ -1,6 +1,5 @@
 use super::link_query_result_builder::{LinkQueryResultBuilder, LinkQueryResultBuilderImpl};
-use super::note::Note;
-use super::{get_links::GetLinks, link_query_result::LinkQueryResult};
+use super::vault;
 use crate::model::{link, resource};
 use crate::types;
 use std::marker::PhantomData;
@@ -13,7 +12,7 @@ pub struct GetLinksImpl<I = LinkQueryResultBuilderImpl> {
     pd: PhantomData<I>,
 }
 
-impl<I> GetLinksImpl<I> {
+impl GetLinksImpl {
     pub fn new(
         tgt_link_retriever: Rc<dyn link::TgtIterRetriever>,
         res_meta_data_ret: Rc<dyn resource::ResourceMetadataRetriever>,
@@ -26,11 +25,11 @@ impl<I> GetLinksImpl<I> {
     }
 }
 
-impl<I> GetLinks for GetLinksImpl<I>
+impl<I> vault::GetLinks for GetLinksImpl<I>
 where
     I: LinkQueryResultBuilder,
 {
-    fn get_links_of(&self, note: &Note) -> Box<dyn Iterator<Item = LinkQueryResult>> {
+    fn get_links_of(&self, note: &vault::Note) -> Box<dyn Iterator<Item = vault::LinkQueryResult>> {
         let rid: types::ResourceId = note.rid.clone().into();
         let Some(out_itr) = self.tgt_link_retriever.retrieve(&rid) else {
             return Box::new(std::iter::empty());

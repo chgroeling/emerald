@@ -1,9 +1,6 @@
 mod get_backlinks;
-mod get_backlinks_impl;
 mod get_links;
-mod get_links_impl;
 mod link_query_result;
-mod link_query_result_builder;
 mod note;
 mod note_factory;
 mod note_factory_impl;
@@ -14,6 +11,9 @@ mod resource_ref;
 mod vault_impl;
 mod vault_trait;
 
+pub use get_backlinks::GetBacklinks;
+pub use get_links::GetLinks;
+pub use link_query_result::LinkQueryResult;
 pub use note::DocumentMetadata;
 pub use note::FilesystemMetadata;
 pub use note::Note;

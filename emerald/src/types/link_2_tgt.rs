@@ -11,6 +11,7 @@ impl Link2Tgt {
     pub fn new(link: Link, tgt: Option<ResourceId>) -> Self {
         Self { link, tgt }
     }
+    /*
     pub fn new_without_target(link: Link) -> Self {
         Self { link, tgt: None }
     }
@@ -20,4 +21,5 @@ impl Link2Tgt {
             tgt: Some(tgt_rid),
         }
     }
+    */
 }
