@@ -8,6 +8,7 @@ pub use self::document_metadata::DocumentMetadata;
 pub use self::filesystem_metadata::FilesystemMetadata;
 pub use self::timestamp::Timestamp;
 
+#[derive(Debug, Clone, PartialEq, Hash, Default)]
 pub struct Note {
     pub rid: types::ResourceId,
     pub title: String,

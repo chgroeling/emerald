@@ -1,3 +1,4 @@
+#[derive(Debug, Clone, PartialEq, Hash, Default)]
 pub struct Timestamp(pub i64);
 
 impl Timestamp {
