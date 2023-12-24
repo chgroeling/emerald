@@ -1,5 +1,5 @@
-use super::note;
-use super::vault;
+use crate::model::note;
+use crate::model::vault;
 
 impl From<&note::NoteMetadata> for vault::DocumentMetadata {
     fn from(value: &note::NoteMetadata) -> Self {
