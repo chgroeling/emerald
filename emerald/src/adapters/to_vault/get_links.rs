@@ -6,13 +6,13 @@ use std::marker::PhantomData;
 use std::rc::Rc;
 
 #[derive(Clone)]
-pub struct GetLinksImpl<I = LinkQueryResultBuilderImpl> {
+pub struct GetLinks<I = LinkQueryResultBuilderImpl> {
     tgt_link_retriever: Rc<dyn link::TgtIterRetriever>,
     res_meta_data_ret: Rc<dyn resource::ResourceMetadataRetriever>,
     pd: PhantomData<I>,
 }
 
-impl GetLinksImpl {
+impl GetLinks {
     pub fn new(
         tgt_link_retriever: Rc<dyn link::TgtIterRetriever>,
         res_meta_data_ret: Rc<dyn resource::ResourceMetadataRetriever>,
@@ -25,7 +25,7 @@ impl GetLinksImpl {
     }
 }
 
-impl<I> vault::GetLinks for GetLinksImpl<I>
+impl<I> vault::GetLinks for GetLinks<I>
 where
     I: LinkQueryResultBuilder,
 {
