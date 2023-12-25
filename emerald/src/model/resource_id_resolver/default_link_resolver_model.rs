@@ -7,7 +7,9 @@ pub struct DefaultResourceIdResolverModel {
 }
 
 impl DefaultResourceIdResolverModel {
-    pub fn new(it_src: impl IntoIterator<Item = (types::ResourceId, String)>) -> Self {
+    pub fn new(
+        it_src: impl IntoIterator<Item = (types::ResourceId, types::FilesystemMetadata)>,
+    ) -> Self {
         Self {
             link_map: ResourceIdLinkMap::new(it_src),
         }
