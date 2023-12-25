@@ -27,7 +27,7 @@ impl ResourceIdLinkMap {
 
         for (rid, fs_metadata) in it_src.into_iter() {
             let normalized_link = fs_metadata.name.to_lowercase();
-            let path = fs_metadata.location.to_lowercase().clone();
+            let path = fs_metadata.location.clone();
             let path_buf: PathBuf = path.clone().into();
             let path_2 = path_buf.strip_prefix(common_path).unwrap();
             let path_str = path_2.to_str().unwrap();
