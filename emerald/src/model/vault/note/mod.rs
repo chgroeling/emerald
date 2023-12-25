@@ -22,7 +22,7 @@ impl Note {
         rid: ResourceId,
         title: String,
         yaml: String,
-        md: String,
+        markdown: String,
         fs_metadata: FilesystemMetadata,
         doc_metadata: DocumentMetadata,
     ) -> Self {
@@ -30,7 +30,7 @@ impl Note {
             rid,
             title,
             yaml,
-            markdown: md,
+            markdown,
             fs_metadata,
             doc_metadata,
         }
