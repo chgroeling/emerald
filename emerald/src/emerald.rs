@@ -86,7 +86,7 @@ impl Emerald {
         debug!("Creation of DefaultContentModel: {:?}", elapsed);
 
         let start = Instant::now();
-        let name_iter = adapters::adapter_to_rid_and_name(all_vec)?;
+        let name_iter = adapters::adapter_to_rid_and_name(&all_fs_meta_data)?;
         let lrmod = Rc::new(resource_id_resolver::DefaultResourceIdResolverModel::new(
             name_iter,
         ));
@@ -112,6 +112,7 @@ impl Emerald {
         let ct_it = adapters::adapter_to_rid_and_yaml(c_it, md_analyzer);
         let md_doc_meta_data: Vec<_> =
             adapters::adapter_to_rid_and_document_metadata(ct_it).collect();
+
         let md_meta_data = zip(md_fs_meta_data.clone(), md_doc_meta_data).map(|f| {
             assert!(f.0 .0 == f.1 .0); // ensure that rids are the same.
             (f.0 .0, f.0 .1, f.1 .1)
