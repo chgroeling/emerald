@@ -39,17 +39,12 @@ impl Emerald {
         debug!("Creation of ResourceId vec: {:?}", elapsed);
 
         let start = Instant::now();
-        let _rid_retriever = resources::ResourceIdMap::new(&ros_rids);
-        let elapsed = start.elapsed();
-        debug!("Creation of ResourceIdMap: {:?}", elapsed);
-
-        let start = Instant::now();
         let ro_retriever = resources::ResourceObjectMap::new(&ros_rids);
         let elapsed = start.elapsed();
         debug!("Creation of ResourceObjectMap: {:?}", elapsed);
 
         let start = Instant::now();
-        let all_vec: Vec<_> = resources::adapter_to_rid(ros_rids).collect();
+        let all_vec: Vec<_> = ros_rids.into_iter().map(|(_, rid)| rid).collect();
         let elapsed = start.elapsed();
         debug!("Creation of ResourceId vec: {:?}", elapsed);
 
