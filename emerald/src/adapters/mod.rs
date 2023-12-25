@@ -6,9 +6,7 @@ mod adapters_to_rid_and_document_metadata;
 mod adapters_to_rid_and_filesystem_metadata;
 mod adapters_to_rid_and_link_2_tgt;
 mod adapters_to_rid_and_links;
-
 mod adapters_to_rid_and_yaml;
-pub mod to_link;
 pub mod to_vault;
 
 pub use adapters_to_link_src_2_tgt::adapter_to_link_src_2_tgt;
