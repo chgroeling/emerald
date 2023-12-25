@@ -17,6 +17,7 @@ enum NoteProperty {
     Location,
     Markdown,
     Aliases,
+    Keywords,
     Undefined,
 }
 
@@ -26,6 +27,7 @@ impl NoteProperty {
             NoteProperty::Depth => "depth",
             NoteProperty::Title => "title",
             NoteProperty::Aliases => "aliases",
+            NoteProperty::Keywords => "keywords",
             NoteProperty::Yaml => "yaml",
             NoteProperty::Modified => "modified",
             NoteProperty::Created => "created",
@@ -42,6 +44,7 @@ impl NoteProperty {
             "depth" => NoteProperty::Depth,
             "title" => NoteProperty::Title,
             "aliases" => NoteProperty::Aliases,
+            "keywords" => NoteProperty::Keywords,
             "yaml" => NoteProperty::Yaml,
             "modified" => NoteProperty::Modified,
             "created" => NoteProperty::Created,
@@ -66,6 +69,7 @@ fn note_property_to_str(
         NoteProperty::Title => note.title.clone(),
         NoteProperty::Aliases => format!("{:?}", note.doc_metadata.aliases),
         NoteProperty::Yaml => note.yaml.clone(),
+        NoteProperty::Keywords => format!("{:?}", note.doc_metadata.keywords.clone()),
         NoteProperty::Location => note.fs_metadata.location.clone(),
         NoteProperty::Markdown => note.markdown.clone(),
         NoteProperty::Modified => {
