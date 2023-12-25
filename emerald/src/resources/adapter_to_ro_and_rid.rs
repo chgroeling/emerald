@@ -48,7 +48,7 @@ mod tests {
             res,
             vec![(
                 ResourceObject::File("testpäth".into()),
-                ResourceId("[[testpäth]]".into())
+                ResourceId("testpäth".into())
             )]
         );
     }
@@ -66,7 +66,7 @@ mod tests {
             res,
             vec![(
                 ResourceObject::File("testpäth".into()),
-                ResourceId("[[testpäth]]".into())
+                ResourceId("testpäth".into())
             )]
         );
     }
