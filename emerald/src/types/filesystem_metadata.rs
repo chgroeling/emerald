@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use super::resource_type::ResourceType;
 
 #[derive(Debug, Clone, PartialEq, Hash, Default)]
@@ -8,6 +10,7 @@ pub struct FilesystemMetadata {
     pub size: u64,
     pub modified: i64,
     pub created: i64,
+    pub path: PathBuf,
 }
 
 pub struct FilesystemMetadataBuilder {
@@ -60,6 +63,10 @@ impl FilesystemMetadataBuilder {
             created,
             ..self.prep
         };
+        Self { prep: new_prep }
+    }
+    pub fn set_path(self, path: PathBuf) -> Self {
+        let new_prep = FilesystemMetadata { path, ..self.prep };
         Self { prep: new_prep }
     }
 
