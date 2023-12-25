@@ -31,6 +31,13 @@ impl ResourceIdLinkMap {
             let path_buf: PathBuf = path.clone().into();
             let path_2 = path_buf.strip_prefix(common_path).unwrap();
             let path_str = path_2.to_str().unwrap();
+            // Replace all windows path chars
+            let path_str: String = utils::normalize_str_iter(path_str)
+                .map(|ch| match ch {
+                    '\\' => '/',
+                    _ => ch,
+                })
+                .collect();
             trace!(
                 "Insert {:?} -> ({:?}, {:?})",
                 &normalized_link,
