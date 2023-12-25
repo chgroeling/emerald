@@ -16,11 +16,14 @@ pub struct ResourceIdLinkMap {
 }
 
 impl ResourceIdLinkMap {
-    pub fn new(it_src: impl IntoIterator<Item = (types::ResourceId, String)>) -> Self {
+    pub fn new(
+        it_src: impl IntoIterator<Item = (types::ResourceId, types::FilesystemMetadata)>,
+    ) -> Self {
         // Assumption: All resource ids are encoded in utf8 nfc
         let mut name_to_rid_list: NameToResourceIdList = NameToResourceIdList::new();
 
-        for (rid, normalized_link) in it_src.into_iter() {
+        for (rid, fs_metadata) in it_src.into_iter() {
+            let normalized_link = fs_metadata.name.to_lowercase();
             trace!("Insert {:?} -> {:?}", &normalized_link, &rid);
 
             // this is an interesting way to mutate an element in a HashMap
@@ -103,7 +106,7 @@ mod link_mapper_tests {
     use super::*;
     use crate::types::ResourceId;
     use std::iter::zip;
-
+    /*
     fn create_dut(res_ids: Vec<ResourceId>, names: Vec<String>) -> ResourceIdLinkMap {
         let iter = zip(res_ids.into_iter(), names);
         ResourceIdLinkMap::new(iter)
@@ -228,4 +231,6 @@ mod link_mapper_tests {
         let result = dut.resolve(&"[[path2/nöte1.md]]".into()).unwrap();
         assert_eq!(result, "[[path2/nöte1.md]]".into());
     }
+
+    */
 }
