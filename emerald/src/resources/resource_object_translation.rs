@@ -4,9 +4,6 @@ use crate::types;
 use crate::utils;
 use std::path::Path;
 
-const LINK_FRONT: &str = "[[";
-const LINK_BACK: &str = "]]";
-
 pub fn convert_ro_to_rid(ro: &ResourceObject, common_path: &Path) -> Result<types::ResourceId> {
     #[allow(clippy::infallible_destructuring_match)]
     let path = match ro {
@@ -28,8 +25,7 @@ pub fn convert_ro_to_rid(ro: &ResourceObject, common_path: &Path) -> Result<type
         _ => ch,
     });
 
-    let res_id_iter = LINK_FRONT.chars().chain(path_iter.chain(LINK_BACK.chars()));
-    let res_id_str: String = res_id_iter.collect();
+    let res_id_str: String = path_iter.collect();
     Ok(res_id_str.into())
 }
 
@@ -44,7 +40,7 @@ mod tests {
         let common_path = PathBuf::from("");
         let ro = File("a/b/c/note.md".into());
         let link = convert_ro_to_rid(&ro, &common_path);
-        assert_eq!(link.unwrap(), "[[a/b/c/note.md]]".into())
+        assert_eq!(link.unwrap(), "a/b/c/note.md".into())
     }
 
     #[test]
@@ -52,6 +48,6 @@ mod tests {
         let common_path = PathBuf::from("");
         let ro = File("a\\b\\c\\note.md".into());
         let link = convert_ro_to_rid(&ro, &common_path);
-        assert_eq!(link.unwrap(), "[[a/b/c/note.md]]".into())
+        assert_eq!(link.unwrap(), "a/b/c/note.md".into())
     }
 }
