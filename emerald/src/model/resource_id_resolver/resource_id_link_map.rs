@@ -16,8 +16,8 @@ pub struct ResourceIdLinkMap {
 }
 
 impl ResourceIdLinkMap {
-    pub fn new(
-        it_src: impl IntoIterator<Item = (types::ResourceId, types::FilesystemMetadata)>,
+    pub fn new<'a>(
+        it_src: impl IntoIterator<Item = &'a (types::ResourceId, types::FilesystemMetadata)>,
     ) -> Self {
         // Assumption: All resource ids are encoded in utf8 nfc
         let mut name_to_rid_list: NameToResourceIdList = NameToResourceIdList::new();
@@ -29,10 +29,10 @@ impl ResourceIdLinkMap {
             // this is an interesting way to mutate an element in a HashMap
             match name_to_rid_list.entry(normalized_link) {
                 Entry::Occupied(mut e) => {
-                    e.get_mut().push(rid);
+                    e.get_mut().push(rid.clone());
                 }
                 Entry::Vacant(e) => {
-                    e.insert(vec![rid]);
+                    e.insert(vec![rid.clone()]);
                 }
             }
         }
@@ -103,10 +103,11 @@ impl ResourceIdResolver for ResourceIdLinkMap {
 
 #[cfg(test)]
 mod link_mapper_tests {
+    /*
     use super::*;
     use crate::types::ResourceId;
     use std::iter::zip;
-    /*
+
     fn create_dut(res_ids: Vec<ResourceId>, names: Vec<String>) -> ResourceIdLinkMap {
         let iter = zip(res_ids.into_iter(), names);
         ResourceIdLinkMap::new(iter)
