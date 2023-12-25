@@ -2,13 +2,11 @@ use super::resource_id_resolver_trait::Hint;
 use super::resource_id_resolver_trait::ResourceIdResolver;
 use crate::error::{EmeraldError::*, Result};
 use crate::{types, utils};
+#[allow(unused_imports)]
+use log::{debug, error, info, trace, warn};
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::path::Path;
-use std::path::PathBuf;
-
-#[allow(unused_imports)]
-use log::{debug, error, info, trace, warn};
 
 pub type NameToResourceIdList = HashMap<String, Vec<(types::ResourceId, String)>>;
 
@@ -26,19 +24,21 @@ impl ResourceIdLinkMap {
         let mut name_to_rid_list: NameToResourceIdList = NameToResourceIdList::new();
 
         for (rid, fs_metadata) in it_src.into_iter() {
-            let path_to_file = fs_metadata.path.clone();
+            let path_to_file = &fs_metadata.path;
 
             // TODO: INTRODUCE RESULT TYPE
             // get name of file
             let os_filename = path_to_file.file_name().unwrap();
             let filename = os_filename.to_str().unwrap().to_string().to_lowercase();
             let normalized_link = utils::normalize_str(&filename);
+
             //
             let path = path_to_file.parent().unwrap();
-            let path_2 = path.strip_prefix(common_path).unwrap();
-            let path_str = path_2.to_str().unwrap();
+            let path_wo_prefix = path.strip_prefix(common_path).unwrap();
+            let path_wo_prefix = path_wo_prefix.to_str().unwrap();
+
             // Replace all windows path chars
-            let path_str: String = utils::normalize_str_iter(path_str)
+            let path_wo_prefix: String = utils::normalize_str_iter(path_wo_prefix)
                 .map(|ch| match ch {
                     '\\' => '/',
                     _ => ch,
@@ -49,16 +49,16 @@ impl ResourceIdLinkMap {
                 "Insert {:?} -> ({:?}, {:?})",
                 &normalized_link,
                 &rid,
-                &path_str
+                &path_wo_prefix
             );
 
             // this is an interesting way to mutate an element in a HashMap
             match name_to_rid_list.entry(normalized_link) {
                 Entry::Occupied(mut e) => {
-                    e.get_mut().push((rid.clone(), path_str));
+                    e.get_mut().push((rid.clone(), path_wo_prefix));
                 }
                 Entry::Vacant(e) => {
-                    e.insert(vec![(rid.clone(), path_str)]);
+                    e.insert(vec![(rid.clone(), path_wo_prefix)]);
                 }
             }
         }
