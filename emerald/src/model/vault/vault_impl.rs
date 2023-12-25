@@ -8,7 +8,6 @@ use super::note_types::NoteTypes;
 use super::notes_iter_src::NotesIterSrc;
 use super::vault_trait::Vault;
 use super::{NoteFactory, ResourceId};
-use crate::model::note;
 
 #[derive(Clone)]
 pub struct VaultImpl<I>
