@@ -31,13 +31,10 @@ impl ResourceIdLinkMap {
             let path_buf: PathBuf = path.clone().into();
             let path_2 = path_buf.strip_prefix(common_path).unwrap();
             let path_str = path_2.to_str().unwrap();
-
-            let rid_path = rid.split().unwrap().path.clone();
             trace!(
-                "Insert {:?} -> ({:?}, {:?} -> {:?})",
+                "Insert {:?} -> ({:?}, {:?})",
                 &normalized_link,
                 &rid,
-                &rid_path,
                 &path_str
             );
 
