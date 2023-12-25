@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use super::resource_id_link_map::ResourceIdLinkMap;
 use super::resource_id_resolver_trait::ResourceIdResolver;
 use crate::types;
@@ -9,9 +11,10 @@ pub struct DefaultResourceIdResolverModel {
 impl DefaultResourceIdResolverModel {
     pub fn new<'a>(
         it_src: impl IntoIterator<Item = &'a (types::ResourceId, types::FilesystemMetadata)>,
+        common_path: &'a Path,
     ) -> Self {
         Self {
-            link_map: ResourceIdLinkMap::new(it_src),
+            link_map: ResourceIdLinkMap::new(it_src, common_path),
         }
     }
 }

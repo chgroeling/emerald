@@ -74,8 +74,9 @@ where
         // get meta data from filesystem
         let fs_meta_data = self.fs_meta_data_access.get_meta_data_from_fs(path)?;
 
+        let parent = path.parent().ok_or(EmeraldError::Unknown)?;
         // get location of file
-        let Some(os_location) = path.to_str() else {
+        let Some(os_location) = parent.to_str() else {
             return Err(ValueError);
         };
 

@@ -4,11 +4,13 @@ use crate::error::{EmeraldError::*, Result};
 use crate::{types, utils};
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
+use std::path::Path;
+use std::path::PathBuf;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
-pub type NameToResourceIdList = HashMap<String, Vec<types::ResourceId>>;
+pub type NameToResourceIdList = HashMap<String, Vec<(types::ResourceId, String)>>;
 
 #[derive(Clone)]
 pub struct ResourceIdLinkMap {
@@ -18,21 +20,34 @@ pub struct ResourceIdLinkMap {
 impl ResourceIdLinkMap {
     pub fn new<'a>(
         it_src: impl IntoIterator<Item = &'a (types::ResourceId, types::FilesystemMetadata)>,
+        common_path: &'a Path,
     ) -> Self {
         // Assumption: All resource ids are encoded in utf8 nfc
         let mut name_to_rid_list: NameToResourceIdList = NameToResourceIdList::new();
 
         for (rid, fs_metadata) in it_src.into_iter() {
             let normalized_link = fs_metadata.name.to_lowercase();
-            trace!("Insert {:?} -> {:?}", &normalized_link, &rid);
+            let path = fs_metadata.location.to_lowercase().clone();
+            let path_buf: PathBuf = path.clone().into();
+            let path_2 = path_buf.strip_prefix(common_path).unwrap();
+            let path_str = path_2.to_str().unwrap();
+
+            let rid_path = rid.split().unwrap().path.clone();
+            trace!(
+                "Insert {:?} -> ({:?}, {:?} -> {:?})",
+                &normalized_link,
+                &rid,
+                &rid_path,
+                &path_str
+            );
 
             // this is an interesting way to mutate an element in a HashMap
             match name_to_rid_list.entry(normalized_link) {
                 Entry::Occupied(mut e) => {
-                    e.get_mut().push(rid.clone());
+                    e.get_mut().push((rid.clone(), path_str.to_owned()));
                 }
                 Entry::Vacant(e) => {
-                    e.insert(vec![rid.clone()]);
+                    e.insert(vec![(rid.clone(), path_str.to_owned())]);
                 }
             }
         }
@@ -74,14 +89,10 @@ impl ResourceIdResolver for ResourceIdLinkMap {
                 let link_path_norm = utils::normalize_str(link_path);
 
                 // if it has one ... try to match it with the result list.
-                for potential_link in match_list {
-                    let de_potential_link = potential_link.split()?;
-
-                    if let Some(plink_path) = de_potential_link.path {
-                        // Assumption: plink_path is already utf8 nfc encoded
-                        if plink_path == link_path_norm {
-                            return Ok(potential_link.clone());
-                        }
+                for (rid, plink_path) in match_list {
+                    // Assumption: plink_path is already utf8 nfc encoded
+                    if plink_path == &link_path_norm {
+                        return Ok(rid.clone());
                     }
                 }
                 // no link found
@@ -92,7 +103,7 @@ impl ResourceIdResolver for ResourceIdLinkMap {
                 }
 
                 let match_link = match_list[0].clone();
-                return Ok(match_link);
+                return Ok(match_link.0);
             }
         }
 
