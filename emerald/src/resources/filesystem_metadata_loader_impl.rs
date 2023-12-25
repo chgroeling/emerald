@@ -81,11 +81,11 @@ where
         };
 
         // get name of file
-        let os_filename = path.file_stem().ok_or(NotAFile(path.into()))?;
-        let name = os_filename.to_str().ok_or(ValueError)?.to_string();
+        let os_filename = path.file_name().ok_or(NotAFile(path.into()))?;
+        let filename = os_filename.to_str().ok_or(ValueError)?.to_string();
 
         // names should be in normalized nfc form. Mac Filesystems use other form.
-        let name = utils::normalize_str(&name);
+        let filename = utils::normalize_str(&filename);
         // determine resource type
         let resource_type = if let Some(os_ext) = path.extension() {
             let ext = os_ext.to_str().ok_or(ValueError)?;
@@ -100,7 +100,7 @@ where
         };
 
         let builder = FilesystemMetadataBuilder::new()
-            .set_name(name)
+            .set_name(filename)
             .set_location(os_location.to_owned())
             .set_size(fs_meta_data.size)
             .set_resource_type(resource_type)
