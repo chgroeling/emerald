@@ -26,10 +26,16 @@ impl ResourceIdLinkMap {
         let mut name_to_rid_list: NameToResourceIdList = NameToResourceIdList::new();
 
         for (rid, fs_metadata) in it_src.into_iter() {
-            let normalized_link = fs_metadata.name.to_lowercase();
-            let path = fs_metadata.location.clone();
-            let path_buf: PathBuf = path.clone().into();
-            let path_2 = path_buf.strip_prefix(common_path).unwrap();
+            let path_to_file = fs_metadata.path.clone();
+
+            // TODO: INTRODUCE RESULT TYPE
+            // get name of file
+            let os_filename = path_to_file.file_name().unwrap();
+            let filename = os_filename.to_str().unwrap().to_string().to_lowercase();
+            let normalized_link = utils::normalize_str(&filename);
+            //
+            let path = path_to_file.parent().unwrap();
+            let path_2 = path.strip_prefix(common_path).unwrap();
             let path_str = path_2.to_str().unwrap();
             // Replace all windows path chars
             let path_str: String = utils::normalize_str_iter(path_str)
@@ -38,6 +44,7 @@ impl ResourceIdLinkMap {
                     _ => ch,
                 })
                 .collect();
+
             trace!(
                 "Insert {:?} -> ({:?}, {:?})",
                 &normalized_link,
@@ -48,10 +55,10 @@ impl ResourceIdLinkMap {
             // this is an interesting way to mutate an element in a HashMap
             match name_to_rid_list.entry(normalized_link) {
                 Entry::Occupied(mut e) => {
-                    e.get_mut().push((rid.clone(), path_str.to_owned()));
+                    e.get_mut().push((rid.clone(), path_str));
                 }
                 Entry::Vacant(e) => {
-                    e.insert(vec![(rid.clone(), path_str.to_owned())]);
+                    e.insert(vec![(rid.clone(), path_str)]);
                 }
             }
         }

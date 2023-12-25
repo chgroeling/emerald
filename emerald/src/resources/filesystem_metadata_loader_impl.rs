@@ -81,7 +81,7 @@ where
         };
 
         // get name of file
-        let os_filename = path.file_name().ok_or(NotAFile(path.into()))?;
+        let os_filename = path.file_stem().ok_or(NotAFile(path.into()))?;
         let filename = os_filename.to_str().ok_or(ValueError)?.to_string();
 
         // names should be in normalized nfc form. Mac Filesystems use other form.
@@ -102,6 +102,7 @@ where
         let builder = FilesystemMetadataBuilder::new()
             .set_name(filename)
             .set_location(os_location.to_owned())
+            .set_path(path.to_owned())
             .set_size(fs_meta_data.size)
             .set_resource_type(resource_type)
             .set_created(fs_meta_data.created as i64)
