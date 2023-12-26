@@ -7,7 +7,6 @@ mod get_path_list;
 
 mod adapter_to_rid_and_content;
 mod filesystem_metadata_loader;
-mod resource_id_retriever;
 mod resource_object;
 mod resource_object_map;
 mod resource_object_retriever;
