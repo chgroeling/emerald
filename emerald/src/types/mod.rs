@@ -8,7 +8,6 @@ mod link_frm_src;
 mod link_src_2_tgt;
 mod md_block;
 mod resource_id;
-mod resource_id_comps;
 mod resource_type;
 
 pub use self::content::Content;
