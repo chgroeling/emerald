@@ -40,7 +40,10 @@ impl Emerald {
         let start = Instant::now();
         let ros_rids: Vec<_> = resources::adapter_to_ro_and_rid(&all_ros_vec, vault_path).collect();
         let elapsed = start.elapsed();
-        debug!("Creation of ResourceId vec: {:?}", elapsed);
+        debug!(
+            "Creation of (ResourceObject, ResourceId) vec: {:?}",
+            elapsed
+        );
 
         let start = Instant::now();
         let ro_retriever = resources::ResourceObjectMap::new(&ros_rids);
@@ -78,7 +81,6 @@ impl Emerald {
             adapters::filter_rid_and_meta_data(&all_fs_meta_data).collect();
 
         let md_rids: Vec<_> = md_fs_meta_data.iter().map(|f| f.0.clone()).collect();
-
         let elapsed = start.elapsed();
         debug!("Creation of ResourceId md vec: {:?}", elapsed);
 
@@ -88,6 +90,15 @@ impl Emerald {
         let cmod = Rc::new(content::DefaultContentModel::new(md_content_vec));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultContentModel: {:?}", elapsed);
+
+        let start = Instant::now();
+        let md_analyzer = markdown::MarkdownAnalyzerImpl::new();
+        let c_it = adapters::adapter_to_rids_and_content(md_rids.iter(), cmod.as_ref());
+        let ct_it = adapters::adapter_to_rid_and_yaml(c_it, md_analyzer);
+        let md_doc_meta_data: Vec<_> =
+            adapters::adapter_to_rid_and_document_metadata(ct_it).collect();
+        let elapsed = start.elapsed();
+        debug!("YAML extraction: {:?}", elapsed);
 
         let start = Instant::now();
         let resource_loc_iter = adapters::to_resource_id_resolver::adapter_to_resourece_loc(
@@ -112,15 +123,6 @@ impl Emerald {
         let s2t_idx: Vec<_> = adapters::adapter_to_link_src_2_tgt(ct_it, lrmod.as_ref()).collect();
         let elapsed = start.elapsed();
         debug!("Link and Backlink extraction: {:?}", elapsed);
-
-        let start = Instant::now();
-        let md_analyzer = markdown::MarkdownAnalyzerImpl::new();
-        let c_it = adapters::adapter_to_rids_and_content(md_rids.iter(), cmod.as_ref());
-        let ct_it = adapters::adapter_to_rid_and_yaml(c_it, md_analyzer);
-        let md_doc_meta_data: Vec<_> =
-            adapters::adapter_to_rid_and_document_metadata(ct_it).collect();
-        let elapsed = start.elapsed();
-        debug!("YAML extraction: {:?}", elapsed);
 
         let start = Instant::now();
         let lmod = Rc::new(link::DefaultLinkModel::new(s2t_idx));
