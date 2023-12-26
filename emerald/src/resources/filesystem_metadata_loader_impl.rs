@@ -3,7 +3,7 @@ use super::resource_object::ResourceObject;
 use super::resource_object_retriever::ResourceObjectRetriever;
 use crate::error::{EmeraldError::*, Result};
 use crate::types::FilesystemMetadataBuilder;
-use crate::{types, utils, EmeraldError};
+use crate::{types, EmeraldError};
 use std::fs;
 use std::path::Path;
 use std::time::UNIX_EPOCH;
@@ -74,12 +74,6 @@ where
         // get meta data from filesystem
         let fs_meta_data = self.fs_meta_data_access.get_meta_data_from_fs(path)?;
 
-        // get name of file
-        let os_filename = path.file_stem().ok_or(NotAFile(path.into()))?;
-        let filename = os_filename.to_str().ok_or(ValueError)?.to_string();
-
-        // names should be in normalized nfc form. Mac Filesystems use other form.
-        let filename = utils::normalize_str(&filename);
         // determine resource type
         let resource_type = if let Some(os_ext) = path.extension() {
             let ext = os_ext.to_str().ok_or(ValueError)?;
@@ -94,7 +88,6 @@ where
         };
 
         let builder = FilesystemMetadataBuilder::new()
-            .set_name(filename)
             .set_path(path.to_owned())
             .set_size(fs_meta_data.size)
             .set_resource_type(resource_type)
