@@ -10,7 +10,7 @@ pub struct DefaultResourceIdResolverModel {
 
 impl DefaultResourceIdResolverModel {
     pub fn new<'a>(
-        it_src: impl IntoIterator<Item = &'a (types::ResourceId, types::FilesystemMetadata)>,
+        it_src: impl IntoIterator<Item = &'a (types::ResourceId, types::FilesystemMetadata)> + 'a,
         common_path: &'a Path,
     ) -> Self {
         Self {
