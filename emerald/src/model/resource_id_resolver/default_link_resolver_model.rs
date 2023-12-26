@@ -1,8 +1,7 @@
-use super::adapter_to_resource_loc::adapter_to_resourece_loc;
 use super::resource_id_link_map::ResourceIdLinkMap;
 use super::resource_id_resolver_trait::ResourceIdResolver;
+use super::ResourceLoc;
 use crate::types;
-use std::path::Path;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
@@ -12,13 +11,9 @@ pub struct DefaultResourceIdResolverModel {
 }
 
 impl DefaultResourceIdResolverModel {
-    pub fn new<'a>(
-        it_src: impl IntoIterator<Item = &'a (types::ResourceId, types::FilesystemMetadata)> + 'a,
-        common_path: &'a Path,
-    ) -> Self {
-        let resource_loc_iter = adapter_to_resourece_loc(it_src, common_path);
+    pub fn new<'a>(it_src: impl IntoIterator<Item = ResourceLoc> + 'a) -> Self {
         Self {
-            link_map: ResourceIdLinkMap::new(resource_loc_iter),
+            link_map: ResourceIdLinkMap::new(it_src),
         }
     }
 }

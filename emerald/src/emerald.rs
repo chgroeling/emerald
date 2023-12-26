@@ -87,9 +87,12 @@ impl Emerald {
         debug!("Creation of DefaultContentModel: {:?}", elapsed);
 
         let start = Instant::now();
-        let lrmod = Rc::new(resource_id_resolver::DefaultResourceIdResolverModel::new(
+        let resource_loc_iter = adapters::to_resource_id_resolver::adapter_to_resourece_loc(
             &all_fs_meta_data,
             vault_path,
+        );
+        let lrmod = Rc::new(resource_id_resolver::DefaultResourceIdResolverModel::new(
+            resource_loc_iter,
         ));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultResourceIdResolverModel: {:?}", elapsed);
