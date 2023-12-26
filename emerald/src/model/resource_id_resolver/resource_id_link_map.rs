@@ -17,42 +17,60 @@ pub struct ResourceIdLinkMap {
     name_to_rid_list: NameToResourceIdList,
 }
 
-fn adapter<'a>(
+pub struct ResourceLoc {
+    rid: types::ResourceId,
+    norm_filename: Box<str>,
+    dir_path: Box<str>,
+}
+
+fn adapter_to_resourece_loc<'a>(
     it_src: impl IntoIterator<Item = &'a (types::ResourceId, types::FilesystemMetadata)> + 'a,
     common_path: &'a Path,
-) -> impl Iterator<Item = (Box<str>, types::ResourceId, Box<str>)> + 'a {
+) -> impl Iterator<Item = ResourceLoc> + 'a {
     it_src.into_iter().map(move |(rid, fs_metadata)| {
         let path_to_file = &fs_metadata.path;
 
-        // TODO: INTRODUCE RESULT TYPE
-        // get name of file
-        let os_filename = path_to_file.file_name().unwrap();
-        let filename = os_filename.to_str().unwrap().to_string().to_lowercase();
-        let normalized_link = utils::normalize_str(&filename).into_boxed_str();
+        // get normalized name of file
+        let os_filename = path_to_file
+            .file_name()
+            .expect("Pathes ending with '..' are not allowed here");
+        let filename = os_filename
+            .to_str()
+            .expect("Filename must have a valid utf-8 representation");
+
+        let norm_filename = utils::normalize_str(&filename.to_lowercase()).into_boxed_str();
 
         //
-        let path = path_to_file.parent().unwrap();
-        let path_wo_prefix = path.strip_prefix(common_path).unwrap();
-        let path_wo_prefix = path_wo_prefix.to_str().unwrap();
+        let dir_path = path_to_file.parent().expect("Invalid directory path");
+        let rel_dir_path = dir_path
+            .strip_prefix(common_path)
+            .expect("Common path is not part of path");
+        let rel_dir_path = rel_dir_path
+            .to_str()
+            .expect("Directroy path must have a valid utf-8 representation");
 
         // Replace all windows path chars
-        let path_wo_prefix: String = utils::normalize_str_iter(path_wo_prefix)
+        let rel_dir_path: String = utils::normalize_str_iter(rel_dir_path)
             .map(|ch| match ch {
                 '\\' => '/',
                 _ => ch,
             })
             .collect();
 
-        let path_wo_prefix = path_wo_prefix.into_boxed_str();
+        let rel_dir_path = rel_dir_path.into_boxed_str();
 
         trace!(
             "Insert {:?} -> ({:?}, {:?})",
-            &normalized_link,
+            &norm_filename,
             &rid,
-            &path_wo_prefix
+            &rel_dir_path
         );
 
-        (normalized_link, rid.clone(), path_wo_prefix)
+        ResourceLoc {
+            norm_filename,
+            rid: rid.clone(),
+            dir_path: rel_dir_path,
+        }
     })
 }
 
@@ -63,15 +81,15 @@ impl ResourceIdLinkMap {
     ) -> Self {
         // Assumption: All resource ids are encoded in utf8 nfc
         let mut name_to_rid_list: NameToResourceIdList = NameToResourceIdList::new();
-        let a = adapter(it_src, common_path);
-        for (normalized_link, rid, path_wo_prefix) in a.into_iter() {
+        let a = adapter_to_resourece_loc(it_src, common_path);
+        for link_data in a.into_iter() {
             // this is an interesting way to mutate an element in a HashMap
-            match name_to_rid_list.entry(normalized_link) {
+            match name_to_rid_list.entry(link_data.norm_filename) {
                 Entry::Occupied(mut e) => {
-                    e.get_mut().push((rid, path_wo_prefix));
+                    e.get_mut().push((link_data.rid, link_data.dir_path));
                 }
                 Entry::Vacant(e) => {
-                    e.insert(vec![(rid, path_wo_prefix)]);
+                    e.insert(vec![(link_data.rid, link_data.dir_path)]);
                 }
             }
         }
