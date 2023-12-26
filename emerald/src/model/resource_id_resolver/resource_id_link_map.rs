@@ -17,50 +17,61 @@ pub struct ResourceIdLinkMap {
     name_to_rid_list: NameToResourceIdList,
 }
 
+fn adapter<'a>(
+    it_src: impl IntoIterator<Item = &'a (types::ResourceId, types::FilesystemMetadata)> + 'a,
+    common_path: &'a Path,
+) -> impl Iterator<Item = (Box<str>, types::ResourceId, Box<str>)> + 'a {
+    it_src.into_iter().map(move |(rid, fs_metadata)| {
+        let path_to_file = &fs_metadata.path;
+
+        // TODO: INTRODUCE RESULT TYPE
+        // get name of file
+        let os_filename = path_to_file.file_name().unwrap();
+        let filename = os_filename.to_str().unwrap().to_string().to_lowercase();
+        let normalized_link = utils::normalize_str(&filename).into_boxed_str();
+
+        //
+        let path = path_to_file.parent().unwrap();
+        let path_wo_prefix = path.strip_prefix(common_path).unwrap();
+        let path_wo_prefix = path_wo_prefix.to_str().unwrap();
+
+        // Replace all windows path chars
+        let path_wo_prefix: String = utils::normalize_str_iter(path_wo_prefix)
+            .map(|ch| match ch {
+                '\\' => '/',
+                _ => ch,
+            })
+            .collect();
+
+        let path_wo_prefix = path_wo_prefix.into_boxed_str();
+
+        trace!(
+            "Insert {:?} -> ({:?}, {:?})",
+            &normalized_link,
+            &rid,
+            &path_wo_prefix
+        );
+
+        (normalized_link, rid.clone(), path_wo_prefix)
+    })
+}
+
 impl ResourceIdLinkMap {
     pub fn new<'a>(
-        it_src: impl IntoIterator<Item = &'a (types::ResourceId, types::FilesystemMetadata)>,
+        it_src: impl IntoIterator<Item = &'a (types::ResourceId, types::FilesystemMetadata)> + 'a,
         common_path: &'a Path,
     ) -> Self {
         // Assumption: All resource ids are encoded in utf8 nfc
         let mut name_to_rid_list: NameToResourceIdList = NameToResourceIdList::new();
-
-        for (rid, fs_metadata) in it_src.into_iter() {
-            let path_to_file = &fs_metadata.path;
-
-            // TODO: INTRODUCE RESULT TYPE
-            // get name of file
-            let os_filename = path_to_file.file_name().unwrap();
-            let filename = os_filename.to_str().unwrap().to_string().to_lowercase();
-            let normalized_link = utils::normalize_str(&filename);
-
-            //
-            let path = path_to_file.parent().unwrap();
-            let path_wo_prefix = path.strip_prefix(common_path).unwrap();
-            let path_wo_prefix = path_wo_prefix.to_str().unwrap();
-
-            // Replace all windows path chars
-            let path_wo_prefix: String = utils::normalize_str_iter(path_wo_prefix)
-                .map(|ch| match ch {
-                    '\\' => '/',
-                    _ => ch,
-                })
-                .collect();
-
-            trace!(
-                "Insert {:?} -> ({:?}, {:?})",
-                &normalized_link,
-                &rid,
-                &path_wo_prefix
-            );
-
+        let a = adapter(it_src, common_path);
+        for (normalized_link, rid, path_wo_prefix) in a.into_iter() {
             // this is an interesting way to mutate an element in a HashMap
-            match name_to_rid_list.entry(normalized_link.into()) {
+            match name_to_rid_list.entry(normalized_link) {
                 Entry::Occupied(mut e) => {
-                    e.get_mut().push((rid.clone(), path_wo_prefix.into()));
+                    e.get_mut().push((rid, path_wo_prefix));
                 }
                 Entry::Vacant(e) => {
-                    e.insert(vec![(rid.clone(), path_wo_prefix.into())]);
+                    e.insert(vec![(rid, path_wo_prefix)]);
                 }
             }
         }
@@ -106,7 +117,7 @@ impl ResourceIdResolver for ResourceIdLinkMap {
                 // if it has one ... try to match it with the result list.
                 for (rid, plink_path) in match_list {
                     // Assumption: plink_path is already utf8 nfc encoded
-                    if plink_path.as_ref() == &link_path_norm {
+                    if plink_path.as_ref() == link_path_norm {
                         return Ok(rid.clone());
                     }
                 }
