@@ -8,7 +8,7 @@ use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::path::Path;
 
-pub type NameToResourceIdList = HashMap<String, Vec<(types::ResourceId, String)>>;
+pub type NameToResourceIdList = HashMap<Box<str>, Vec<(types::ResourceId, Box<str>)>>;
 
 #[derive(Clone)]
 pub struct ResourceIdLinkMap {
@@ -53,12 +53,12 @@ impl ResourceIdLinkMap {
             );
 
             // this is an interesting way to mutate an element in a HashMap
-            match name_to_rid_list.entry(normalized_link) {
+            match name_to_rid_list.entry(normalized_link.into()) {
                 Entry::Occupied(mut e) => {
-                    e.get_mut().push((rid.clone(), path_wo_prefix));
+                    e.get_mut().push((rid.clone(), path_wo_prefix.into()));
                 }
                 Entry::Vacant(e) => {
-                    e.insert(vec![(rid.clone(), path_wo_prefix)]);
+                    e.insert(vec![(rid.clone(), path_wo_prefix.into())]);
                 }
             }
         }
@@ -74,14 +74,16 @@ impl ResourceIdResolver for ResourceIdLinkMap {
         let link_name_lc = utils::normalize_str(&link_comp.name.trim().to_lowercase());
 
         // check if md files in our hashmap are matching the given link
-        let matches_of_exact_name = self.name_to_rid_list.get(&link_name_lc);
+        let matches_of_exact_name = self
+            .name_to_rid_list
+            .get(&link_name_lc.clone().into_boxed_str());
 
         // no .. then perhaps there are files without adding ".md" that will match
         let matches = if matches_of_exact_name.is_none() {
             // add a .md extension to the link to check if a note with this name exists
             let link_name_lc_md = link_name_lc.clone() + ".md";
 
-            self.name_to_rid_list.get(&link_name_lc_md)
+            self.name_to_rid_list.get(&link_name_lc_md.into_boxed_str())
         } else {
             matches_of_exact_name
         };
@@ -102,7 +104,7 @@ impl ResourceIdResolver for ResourceIdLinkMap {
                 // if it has one ... try to match it with the result list.
                 for (rid, plink_path) in match_list {
                     // Assumption: plink_path is already utf8 nfc encoded
-                    if plink_path == &link_path_norm {
+                    if plink_path.as_ref() == &link_path_norm {
                         return Ok(rid.clone());
                     }
                 }
