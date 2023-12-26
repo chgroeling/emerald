@@ -28,7 +28,7 @@ pub fn adapter_to_resourece_loc<'a>(
             .expect("Common path is not part of path");
         let rel_dir_path = rel_dir_path
             .to_str()
-            .expect("Directroy path must have a valid utf-8 representation");
+            .expect("Directory path must have a valid utf-8 representation");
 
         // Replace all windows path chars
         let rel_dir_path: String = utils::normalize_str_iter(rel_dir_path)
