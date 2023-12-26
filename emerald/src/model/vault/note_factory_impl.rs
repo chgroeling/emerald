@@ -23,15 +23,15 @@ impl NoteFactoryImpl {
 }
 
 impl NoteFactory for NoteFactoryImpl {
-    fn create_note(&self, rid: ResourceId) -> Note {
-        let (title, filesystem_md, document_md) = self.metadata_retriever.retrieve(&rid);
+    fn create_note(&self, rid: &ResourceId) -> Note {
+        let (title, filesystem_md, document_md) = self.metadata_retriever.retrieve(rid);
         let content = self.content_retriever.retrieve(&rid);
         let markdown_splitter = MarkdownFrontMatterSplitter::new();
 
         let (yaml_str, markdown) = markdown_splitter.split(content);
 
         Note::new(
-            rid,
+            rid.clone(),
             title,
             yaml_str.to_string(),
             markdown.to_string(),
