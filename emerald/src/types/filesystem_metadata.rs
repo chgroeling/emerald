@@ -4,7 +4,6 @@ use super::resource_type::ResourceType;
 
 #[derive(Debug, Clone, PartialEq, Hash, Default)]
 pub struct FilesystemMetadata {
-    name: String,
     pub resource_type: ResourceType,
     pub size: u64,
     pub modified: i64,
@@ -21,11 +20,6 @@ impl FilesystemMetadataBuilder {
         Self {
             prep: Default::default(),
         }
-    }
-
-    pub fn set_name(self, name: String) -> Self {
-        let new_prep = FilesystemMetadata { name, ..self.prep };
-        Self { prep: new_prep }
     }
 
     pub fn set_resource_type(self, resource_type: ResourceType) -> Self {

@@ -18,7 +18,6 @@ mod tests {
 
     pub fn create_meta_data(resource_type: types::ResourceType) -> types::FilesystemMetadata {
         types::FilesystemMetadataBuilder::new()
-            .set_name("".into())
             .set_resource_type(resource_type)
             .build()
     }
