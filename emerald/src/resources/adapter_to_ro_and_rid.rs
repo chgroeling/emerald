@@ -7,10 +7,10 @@ use std::path::Path;
 pub fn adapter_to_ro_and_rid<'a>(
     it_src: impl IntoIterator<Item = &'a ResourceObject> + 'a,
     common_path: &'a Path,
-) -> impl Iterator<Item = (ResourceObject, types::ResourceId)> + 'a {
+) -> impl Iterator<Item = (&ResourceObject, types::ResourceId)> + 'a {
     it_src
         .into_iter()
-        .map(|ro| (ro.clone(), convert_ro_to_rid(ro, common_path)))
+        .map(move |ro| (ro, convert_ro_to_rid(ro, common_path)))
 }
 
 #[cfg(test)]
@@ -30,7 +30,7 @@ mod tests {
         assert_eq!(
             res,
             vec![(
-                ResourceObject::File("testpäth".into()),
+                &ResourceObject::File("testpäth".into()),
                 ResourceId("testpäth".into())
             )]
         );
@@ -46,7 +46,7 @@ mod tests {
         assert_eq!(
             res,
             vec![(
-                ResourceObject::File("testpäth".into()),
+                &ResourceObject::File("testpäth".into()),
                 ResourceId("testpäth".into())
             )]
         );

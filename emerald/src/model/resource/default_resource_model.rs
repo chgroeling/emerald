@@ -16,7 +16,7 @@ impl DefaultResourceModel {
     ) -> DefaultResourceModel {
         let files: Vec<_> = it_files
             .into_iter()
-            .map(|&(ref rid, ref fs_md)| (rid, ResourceMetadata::from(fs_md)))
+            .map(|(rid, fs_md)| (rid, ResourceMetadata::from(fs_md)))
             .collect();
 
         DefaultResourceModel {
