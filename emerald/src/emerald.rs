@@ -34,7 +34,7 @@ impl Emerald {
         let start = Instant::now();
         let path_list = resources::get_path_list(vault_path)?;
         let all_ros_vec: Vec<_> = resources::adapter_to_ro(path_list).collect();
-        let ros_rids: Vec<_> = resources::adapter_to_ro_and_rid(all_ros_vec, vault_path)?.collect();
+        let ros_rids: Vec<_> = resources::adapter_to_ro_and_rid(&all_ros_vec, vault_path).collect();
         let elapsed = start.elapsed();
         debug!("Creation of ResourceId vec: {:?}", elapsed);
 

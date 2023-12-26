@@ -1,31 +1,16 @@
 use super::{resource_object::ResourceObject, resource_object_translation::convert_ro_to_rid};
-use crate::error::{EmeraldError::*, Result};
 use crate::types;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 use std::path::Path;
 
 pub fn adapter_to_ro_and_rid<'a>(
-    it_src: impl IntoIterator<Item = ResourceObject> + 'a,
+    it_src: impl IntoIterator<Item = &'a ResourceObject> + 'a,
     common_path: &'a Path,
-) -> Result<impl Iterator<Item = (ResourceObject, types::ResourceId)> + 'a> {
-    let ret: Result<Vec<_>> = it_src
+) -> impl Iterator<Item = (ResourceObject, types::ResourceId)> + 'a {
+    it_src
         .into_iter()
-        .map(|ro| {
-            let opt_rid = convert_ro_to_rid(&ro, common_path);
-            if let Ok(rid) = opt_rid {
-                Ok((ro, rid))
-            } else {
-                error!("Can't convert ResourceObject '{:?}' to ResourceId.", &ro);
-                Err(ValueError)
-            }
-        })
-        .collect();
-
-    match ret {
-        Ok(vector) => Ok(vector.into_iter()),
-        Err(err) => Err(err),
-    }
+        .map(|ro| (ro.clone(), convert_ro_to_rid(ro, common_path)))
 }
 
 #[cfg(test)]
@@ -40,9 +25,7 @@ mod tests {
         let ros: Vec<_> = vec![ResourceObject::File("testpäth".into())];
         let common_path: PathBuf = "".into();
 
-        let res: Vec<_> = adapter_to_ro_and_rid(ros.into_iter(), &common_path)
-            .unwrap()
-            .collect();
+        let res: Vec<_> = adapter_to_ro_and_rid(ros.iter(), &common_path).collect();
 
         assert_eq!(
             res,
@@ -58,9 +41,7 @@ mod tests {
         let ros: Vec<_> = vec![ResourceObject::File("testpäth".into())];
         let common_path: PathBuf = "".into();
 
-        let res: Vec<_> = adapter_to_ro_and_rid(ros.into_iter(), &common_path)
-            .unwrap()
-            .collect();
+        let res: Vec<_> = adapter_to_ro_and_rid(ros.iter(), &common_path).collect();
 
         assert_eq!(
             res,
