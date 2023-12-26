@@ -19,4 +19,10 @@ impl From<String> for ResourceId {
     }
 }
 
+impl From<Box<str>> for ResourceId {
+    fn from(value: Box<str>) -> Self {
+        Self(value)
+    }
+}
+
 impl Eq for ResourceId {}
