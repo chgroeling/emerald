@@ -98,7 +98,7 @@ impl Emerald {
         debug!("Creation of DefaultResourceIdResolverModel: {:?}", elapsed);
 
         let start = Instant::now();
-        let rmod = Rc::new(resource::DefaultResourceModel::new(all_fs_meta_data));
+        let rmod = Rc::new(resource::DefaultResourceModel::new(&all_fs_meta_data));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultResourceModel: {:?}", elapsed);
 

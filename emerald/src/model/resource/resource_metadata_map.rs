@@ -9,10 +9,12 @@ pub struct ResourceMetadataMap {
 }
 
 impl ResourceMetadataMap {
-    pub fn new(it_src: impl IntoIterator<Item = (types::ResourceId, ResourceMetadata)>) -> Self {
+    pub fn new<'a>(
+        it_src: impl IntoIterator<Item = (&'a types::ResourceId, ResourceMetadata)> + 'a,
+    ) -> Self {
         let mut meta_data_map = HashMap::<types::ResourceId, ResourceMetadata>::new();
         for (rid, meta_data) in it_src.into_iter() {
-            if meta_data_map.insert(rid, meta_data).is_some() {
+            if meta_data_map.insert(rid.to_owned(), meta_data).is_some() {
                 panic!("This should not happen. No duplicate entries allowed.")
             }
         }

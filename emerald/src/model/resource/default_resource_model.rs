@@ -11,11 +11,13 @@ pub struct DefaultResourceModel {
 }
 
 impl DefaultResourceModel {
-    pub fn new(
-        it_files: impl IntoIterator<Item = (types::ResourceId, types::FilesystemMetadata)>,
+    pub fn new<'a>(
+        it_files: impl IntoIterator<Item = &'a (types::ResourceId, types::FilesystemMetadata)> + 'a,
     ) -> DefaultResourceModel {
-        let files: Vec<(_, ResourceMetadata)> =
-            it_files.into_iter().map(|f| (f.0, f.1.into())).collect();
+        let files: Vec<_> = it_files
+            .into_iter()
+            .map(|&(ref rid, ref fs_md)| (rid, ResourceMetadata::from(fs_md)))
+            .collect();
 
         DefaultResourceModel {
             file_index: files.iter().map(|f| f.0.clone()).collect(),
