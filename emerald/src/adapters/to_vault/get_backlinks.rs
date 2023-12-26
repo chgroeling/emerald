@@ -2,6 +2,7 @@ use super::link_query_result_builder::LinkQueryResultBuilder;
 use super::link_query_result_builder::LinkQueryResultBuilderImpl;
 use crate::model::vault;
 use crate::model::{link, resource};
+use crate::types;
 use std::marker::PhantomData;
 use std::rc::Rc;
 
@@ -32,7 +33,7 @@ where
         &self,
         note: &vault::Note,
     ) -> Box<dyn Iterator<Item = vault::LinkQueryResult>> {
-        let rid = note.rid.clone().into();
+        let rid: types::ResourceId = note.rid.clone().into();
         let Some(out_itr) = self.src_link_retriever.retrieve(&rid) else {
             return Box::new(std::iter::empty());
         };
