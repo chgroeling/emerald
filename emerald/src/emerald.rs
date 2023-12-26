@@ -119,12 +119,6 @@ impl Emerald {
         let ct_it = adapters::adapter_to_rid_and_yaml(c_it, md_analyzer);
         let md_doc_meta_data: Vec<_> =
             adapters::adapter_to_rid_and_document_metadata(ct_it).collect();
-
-        let md_meta_data = zip(md_fs_meta_data.clone(), md_doc_meta_data).map(|f| {
-            assert!(f.0 .0 == f.1 .0); // ensure that rids are the same.
-            (f.0 .0, f.0 .1, f.1 .1)
-        });
-
         let elapsed = start.elapsed();
         debug!("YAML extraction: {:?}", elapsed);
 
@@ -134,6 +128,10 @@ impl Emerald {
         debug!("Creation of DefaultLinkModel: {:?}", elapsed);
 
         let start = Instant::now();
+        let md_meta_data = zip(md_fs_meta_data.clone(), md_doc_meta_data).map(|f| {
+            assert!(f.0 .0 == f.1 .0); // ensure that rids are the same.
+            (f.0 .0, f.0 .1, f.1 .1)
+        });
         let nmod = Rc::new(note::DefaultNoteModel::new(md_meta_data));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultNoteModel: {:?}", elapsed);
