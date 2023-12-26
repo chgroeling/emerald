@@ -4,7 +4,7 @@ use super::resource_type::ResourceType;
 
 #[derive(Debug, Clone, PartialEq, Hash, Default)]
 pub struct FilesystemMetadata {
-    pub name: String,
+    name: String,
     pub resource_type: ResourceType,
     pub size: u64,
     pub modified: i64,

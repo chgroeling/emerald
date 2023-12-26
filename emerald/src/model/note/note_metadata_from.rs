@@ -24,8 +24,16 @@ impl From<(types::FilesystemMetadata, types::DocumentMetadata)> for NoteMetadata
             tags: value.1.tags,
         };
 
+        // get name of file
+        let os_filename = value.0.path.file_stem().expect("Filename expected");
+        // Currently the title is nothing else than the filename without extension
+        let title = os_filename
+            .to_str()
+            .expect("Filename must have a valid utf-8 representation")
+            .to_owned();
+
         Self {
-            title: value.0.name,
+            title,
             filesystem: fs_md,
             document: doc_md,
         }

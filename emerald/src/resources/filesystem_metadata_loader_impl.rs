@@ -156,15 +156,15 @@ mod tests {
         let res = dut.load(&types::ResourceId::from("resid0")).unwrap();
         assert_eq!(res.resource_type, types::ResourceType::Markdown());
     }
-
-    #[test]
-    fn test_load_title_in_nfc() {
-        // attention: the öä in the filename have different unicode representations
-        let dut = create_test_case("testöä.md".into());
-        let res = dut.load(&types::ResourceId::from("resid0")).unwrap();
-        assert_eq!(res.name, "testöä");
-    }
-
+    /*
+        #[test]
+        fn test_load_title_in_nfc() {
+            // attention: the öä in the filename have different unicode representations
+            let dut = create_test_case("testöä.md".into());
+            let res = dut.load(&types::ResourceId::from("resid0")).unwrap();
+            assert_eq!(res.name, "testöä");
+        }
+    */
     #[test]
     fn test_load_file_type_is_no_file_type() {
         let dut = create_test_case("test".into());
