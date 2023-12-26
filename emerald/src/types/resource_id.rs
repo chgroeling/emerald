@@ -1,5 +1,3 @@
-use super::resource_id_comps::ResourceIdComps;
-
 #[derive(Debug, Clone, PartialEq, Hash)]
 
 /// A ResourceId points to a unique Resource
@@ -22,9 +20,3 @@ impl From<String> for ResourceId {
 }
 
 impl Eq for ResourceId {}
-
-impl From<ResourceIdComps> for ResourceId {
-    fn from(value: ResourceIdComps) -> Self {
-        Self(value.to_string())
-    }
-}
