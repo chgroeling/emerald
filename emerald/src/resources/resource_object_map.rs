@@ -13,11 +13,11 @@ pub struct ResourceObjectMap {
 
 impl ResourceObjectMap {
     pub fn new<'a>(
-        it_src: impl IntoIterator<Item = &'a (ResourceObject, types::ResourceId)>,
+        it_src: impl IntoIterator<Item = &'a (&'a ResourceObject, types::ResourceId)>,
     ) -> Self {
         let mut rid_to_ro = HashMap::<types::ResourceId, ResourceObject>::new();
         for (ro, res_id) in it_src {
-            if rid_to_ro.insert(res_id.clone(), ro.clone()).is_some() {
+            if rid_to_ro.insert(res_id.clone(), (*ro).clone()).is_some() {
                 panic!("Resource Ids must be unique!")
             }
         }
