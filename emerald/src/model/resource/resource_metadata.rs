@@ -11,11 +11,11 @@ pub struct ResourceMetadata {
     pub created: i64,
 }
 
-impl From<types::FilesystemMetadata> for ResourceMetadata {
-    fn from(value: types::FilesystemMetadata) -> Self {
+impl From<&types::FilesystemMetadata> for ResourceMetadata {
+    fn from(value: &types::FilesystemMetadata) -> Self {
         Self {
-            path: value.path,
-            resource_type: value.resource_type,
+            path: value.path.clone(),
+            resource_type: value.resource_type.clone(),
             size: value.size,
             modified: value.modified,
             created: value.created,
