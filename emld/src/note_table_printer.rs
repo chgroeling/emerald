@@ -14,7 +14,7 @@ enum NoteProperty {
     Size,
     LinkCnt,
     BackLinkCnt,
-    Location,
+    Path,
     Markdown,
     Aliases,
     Keywords,
@@ -34,7 +34,7 @@ impl NoteProperty {
             NoteProperty::Size => "size",
             NoteProperty::LinkCnt => "linkcnt",
             NoteProperty::BackLinkCnt => "backlinkcnt",
-            NoteProperty::Location => "location",
+            NoteProperty::Path => "path",
             NoteProperty::Markdown => "markdown",
             NoteProperty::Undefined => panic!("undefined property"),
         }
@@ -51,7 +51,7 @@ impl NoteProperty {
             "size" => NoteProperty::Size,
             "linkcnt" => NoteProperty::LinkCnt,
             "backlinkcnt" => NoteProperty::BackLinkCnt,
-            "location" => NoteProperty::Location,
+            "path" => NoteProperty::Path,
             "markdown" => NoteProperty::Markdown,
             _ => NoteProperty::Undefined,
         }
@@ -70,7 +70,7 @@ fn note_property_to_str(
         NoteProperty::Aliases => format!("{:?}", note.doc_metadata.aliases),
         NoteProperty::Yaml => note.yaml.clone(),
         NoteProperty::Keywords => format!("{:?}", note.doc_metadata.keywords.clone()),
-        NoteProperty::Location => note.fs_metadata.location.clone(),
+        NoteProperty::Path => note.fs_metadata.path.clone(),
         NoteProperty::Markdown => note.markdown.clone(),
         NoteProperty::Modified => {
             let modified = Local

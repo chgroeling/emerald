@@ -3,8 +3,14 @@ use crate::types;
 
 impl From<(types::FilesystemMetadata, types::DocumentMetadata)> for NoteMetadata {
     fn from(value: (types::FilesystemMetadata, types::DocumentMetadata)) -> Self {
+        let path = value
+            .0
+            .path
+            .to_str()
+            .expect("Path must have a valid utf-8 representation");
+
         let fs_md = FilesystemMetadata {
-            location: value.0.location,
+            path: path.to_owned(),
             size: value.0.size,
             modified: value.0.modified,
             created: value.0.created,
