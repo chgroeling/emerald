@@ -49,7 +49,7 @@ where
         let note_vec: Vec<Note> = self
             .notes_iter_src
             .create_iter()
-            .map(|rid| self.note_factory.create_note(rid))
+            .map(|rid| self.note_factory.create_note(&rid))
             .collect();
 
         note_vec.into_iter()
@@ -58,7 +58,7 @@ where
     fn get_links_of(&self, note: &Note) -> Box<dyn Iterator<Item = NoteTypes>> {
         let factory_clone = self.note_factory.clone();
         Box::new(self.get_links.get_links_of(note).map(move |f| match f {
-            LinkQueryResult::LinkToNote(rid) => NoteTypes::Note(factory_clone.create_note(rid)),
+            LinkQueryResult::LinkToNote(rid) => NoteTypes::Note(factory_clone.create_note(&rid)),
             LinkQueryResult::LinkToResource(rid) => NoteTypes::ResourceRef(rid),
         }))
     }
@@ -70,7 +70,7 @@ where
                 .get_backlinks_of(note)
                 .map(move |f| match f {
                     LinkQueryResult::LinkToNote(rid) => {
-                        NoteTypes::Note(factory_clone.create_note(rid))
+                        NoteTypes::Note(factory_clone.create_note(&rid))
                     }
                     LinkQueryResult::LinkToResource(rid) => NoteTypes::ResourceRef(rid),
                 }),
