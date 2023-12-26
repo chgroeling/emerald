@@ -40,7 +40,7 @@ impl ResourceIdLinkMap {
 }
 
 impl ResourceIdResolver for ResourceIdLinkMap {
-    fn resolve_with_hint(&self, link: &types::Link, _hint: Hint) -> Result<types::ResourceId> {
+    fn resolve_with_hint(&self, link: &types::Link, _hint: Hint) -> Result<&types::ResourceId> {
         // convert string to internal link format
         let link_comp = link.split()?;
         let link_name_lc = utils::normalize_str(&link_comp.name.trim().to_lowercase());
@@ -77,7 +77,7 @@ impl ResourceIdResolver for ResourceIdLinkMap {
                 for (rid, plink_path) in match_list {
                     // Assumption: plink_path is already utf8 nfc encoded
                     if plink_path.as_ref() == link_path_norm {
-                        return Ok(rid.clone());
+                        return Ok(rid);
                     }
                 }
                 // no link found
@@ -87,8 +87,8 @@ impl ResourceIdResolver for ResourceIdLinkMap {
                     warn!("The link {} is not unique.", &link_comp);
                 }
 
-                let match_link = match_list[0].clone();
-                return Ok(match_link.0);
+                let match_link = &match_list[0];
+                return Ok(&match_link.0);
             }
         }
 

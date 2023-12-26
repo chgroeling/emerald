@@ -23,7 +23,7 @@ impl ResourceIdResolver for DefaultResourceIdResolverModel {
         &self,
         link: &types::Link,
         hint: super::resource_id_resolver_trait::Hint,
-    ) -> crate::Result<types::ResourceId> {
+    ) -> crate::Result<&types::ResourceId> {
         self.link_map.resolve_with_hint(link, hint)
     }
 }
