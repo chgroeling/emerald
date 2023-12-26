@@ -8,7 +8,9 @@ use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::path::Path;
 
-pub type NameToResourceIdList = HashMap<Box<str>, Vec<(types::ResourceId, Box<str>)>>;
+type Name = Box<str>;
+type PathStr = Box<str>;
+type NameToResourceIdList = HashMap<Name, Vec<(types::ResourceId, PathStr)>>;
 
 #[derive(Clone)]
 pub struct ResourceIdLinkMap {
