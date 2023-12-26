@@ -1,12 +1,14 @@
 use super::resource_id_resolver_trait::Hint;
 use super::resource_id_resolver_trait::ResourceIdResolver;
+use super::ResourceLoc;
 use crate::error::{EmeraldError::*, Result};
 use crate::{types, utils};
-#[allow(unused_imports)]
-use log::{debug, error, info, trace, warn};
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::path::Path;
+
+#[allow(unused_imports)]
+use log::{debug, error, info, trace, warn};
 
 type Name = Box<str>;
 type PathStr = Box<str>;
@@ -15,12 +17,6 @@ type NameToResourceIdList = HashMap<Name, Vec<(types::ResourceId, PathStr)>>;
 #[derive(Clone)]
 pub struct ResourceIdLinkMap {
     name_to_rid_list: NameToResourceIdList,
-}
-
-pub struct ResourceLoc {
-    rid: types::ResourceId,
-    norm_filename: Box<str>,
-    dir_path: Box<str>,
 }
 
 fn adapter_to_resourece_loc<'a>(
