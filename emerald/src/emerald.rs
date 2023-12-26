@@ -49,7 +49,6 @@ impl Emerald {
         debug!("Creation of ResourceId vec: {:?}", elapsed);
 
         let start = Instant::now();
-        // TODO: WORK WITH RELATIVE PATHES
         let content_loader = resources::FileContentLoader::new(ro_retriever.clone());
         let elapsed = start.elapsed();
         debug!("Creation of FileContentLoader: {:?}", elapsed);
