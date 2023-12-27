@@ -3,8 +3,8 @@ use super::get_links::GetLinks;
 use super::link_query_result::LinkQueryResult;
 use super::note::Note;
 use super::note_types::NoteTypes;
+use super::note_with_uid_iter_src::NoteWithUidIterSrc;
 use super::notes_iter_src::NotesIterSrc;
-use super::uid_mapper::UidMapper;
 use super::vault_trait::Vault;
 use super::{ContentRetriever, NoteFactoryImpl, NoteMetadataRetriever};
 use super::{NoteFactory, ResourceId};
@@ -18,7 +18,7 @@ where
     note_factory: Rc<dyn NoteFactory>,
     get_backlinks: Rc<dyn GetBacklinks>,
     get_links: Rc<dyn GetLinks>,
-    uid_mapper: Rc<UidMapper<I>>,
+    uid_mapper: Rc<NoteWithUidIterSrc<I>>,
 }
 
 impl<I> VaultImpl<I>
@@ -36,7 +36,7 @@ where
         I: Iterator<Item = ResourceId>,
     {
         let note_factory = Rc::new(NoteFactoryImpl::new(metadata_retriever, content_retriever));
-        let uid_mapper = Rc::new(UidMapper::new(notes_iter_src));
+        let uid_mapper = Rc::new(NoteWithUidIterSrc::new(notes_iter_src));
         Self {
             note_factory,
             get_links,

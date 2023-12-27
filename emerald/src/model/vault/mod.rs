@@ -7,9 +7,9 @@ mod note_factory;
 mod note_factory_impl;
 mod note_metadata_retriever;
 mod note_types;
+mod note_with_uid_iter_src;
 mod notes_iter_src;
 mod resource_id;
-mod uid_mapper;
 mod vault_impl;
 mod vault_trait;
 
