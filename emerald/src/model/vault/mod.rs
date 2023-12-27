@@ -9,6 +9,7 @@ mod note_metadata_retriever;
 mod note_types;
 mod notes_iter_src;
 mod resource_id;
+mod uid_mapper;
 mod vault_impl;
 mod vault_trait;
 

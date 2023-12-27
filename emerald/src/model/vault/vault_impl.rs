@@ -4,6 +4,7 @@ use super::link_query_result::LinkQueryResult;
 use super::note::Note;
 use super::note_types::NoteTypes;
 use super::notes_iter_src::NotesIterSrc;
+use super::uid_mapper::UidMapper;
 use super::vault_trait::Vault;
 use super::{ContentRetriever, NoteFactoryImpl, NoteMetadataRetriever};
 use super::{NoteFactory, ResourceId};
@@ -15,9 +16,9 @@ where
     I: Iterator<Item = ResourceId>,
 {
     note_factory: Rc<dyn NoteFactory>,
-    notes_iter_src: Rc<dyn NotesIterSrc<Iter = I>>,
     get_backlinks: Rc<dyn GetBacklinks>,
     get_links: Rc<dyn GetLinks>,
+    uid_mapper: Rc<UidMapper<I>>,
 }
 
 impl<I> VaultImpl<I>
@@ -35,12 +36,12 @@ where
         I: Iterator<Item = ResourceId>,
     {
         let note_factory = Rc::new(NoteFactoryImpl::new(metadata_retriever, content_retriever));
-
+        let uid_mapper = Rc::new(UidMapper::new(notes_iter_src));
         Self {
-            notes_iter_src,
             note_factory,
             get_links,
             get_backlinks,
+            uid_mapper,
         }
     }
 }
@@ -51,7 +52,7 @@ where
 {
     fn flat_iter(&self) -> std::vec::IntoIter<Note> {
         let note_vec: Vec<Note> = self
-            .notes_iter_src
+            .uid_mapper
             .create_iter()
             .map(|rid| self.note_factory.create_note(&rid))
             .collect();
