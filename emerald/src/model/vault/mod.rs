@@ -10,6 +10,8 @@ mod note_types;
 mod note_with_uid_iter_src;
 mod notes_iter_src;
 mod resource_id;
+mod uid;
+mod uid_map;
 mod vault_impl;
 mod vault_trait;
 
