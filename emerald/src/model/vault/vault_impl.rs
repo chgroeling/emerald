@@ -5,6 +5,7 @@ use super::note::Note;
 use super::note_types::NoteTypes;
 use super::notes_iter_src::NotesIterSrc;
 use super::vault_trait::Vault;
+use super::{ContentRetriever, NoteFactoryImpl, NoteMetadataRetriever};
 use super::{NoteFactory, ResourceId};
 use std::rc::Rc;
 
@@ -24,7 +25,8 @@ where
     I: Iterator<Item = ResourceId>,
 {
     pub fn new(
-        note_factory: Rc<dyn NoteFactory>,
+        metadata_retriever: Rc<dyn NoteMetadataRetriever>,
+        content_retriever: Rc<dyn ContentRetriever>,
         notes_iter_src: Rc<dyn NotesIterSrc<Iter = I>>,
         get_backlinks: Rc<dyn GetBacklinks>,
         get_links: Rc<dyn GetLinks>,
@@ -32,6 +34,8 @@ where
     where
         I: Iterator<Item = ResourceId>,
     {
+        let note_factory = Rc::new(NoteFactoryImpl::new(metadata_retriever, content_retriever));
+
         Self {
             notes_iter_src,
             note_factory,

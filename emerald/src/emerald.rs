@@ -143,18 +143,12 @@ impl Emerald {
             Rc::new(adapters::to_vault::NoteMetadataRetriever::new(nmod.clone()));
         let content_retriever_adapter =
             Rc::new(adapters::to_vault::ContentRetriever::new(cmod.clone()));
-        let note_factory = Rc::new(vault::NoteFactoryImpl::new(
-            md_retriever_adapter,
-            content_retriever_adapter,
-        ));
-        let elapsed = start.elapsed();
-        debug!("Creation of NoteFactoryImpl: {:?}", elapsed);
 
-        let start = Instant::now();
         let get_backlinks_adapter = Rc::new(adapters::to_vault::GetBacklinks::new(
             lmod.clone(),
             rmod.clone(),
         ));
+
         let get_links_adapter = Rc::new(adapters::to_vault::GetLinks::new(
             lmod.clone(),
             rmod.clone(),
@@ -162,7 +156,8 @@ impl Emerald {
 
         let notes_iter_src_adapter = Rc::new(adapters::to_vault::NotesIterSrc::new(nmod.clone()));
         let vault = vault::VaultImpl::new(
-            note_factory,
+            md_retriever_adapter,
+            content_retriever_adapter,
             notes_iter_src_adapter,
             get_backlinks_adapter,
             get_links_adapter,
