@@ -20,6 +20,7 @@ impl UidMap {
     }
 
     pub fn get_or_assign_uid(&mut self, rid: &ResourceId) -> Uid {
-        todo!();
+        //todo!();
+        Uid::default()
     }
 }

@@ -1,8 +1,10 @@
+use super::adapter_to_uid::adapter_to_uid;
 use super::get_backlinks::GetBacklinks;
 use super::get_links::GetLinks;
 use super::link_query_result::LinkQueryResult;
 use super::note::Note;
 use super::note_types::NoteTypes;
+use super::uid_map::UidMap;
 use super::vault_trait::Vault;
 use super::{ContentRetriever, NoteFactoryImpl, NoteMetadataRetriever};
 use super::{NoteFactory, ResourceId};
@@ -37,9 +39,8 @@ impl VaultImpl {
 
 impl Vault for VaultImpl {
     fn flat_iter(&self) -> std::vec::IntoIter<Note> {
-        let note_vec: Vec<Note> = self
-            .note_rid_list
-            .iter()
+        let mut uid_map = UidMap::new();
+        let note_vec: Vec<Note> = adapter_to_uid(self.note_rid_list.iter(), &mut uid_map)
             .map(|rid| self.note_factory.create_note(rid))
             .collect();
 
