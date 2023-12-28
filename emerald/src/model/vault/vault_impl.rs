@@ -3,58 +3,44 @@ use super::get_links::GetLinks;
 use super::link_query_result::LinkQueryResult;
 use super::note::Note;
 use super::note_types::NoteTypes;
-use super::note_with_uid_iter_src::NoteWithUidIterSrc;
-use super::notes_iter_src::NotesIterSrc;
 use super::vault_trait::Vault;
 use super::{ContentRetriever, NoteFactoryImpl, NoteMetadataRetriever};
 use super::{NoteFactory, ResourceId};
 use std::rc::Rc;
 
 #[derive(Clone)]
-pub struct VaultImpl<I>
-where
-    I: Iterator<Item = ResourceId>,
-{
+pub struct VaultImpl {
+    note_rid_list: Vec<ResourceId>,
     note_factory: Rc<dyn NoteFactory>,
     get_backlinks: Rc<dyn GetBacklinks>,
     get_links: Rc<dyn GetLinks>,
-    uid_mapper: Rc<NoteWithUidIterSrc<I>>,
 }
 
-impl<I> VaultImpl<I>
-where
-    I: Iterator<Item = ResourceId>,
-{
-    pub fn new(
+impl VaultImpl {
+    pub fn new<'a>(
+        note_rid_iter: impl IntoIterator<Item = ResourceId>,
         metadata_retriever: Rc<dyn NoteMetadataRetriever>,
         content_retriever: Rc<dyn ContentRetriever>,
-        notes_iter_src: Rc<dyn NotesIterSrc<Iter = I>>,
         get_backlinks: Rc<dyn GetBacklinks>,
         get_links: Rc<dyn GetLinks>,
-    ) -> Self
-    where
-        I: Iterator<Item = ResourceId>,
-    {
+    ) -> Self {
         let note_factory = Rc::new(NoteFactoryImpl::new(metadata_retriever, content_retriever));
-        let uid_mapper = Rc::new(NoteWithUidIterSrc::new(notes_iter_src));
+        let note_list: Vec<_> = note_rid_iter.into_iter().collect();
         Self {
+            note_rid_list: note_list,
             note_factory,
             get_links,
             get_backlinks,
-            uid_mapper,
         }
     }
 }
 
-impl<I> Vault for VaultImpl<I>
-where
-    I: Iterator<Item = ResourceId>,
-{
+impl Vault for VaultImpl {
     fn flat_iter(&self) -> std::vec::IntoIter<Note> {
         let note_vec: Vec<Note> = self
-            .uid_mapper
-            .create_iter()
-            .map(|rid| self.note_factory.create_note(&rid))
+            .note_rid_list
+            .iter()
+            .map(|rid| self.note_factory.create_note(rid))
             .collect();
 
         note_vec.into_iter()
