@@ -4,6 +4,7 @@ use super::get_links::GetLinks;
 use super::link_query_result::LinkQueryResult;
 use super::note::Note;
 use super::note_types::NoteTypes;
+use super::uid::Uid;
 use super::uid_map::UidMap;
 use super::vault_trait::Vault;
 use super::{ContentRetriever, NoteFactoryImpl, NoteMetadataRetriever};
@@ -13,9 +14,11 @@ use std::rc::Rc;
 #[derive(Clone)]
 pub struct VaultImpl {
     note_rid_list: Vec<ResourceId>,
+    note_uid_list: Vec<Uid>,
     note_factory: Rc<dyn NoteFactory>,
     get_backlinks: Rc<dyn GetBacklinks>,
     get_links: Rc<dyn GetLinks>,
+    uid_map: UidMap,
 }
 
 impl VaultImpl {
@@ -26,21 +29,27 @@ impl VaultImpl {
         get_backlinks: Rc<dyn GetBacklinks>,
         get_links: Rc<dyn GetLinks>,
     ) -> Self {
+        let mut uid_map = UidMap::new();
         let note_factory = Rc::new(NoteFactoryImpl::new(metadata_retriever, content_retriever));
-        let note_list: Vec<_> = note_rid_iter.into_iter().collect();
+        let note_rid_list: Vec<_> = note_rid_iter.into_iter().collect();
+        let note_uid_list: Vec<_> = adapter_to_uid(note_rid_list.iter(), &mut uid_map).collect();
         Self {
-            note_rid_list: note_list,
+            note_rid_list,
+            note_uid_list,
             note_factory,
             get_links,
             get_backlinks,
+            uid_map,
         }
     }
 }
 
 impl Vault for VaultImpl {
     fn flat_iter(&self) -> std::vec::IntoIter<Note> {
-        let mut uid_map = UidMap::new();
-        let note_vec: Vec<Note> = adapter_to_uid(self.note_rid_list.iter(), &mut uid_map)
+        let note_vec: Vec<Note> = self
+            .note_uid_list
+            .iter()
+            .map(|uid| self.uid_map.get_rid_from_uid(uid).expect("Should exist."))
             .map(|rid| self.note_factory.create_note(rid))
             .collect();
 
