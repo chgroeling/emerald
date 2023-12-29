@@ -6,7 +6,7 @@ use super::resource_metadata_retriever::ResourceMetadataRetriever;
 use crate::types;
 
 pub struct DefaultResourceModel {
-    file_index: Vec<types::ResourceId>,
+    resource_index: Vec<types::ResourceId>,
     meta_data_map: ResourceMetadataMap,
 }
 
@@ -20,7 +20,7 @@ impl DefaultResourceModel {
             .collect();
 
         DefaultResourceModel {
-            file_index: files.iter().map(|f| f.0.clone()).collect(),
+            resource_index: files.iter().map(|f| f.0.clone()).collect(),
             meta_data_map: ResourceMetadataMap::new(files),
         }
     }
@@ -29,7 +29,7 @@ impl ResourceIterSrc for DefaultResourceModel {
     type Iter = std::vec::IntoIter<types::ResourceId>;
 
     fn create_iter(&self) -> Self::Iter {
-        self.file_index.clone().into_iter()
+        self.resource_index.clone().into_iter()
     }
 }
 
@@ -42,6 +42,6 @@ impl ResourceMetadataRetriever for DefaultResourceModel {
 
 impl ResourceCount for DefaultResourceModel {
     fn count(&self) -> usize {
-        self.file_index.len()
+        self.resource_index.len()
     }
 }
