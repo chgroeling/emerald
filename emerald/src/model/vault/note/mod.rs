@@ -5,11 +5,11 @@ mod timestamp;
 pub use self::document_metadata::DocumentMetadata;
 pub use self::filesystem_metadata::FilesystemMetadata;
 pub use self::timestamp::Timestamp;
-use super::resource_id::ResourceId;
+use super::Uid;
 
 #[derive(Debug, Clone, PartialEq, Hash, Default)]
 pub struct Note {
-    pub rid: ResourceId,
+    pub uid: Uid,
     pub title: String,
     pub yaml: String,
     pub markdown: String,
@@ -19,7 +19,7 @@ pub struct Note {
 
 impl Note {
     pub fn new(
-        rid: ResourceId,
+        uid: Uid,
         title: String,
         yaml: String,
         markdown: String,
@@ -27,7 +27,7 @@ impl Note {
         doc_metadata: DocumentMetadata,
     ) -> Self {
         Self {
-            rid,
+            uid,
             title,
             yaml,
             markdown,

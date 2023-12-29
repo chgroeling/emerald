@@ -29,8 +29,11 @@ impl<I> vault::GetLinks for GetLinks<I>
 where
     I: LinkQueryResultBuilder,
 {
-    fn get_links_of(&self, note: &vault::Note) -> Box<dyn Iterator<Item = vault::LinkQueryResult>> {
-        let rid: types::ResourceId = note.rid.clone().into();
+    fn get_links_of(
+        &self,
+        rid: &vault::ResourceId,
+    ) -> Box<dyn Iterator<Item = vault::LinkQueryResult>> {
+        let rid: types::ResourceId = rid.clone().into();
         let Some(out_itr) = self.tgt_link_retriever.retrieve(&rid) else {
             return Box::new(std::iter::empty());
         };

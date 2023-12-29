@@ -6,6 +6,7 @@ use std::collections::HashMap;
 
 #[derive(PartialEq)]
 enum NoteProperty {
+    Uid,
     Depth,
     Title,
     Yaml,
@@ -24,6 +25,7 @@ enum NoteProperty {
 impl NoteProperty {
     fn value(&self) -> &str {
         match self {
+            NoteProperty::Uid => "uid",
             NoteProperty::Depth => "depth",
             NoteProperty::Title => "title",
             NoteProperty::Aliases => "aliases",
@@ -41,6 +43,7 @@ impl NoteProperty {
     }
     fn from(inp: &str) -> NoteProperty {
         match inp {
+            "uid" => NoteProperty::Uid,
             "depth" => NoteProperty::Depth,
             "title" => NoteProperty::Title,
             "aliases" => NoteProperty::Aliases,
@@ -65,6 +68,7 @@ fn note_property_to_str(
     depth: u32,
 ) -> String {
     match element {
+        NoteProperty::Uid => note.uid.0.to_string(),
         NoteProperty::Depth => depth.to_string(),
         NoteProperty::Title => note.title.clone(),
         NoteProperty::Aliases => format!("{:?}", note.doc_metadata.aliases),

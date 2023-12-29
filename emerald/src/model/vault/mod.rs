@@ -29,5 +29,6 @@ pub use note_metadata_retriever::NoteMetadataRetriever;
 pub use note_types::NoteTypes;
 pub use notes_iter_src::NotesIterSrc;
 pub use resource_id::ResourceId;
+pub use uid::Uid;
 pub use vault_impl::VaultImpl;
 pub use vault_trait::Vault;
