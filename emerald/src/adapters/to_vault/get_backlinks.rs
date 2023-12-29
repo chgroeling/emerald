@@ -31,9 +31,9 @@ where
 {
     fn get_backlinks_of(
         &self,
-        note: &vault::Note,
+        rid: &vault::ResourceId,
     ) -> Box<dyn Iterator<Item = vault::LinkQueryResult>> {
-        let rid: types::ResourceId = note.rid.clone().into();
+        let rid: types::ResourceId = rid.clone().into();
         let Some(out_itr) = self.src_link_retriever.retrieve(&rid) else {
             return Box::new(std::iter::empty());
         };

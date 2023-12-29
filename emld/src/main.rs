@@ -79,17 +79,18 @@ fn uc_list(
         FormatOptions::Overview => {
             if follow_links > 0 {
                 "\
-                %<( 1, trunc)%(depth)\
+                %<(5, trunc)%(uid)\
+                |%<( 1, trunc)%(depth)\
                 |%<(40, trunc)%(title)\
                 |%<(19, trunc)%(modified)\
                 |%<(19, trunc)%(created)\
                 |%>( 6, ltrunc)%(size)\
                 |%>( 6, ltrunc)%(linkcnt)\
-                |%>( 6, ltrunc)%(backlinkcnt)\
-                |%<(30, trunc)%(keywords)"
+                |%>( 6, ltrunc)%(backlinkcnt)"
             } else {
                 "\
-                %<(40, trunc)%(title)\
+                %<(5, trunc)%(uid)\
+                |%<(40, trunc)%(title)\
                 |%<(19, trunc)%(modified)\
                 |%<(19, trunc)%(created)\
                 |%>( 6, ltrunc)%(size)\

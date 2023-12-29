@@ -1,5 +1,5 @@
-use super::{link_query_result::LinkQueryResult, Note};
+use super::{link_query_result::LinkQueryResult, ResourceId};
 
 pub trait GetLinks {
-    fn get_links_of(&self, note: &Note) -> Box<dyn Iterator<Item = LinkQueryResult>>;
+    fn get_links_of(&self, rid: &ResourceId) -> Box<dyn Iterator<Item = LinkQueryResult>>;
 }
