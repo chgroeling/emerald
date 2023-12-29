@@ -13,7 +13,7 @@ use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct VaultImpl {
-    note_uid_list: Vec<Uid>,
+    uid_index: Vec<Uid>,
     note_factory: Rc<dyn NoteFactory>,
     get_backlinks: Rc<dyn GetBacklinks>,
     get_links: Rc<dyn GetLinks>,
@@ -39,7 +39,7 @@ impl VaultImpl {
             rc_uid_map.clone(),
         ));
         Self {
-            note_uid_list,
+            uid_index: note_uid_list,
             note_factory,
             get_links,
             get_backlinks,
@@ -51,7 +51,7 @@ impl VaultImpl {
 impl Vault for VaultImpl {
     fn flat_iter(&self) -> std::vec::IntoIter<Note> {
         let note_vec: Vec<Note> = self
-            .note_uid_list
+            .uid_index
             .iter()
             .map(|uid| self.note_factory.create_note(uid))
             .collect();
