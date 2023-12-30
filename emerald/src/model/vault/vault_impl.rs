@@ -4,8 +4,8 @@ use super::link_query_result::LinkQueryResult;
 use super::note::Note;
 use super::note_types::NoteTypes;
 use super::uid::Uid;
-use super::uid_adapters::adapter_to_uid;
 use super::uid_map::UidMap;
+use super::uid_utils::assign_uids_from_resource_ids;
 use super::vault_trait::Vault;
 use super::{ContentRetriever, NoteFactoryImpl, NoteMetadataRetriever};
 use super::{ExResourceId, NoteFactory};
@@ -30,7 +30,8 @@ impl VaultImpl {
     ) -> Self {
         let mut uid_map = UidMap::new();
         let note_rid_list: Vec<_> = note_rid_iter.into_iter().collect();
-        let note_uid_list: Vec<_> = adapter_to_uid(note_rid_list.iter(), &mut uid_map).collect();
+        let note_uid_list: Vec<_> =
+            assign_uids_from_resource_ids(note_rid_list.iter(), &mut uid_map).collect();
 
         let rc_uid_map = Rc::new(uid_map);
         let note_factory = Rc::new(NoteFactoryImpl::new(

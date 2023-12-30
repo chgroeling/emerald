@@ -9,8 +9,8 @@ mod note_factory_impl;
 mod note_metadata_retriever;
 mod note_types;
 mod uid;
-mod uid_adapters;
 mod uid_map;
+mod uid_utils;
 mod vault_impl;
 mod vault_trait;
 
