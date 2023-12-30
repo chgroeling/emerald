@@ -29,7 +29,8 @@ impl Emerald {
     pub fn new(vault_path: &Path) -> Result<Emerald> {
         // Build dependency root
         let start = Instant::now();
-        let path_list = resources::get_path_list(vault_path)?;
+        let mut path_list = resources::get_path_list(vault_path)?;
+        path_list.sort_by(|a, b| a.file_stem().cmp(&b.file_stem()));
         let all_ros_vec: Vec<_> = resources::adapter_to_ro(path_list).collect();
         let elapsed = start.elapsed();
         debug!("Creation of ResourceObject vec: {:?}", elapsed);
