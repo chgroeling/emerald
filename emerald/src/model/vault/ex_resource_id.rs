@@ -1,6 +1,6 @@
 #[derive(Debug, Clone, PartialEq, Hash, Default)]
 
 /// A ResourceId points to a unique Resource
-pub struct VaultResourceId(pub Box<str>);
+pub struct ExResourceId(pub Box<str>);
 
-impl Eq for VaultResourceId {}
+impl Eq for ExResourceId {}
