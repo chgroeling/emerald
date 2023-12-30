@@ -1,3 +1,3 @@
-mod adapter_to_resource_loc;
+mod resource_loc_adapters;
 
-pub use adapter_to_resource_loc::adapter_to_resourece_loc;
+pub use resource_loc_adapters::convert_to_resource_locations;
