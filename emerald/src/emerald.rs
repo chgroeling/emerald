@@ -153,7 +153,7 @@ impl Emerald {
         ));
 
         let vault = vault::VaultImpl::new(
-            adapters::to_vault::adapter_to_vault_rid(nmod.create_iter()),
+            adapters::to_vault::convert_resource_ids_to_vault_format(nmod.create_iter()),
             md_retriever_adapter,
             content_retriever_adapter,
             get_backlinks_adapter,
