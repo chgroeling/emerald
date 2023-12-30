@@ -1,6 +1,16 @@
 use super::{DocumentMetadata, ExResourceId, FilesystemMetadata};
 
-/// This trait is used to query an target id for all contained links and their pointing resource ids.
+/// Trait for retrieving metadata associated with a note.
 pub trait NoteMetadataRetriever {
+    /// Retrieves metadata for a given note.
+    ///
+    /// # Arguments
+    ///
+    /// * `tgt` - Target note's resource identifier.
+    ///
+    /// # Returns
+    ///
+    /// A tuple containing the note's title (`String`), `FilesystemMetadata`,
+    /// and `DocumentMetadata`.
     fn retrieve(&self, tgt: &ExResourceId) -> (String, FilesystemMetadata, DocumentMetadata);
 }
