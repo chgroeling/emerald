@@ -99,7 +99,7 @@ impl Emerald {
         debug!("YAML extraction: {:?}", elapsed);
 
         let start = Instant::now();
-        let resource_loc_iter = adapters::to_resource_id_resolver::adapter_to_resourece_loc(
+        let resource_loc_iter = adapters::to_resource_id_resolver::convert_to_resource_locations(
             &all_fs_meta_data,
             vault_path,
         );
