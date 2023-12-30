@@ -1,6 +1,6 @@
-use super::ResourceId;
+use super::VaultResourceId;
 
 pub trait NotesIterSrc {
-    type Iter: Iterator<Item = ResourceId>;
+    type Iter: Iterator<Item = VaultResourceId>;
     fn create_iter(&self) -> Self::Iter;
 }

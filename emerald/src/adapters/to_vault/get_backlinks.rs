@@ -31,7 +31,7 @@ where
 {
     fn get_backlinks_of(
         &self,
-        rid: &vault::ResourceId,
+        rid: &vault::VaultResourceId,
     ) -> Box<dyn Iterator<Item = vault::LinkQueryResult>> {
         let rid: types::ResourceId = rid.clone().into();
         let Some(out_itr) = self.src_link_retriever.retrieve(&rid) else {
