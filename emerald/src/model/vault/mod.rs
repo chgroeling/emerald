@@ -1,4 +1,3 @@
-mod adapter_to_uid;
 mod content_retriever;
 mod ex_resource_id;
 mod get_backlinks;
@@ -10,6 +9,7 @@ mod note_factory_impl;
 mod note_metadata_retriever;
 mod note_types;
 mod uid;
+mod uid_adapters;
 mod uid_map;
 mod vault_impl;
 mod vault_trait;
