@@ -4,6 +4,16 @@ use std::path::Path;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
+/// Converts resource IDs and filesystem metadata to `ResourceLoc`.
+///
+/// # Arguments
+///
+/// * `it_src` - Iterator of `(types::ResourceId, types::FilesystemMetadata)`.
+/// * `common_path` - Base path for calculating relative paths.
+///
+/// # Returns
+///
+/// Iterator over `ResourceLoc`.
 pub fn adapter_to_resourece_loc<'a>(
     it_src: impl IntoIterator<Item = &'a (types::ResourceId, types::FilesystemMetadata)> + 'a,
     common_path: &'a Path,
