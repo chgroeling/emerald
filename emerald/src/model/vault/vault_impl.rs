@@ -1,10 +1,10 @@
-use super::adapter_to_uid::adapter_to_uid;
 use super::get_backlinks::GetBacklinks;
 use super::get_links::GetLinks;
 use super::link_query_result::LinkQueryResult;
 use super::note::Note;
 use super::note_types::NoteTypes;
 use super::uid::Uid;
+use super::uid_adapters::adapter_to_uid;
 use super::uid_map::UidMap;
 use super::vault_trait::Vault;
 use super::{ContentRetriever, NoteFactoryImpl, NoteMetadataRetriever};
