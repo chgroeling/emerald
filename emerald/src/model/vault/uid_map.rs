@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 
 use super::uid::Uid;
-use super::ResourceId;
+use super::VaultResourceId;
 
 #[derive(Debug, Clone)]
 pub struct UidMap {
-    uid_to_rid: HashMap<Uid, ResourceId>,
-    rid_to_uid: HashMap<ResourceId, Uid>,
+    uid_to_rid: HashMap<Uid, VaultResourceId>,
+    rid_to_uid: HashMap<VaultResourceId, Uid>,
     next_uid: u32,
 }
 
@@ -18,15 +18,15 @@ impl UidMap {
             next_uid: 0,
         }
     }
-    pub fn get_rid_from_uid(&self, uid: &Uid) -> Option<&ResourceId> {
+    pub fn get_rid_from_uid(&self, uid: &Uid) -> Option<&VaultResourceId> {
         self.uid_to_rid.get(uid)
     }
 
-    pub fn get_uid_from_rid(&self, rid: &ResourceId) -> Option<&Uid> {
+    pub fn get_uid_from_rid(&self, rid: &VaultResourceId) -> Option<&Uid> {
         self.rid_to_uid.get(rid)
     }
 
-    pub fn assign_uid(&mut self, rid: &ResourceId) -> Uid {
+    pub fn assign_uid(&mut self, rid: &VaultResourceId) -> Uid {
         let act_uid = self.next_uid;
         let uid = Uid(act_uid.to_string().into_boxed_str());
         self.rid_to_uid.insert(rid.clone(), uid.clone());

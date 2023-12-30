@@ -16,7 +16,7 @@ impl ContentRetriever {
 }
 
 impl vault::ContentRetriever for ContentRetriever {
-    fn retrieve(&self, rid: &vault::ResourceId) -> &str {
+    fn retrieve(&self, rid: &vault::VaultResourceId) -> &str {
         let content = self.content_retriever.retrieve(&rid.clone().into());
 
         &content.0

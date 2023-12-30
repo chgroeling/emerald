@@ -1,6 +1,6 @@
-use super::ResourceId;
+use super::VaultResourceId;
 
 pub enum LinkQueryResult {
-    LinkToNote(ResourceId),
-    LinkToResource(ResourceId),
+    LinkToNote(VaultResourceId),
+    LinkToResource(VaultResourceId),
 }

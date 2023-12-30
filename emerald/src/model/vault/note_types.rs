@@ -1,6 +1,6 @@
-use super::{Note, ResourceId};
+use super::{Note, VaultResourceId};
 
 pub enum NoteTypes {
     Note(Note),
-    ResourceRef(ResourceId),
+    ResourceRef(VaultResourceId),
 }

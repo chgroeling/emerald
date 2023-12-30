@@ -8,7 +8,7 @@ use super::uid::Uid;
 use super::uid_map::UidMap;
 use super::vault_trait::Vault;
 use super::{ContentRetriever, NoteFactoryImpl, NoteMetadataRetriever};
-use super::{NoteFactory, ResourceId};
+use super::{NoteFactory, VaultResourceId};
 use std::rc::Rc;
 
 #[derive(Clone)]
@@ -22,7 +22,7 @@ pub struct VaultImpl {
 
 impl VaultImpl {
     pub fn new<'a>(
-        note_rid_iter: impl IntoIterator<Item = ResourceId>,
+        note_rid_iter: impl IntoIterator<Item = VaultResourceId>,
         metadata_retriever: Rc<dyn NoteMetadataRetriever>,
         content_retriever: Rc<dyn ContentRetriever>,
         get_backlinks: Rc<dyn GetBacklinks>,
