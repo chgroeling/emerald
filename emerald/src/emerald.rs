@@ -148,7 +148,7 @@ impl Emerald {
             rmod.clone(),
         ));
 
-        let get_links_adapter = Rc::new(adapters::to_vault::GetLinks::new(
+        let get_links_adapter = Rc::new(adapters::to_vault::GetLinksAdapter::new(
             lmod.clone(),
             rmod.clone(),
         ));
