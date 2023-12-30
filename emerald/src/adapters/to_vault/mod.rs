@@ -1,4 +1,4 @@
-mod content_retriever;
+mod content_retriever_adapter;
 mod document_metadata_from;
 mod filesystem_metadata_from;
 mod get_backlinks;
@@ -8,7 +8,7 @@ mod note_metadata_retriever;
 mod resource_id_adapters;
 mod resource_id_from;
 
-pub use content_retriever::ContentRetriever;
+pub use content_retriever_adapter::ContentRetrieverAdapter;
 pub use get_backlinks::GetBacklinks;
 pub use get_links::GetLinks;
 pub use note_metadata_retriever::NoteMetadataRetriever;

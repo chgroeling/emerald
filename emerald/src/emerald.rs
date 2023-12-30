@@ -139,8 +139,9 @@ impl Emerald {
         let start = Instant::now();
         let md_retriever_adapter =
             Rc::new(adapters::to_vault::NoteMetadataRetriever::new(nmod.clone()));
-        let content_retriever_adapter =
-            Rc::new(adapters::to_vault::ContentRetriever::new(cmod.clone()));
+        let content_retriever_adapter = Rc::new(adapters::to_vault::ContentRetrieverAdapter::new(
+            cmod.clone(),
+        ));
 
         let get_backlinks_adapter = Rc::new(adapters::to_vault::GetBacklinks::new(
             lmod.clone(),
