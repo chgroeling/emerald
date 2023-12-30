@@ -151,9 +151,11 @@ impl Emerald {
             lmod.clone(),
             rmod.clone(),
         ));
+        let vrid_index =
+            adapters::to_vault::convert_resource_ids_to_vault_format(nmod.create_iter());
 
         let vault = vault::VaultImpl::new(
-            adapters::to_vault::convert_resource_ids_to_vault_format(nmod.create_iter()),
+            vrid_index,
             md_retriever_adapter,
             content_retriever_adapter,
             get_backlinks_adapter,
