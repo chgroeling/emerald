@@ -31,7 +31,7 @@ where
 {
     fn get_links_of(
         &self,
-        rid: &vault::VaultResourceId,
+        rid: &vault::ExResourceId,
     ) -> Box<dyn Iterator<Item = vault::LinkQueryResult>> {
         let rid: types::ResourceId = rid.clone().into();
         let Some(out_itr) = self.tgt_link_retriever.retrieve(&rid) else {

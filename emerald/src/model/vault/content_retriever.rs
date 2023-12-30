@@ -1,5 +1,5 @@
-use super::VaultResourceId;
+use super::ExResourceId;
 
 pub trait ContentRetriever {
-    fn retrieve(&self, rid: &VaultResourceId) -> &str;
+    fn retrieve(&self, rid: &ExResourceId) -> &str;
 }
