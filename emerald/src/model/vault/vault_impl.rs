@@ -21,7 +21,7 @@ pub struct VaultImpl {
 }
 
 impl VaultImpl {
-    pub fn new<'a>(
+    pub fn new(
         note_rid_iter: impl IntoIterator<Item = ExResourceId>,
         metadata_retriever: Rc<dyn NoteMetadataRetriever>,
         content_retriever: Rc<dyn MdContentRetriever>,
@@ -70,7 +70,7 @@ impl Vault for VaultImpl {
         Box::new(self.get_links.get_links_of(rid).map(move |f| match f {
             LinkQueryResult::LinkToNote(rid) => {
                 let link_uid = uid_map_clone.get_uid_from_rid(&rid).expect("Should exist");
-                NoteTypes::Note(factory_clone.create_note(&link_uid))
+                NoteTypes::Note(factory_clone.create_note(link_uid))
             }
             LinkQueryResult::LinkToResource(rid) => NoteTypes::ResourceRef(rid),
         }))
@@ -89,7 +89,7 @@ impl Vault for VaultImpl {
                 .map(move |f| match f {
                     LinkQueryResult::LinkToNote(rid) => {
                         let link_uid = uid_map_clone.get_uid_from_rid(&rid).expect("Should exist");
-                        NoteTypes::Note(factory_clone.create_note(&link_uid))
+                        NoteTypes::Note(factory_clone.create_note(link_uid))
                     }
                     LinkQueryResult::LinkToResource(rid) => NoteTypes::ResourceRef(rid),
                 }),
