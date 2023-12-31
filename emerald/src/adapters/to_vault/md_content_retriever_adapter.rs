@@ -2,17 +2,18 @@ use crate::model::content;
 use crate::model::vault;
 use std::rc::Rc;
 
-/// Adapts a generic markdown content retriever to the `vault::ContentRetriever` interface.
+/// Adapts a generic markdown content retriever to the `vault::MdContentRetriever` interface.
 ///
 /// This struct allows the use of any markdown content retriever that implements
-/// `content::MdContentRetriever` to be used wherever a `vault::ContentRetriever` is needed.
+/// `content::MdContentRetriever` to be used wherever a `vault::MdContentRetriever`
+/// is needed.
 #[derive(Clone)]
-pub struct ContentRetrieverAdapter {
+pub struct MdContentRetrieverAdapter {
     content_retriever: Rc<dyn content::MdContentRetriever>,
 }
 
-impl ContentRetrieverAdapter {
-    /// Creates a new `ContentRetrieverAdapter`.
+impl MdContentRetrieverAdapter {
+    /// Creates a new `MdContentRetrieverAdapter`.
     ///
     /// # Arguments
     ///
@@ -26,7 +27,7 @@ impl ContentRetrieverAdapter {
     }
 }
 
-impl vault::ContentRetriever for ContentRetrieverAdapter {
+impl vault::MdContentRetriever for MdContentRetrieverAdapter {
     fn retrieve(&self, rid: &vault::ExResourceId) -> &str {
         let content = self.content_retriever.retrieve(&rid.clone().into());
 
