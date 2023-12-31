@@ -1,8 +1,8 @@
-mod content_retriever;
 mod ex_resource_id;
 mod get_backlinks;
 mod get_links;
 mod link_query_result;
+mod md_content_retriever;
 mod note;
 mod note_factory;
 mod note_factory_impl;
@@ -14,11 +14,11 @@ mod uid_utils;
 mod vault_impl;
 mod vault_trait;
 
-pub use content_retriever::ContentRetriever;
 pub use ex_resource_id::ExResourceId;
 pub use get_backlinks::GetBacklinks;
 pub use get_links::GetLinks;
 pub use link_query_result::LinkQueryResult;
+pub use md_content_retriever::MdContentRetriever;
 pub use note::DocumentMetadata;
 pub use note::FilesystemMetadata;
 pub use note::Note;

@@ -1,6 +1,6 @@
 use super::ExResourceId;
 
-pub trait ContentRetriever {
+pub trait MdContentRetriever {
     /// Retrieves content for the specified resource identifier.
     ///
     /// # Arguments
