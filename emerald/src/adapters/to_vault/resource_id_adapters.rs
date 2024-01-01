@@ -9,7 +9,7 @@ use crate::types;
 ///
 /// # Returns
 ///
-/// Iterator over `vault::VaultResourceId`.
+/// Iterator over `vault::ExResourceId`.
 pub fn convert_resource_ids_to_vault_format<'a>(
     it_src: impl IntoIterator<Item = types::ResourceId> + 'a,
 ) -> impl Iterator<Item = vault::ExResourceId> + 'a {

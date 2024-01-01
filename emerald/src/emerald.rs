@@ -7,6 +7,7 @@ use super::markdown;
 use super::model::content;
 use super::model::link;
 use super::model::note;
+use super::model::note_writer;
 use super::model::resource;
 use super::model::resource_id_resolver;
 use super::model::vault;
@@ -165,6 +166,14 @@ impl Emerald {
         let elapsed = start.elapsed();
         debug!("Creation of Vault: {:?}", elapsed);
 
+        let start = Instant::now();
+        let content_retriever_adapter = Rc::new(
+            adapters::to_note_writer::MdContentRetrieverAdapter::new(cmod.clone()),
+        );
+
+        let _note_writer = Rc::new(note_writer::NoteWriter::new(content_retriever_adapter));
+        let elapsed = start.elapsed();
+        debug!("Creation of NoteWriter: {:?}", elapsed);
         // -----
         // Aquire stats
         let link_stats = stats::extract_link_stats(lmod.as_ref());
