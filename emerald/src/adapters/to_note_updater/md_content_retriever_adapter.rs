@@ -1,11 +1,11 @@
 use crate::model::content;
-use crate::model::note_writer;
+use crate::model::note_updater;
 use std::rc::Rc;
 
-/// Adapts a generic markdown content retriever to the `note_writer::MdContentRetriever` interface.
+/// Adapts a generic markdown content retriever to the `note_updater::MdContentRetriever` interface.
 ///
 /// This struct allows the use of any markdown content retriever that implements
-/// `content::MdContentRetriever` to be used wherever a `note_writer::MdContentRetriever`
+/// `content::MdContentRetriever` to be used wherever a `note_updater::MdContentRetriever`
 /// is needed.
 #[derive(Clone)]
 pub struct MdContentRetrieverAdapter {
@@ -27,8 +27,8 @@ impl MdContentRetrieverAdapter {
     }
 }
 
-impl note_writer::MdContentRetriever for MdContentRetrieverAdapter {
-    fn retrieve(&self, rid: &note_writer::ExResourceId) -> &str {
+impl note_updater::MdContentRetriever for MdContentRetrieverAdapter {
+    fn retrieve(&self, rid: &note_updater::ExResourceId) -> &str {
         let content = self.content_retriever.retrieve(&rid.clone().into());
 
         &content.0

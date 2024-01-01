@@ -5,7 +5,7 @@ pub trait MdContentRetriever {
     ///
     /// # Arguments
     ///
-    /// * `rid`: A reference to a `note_writer::ExResourceId`.
+    /// * `rid`: A reference to a `note_updater::ExResourceId`.
     ///
     /// # Returns
     ///

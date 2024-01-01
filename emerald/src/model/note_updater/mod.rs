@@ -5,11 +5,11 @@ use std::rc::Rc;
 
 pub use self::ex_resource_id::ExResourceId;
 pub use self::md_content_retriever::MdContentRetriever;
-pub struct NoteWriter {
+pub struct NoteUpdater {
     content_retriever: Rc<dyn MdContentRetriever>,
 }
 
-impl NoteWriter {
+impl NoteUpdater {
     pub fn new(content_retriever: Rc<dyn MdContentRetriever>) -> Self {
         Self { content_retriever }
     }
