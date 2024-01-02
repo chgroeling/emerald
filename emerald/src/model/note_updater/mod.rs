@@ -45,3 +45,49 @@ impl NoteUpdater {
         yaml_str.to_string() + markdown
     }
 }
+
+#[cfg(test)]
+mod note_updater_tests {
+    use super::*;
+    use mockall::{predicate::*, *};
+
+    mock! {
+        MdContentRetrieverImpl {}
+        impl MdContentRetriever for MdContentRetrieverImpl {
+            fn retrieve(&self, rid: &ExResourceId) -> &str;
+        }
+    }
+
+    fn setup_md_content_retriever_mock(inp_str: String) -> Rc<MockMdContentRetrieverImpl> {
+        let mut mock_cnt_retriever = MockMdContentRetrieverImpl::new();
+        mock_cnt_retriever
+            .expect_retrieve()
+            .return_const(inp_str.clone());
+
+        mock_cnt_retriever.into()
+    }
+
+    #[test]
+    fn test_update_note_identiy_without_yaml_frontmatter() {
+        let inp_str: String = "Test Text\nText Test".into();
+        let mock_cnt_retriever = setup_md_content_retriever_mock(inp_str.clone());
+        let sut = NoteUpdater::new(mock_cnt_retriever);
+        let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
+
+        let out = sut.update_note(&rid);
+
+        assert_eq!(out, inp_str)
+    }
+
+    #[test]
+    fn test_update_note_identiy_with_yaml_frontmatter() {
+        let inp_str: String = "---\nyaml1: text1\nyaml2: text2\n---\nTest Text\nText Test".into();
+        let mock_cnt_retriever = setup_md_content_retriever_mock(inp_str.clone());
+        let sut = NoteUpdater::new(mock_cnt_retriever);
+        let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
+
+        let out = sut.update_note(&rid);
+
+        assert_eq!(out, inp_str)
+    }
+}
