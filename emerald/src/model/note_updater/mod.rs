@@ -69,7 +69,10 @@ mod note_updater_tests {
 
     #[test]
     fn test_update_note_identiy_without_yaml_frontmatter() {
-        let inp_str: String = "Test Text\nText Test".into();
+        let inp_str: String = "\
+Test Text
+Text Test"
+            .into();
         let mock_cnt_retriever = setup_md_content_retriever_mock(inp_str.clone());
         let sut = NoteUpdater::new(mock_cnt_retriever);
         let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
@@ -81,13 +84,19 @@ mod note_updater_tests {
 
     #[test]
     fn test_update_note_identiy_with_yaml_frontmatter() {
-        let inp_str: String = "---\nyaml1: text1\nyaml2: text2\n---\nTest Text\nText Test".into();
+        let inp_str: String = "\
+---
+yaml1: text1
+yaml2: text2
+---
+Test Text
+Text Test"
+            .into();
         let mock_cnt_retriever = setup_md_content_retriever_mock(inp_str.clone());
         let sut = NoteUpdater::new(mock_cnt_retriever);
         let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
 
         let out = sut.update_note(&rid);
-
         assert_eq!(out, inp_str)
     }
 }
