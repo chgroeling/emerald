@@ -8,6 +8,7 @@ use super::markdown_analyzer_impl::MarkdownAnalyzerImpl;
 use crate::types;
 
 /// A struct representing a MarkdownFrontMatterSplitter.
+#[derive(Clone)]
 pub struct MarkdownFrontMatterSplitter();
 
 impl MarkdownFrontMatterSplitter {
@@ -42,5 +43,14 @@ impl MarkdownFrontMatterSplitter {
         }
 
         (yaml_str, &content[start_of_markdown..])
+    }
+
+    pub fn trim_pre_and_postamble<'a>(&self, content: &'a str) -> &'a str {
+        content
+            .trim_start_matches("---")
+            .trim_start_matches('\n')
+            .trim_end_matches('\n')
+            .trim_end_matches("---")
+            .trim_end_matches('\n')
     }
 }
