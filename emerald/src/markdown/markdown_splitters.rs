@@ -7,27 +7,8 @@ use super::markdown_analyzer::MarkdownAnalyzer;
 use super::markdown_analyzer_impl::MarkdownAnalyzerImpl;
 use crate::types;
 
+/// A trait representing a MarkdownFrontMatterSplitter
 pub trait MarkdownFrontmatterSplitter {
-    fn split<'a>(&self, content: &'a str) -> (&'a str, &'a str);
-    fn trim_pre_and_postamble<'a>(&self, content: &'a str) -> &'a str;
-}
-/// A struct representing a MarkdownFrontMatterSplitter.
-#[derive(Clone)]
-pub struct MarkdownFrontmatterSplitterImpl();
-
-impl Copy for MarkdownFrontmatterSplitterImpl {}
-
-impl MarkdownFrontmatterSplitterImpl {
-    /// Creates a new instance of MarkdownSplitter.
-    ///
-    /// # Returns
-    ///
-    /// A new instance of MarkdownSplitter.
-    pub fn new() -> Self {
-        Self()
-    }
-}
-impl MarkdownFrontmatterSplitter for MarkdownFrontmatterSplitterImpl {
     /// Splits the YAML frontmatter from the markdown content.
     ///
     /// # Arguments
@@ -51,7 +32,6 @@ impl MarkdownFrontmatterSplitter for MarkdownFrontmatterSplitterImpl {
 
         (yaml_str, &content[start_of_markdown..])
     }
-
     fn trim_pre_and_postamble<'a>(&self, content: &'a str) -> &'a str {
         content
             .trim_start_matches("---")
@@ -61,3 +41,18 @@ impl MarkdownFrontmatterSplitter for MarkdownFrontmatterSplitterImpl {
             .trim_end_matches('\n')
     }
 }
+/// A struct representing a MarkdownFrontMatterSplitterImpl.
+#[derive(Clone)]
+pub struct MarkdownFrontmatterSplitterImpl();
+impl Copy for MarkdownFrontmatterSplitterImpl {}
+impl MarkdownFrontmatterSplitterImpl {
+    /// Creates a new instance of MarkdownSplitter.
+    ///
+    /// # Returns
+    ///
+    /// A new instance of MarkdownSplitter.
+    pub fn new() -> Self {
+        Self()
+    }
+}
+impl MarkdownFrontmatterSplitter for MarkdownFrontmatterSplitterImpl {}
