@@ -7,11 +7,17 @@ use super::markdown_analyzer::MarkdownAnalyzer;
 use super::markdown_analyzer_impl::MarkdownAnalyzerImpl;
 use crate::types;
 
+pub trait MarkdownFrontMatterSplitter {
+    fn split<'a>(&self, content: &'a str) -> (&'a str, &'a str);
+    fn trim_pre_and_postamble<'a>(&self, content: &'a str) -> &'a str;
+}
 /// A struct representing a MarkdownFrontMatterSplitter.
 #[derive(Clone)]
-pub struct MarkdownFrontMatterSplitter();
+pub struct MarkdownFrontMatterSplitterImpl();
 
-impl MarkdownFrontMatterSplitter {
+impl Copy for MarkdownFrontMatterSplitterImpl {}
+
+impl MarkdownFrontMatterSplitterImpl {
     /// Creates a new instance of MarkdownSplitter.
     ///
     /// # Returns
@@ -20,7 +26,8 @@ impl MarkdownFrontMatterSplitter {
     pub fn new() -> Self {
         Self()
     }
-
+}
+impl MarkdownFrontMatterSplitter for MarkdownFrontMatterSplitterImpl {
     /// Splits the YAML frontmatter from the markdown content.
     ///
     /// # Arguments
@@ -30,7 +37,7 @@ impl MarkdownFrontMatterSplitter {
     /// # Returns
     ///
     /// A tuple containing the YAML frontmatter and the remaining markdown content.
-    pub fn split<'a>(&self, content: &'a str) -> (&'a str, &'a str) {
+    fn split<'a>(&self, content: &'a str) -> (&'a str, &'a str) {
         let md_analyzer = MarkdownAnalyzerImpl::new();
         let mut md_iter = md_analyzer.analyze(content);
         let mut yaml_str = "";
@@ -45,7 +52,7 @@ impl MarkdownFrontMatterSplitter {
         (yaml_str, &content[start_of_markdown..])
     }
 
-    pub fn trim_pre_and_postamble<'a>(&self, content: &'a str) -> &'a str {
+    fn trim_pre_and_postamble<'a>(&self, content: &'a str) -> &'a str {
         content
             .trim_start_matches("---")
             .trim_start_matches('\n')
