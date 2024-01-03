@@ -16,5 +16,5 @@ mod utils;
 
 pub use markdown_analyzer::MarkdownAnalyzer;
 pub use markdown_analyzer_impl::MarkdownAnalyzerImpl;
+pub use markdown_splitters::DefaultMarkdownFrontmatterSplitter;
 pub use markdown_splitters::MarkdownFrontmatterSplitter;
-pub use markdown_splitters::MarkdownFrontmatterSplitterImpl;

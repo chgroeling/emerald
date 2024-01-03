@@ -3,7 +3,7 @@ mod md_content_retriever;
 
 pub use self::ex_resource_id::ExResourceId;
 pub use self::md_content_retriever::MdContentRetriever;
-use crate::markdown::{MarkdownFrontmatterSplitter, MarkdownFrontmatterSplitterImpl};
+use crate::markdown::{DefaultMarkdownFrontmatterSplitter, MarkdownFrontmatterSplitter};
 use crate::types;
 use std::rc::Rc;
 
@@ -22,7 +22,7 @@ impl NoteUpdater {
     pub fn update_note(&self, rid: &ExResourceId) -> String {
         // read content
         let content = self.content_retriever.retrieve(rid);
-        let markdown_splitter = MarkdownFrontmatterSplitterImpl::new();
+        let markdown_splitter = DefaultMarkdownFrontmatterSplitter::new();
 
         // split
         let (yaml_str, markdown) = markdown_splitter.split(content);

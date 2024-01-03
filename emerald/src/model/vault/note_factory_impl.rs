@@ -1,7 +1,7 @@
 use super::note_factory::NoteFactory;
 use super::uid_map::UidMap;
 use super::{MdContentRetriever, Note, NoteMetadataRetriever, Uid};
-use crate::markdown::{MarkdownFrontmatterSplitter, MarkdownFrontmatterSplitterImpl};
+use crate::markdown::{DefaultMarkdownFrontmatterSplitter, MarkdownFrontmatterSplitter};
 use std::rc::Rc;
 
 #[derive(Clone)]
@@ -30,7 +30,7 @@ impl NoteFactory for NoteFactoryImpl {
         let rid = self.uid_map.get_rid_from_uid(uid).expect("Should exist");
         let (title, filesystem_md, document_md) = self.metadata_retriever.retrieve(rid);
         let content = self.content_retriever.retrieve(rid);
-        let markdown_splitter = MarkdownFrontmatterSplitterImpl::new();
+        let markdown_splitter = DefaultMarkdownFrontmatterSplitter::new();
 
         let (yaml_str, markdown) = markdown_splitter.split(content);
 

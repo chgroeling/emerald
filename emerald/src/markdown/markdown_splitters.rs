@@ -43,9 +43,9 @@ pub trait MarkdownFrontmatterSplitter {
 }
 /// A struct representing a MarkdownFrontMatterSplitterImpl.
 #[derive(Clone)]
-pub struct MarkdownFrontmatterSplitterImpl();
-impl Copy for MarkdownFrontmatterSplitterImpl {}
-impl MarkdownFrontmatterSplitterImpl {
+pub struct DefaultMarkdownFrontmatterSplitter();
+impl Copy for DefaultMarkdownFrontmatterSplitter {}
+impl DefaultMarkdownFrontmatterSplitter {
     /// Creates a new instance of MarkdownSplitter.
     ///
     /// # Returns
@@ -55,4 +55,4 @@ impl MarkdownFrontmatterSplitterImpl {
         Self()
     }
 }
-impl MarkdownFrontmatterSplitter for MarkdownFrontmatterSplitterImpl {}
+impl MarkdownFrontmatterSplitter for DefaultMarkdownFrontmatterSplitter {}
