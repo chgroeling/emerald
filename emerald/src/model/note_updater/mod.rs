@@ -25,24 +25,32 @@ impl NoteUpdater {
         let markdown_splitter = DefaultMarkdownFrontmatterSplitter::new();
 
         // split
-        let (yaml_str, markdown) = markdown_splitter.split(content);
-        let res = serde_yaml::from_str::<types::DocumentMetadata>(yaml_str);
-        let yaml_data = match res {
-            Ok(yaml_meta_data) => yaml_meta_data,
-            Err(err) => {
-                warn!(
-                    "Invalid yaml found in {:?}\nError: {}\n{}",
-                    rid, err, yaml_str
-                );
-                types::DocumentMetadata::default()
+        let (yaml, markdown) = markdown_splitter.split(content);
+
+        let yaml_string = match yaml {
+            Some(yaml_str) => {
+                let res = serde_yaml::from_str::<types::DocumentMetadata>(yaml_str);
+
+                let _yaml_data = match res {
+                    Ok(yaml_meta_data) => yaml_meta_data,
+                    Err(err) => {
+                        warn!(
+                            "Invalid yaml found in {:?}\nError: {}\n{}",
+                            rid, err, yaml_str
+                        );
+                        types::DocumentMetadata::default()
+                    }
+                };
+                "---\n".to_string() + yaml_str + "\n---\n"
             }
+            None => "".to_string(),
         };
 
         // update yaml
         // ...
 
         // Output
-        yaml_str.to_string() + markdown
+        yaml_string + markdown
     }
 }
 

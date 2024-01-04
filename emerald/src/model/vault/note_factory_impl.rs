@@ -32,7 +32,9 @@ impl NoteFactory for NoteFactoryImpl {
         let content = self.content_retriever.retrieve(rid);
         let markdown_splitter = DefaultMarkdownFrontmatterSplitter::new();
 
-        let (yaml_str, markdown) = markdown_splitter.split(content);
+        let (yaml, markdown) = markdown_splitter.split(content);
+
+        let yaml_str = yaml.unwrap_or("");
 
         Note::new(
             uid.clone(),
