@@ -9,6 +9,12 @@ use std::rc::Rc;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
+use serde_yaml::Value;
+
+#[derive(Debug, Clone, Copy, PartialEq, Hash, Default)]
+pub struct ChangeCommand {
+    change: bool,
+}
 
 pub struct NoteUpdater {
     content_retriever: Rc<dyn MdContentRetriever>,
@@ -19,7 +25,7 @@ impl NoteUpdater {
         Self { content_retriever }
     }
 
-    pub fn update_note(&self, rid: &ExResourceId) -> String {
+    pub fn update_note(&self, rid: &ExResourceId, cmd: ChangeCommand) -> String {
         // read content
         let content = self.content_retriever.retrieve(rid);
         let markdown_splitter = DefaultMarkdownFrontmatterSplitter::new();
@@ -29,25 +35,24 @@ impl NoteUpdater {
 
         let yaml_string = match yaml {
             Some(yaml_str) => {
-                let res = serde_yaml::from_str::<types::DocumentMetadata>(yaml_str);
+                let res = serde_yaml::from_str::<Value>(yaml_str);
+                let mut jkl = res.unwrap();
 
-                let _yaml_data = match res {
-                    Ok(yaml_meta_data) => yaml_meta_data,
-                    Err(err) => {
-                        warn!(
-                            "Invalid yaml found in {:?}\nError: {}\n{}",
-                            rid, err, yaml_str
-                        );
-                        types::DocumentMetadata::default()
+                // update yaml
+                // ...
+                if cmd.change {
+                    let mut prop = jkl.get_mut("yaml1").unwrap();
+                    if let Value::String(string) = &mut prop {
+                        string.clear();
+                        string.push_str("replace")
                     }
-                };
-                "---\n".to_string() + yaml_str + "\n---\n"
+                }
+                let new_yaml = serde_yaml::to_string(&jkl).unwrap();
+
+                "---\n".to_string() + new_yaml.as_str() + "---\n"
             }
             None => "".to_string(),
         };
-
-        // update yaml
-        // ...
 
         // Output
         yaml_string + markdown
@@ -76,7 +81,7 @@ mod note_updater_tests {
     }
 
     #[test]
-    fn test_update_note_identiy_without_yaml_frontmatter() {
+    fn test_update_note_identity_without_yaml_frontmatter() {
         let inp_str: String = "\
 Test Text
 Text Test"
@@ -85,13 +90,13 @@ Text Test"
         let sut = NoteUpdater::new(mock_cnt_retriever);
         let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
 
-        let out = sut.update_note(&rid);
+        let out = sut.update_note(&rid, Default::default());
 
         assert_eq!(out, inp_str)
     }
 
     #[test]
-    fn test_update_note_identiy_with_yaml_frontmatter() {
+    fn test_update_note_identity_with_yaml_frontmatter() {
         let inp_str: String = "\
 ---
 yaml1: text1
@@ -104,7 +109,35 @@ Text Test"
         let sut = NoteUpdater::new(mock_cnt_retriever);
         let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
 
-        let out = sut.update_note(&rid);
+        let out = sut.update_note(&rid, Default::default());
         assert_eq!(out, inp_str)
+    }
+
+    #[test]
+    fn test_update_note_update_property_with_yaml_frontmatter() {
+        let inp_str: String = "\
+---
+yaml1: text1
+yaml2: text2
+---
+Test Text
+Text Test"
+            .into();
+        let mock_cnt_retriever = setup_md_content_retriever_mock(inp_str.clone());
+        let sut = NoteUpdater::new(mock_cnt_retriever);
+        let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
+
+        let cmd = ChangeCommand { change: true };
+        let out = sut.update_note(&rid, cmd);
+
+        let out_str: String = "\
+---
+yaml1: replace
+yaml2: text2
+---
+Test Text
+Text Test"
+            .into();
+        assert_eq!(out, out_str)
     }
 }
