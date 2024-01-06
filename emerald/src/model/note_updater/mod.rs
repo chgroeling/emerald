@@ -53,11 +53,11 @@ impl YamlUpdater for DefaultYamlUpdater {
         }
     }
 }
-pub struct DefaultNoteUpdater {
+pub struct NoteUpdater {
     content_retriever: Rc<dyn MdContentRetriever>,
 }
 
-impl DefaultNoteUpdater {
+impl NoteUpdater {
     pub fn new(content_retriever: Rc<dyn MdContentRetriever>) -> Self {
         Self { content_retriever }
     }
@@ -117,7 +117,7 @@ Test Text
 Text Test"
             .into();
         let mock_cnt_retriever = setup_md_content_retriever_mock(inp_str.clone());
-        let sut = DefaultNoteUpdater::new(mock_cnt_retriever);
+        let sut = NoteUpdater::new(mock_cnt_retriever);
         let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
 
         let out = sut.update_note(&rid, Default::default());
@@ -136,7 +136,7 @@ Test Text
 Text Test"
             .into();
         let mock_cnt_retriever = setup_md_content_retriever_mock(inp_str.clone());
-        let sut = DefaultNoteUpdater::new(mock_cnt_retriever);
+        let sut = NoteUpdater::new(mock_cnt_retriever);
         let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
 
         let out = sut.update_note(&rid, Default::default());
@@ -154,7 +154,7 @@ Test Text
 Text Test"
             .into();
         let mock_cnt_retriever = setup_md_content_retriever_mock(inp_str.clone());
-        let sut = DefaultNoteUpdater::new(mock_cnt_retriever);
+        let sut = NoteUpdater::new(mock_cnt_retriever);
         let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
 
         let cmd = DefaultChangeCommand {
@@ -186,7 +186,7 @@ Test Text
 Text Test"
             .into();
         let mock_cnt_retriever = setup_md_content_retriever_mock(inp_str.clone());
-        let sut = DefaultNoteUpdater::new(mock_cnt_retriever);
+        let sut = NoteUpdater::new(mock_cnt_retriever);
         let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
 
         let cmd = DefaultChangeCommand {

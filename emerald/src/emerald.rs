@@ -172,9 +172,7 @@ impl Emerald {
             adapters::to_note_updater::MdContentRetrieverAdapter::new(cmod.clone()),
         );
 
-        let _note_updater = Rc::new(note_updater::DefaultNoteUpdater::new(
-            content_retriever_adapter,
-        ));
+        let _note_updater = Rc::new(note_updater::NoteUpdater::new(content_retriever_adapter));
         let elapsed = start.elapsed();
         debug!("Creation of NoteWriter: {:?}", elapsed);
         // -----
