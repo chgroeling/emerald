@@ -10,7 +10,9 @@ use std::rc::Rc;
 use log::{debug, error, info, trace, warn};
 use serde_yaml::Value;
 
-trait ChangeCommand {}
+pub trait ChangeCommand {
+    fn execute(&self, note_updater: &mut dyn YamlUpdater);
+}
 #[derive(Debug, Clone, PartialEq, Hash, Default)]
 pub struct DefaultChangeCommand {
     change: bool,
@@ -18,15 +20,15 @@ pub struct DefaultChangeCommand {
     value: String,
 }
 
-impl DefaultChangeCommand {
+impl ChangeCommand for DefaultChangeCommand {
     fn execute(&self, note_updater: &mut dyn YamlUpdater) {
         if self.change {
-            note_updater.update_entry(self.entry.clone(), self.value.clone());
+            note_updater.update_entry(&self.entry, &self.value);
         }
     }
 }
-trait YamlUpdater {
-    fn update_entry(&mut self, entry: String, value: String);
+pub trait YamlUpdater {
+    fn update_entry(&mut self, entry: &str, value: &str);
 }
 
 struct DefaultYamlUpdater {
@@ -43,13 +45,13 @@ impl DefaultYamlUpdater {
     }
 }
 impl YamlUpdater for DefaultYamlUpdater {
-    fn update_entry(&mut self, entry: String, value: String) {
+    fn update_entry(&mut self, entry: &str, value: &str) {
         // update yaml
         // ...
         let mut prop = self.val.get_mut(entry).unwrap();
         if let Value::String(string) = &mut prop {
             string.clear();
-            string.push_str(value.as_str())
+            string.push_str(value)
         }
     }
 }
@@ -62,7 +64,7 @@ impl NoteUpdater {
         Self { content_retriever }
     }
 
-    pub fn update_note(&self, rid: &ExResourceId, cmd: DefaultChangeCommand) -> String {
+    pub fn update_note(&self, rid: &ExResourceId, cmd: &dyn ChangeCommand) -> String {
         // read content
         let content = self.content_retriever.retrieve(rid);
         let markdown_splitter = DefaultMarkdownFrontmatterSplitter::new();
@@ -91,6 +93,8 @@ impl NoteUpdater {
 
 #[cfg(test)]
 mod note_updater_tests {
+    use std::default;
+
     use super::*;
     use mockall::{predicate::*, *};
 
@@ -119,8 +123,8 @@ Text Test"
         let mock_cnt_retriever = setup_md_content_retriever_mock(inp_str.clone());
         let sut = NoteUpdater::new(mock_cnt_retriever);
         let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
-
-        let out = sut.update_note(&rid, Default::default());
+        let cmd: DefaultChangeCommand = Default::default();
+        let out = sut.update_note(&rid, &cmd);
 
         assert_eq!(out, inp_str)
     }
@@ -138,8 +142,8 @@ Text Test"
         let mock_cnt_retriever = setup_md_content_retriever_mock(inp_str.clone());
         let sut = NoteUpdater::new(mock_cnt_retriever);
         let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
-
-        let out = sut.update_note(&rid, Default::default());
+        let cmd: DefaultChangeCommand = Default::default();
+        let out = sut.update_note(&rid, &cmd);
         assert_eq!(out, inp_str)
     }
 
@@ -162,7 +166,7 @@ Text Test"
             entry: "yaml1".into(),
             value: "replace".into(),
         };
-        let out = sut.update_note(&rid, cmd);
+        let out = sut.update_note(&rid, &cmd);
 
         let out_str: String = "\
 ---
@@ -194,7 +198,7 @@ Text Test"
             entry: "yaml2".into(),
             value: "replace".into(),
         };
-        let out = sut.update_note(&rid, cmd);
+        let out = sut.update_note(&rid, &cmd);
 
         let out_str: String = "\
 ---
