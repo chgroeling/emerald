@@ -221,4 +221,37 @@ Text Test"
             .into();
         assert_eq!(out, out_str)
     }
+
+    #[test]
+    fn test_update_note_update_property_with_yaml_frontmatter_insert() {
+        let inp_str: String = "\
+---
+yaml1: text1
+yaml2: text2
+---
+Test Text
+Text Test"
+            .into();
+        let mock_cnt_retriever = setup_md_content_retriever_mock(inp_str.clone());
+        let sut = NoteUpdater::new(mock_cnt_retriever);
+        let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
+        let out = sut.update_note(
+            &rid,
+            ChangeEntry {
+                entry: "yaml3".into(),
+                value: "insert".into(),
+            },
+        );
+
+        let out_str: String = "\
+---
+yaml1: text1
+yaml2: text2
+yaml3: insert
+---
+Test Text
+Text Test"
+            .into();
+        assert_eq!(out, out_str)
+    }
 }
