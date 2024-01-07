@@ -15,12 +15,12 @@ trait Command {
     fn execute(&self, note_updater: &mut dyn UpdateYamlEntry);
 }
 #[derive(Debug, Clone, PartialEq, Hash, Default)]
-struct ChangeEntryCommand {
+struct UpdateEntryCommand {
     entry: String,
     value: String,
 }
 
-impl Command for ChangeEntryCommand {
+impl Command for UpdateEntryCommand {
     fn execute(&self, note_updater: &mut dyn UpdateYamlEntry) {
         note_updater.update_entry(&self.entry, &self.value);
     }
@@ -87,7 +87,7 @@ impl NoteUpdater {
                 let val = res.unwrap();
                 let mut yaml_updater = DefaultUpdateYamlEntry::new(val);
                 let concrete_cmd: Box<dyn Command> = match cmd {
-                    ChangeEntry { entry, value } => Box::new(ChangeEntryCommand { entry, value }),
+                    UpdateEntry { entry, value } => Box::new(UpdateEntryCommand { entry, value }),
                     DoNothing => Box::new(DefaultDoNothingCommand {}),
                 };
                 concrete_cmd.execute(&mut yaml_updater);
@@ -173,7 +173,7 @@ Text Test"
 
         let out = sut.update_note(
             &rid,
-            ChangeEntry {
+            UpdateEntry {
                 entry: "yaml1".into(),
                 value: "replace".into(),
             },
@@ -205,7 +205,7 @@ Text Test"
         let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
         let out = sut.update_note(
             &rid,
-            ChangeEntry {
+            UpdateEntry {
                 entry: "yaml2".into(),
                 value: "replace".into(),
             },
@@ -237,7 +237,7 @@ Text Test"
         let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
         let out = sut.update_note(
             &rid,
-            ChangeEntry {
+            UpdateEntry {
                 entry: "yaml3".into(),
                 value: "insert".into(),
             },

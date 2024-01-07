@@ -1,4 +1,4 @@
 pub enum NoteUpdateCommand {
-    ChangeEntry { entry: String, value: String },
+    UpdateEntry { entry: String, value: String },
     DoNothing,
 }
