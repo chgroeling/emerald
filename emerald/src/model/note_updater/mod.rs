@@ -1,6 +1,5 @@
 mod ex_resource_id;
 mod md_content_retriever;
-
 pub use self::ex_resource_id::ExResourceId;
 pub use self::md_content_retriever::MdContentRetriever;
 use crate::markdown::{DefaultMarkdownFrontmatterSplitter, MarkdownFrontmatterSplitter};
@@ -10,41 +9,52 @@ use std::rc::Rc;
 use log::{debug, error, info, trace, warn};
 use serde_yaml::Value;
 
-pub trait ChangeCommand {
-    fn execute(&self, note_updater: &mut dyn YamlUpdater);
+pub enum NoteUpdateCommand {
+    ChangeEntry { entry: String, value: String },
+    DoNothing,
+}
+
+use NoteUpdateCommand::*;
+
+trait Command {
+    fn execute(&self, note_updater: &mut dyn UpdateYamlEntry);
 }
 #[derive(Debug, Clone, PartialEq, Hash, Default)]
-pub struct DefaultChangeCommand {
-    change: bool,
+struct ChangeEntryCommand {
     entry: String,
     value: String,
 }
 
-impl ChangeCommand for DefaultChangeCommand {
-    fn execute(&self, note_updater: &mut dyn YamlUpdater) {
-        if self.change {
-            note_updater.update_entry(&self.entry, &self.value);
-        }
+impl Command for ChangeEntryCommand {
+    fn execute(&self, note_updater: &mut dyn UpdateYamlEntry) {
+        note_updater.update_entry(&self.entry, &self.value);
     }
 }
-pub trait YamlUpdater {
+
+#[derive(Debug, Clone, PartialEq, Hash, Default)]
+struct DefaultDoNothingCommand {}
+
+impl Command for DefaultDoNothingCommand {
+    fn execute(&self, _note_updater: &mut dyn UpdateYamlEntry) {}
+}
+trait UpdateYamlEntry {
     fn update_entry(&mut self, entry: &str, value: &str);
 }
 
-struct DefaultYamlUpdater {
+struct DefaultUpdateYamlEntry {
     val: Value,
 }
 
-impl DefaultYamlUpdater {
+impl DefaultUpdateYamlEntry {
     fn new(val: Value) -> Self {
-        DefaultYamlUpdater { val }
+        DefaultUpdateYamlEntry { val }
     }
 
     fn into_value(self) -> Value {
         self.val
     }
 }
-impl YamlUpdater for DefaultYamlUpdater {
+impl UpdateYamlEntry for DefaultUpdateYamlEntry {
     fn update_entry(&mut self, entry: &str, value: &str) {
         // update yaml
         // ...
@@ -64,7 +74,7 @@ impl NoteUpdater {
         Self { content_retriever }
     }
 
-    pub fn update_note(&self, rid: &ExResourceId, cmd: &dyn ChangeCommand) -> String {
+    pub fn update_note(&self, rid: &ExResourceId, cmd: NoteUpdateCommand) -> String {
         // read content
         let content = self.content_retriever.retrieve(rid);
         let markdown_splitter = DefaultMarkdownFrontmatterSplitter::new();
@@ -75,9 +85,13 @@ impl NoteUpdater {
         let yaml_string = match yaml {
             Some(yaml_str) => {
                 let res = serde_yaml::from_str::<Value>(yaml_str);
-                let jkl = res.unwrap();
-                let mut yaml_updater = DefaultYamlUpdater::new(jkl);
-                cmd.execute(&mut yaml_updater);
+                let val = res.unwrap();
+                let mut yaml_updater = DefaultUpdateYamlEntry::new(val);
+                let concrete_cmd: Box<dyn Command> = match cmd {
+                    ChangeEntry { entry, value } => Box::new(ChangeEntryCommand { entry, value }),
+                    DoNothing => Box::new(DefaultDoNothingCommand {}),
+                };
+                concrete_cmd.execute(&mut yaml_updater);
                 let own_yaml = yaml_updater.into_value();
                 let new_yaml = serde_yaml::to_string(&own_yaml).unwrap();
 
@@ -93,8 +107,6 @@ impl NoteUpdater {
 
 #[cfg(test)]
 mod note_updater_tests {
-    use std::default;
-
     use super::*;
     use mockall::{predicate::*, *};
 
@@ -123,8 +135,8 @@ Text Test"
         let mock_cnt_retriever = setup_md_content_retriever_mock(inp_str.clone());
         let sut = NoteUpdater::new(mock_cnt_retriever);
         let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
-        let cmd: DefaultChangeCommand = Default::default();
-        let out = sut.update_note(&rid, &cmd);
+
+        let out = sut.update_note(&rid, DoNothing);
 
         assert_eq!(out, inp_str)
     }
@@ -142,8 +154,7 @@ Text Test"
         let mock_cnt_retriever = setup_md_content_retriever_mock(inp_str.clone());
         let sut = NoteUpdater::new(mock_cnt_retriever);
         let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
-        let cmd: DefaultChangeCommand = Default::default();
-        let out = sut.update_note(&rid, &cmd);
+        let out = sut.update_note(&rid, DoNothing);
         assert_eq!(out, inp_str)
     }
 
@@ -161,12 +172,13 @@ Text Test"
         let sut = NoteUpdater::new(mock_cnt_retriever);
         let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
 
-        let cmd = DefaultChangeCommand {
-            change: true,
-            entry: "yaml1".into(),
-            value: "replace".into(),
-        };
-        let out = sut.update_note(&rid, &cmd);
+        let out = sut.update_note(
+            &rid,
+            ChangeEntry {
+                entry: "yaml1".into(),
+                value: "replace".into(),
+            },
+        );
 
         let out_str: String = "\
 ---
@@ -192,13 +204,13 @@ Text Test"
         let mock_cnt_retriever = setup_md_content_retriever_mock(inp_str.clone());
         let sut = NoteUpdater::new(mock_cnt_retriever);
         let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
-
-        let cmd = DefaultChangeCommand {
-            change: true,
-            entry: "yaml2".into(),
-            value: "replace".into(),
-        };
-        let out = sut.update_note(&rid, &cmd);
+        let out = sut.update_note(
+            &rid,
+            ChangeEntry {
+                entry: "yaml2".into(),
+                value: "replace".into(),
+            },
+        );
 
         let out_str: String = "\
 ---
