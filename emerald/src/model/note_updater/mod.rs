@@ -1,20 +1,15 @@
 mod ex_resource_id;
 mod md_content_retriever;
+mod note_update_command;
 pub use self::ex_resource_id::ExResourceId;
 pub use self::md_content_retriever::MdContentRetriever;
 use crate::markdown::{DefaultMarkdownFrontmatterSplitter, MarkdownFrontmatterSplitter};
+use note_update_command::NoteUpdateCommand::*;
+use serde_yaml::Value;
 use std::rc::Rc;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
-use serde_yaml::Value;
-
-pub enum NoteUpdateCommand {
-    ChangeEntry { entry: String, value: String },
-    DoNothing,
-}
-
-use NoteUpdateCommand::*;
 
 trait Command {
     fn execute(&self, note_updater: &mut dyn UpdateYamlEntry);
@@ -74,7 +69,11 @@ impl NoteUpdater {
         Self { content_retriever }
     }
 
-    pub fn update_note(&self, rid: &ExResourceId, cmd: NoteUpdateCommand) -> String {
+    pub fn update_note(
+        &self,
+        rid: &ExResourceId,
+        cmd: note_update_command::NoteUpdateCommand,
+    ) -> String {
         // read content
         let content = self.content_retriever.retrieve(rid);
         let markdown_splitter = DefaultMarkdownFrontmatterSplitter::new();
