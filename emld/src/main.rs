@@ -1,6 +1,7 @@
 mod format_option_parser;
 mod note_table_printer;
 use clap::{Parser, Subcommand};
+use emerald::Vault;
 use format_option_parser::{FormatOptionParser, FormatOptions};
 use note_table_printer::NoteTablePrinter;
 use std::path::Path;
@@ -69,6 +70,8 @@ fn uc_stats(emerald: &Emerald) -> Result<()> {
     Ok(())
 }
 fn uc_update(emerald: &Emerald) -> Result<()> {
+    let vault = emerald.get_vault();
+    for note in vault.flat_iter() {}
     Ok(())
 }
 
