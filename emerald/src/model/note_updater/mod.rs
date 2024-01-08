@@ -12,7 +12,7 @@ use std::rc::Rc;
 use log::{debug, error, info, trace, warn};
 
 trait Command {
-    fn execute(&self, note_updater: &mut dyn UpdateYamlEntry);
+    fn execute(&self, note_updater: &mut dyn YamlCommandHandler);
 }
 #[derive(Debug, Clone, PartialEq, Hash, Default)]
 struct UpdateEntryCommand {
@@ -21,7 +21,7 @@ struct UpdateEntryCommand {
 }
 
 impl Command for UpdateEntryCommand {
-    fn execute(&self, note_updater: &mut dyn UpdateYamlEntry) {
+    fn execute(&self, note_updater: &mut dyn YamlCommandHandler) {
         note_updater.update_entry(&self.entry, &self.value);
     }
 }
@@ -30,33 +30,39 @@ impl Command for UpdateEntryCommand {
 struct DefaultDoNothingCommand {}
 
 impl Command for DefaultDoNothingCommand {
-    fn execute(&self, _note_updater: &mut dyn UpdateYamlEntry) {}
+    fn execute(&self, _note_updater: &mut dyn YamlCommandHandler) {}
 }
-trait UpdateYamlEntry {
+trait YamlCommandHandler {
     fn update_entry(&mut self, entry: &str, value: &str);
 }
 
-struct DefaultUpdateYamlEntry {
+struct DefaultUpdateOrInsertYamlEntry {
     val: Value,
 }
 
-impl DefaultUpdateYamlEntry {
+impl DefaultUpdateOrInsertYamlEntry {
     fn new(val: Value) -> Self {
-        DefaultUpdateYamlEntry { val }
+        Self { val }
     }
 
     fn into_value(self) -> Value {
         self.val
     }
 }
-impl UpdateYamlEntry for DefaultUpdateYamlEntry {
+impl YamlCommandHandler for DefaultUpdateOrInsertYamlEntry {
     fn update_entry(&mut self, entry: &str, value: &str) {
         // update yaml
         // ...
-        let mut prop = self.val.get_mut(entry).unwrap();
-        if let Value::String(string) = &mut prop {
-            string.clear();
-            string.push_str(value)
+        let prop = self.val.get_mut(entry);
+
+        if let Some(mut prop) = prop {
+            if let Value::String(string) = &mut prop {
+                string.clear();
+                string.push_str(value)
+            }
+        } else {
+            let mapping = self.val.as_mapping_mut().unwrap();
+            let _ = mapping.insert(Value::String(entry.into()), Value::String(value.into()));
         }
     }
 }
@@ -85,9 +91,11 @@ impl NoteUpdater {
             Some(yaml_str) => {
                 let res = serde_yaml::from_str::<Value>(yaml_str);
                 let val = res.unwrap();
-                let mut yaml_updater = DefaultUpdateYamlEntry::new(val);
+                let mut yaml_updater = DefaultUpdateOrInsertYamlEntry::new(val);
                 let concrete_cmd: Box<dyn Command> = match cmd {
-                    UpdateEntry { entry, value } => Box::new(UpdateEntryCommand { entry, value }),
+                    UpdateOrInsert { key: entry, value } => {
+                        Box::new(UpdateEntryCommand { entry, value })
+                    }
                     DoNothing => Box::new(DefaultDoNothingCommand {}),
                 };
                 concrete_cmd.execute(&mut yaml_updater);
@@ -173,8 +181,8 @@ Text Test"
 
         let out = sut.update_note(
             &rid,
-            UpdateEntry {
-                entry: "yaml1".into(),
+            UpdateOrInsert {
+                key: "yaml1".into(),
                 value: "replace".into(),
             },
         );
@@ -205,8 +213,8 @@ Text Test"
         let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
         let out = sut.update_note(
             &rid,
-            UpdateEntry {
-                entry: "yaml2".into(),
+            UpdateOrInsert {
+                key: "yaml2".into(),
                 value: "replace".into(),
             },
         );
@@ -237,8 +245,8 @@ Text Test"
         let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
         let out = sut.update_note(
             &rid,
-            UpdateEntry {
-                entry: "yaml3".into(),
+            UpdateOrInsert {
+                key: "yaml3".into(),
                 value: "insert".into(),
             },
         );
