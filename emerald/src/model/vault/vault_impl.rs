@@ -60,6 +60,10 @@ impl Vault for VaultImpl {
         note_vec.into_iter()
     }
 
+    fn get_resource_id(&self, note: &Note) -> Option<&ExResourceId> {
+        self.uid_map.get_rid_from_uid(&note.uid)
+    }
+
     fn get_links_of(&self, note: &Note) -> Box<dyn Iterator<Item = NoteTypes>> {
         let factory_clone = self.note_factory.clone();
         let uid_map_clone = self.uid_map.clone();

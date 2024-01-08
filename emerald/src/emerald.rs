@@ -1,5 +1,6 @@
 use crate::model::note::NotesIterSrc;
 use crate::resources::FsMetadataAccessImpl;
+use crate::Vault;
 
 use super::adapters;
 use super::error::Result;
@@ -13,6 +14,7 @@ use super::model::resource_id_resolver;
 use super::model::vault;
 use super::resources;
 use super::stats;
+use super::types;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
@@ -193,7 +195,15 @@ impl Emerald {
 
 impl Emerald {
     pub fn get_vault(&self) -> vault::VaultImpl {
+        // TODO: Give Back reference?
+        // Better approach ... separate interfaces for outside
         self.vault.clone()
+    }
+
+    pub fn get_resource_id(&self, note: &vault::Note) -> Option<types::ResourceId> {
+        let vault_resource_id = self.vault.get_resource_id(note)?;
+        let resource_id: types::ResourceId = vault_resource_id.to_owned().into();
+        Some(resource_id)
     }
 
     pub fn file_count(&self) -> usize {

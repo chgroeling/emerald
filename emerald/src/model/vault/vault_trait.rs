@@ -1,7 +1,11 @@
+use super::ExResourceId;
 use super::{note_types::NoteTypes, Note};
 
 pub trait Vault {
     fn flat_iter(&self) -> std::vec::IntoIter<Note>;
+
+    /// Returns the resource id of the Note note.
+    fn get_resource_id(&self, note: &Note) -> Option<&ExResourceId>;
 
     /// Returns an iterator over links contained in the specified Note.
     ///

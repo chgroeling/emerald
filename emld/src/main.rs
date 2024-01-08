@@ -10,6 +10,7 @@ use std::time::Instant;
 
 use emerald::Emerald;
 use emerald::EmeraldError;
+use emerald::ResourceId;
 use emerald::Result;
 
 #[allow(unused_imports)]
@@ -71,7 +72,11 @@ fn uc_stats(emerald: &Emerald) -> Result<()> {
 }
 fn uc_update(emerald: &Emerald) -> Result<()> {
     let vault = emerald.get_vault();
-    for note in vault.flat_iter() {}
+    for note in vault.flat_iter() {
+        let note_resource_id: ResourceId = emerald
+            .get_resource_id(&note)
+            .ok_or(EmeraldError::ValueError)?;
+    }
     Ok(())
 }
 
