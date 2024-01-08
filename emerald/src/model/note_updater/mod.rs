@@ -15,14 +15,14 @@ trait Command {
     fn execute(&self, note_updater: &mut dyn YamlCommandHandler);
 }
 #[derive(Debug, Clone, PartialEq, Hash, Default)]
-struct UpdateEntryCommand {
-    entry: String,
+struct UpdateOrInsertCommand {
+    key: String,
     value: String,
 }
 
-impl Command for UpdateEntryCommand {
+impl Command for UpdateOrInsertCommand {
     fn execute(&self, note_updater: &mut dyn YamlCommandHandler) {
-        note_updater.update_entry(&self.entry, &self.value);
+        note_updater.update_entry(&self.key, &self.value);
     }
 }
 
@@ -94,7 +94,7 @@ impl NoteUpdater {
                 let mut yaml_updater = DefaultUpdateOrInsertYamlEntry::new(val);
                 let concrete_cmd: Box<dyn Command> = match cmd {
                     UpdateOrInsert { key: entry, value } => {
-                        Box::new(UpdateEntryCommand { entry, value })
+                        Box::new(UpdateOrInsertCommand { key: entry, value })
                     }
                     DoNothing => Box::new(DefaultDoNothingCommand {}),
                 };
