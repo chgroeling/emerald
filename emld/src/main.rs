@@ -32,6 +32,8 @@ enum Commands {
     /// Return various statistics
     Stats {},
 
+    Update {},
+
     /// Lists all notes as a table.
     List {
         /// Sets the format of the output table.
@@ -52,7 +54,7 @@ enum Commands {
     },
 }
 
-fn uc_stats(_vault_path: &Path, emerald: &Emerald) -> Result<()> {
+fn uc_stats(emerald: &Emerald) -> Result<()> {
     info!("Execute usecase: Stats");
 
     println!("Md file count: {:?}", emerald.md_file_count());
@@ -64,6 +66,9 @@ fn uc_stats(_vault_path: &Path, emerald: &Emerald) -> Result<()> {
         emerald.invalid_backlink_count()
     );
 
+    Ok(())
+}
+fn uc_update(emerald: &Emerald) -> Result<()> {
     Ok(())
 }
 
@@ -137,7 +142,8 @@ fn main() -> Result<()> {
 
     // execute use-cases
     match &cli.command {
-        Commands::Stats {} => uc_stats(&vault_path, &emerald)?,
+        Commands::Stats {} => uc_stats(&emerald)?,
+        Commands::Update {} => uc_update(&emerald)?,
         Commands::List {
             format,
             no_header,
