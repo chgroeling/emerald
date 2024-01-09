@@ -2,8 +2,6 @@ mod document_metadata;
 mod filesystem_metadata;
 mod timestamp;
 
-use crate::model::note_updater::ExResourceId;
-
 pub use self::document_metadata::DocumentMetadata;
 pub use self::filesystem_metadata::FilesystemMetadata;
 pub use self::timestamp::Timestamp;
