@@ -23,13 +23,13 @@ use std::rc::Rc;
 use std::{path::Path, time::Instant};
 
 #[allow(dead_code)]
-pub struct Emerald {
+pub struct DefaultEmerald {
     pub vault: vault::VaultImpl,
     pub stats: stats::VaultStats,
 }
 
-impl Emerald {
-    pub fn new(vault_path: &Path) -> Result<Emerald> {
+impl DefaultEmerald {
+    pub fn new(vault_path: &Path) -> Result<DefaultEmerald> {
         // Build dependency root
         let start = Instant::now();
         let mut path_list = resources::get_path_list(vault_path)?;
@@ -186,39 +186,48 @@ impl Emerald {
             link_stats,
         };
         // -------
-        Ok(Emerald {
+        Ok(DefaultEmerald {
             vault,
             stats: vault_stats,
         })
     }
 }
 
-impl Emerald {
-    pub fn get_vault(&self) -> vault::VaultImpl {
+pub trait Emerald {
+    fn get_vault(&self) -> vault::VaultImpl;
+    fn get_resource_id(&self, note: &vault::Note) -> Option<types::ResourceId>;
+    fn file_count(&self) -> usize;
+    fn md_file_count(&self) -> usize;
+    fn valid_backlink_count(&self) -> usize;
+    fn invalid_backlink_count(&self) -> usize;
+}
+
+impl Emerald for DefaultEmerald {
+    fn get_vault(&self) -> vault::VaultImpl {
         // TODO: Give Back reference?
         // Better approach ... separate interfaces for outside
         self.vault.clone()
     }
 
-    pub fn get_resource_id(&self, note: &vault::Note) -> Option<types::ResourceId> {
+    fn get_resource_id(&self, note: &vault::Note) -> Option<types::ResourceId> {
         let vault_resource_id = self.vault.get_resource_id(note)?;
         let resource_id: types::ResourceId = vault_resource_id.to_owned().into();
         Some(resource_id)
     }
 
-    pub fn file_count(&self) -> usize {
+    fn file_count(&self) -> usize {
         self.stats.file_stats.file_count
     }
 
-    pub fn md_file_count(&self) -> usize {
+    fn md_file_count(&self) -> usize {
         self.stats.file_stats.md_file_count
     }
 
-    pub fn valid_backlink_count(&self) -> usize {
+    fn valid_backlink_count(&self) -> usize {
         self.stats.link_stats.valid_backlinks
     }
 
-    pub fn invalid_backlink_count(&self) -> usize {
+    fn invalid_backlink_count(&self) -> usize {
         self.stats.link_stats.invalid_backlinks
     }
 }

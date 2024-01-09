@@ -1,11 +1,11 @@
 use std::path::PathBuf;
 
 use criterion::{criterion_group, criterion_main, Criterion};
-use emerald::Emerald;
+use emerald::DefaultEmerald;
 
 fn vault_load() {
     let vault_path = PathBuf::from("./tests/test_vault");
-    let _emerald = Emerald::new(&vault_path).unwrap();
+    let _emerald = DefaultEmerald::new(&vault_path).unwrap();
 }
 
 pub fn criterion_benchmark(c: &mut Criterion) {

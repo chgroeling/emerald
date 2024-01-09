@@ -1,10 +1,10 @@
 mod format_option_parser;
 mod note_table_printer;
 use clap::{Parser, Subcommand};
+use emerald::DefaultEmerald;
 use emerald::Vault;
 use format_option_parser::{FormatOptionParser, FormatOptions};
 use note_table_printer::NoteTablePrinter;
-use std::path::Path;
 use std::path::PathBuf;
 use std::time::Instant;
 
@@ -56,7 +56,7 @@ enum Commands {
     },
 }
 
-fn uc_stats(emerald: &Emerald) -> Result<()> {
+fn uc_stats(emerald: &dyn Emerald) -> Result<()> {
     info!("Execute usecase: Stats");
 
     println!("Md file count: {:?}", emerald.md_file_count());
@@ -70,7 +70,7 @@ fn uc_stats(emerald: &Emerald) -> Result<()> {
 
     Ok(())
 }
-fn uc_update(emerald: &Emerald) -> Result<()> {
+fn uc_update(emerald: &dyn Emerald) -> Result<()> {
     let vault = emerald.get_vault();
     for note in vault.flat_iter() {
         let note_resource_id: ResourceId = emerald
@@ -81,7 +81,7 @@ fn uc_update(emerald: &Emerald) -> Result<()> {
 }
 
 fn uc_list(
-    emerald: &Emerald,
+    emerald: &dyn Emerald,
     format_opt: &FormatOptions,
     print_header: bool,
     follow_links: u32,
@@ -146,7 +146,7 @@ fn main() -> Result<()> {
         return Err(EmeraldError::VaultNotFound);
     }
 
-    let emerald = Emerald::new(&vault_path)?;
+    let emerald = DefaultEmerald::new(&vault_path)?;
 
     // execute use-cases
     match &cli.command {

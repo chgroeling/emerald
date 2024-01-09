@@ -9,6 +9,7 @@ mod types;
 mod utils;
 mod yaml;
 
+pub use crate::emerald::DefaultEmerald;
 pub use crate::emerald::Emerald;
 pub use crate::error::EmeraldError;
 pub use crate::error::Result;
