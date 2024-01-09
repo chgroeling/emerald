@@ -2,7 +2,6 @@ mod format_option_parser;
 mod note_table_printer;
 use clap::{Parser, Subcommand};
 use emerald::DefaultEmerald;
-use emerald::Vault;
 use format_option_parser::{FormatOptionParser, FormatOptions};
 use note_table_printer::NoteTablePrinter;
 use std::path::PathBuf;
@@ -71,8 +70,7 @@ fn uc_stats(emerald: &dyn Emerald) -> Result<()> {
     Ok(())
 }
 fn uc_update(emerald: &dyn Emerald) -> Result<()> {
-    let vault = emerald.get_vault();
-    for note in vault.flat_iter() {
+    for note in emerald.flat_iter() {
         let note_resource_id: ResourceId = emerald
             .get_resource_id(&note)
             .ok_or(EmeraldError::ValueError)?;
@@ -116,7 +114,6 @@ fn uc_list(
         FormatOptions::Custom(custom_fmt_str) => custom_fmt_str,
     };
 
-    let vault = emerald.get_vault();
     let note_table_printer_config = NoteTablePrinterConfig {
         format_string: format_string.to_string(),
         print_header,
@@ -124,7 +121,7 @@ fn uc_list(
         title_regex_predicate: title_regex_predicate.clone(),
     };
     let pt = NoteTablePrinter {
-        vault: &vault,
+        emerald,
         config: note_table_printer_config,
     };
     pt.print();

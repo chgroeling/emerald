@@ -1,5 +1,5 @@
 use chrono::prelude::*;
-use emerald::{Note, NoteTypes, Vault};
+use emerald::{Emerald, Note, NoteTypes};
 use formatify::{Formatify, PlaceholderFormatter};
 use regex::Regex;
 use std::collections::HashMap;
@@ -64,7 +64,7 @@ impl NoteProperty {
 fn note_property_to_str(
     element: &NoteProperty,
     note: &Note,
-    vault: &dyn Vault,
+    vault: &dyn Emerald,
     depth: u32,
 ) -> String {
     match element {
@@ -96,7 +96,7 @@ fn note_property_to_str(
 }
 
 struct NoteLinkTraversal<'a> {
-    vault: &'a dyn Vault,
+    vault: &'a dyn Emerald,
     used_props: &'a Vec<NoteProperty>,
     format_string: &'a str,
     follow_links: u32,
@@ -159,7 +159,7 @@ pub struct NoteTablePrinterConfig {
 /// - `config`: Configuration settings for printing, including the format string, header printing option, link-following depth, and title regex filter.
 
 pub struct NoteTablePrinter<'a> {
-    pub vault: &'a dyn Vault,
+    pub emerald: &'a dyn Emerald,
     pub config: NoteTablePrinterConfig,
 }
 
@@ -223,7 +223,7 @@ impl<'a> NoteTablePrinter<'a> {
 
         // # print content - use valid placeholders for it
         let mut key_value_store = HashMap::<&str, String>::new();
-        for i in self.vault.flat_iter() {
+        for i in self.emerald.flat_iter() {
             // Check if opt_regex is Some and if the regex matches the title of the current element
             if let Some(ref regex) = opt_regex {
                 if !regex.is_match(&i.title) {
@@ -232,13 +232,13 @@ impl<'a> NoteTablePrinter<'a> {
             }
 
             used_props.iter().for_each(|property| {
-                let ref_cell = note_property_to_str(property, &i, self.vault, 0);
+                let ref_cell = note_property_to_str(property, &i, self.emerald, 0);
                 let out_str = ref_cell;
                 key_value_store.insert(property.value(), out_str);
             });
 
             let pfl = NoteLinkTraversal {
-                vault: self.vault,
+                vault: self.emerald,
                 used_props: &used_props,
                 format_string: &self.config.format_string,
                 follow_links: self.config.follow_links,

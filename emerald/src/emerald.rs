@@ -1,6 +1,6 @@
 use crate::model::note::NotesIterSrc;
+use crate::model::vault::Vault;
 use crate::resources::FsMetadataAccessImpl;
-use crate::Vault;
 
 use super::adapters;
 use super::error::Result;
@@ -194,7 +194,22 @@ impl DefaultEmerald {
 }
 
 pub trait Emerald {
-    fn get_vault(&self) -> vault::VaultImpl;
+    fn flat_iter(&self) -> std::vec::IntoIter<vault::Note>;
+
+    /// Returns an iterator over links contained in the specified Note.
+    ///
+    /// # Arguments
+    ///
+    /// * `note`: Note.
+    fn get_links_of(&self, note: &vault::Note) -> Box<dyn Iterator<Item = vault::NoteTypes>>;
+
+    /// Returns an iterator over links pointing to the specified Note.
+    ///
+    /// # Arguments
+    ///
+    /// * `note`: Note.
+    fn get_backlinks_of(&self, note: &vault::Note) -> Box<dyn Iterator<Item = vault::NoteTypes>>;
+
     fn get_resource_id(&self, note: &vault::Note) -> Option<types::ResourceId>;
     fn file_count(&self) -> usize;
     fn md_file_count(&self) -> usize;
@@ -203,12 +218,6 @@ pub trait Emerald {
 }
 
 impl Emerald for DefaultEmerald {
-    fn get_vault(&self) -> vault::VaultImpl {
-        // TODO: Give Back reference?
-        // Better approach ... separate interfaces for outside
-        self.vault.clone()
-    }
-
     fn get_resource_id(&self, note: &vault::Note) -> Option<types::ResourceId> {
         let vault_resource_id = self.vault.get_resource_id(note)?;
         let resource_id: types::ResourceId = vault_resource_id.to_owned().into();
@@ -229,5 +238,17 @@ impl Emerald for DefaultEmerald {
 
     fn invalid_backlink_count(&self) -> usize {
         self.stats.link_stats.invalid_backlinks
+    }
+
+    fn flat_iter(&self) -> std::vec::IntoIter<vault::Note> {
+        self.vault.flat_iter()
+    }
+
+    fn get_links_of(&self, note: &vault::Note) -> Box<dyn Iterator<Item = vault::NoteTypes>> {
+        self.vault.get_links_of(note)
+    }
+
+    fn get_backlinks_of(&self, note: &vault::Note) -> Box<dyn Iterator<Item = vault::NoteTypes>> {
+        self.vault.get_backlinks_of(note)
     }
 }
