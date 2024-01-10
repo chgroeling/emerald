@@ -26,6 +26,7 @@ use std::{path::Path, time::Instant};
 pub struct DefaultEmerald {
     pub vault: vault::VaultImpl,
     pub stats: stats::VaultStats,
+    pub n_updater: note_updater::NoteUpdater,
 }
 
 impl DefaultEmerald {
@@ -166,6 +167,7 @@ impl DefaultEmerald {
             get_backlinks_adapter,
             get_links_adapter,
         );
+
         let elapsed = start.elapsed();
         debug!("Creation of Vault: {:?}", elapsed);
 
@@ -174,9 +176,9 @@ impl DefaultEmerald {
             adapters::to_note_updater::MdContentRetrieverAdapter::new(cmod.clone()),
         );
 
-        let _note_updater = Rc::new(note_updater::NoteUpdater::new(content_retriever_adapter));
+        let note_updater = note_updater::NoteUpdater::new(content_retriever_adapter);
         let elapsed = start.elapsed();
-        debug!("Creation of NoteWriter: {:?}", elapsed);
+        debug!("Creation of NoteUpdater: {:?}", elapsed);
         // -----
         // Aquire stats
         let link_stats = stats::extract_link_stats(lmod.as_ref());
@@ -189,6 +191,7 @@ impl DefaultEmerald {
         Ok(DefaultEmerald {
             vault,
             stats: vault_stats,
+            n_updater: note_updater,
         })
     }
 }
@@ -209,6 +212,8 @@ pub trait Emerald {
     ///
     /// * `note`: Note.
     fn get_backlinks_of(&self, note: &vault::Note) -> Box<dyn Iterator<Item = vault::NoteTypes>>;
+
+    fn update_note(&self, rid: &types::ResourceId, value: &str) -> String;
 
     fn get_resource_id(&self, note: &vault::Note) -> Option<types::ResourceId>;
     fn file_count(&self) -> usize;
@@ -250,5 +255,16 @@ impl Emerald for DefaultEmerald {
 
     fn get_backlinks_of(&self, note: &vault::Note) -> Box<dyn Iterator<Item = vault::NoteTypes>> {
         self.vault.get_backlinks_of(note)
+    }
+
+    fn update_note(&self, rid: &types::ResourceId, value: &str) -> String {
+        let rid_clone = rid.clone();
+        self.n_updater.update_note(
+            &rid_clone.into(),
+            note_updater::NoteUpdateCommand::UpdateOrInsert {
+                key: "uid".into(),
+                value: value.into(),
+            },
+        )
     }
 }

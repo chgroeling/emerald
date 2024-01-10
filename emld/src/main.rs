@@ -4,6 +4,8 @@ use clap::{Parser, Subcommand};
 use emerald::DefaultEmerald;
 use format_option_parser::{FormatOptionParser, FormatOptions};
 use note_table_printer::NoteTablePrinter;
+use std::fs::File;
+use std::io::Write;
 use std::path::PathBuf;
 use std::time::Instant;
 
@@ -71,9 +73,13 @@ fn uc_stats(emerald: &dyn Emerald) -> Result<()> {
 }
 fn uc_update(emerald: &dyn Emerald) -> Result<()> {
     for note in emerald.flat_iter() {
-        let note_resource_id: ResourceId = emerald
+        let rid: ResourceId = emerald
             .get_resource_id(&note)
             .ok_or(EmeraldError::ValueError)?;
+
+        let updated_note = emerald.update_note(&rid, "added");
+        let mut file = File::create(note.title + ".md")?;
+        file.write_all(updated_note.as_bytes())?;
     }
     Ok(())
 }

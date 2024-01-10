@@ -4,9 +4,10 @@ mod note_update_command;
 pub use self::ex_resource_id::ExResourceId;
 pub use self::md_content_retriever::MdContentRetriever;
 use crate::markdown::{DefaultMarkdownFrontmatterSplitter, MarkdownFrontmatterSplitter};
-use note_update_command::NoteUpdateCommand::*;
+pub use note_update_command::NoteUpdateCommand;
 use serde_yaml::Value;
 use std::rc::Rc;
+use NoteUpdateCommand::*;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
