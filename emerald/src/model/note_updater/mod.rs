@@ -88,48 +88,38 @@ impl NoteUpdater {
         // split
         let (yaml, markdown) = markdown_splitter.split(content);
 
-        let yaml_string = match yaml {
+        let mut yaml_updater = match yaml {
             Some(yaml_str) => {
                 let res = serde_yaml::from_str::<Value>(yaml_str);
                 let val = res.unwrap();
-                let mut yaml_updater = DefaultUpdateOrInsertYamlEntry::new(val);
-                let concrete_cmd: Box<dyn Command> = match cmd {
-                    UpdateOrInsert { key: entry, value } => {
-                        Box::new(UpdateOrInsertCommand { key: entry, value })
-                    }
-                    DoNothing => Box::new(DefaultDoNothingCommand {}),
-                };
-                concrete_cmd.execute(&mut yaml_updater);
-                let own_yaml = yaml_updater.into_value();
-                let new_yaml = serde_yaml::to_string(&own_yaml).unwrap();
-
-                "---\n".to_string() + new_yaml.as_str() + "---\n"
+                DefaultUpdateOrInsertYamlEntry::new(val)
             }
             None => {
                 let mapping = serde_yaml::Mapping::new();
                 let val = serde_yaml::Value::Mapping(mapping);
-                let mut yaml_updater = DefaultUpdateOrInsertYamlEntry::new(val);
-                let concrete_cmd: Box<dyn Command> = match cmd {
-                    UpdateOrInsert { key: entry, value } => {
-                        Box::new(UpdateOrInsertCommand { key: entry, value })
-                    }
-                    DoNothing => Box::new(DefaultDoNothingCommand {}),
-                };
-                concrete_cmd.execute(&mut yaml_updater);
-                let own_yaml = yaml_updater.into_value();
-
-                if let serde_yaml::Value::Mapping(new_mapping) = own_yaml {
-                    let len = new_mapping.len();
-                    if len > 0 {
-                        let new_yaml = serde_yaml::to_string(&new_mapping).unwrap();
-                        "---\n".to_string() + new_yaml.as_str() + "---\n"
-                    } else {
-                        "".to_string()
-                    }
-                } else {
-                    "".to_string()
-                }
+                DefaultUpdateOrInsertYamlEntry::new(val)
             }
+        };
+
+        let concrete_cmd: Box<dyn Command> = match cmd {
+            UpdateOrInsert { key: entry, value } => {
+                Box::new(UpdateOrInsertCommand { key: entry, value })
+            }
+            DoNothing => Box::new(DefaultDoNothingCommand {}),
+        };
+        concrete_cmd.execute(&mut yaml_updater);
+        let own_yaml = yaml_updater.into_value();
+
+        let yaml_string = if let serde_yaml::Value::Mapping(new_mapping) = own_yaml {
+            let len = new_mapping.len();
+            if len > 0 {
+                let new_yaml = serde_yaml::to_string(&new_mapping).unwrap();
+                "---\n".to_string() + new_yaml.as_str() + "---\n"
+            } else {
+                "".to_string()
+            }
+        } else {
+            "".to_string()
         };
 
         // Output
