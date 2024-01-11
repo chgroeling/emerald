@@ -105,7 +105,31 @@ impl NoteUpdater {
 
                 "---\n".to_string() + new_yaml.as_str() + "---\n"
             }
-            None => "".to_string(),
+            None => {
+                let mapping = serde_yaml::Mapping::new();
+                let val = serde_yaml::Value::Mapping(mapping);
+                let mut yaml_updater = DefaultUpdateOrInsertYamlEntry::new(val);
+                let concrete_cmd: Box<dyn Command> = match cmd {
+                    UpdateOrInsert { key: entry, value } => {
+                        Box::new(UpdateOrInsertCommand { key: entry, value })
+                    }
+                    DoNothing => Box::new(DefaultDoNothingCommand {}),
+                };
+                concrete_cmd.execute(&mut yaml_updater);
+                let own_yaml = yaml_updater.into_value();
+
+                if let serde_yaml::Value::Mapping(new_mapping) = own_yaml {
+                    let len = new_mapping.len();
+                    if len > 0 {
+                        let new_yaml = serde_yaml::to_string(&new_mapping).unwrap();
+                        "---\n".to_string() + new_yaml.as_str() + "---\n"
+                    } else {
+                        "".to_string()
+                    }
+                } else {
+                    "".to_string()
+                }
+            }
         };
 
         // Output
@@ -257,6 +281,32 @@ Text Test"
 yaml1: text1
 yaml2: text2
 yaml3: insert
+---
+Test Text
+Text Test"
+            .into();
+        assert_eq!(out, out_str)
+    }
+
+    #[test]
+    fn test_update_note_update_property_with_empty_yaml_frontmatter() {
+        let inp_str: String = "Test Text
+Text Test"
+            .into();
+        let mock_cnt_retriever = setup_md_content_retriever_mock(inp_str.clone());
+        let sut = NoteUpdater::new(mock_cnt_retriever);
+        let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
+        let out = sut.update_note(
+            &rid,
+            UpdateOrInsert {
+                key: "yaml1".into(),
+                value: "insert".into(),
+            },
+        );
+
+        let out_str: String = "\
+---
+yaml1: insert
 ---
 Test Text
 Text Test"
