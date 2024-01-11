@@ -37,11 +37,11 @@ trait YamlCommandHandler {
     fn update_entry(&mut self, entry: &str, value: &str);
 }
 
-struct DefaultUpdateOrInsertYamlEntry {
+struct DefaultYamlCommandHandler {
     val: Value,
 }
 
-impl DefaultUpdateOrInsertYamlEntry {
+impl DefaultYamlCommandHandler {
     fn new(val: Value) -> Self {
         Self { val }
     }
@@ -50,7 +50,7 @@ impl DefaultUpdateOrInsertYamlEntry {
         self.val
     }
 }
-impl YamlCommandHandler for DefaultUpdateOrInsertYamlEntry {
+impl YamlCommandHandler for DefaultYamlCommandHandler {
     fn update_entry(&mut self, entry: &str, value: &str) {
         // update yaml
         // ...
@@ -88,19 +88,18 @@ impl NoteUpdater {
         // split
         let (yaml, markdown) = markdown_splitter.split(content);
 
-        let mut yaml_updater = match yaml {
+        let val = match yaml {
             Some(yaml_str) => {
                 let res = serde_yaml::from_str::<Value>(yaml_str);
-                let val = res.unwrap();
-                DefaultUpdateOrInsertYamlEntry::new(val)
+                res.unwrap()
             }
             None => {
                 let mapping = serde_yaml::Mapping::new();
-                let val = serde_yaml::Value::Mapping(mapping);
-                DefaultUpdateOrInsertYamlEntry::new(val)
+                serde_yaml::Value::Mapping(mapping)
             }
         };
 
+        let mut yaml_updater = DefaultYamlCommandHandler::new(val);
         let concrete_cmd: Box<dyn Command> = match cmd {
             UpdateOrInsert { key: entry, value } => {
                 Box::new(UpdateOrInsertCommand { key: entry, value })
