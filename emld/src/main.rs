@@ -77,7 +77,7 @@ fn uc_update(emerald: &dyn Emerald) -> Result<()> {
             .get_resource_id(&note)
             .ok_or(EmeraldError::ValueError)?;
 
-        let updated_note = emerald.update_note(&rid, "added");
+        let updated_note = emerald.update_note(&rid, &note.uid.0);
         let mut file = File::create(note.title + ".md")?;
         file.write_all(updated_note.as_bytes())?;
     }
