@@ -4,6 +4,7 @@ use clap::{Parser, Subcommand};
 use emerald::DefaultEmerald;
 use format_option_parser::{FormatOptionParser, FormatOptions};
 use note_table_printer::NoteTablePrinter;
+use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
@@ -35,7 +36,11 @@ enum Commands {
     /// Return various statistics
     Stats {},
 
-    Update {},
+    Update {
+        ///  If set, the output table will not include a header.
+        #[arg(short = 'o', required = true)]
+        output_folder: String,
+    },
 
     /// Lists all notes as a table.
     List {
@@ -71,14 +76,18 @@ fn uc_stats(emerald: &dyn Emerald) -> Result<()> {
 
     Ok(())
 }
-fn uc_update(emerald: &dyn Emerald) -> Result<()> {
+fn uc_update(emerald: &dyn Emerald, output_folder: &String) -> Result<()> {
+    fs::create_dir(output_folder)?;
     for note in emerald.flat_iter() {
         let rid: ResourceId = emerald
             .get_resource_id(&note)
             .ok_or(EmeraldError::ValueError)?;
 
+        let mut file_path = PathBuf::new();
+        file_path.push(output_folder);
+        file_path.push(note.title + ".md");
         let updated_note = emerald.update_note(&rid, &note.uid.0);
-        let mut file = File::create(note.title + ".md")?;
+        let mut file = File::create(file_path)?;
         file.write_all(updated_note.as_bytes())?;
     }
     Ok(())
@@ -154,7 +163,7 @@ fn main() -> Result<()> {
     // execute use-cases
     match &cli.command {
         Commands::Stats {} => uc_stats(&emerald)?,
-        Commands::Update {} => uc_update(&emerald)?,
+        Commands::Update { output_folder } => uc_update(&emerald, output_folder)?,
         Commands::List {
             format,
             no_header,
