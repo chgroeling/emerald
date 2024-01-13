@@ -4,7 +4,6 @@ use super::link_query_result::LinkQueryResult;
 use super::note::Note;
 use super::note_types::NoteTypes;
 use super::uid_map::UidMap;
-use super::uid_utils::assign_uids_from_resource_ids;
 use super::vault_trait::Vault;
 use super::{ExResourceId, NoteFactory};
 use super::{MdContentRetriever, NoteFactoryImpl, NoteMetadataRetriever};
@@ -27,9 +26,9 @@ impl VaultImpl {
         get_links: Rc<dyn GetLinks>,
     ) -> Self {
         let mut uid_map = UidMap::new();
-        let note_rid_list: Vec<_> = note_rid_iter.into_iter().collect();
-        let _note_uid_list: Vec<_> =
-            assign_uids_from_resource_ids(note_rid_list.iter(), &mut uid_map).collect();
+        for rid in note_rid_iter.into_iter() {
+            uid_map.assign_uid(&rid);
+        }
 
         let rc_uid_map = Rc::new(uid_map);
         let note_factory = Rc::new(NoteFactoryImpl::new(
