@@ -4,6 +4,8 @@ use super::{note_types::NoteTypes, Note};
 pub trait Vault {
     fn flat_iter(&self) -> std::vec::IntoIter<Note>;
 
+    fn get_note(&self, rid: &ExResourceId) -> Note;
+
     /// Returns the resource id of the Note note.
     fn get_resource_id(&self, note: &Note) -> Option<&ExResourceId>;
 

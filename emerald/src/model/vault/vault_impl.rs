@@ -99,4 +99,12 @@ impl Vault for VaultImpl {
                 }),
         )
     }
+
+    fn get_note(&self, rid: &ExResourceId) -> Note {
+        let uid = self
+            .uid_map
+            .get_uid_from_rid(&rid)
+            .expect("Unknown ExResourceId");
+        self.note_factory.create_note(&uid)
+    }
 }
