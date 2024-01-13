@@ -26,6 +26,7 @@ use std::{path::Path, time::Instant};
 pub struct DefaultEmerald {
     pub vault: vault::VaultImpl,
     pub stats: stats::VaultStats,
+    pub nmod: Rc<note::DefaultNoteModel>,
     pub n_updater: note_updater::NoteUpdater,
 }
 
@@ -191,6 +192,7 @@ impl DefaultEmerald {
         Ok(DefaultEmerald {
             vault,
             stats: vault_stats,
+            nmod,
             n_updater: note_updater,
         })
     }
@@ -246,7 +248,16 @@ impl Emerald for DefaultEmerald {
     }
 
     fn flat_iter(&self) -> std::vec::IntoIter<vault::Note> {
-        self.vault.flat_iter()
+        let vcev: Vec<vault::Note> = self
+            .nmod
+            .create_iter()
+            .map(|rid| {
+                let ex_rid: vault::ExResourceId = rid.into();
+                self.vault.get_note(&ex_rid)
+            })
+            .collect();
+
+        vcev.into_iter()
     }
 
     fn get_links_of(&self, note: &vault::Note) -> Box<dyn Iterator<Item = vault::NoteTypes>> {

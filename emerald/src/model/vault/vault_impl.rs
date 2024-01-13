@@ -3,7 +3,6 @@ use super::get_links::GetLinks;
 use super::link_query_result::LinkQueryResult;
 use super::note::Note;
 use super::note_types::NoteTypes;
-use super::uid::Uid;
 use super::uid_map::UidMap;
 use super::uid_utils::assign_uids_from_resource_ids;
 use super::vault_trait::Vault;
@@ -13,7 +12,6 @@ use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct VaultImpl {
-    uid_index: Vec<Uid>,
     note_factory: Rc<dyn NoteFactory>,
     get_backlinks: Rc<dyn GetBacklinks>,
     get_links: Rc<dyn GetLinks>,
@@ -30,7 +28,7 @@ impl VaultImpl {
     ) -> Self {
         let mut uid_map = UidMap::new();
         let note_rid_list: Vec<_> = note_rid_iter.into_iter().collect();
-        let note_uid_list: Vec<_> =
+        let _note_uid_list: Vec<_> =
             assign_uids_from_resource_ids(note_rid_list.iter(), &mut uid_map).collect();
 
         let rc_uid_map = Rc::new(uid_map);
@@ -40,7 +38,6 @@ impl VaultImpl {
             rc_uid_map.clone(),
         ));
         Self {
-            uid_index: note_uid_list,
             note_factory,
             get_links,
             get_backlinks,
@@ -50,14 +47,12 @@ impl VaultImpl {
 }
 
 impl Vault for VaultImpl {
-    fn flat_iter(&self) -> std::vec::IntoIter<Note> {
-        let note_vec: Vec<Note> = self
-            .uid_index
-            .iter()
-            .map(|uid| self.note_factory.create_note(uid))
-            .collect();
-
-        note_vec.into_iter()
+    fn get_note(&self, rid: &ExResourceId) -> Note {
+        let uid = self
+            .uid_map
+            .get_uid_from_rid(&rid)
+            .expect("Unknown ExResourceId");
+        self.note_factory.create_note(&uid)
     }
 
     fn get_resource_id(&self, note: &Note) -> Option<&ExResourceId> {
@@ -98,13 +93,5 @@ impl Vault for VaultImpl {
                     LinkQueryResult::LinkToResource(rid) => NoteTypes::ResourceRef(rid),
                 }),
         )
-    }
-
-    fn get_note(&self, rid: &ExResourceId) -> Note {
-        let uid = self
-            .uid_map
-            .get_uid_from_rid(&rid)
-            .expect("Unknown ExResourceId");
-        self.note_factory.create_note(&uid)
     }
 }
