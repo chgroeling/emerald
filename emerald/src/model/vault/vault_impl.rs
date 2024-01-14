@@ -14,7 +14,7 @@ use std::rc::Rc;
 pub struct VaultImpl {
     note_factory: Rc<dyn NoteFactory>,
     get_backlinks: Rc<dyn GetBacklinks>,
-    get_links: Rc<dyn GetLinks>,
+    get_links: Rc<dyn GetLinks<ExResourceId>>,
     uid_map: Rc<UidMap<ExResourceId>>,
 }
 
@@ -24,7 +24,7 @@ impl VaultImpl {
         metadata_retriever: Rc<dyn NoteMetadataRetriever>,
         content_retriever: Rc<dyn MdContentRetriever>,
         get_backlinks: Rc<dyn GetBacklinks>,
-        get_links: Rc<dyn GetLinks>,
+        get_links: Rc<dyn GetLinks<ExResourceId>>,
     ) -> Self {
         let mut uid_map = UidMap::new();
 
@@ -68,7 +68,7 @@ impl Vault for VaultImpl {
             .uid_map
             .get_rid_from_uid(&note.uid)
             .expect("Should exist");
-        Box::new(self.get_links.get_links_of(&rid.0).map(move |f| match f {
+        Box::new(self.get_links.get_links_of(&rid).map(move |f| match f {
             LinkQueryResult::LinkToNote(rid) => {
                 let link_uid = uid_map_clone.get_uid_from_rid(&rid).expect("Should exist");
                 NoteTypes::Note(factory_clone.create_note(link_uid))
