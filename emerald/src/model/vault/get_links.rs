@@ -1,4 +1,4 @@
-use super::{ex_resource_id::VaultResourceId, link_query_result::LinkQueryResult};
+use super::{link_query_result::LinkQueryResult, VaultResourceId};
 
 /// Trait for querying links contained in a target resource.
 pub trait GetLinks<T>
@@ -10,5 +10,8 @@ where
     /// # Arguments
     ///
     /// * `rid`: Resource identifier.
-    fn get_links_of(&self, rid: &VaultResourceId<T>) -> Box<dyn Iterator<Item = LinkQueryResult>>;
+    fn get_links_of(
+        &self,
+        rid: &VaultResourceId<T>,
+    ) -> Box<dyn Iterator<Item = LinkQueryResult<T>>>;
 }

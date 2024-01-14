@@ -13,5 +13,5 @@ where
     fn get_backlinks_of(
         &self,
         rid: &VaultResourceId<T>,
-    ) -> Box<dyn Iterator<Item = LinkQueryResult>>;
+    ) -> Box<dyn Iterator<Item = LinkQueryResult<T>>>;
 }
