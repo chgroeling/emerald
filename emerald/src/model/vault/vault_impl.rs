@@ -58,7 +58,7 @@ impl Vault for VaultImpl {
     }
 
     fn get_resource_id(&self, note: &Note) -> Option<&ExResourceId> {
-        self.uid_map.get_rid_from_uid(&note.uid)
+        self.uid_map.get_rid_from_uid(&note.uid).map(|f| &f.0)
     }
 
     fn get_links_of(&self, note: &Note) -> Box<dyn Iterator<Item = NoteTypes>> {
@@ -68,7 +68,7 @@ impl Vault for VaultImpl {
             .uid_map
             .get_rid_from_uid(&note.uid)
             .expect("Should exist");
-        Box::new(self.get_links.get_links_of(rid).map(move |f| match f {
+        Box::new(self.get_links.get_links_of(&rid.0).map(move |f| match f {
             LinkQueryResult::LinkToNote(rid) => {
                 let link_uid = uid_map_clone.get_uid_from_rid(&rid).expect("Should exist");
                 NoteTypes::Note(factory_clone.create_note(link_uid))
@@ -86,7 +86,7 @@ impl Vault for VaultImpl {
             .expect("Should exist");
         Box::new(
             self.get_backlinks
-                .get_backlinks_of(rid)
+                .get_backlinks_of(&rid.0)
                 .map(move |f| match f {
                     LinkQueryResult::LinkToNote(rid) => {
                         let link_uid = uid_map_clone.get_uid_from_rid(&rid).expect("Should exist");

@@ -35,8 +35,8 @@ where
     ///
     /// Option containing the corresponding resource ID, if it exists.
 
-    pub fn get_rid_from_uid(&self, uid: &Uid) -> Option<&T> {
-        self.uid_to_rid.get(uid).map(|f| &f.0)
+    pub fn get_rid_from_uid(&self, uid: &Uid) -> Option<&VaultResourceId<T>> {
+        self.uid_to_rid.get(uid)
     }
 
     /// Retrieves the UID associated with a given resource ID.
