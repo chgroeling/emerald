@@ -1,3 +1,4 @@
+use super::ex_resource_id::VaultResourceId;
 use super::get_backlinks::GetBacklinks;
 use super::get_links::GetLinks;
 use super::link_query_result::LinkQueryResult;
@@ -26,8 +27,10 @@ impl VaultImpl {
         get_links: Rc<dyn GetLinks>,
     ) -> Self {
         let mut uid_map = UidMap::new();
+
         for rid in note_rid_iter.into_iter() {
-            uid_map.assign_uid(&rid);
+            let vrid = VaultResourceId(rid);
+            uid_map.assign_uid(&vrid);
         }
 
         let rc_uid_map = Rc::new(uid_map);
