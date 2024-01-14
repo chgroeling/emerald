@@ -7,14 +7,14 @@ use std::rc::Rc;
 #[derive(Clone)]
 pub struct NoteFactoryImpl {
     metadata_retriever: Rc<dyn NoteMetadataRetriever>,
-    content_retriever: Rc<dyn MdContentRetriever>,
+    content_retriever: Rc<dyn MdContentRetriever<ExResourceId>>,
     uid_map: Rc<UidMap<ExResourceId>>,
 }
 
 impl NoteFactoryImpl {
     pub fn new(
         meta_data_retriever: Rc<dyn NoteMetadataRetriever>,
-        content_retriever: Rc<dyn MdContentRetriever>,
+        content_retriever: Rc<dyn MdContentRetriever<ExResourceId>>,
         uid_map: Rc<UidMap<ExResourceId>>,
     ) -> Self {
         Self {
@@ -29,7 +29,7 @@ impl NoteFactory for NoteFactoryImpl {
     fn create_note(&self, uid: &Uid) -> Note {
         let rid = self.uid_map.get_rid_from_uid(uid).expect("Should exist");
         let (title, filesystem_md, document_md) = self.metadata_retriever.retrieve(&rid.0);
-        let content = self.content_retriever.retrieve(&rid.0);
+        let content = self.content_retriever.retrieve(&rid);
         let markdown_splitter = DefaultMarkdownFrontmatterSplitter::new();
 
         let (yaml, markdown) = markdown_splitter.split(content);

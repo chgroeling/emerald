@@ -1,6 +1,9 @@
-use super::ExResourceId;
+use super::VaultResourceId;
 
-pub trait MdContentRetriever {
+pub trait MdContentRetriever<T>
+where
+    T: std::fmt::Debug + std::hash::Hash + Eq + Clone,
+{
     /// Retrieves content for the specified resource identifier.
     ///
     /// # Arguments
@@ -10,5 +13,5 @@ pub trait MdContentRetriever {
     /// # Returns
     ///
     /// A string slice containing the retrieved content.
-    fn retrieve(&self, rid: &ExResourceId) -> &str;
+    fn retrieve(&self, rid: &VaultResourceId<T>) -> &str;
 }

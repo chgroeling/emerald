@@ -22,7 +22,7 @@ impl VaultImpl {
     pub fn new(
         note_rid_iter: impl IntoIterator<Item = ExResourceId>,
         metadata_retriever: Rc<dyn NoteMetadataRetriever>,
-        content_retriever: Rc<dyn MdContentRetriever>,
+        content_retriever: Rc<dyn MdContentRetriever<ExResourceId>>,
         get_backlinks: Rc<dyn GetBacklinks<ExResourceId>>,
         get_links: Rc<dyn GetLinks<ExResourceId>>,
     ) -> Self {
