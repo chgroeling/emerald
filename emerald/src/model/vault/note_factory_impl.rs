@@ -37,8 +37,8 @@ where
 {
     fn create_note(&self, uid: &Uid) -> Note {
         let rid = self.uid_map.get_rid_from_uid(uid).expect("Should exist");
-        let (title, filesystem_md, document_md) = self.metadata_retriever.retrieve(&rid);
-        let content = self.content_retriever.retrieve(&rid);
+        let (title, filesystem_md, document_md) = self.metadata_retriever.retrieve(rid);
+        let content = self.content_retriever.retrieve(rid);
         let markdown_splitter = DefaultMarkdownFrontmatterSplitter::new();
 
         let (yaml, markdown) = markdown_splitter.split(content);

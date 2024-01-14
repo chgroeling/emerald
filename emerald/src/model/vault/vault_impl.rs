@@ -26,7 +26,7 @@ where
     T: std::fmt::Debug + std::hash::Hash + Eq + Clone + 'static,
 {
     pub fn new(
-        note_rid_iter: impl IntoIterator<Item = T>,
+        note_rid_iter: impl IntoIterator<Item = VaultResourceId<T>>,
         metadata_retriever: Rc<dyn NoteMetadataRetriever<T>>,
         content_retriever: Rc<dyn MdContentRetriever<T>>,
         get_backlinks: Rc<dyn GetBacklinks<T>>,
@@ -35,8 +35,7 @@ where
         let mut uid_map = UidMap::<T>::new();
 
         for rid in note_rid_iter.into_iter() {
-            let vrid = VaultResourceId::<T>(rid);
-            uid_map.assign_uid(&vrid);
+            uid_map.assign_uid(&rid);
         }
 
         let rc_uid_map = Rc::new(uid_map);
@@ -64,7 +63,7 @@ where
             .uid_map
             .get_uid_from_rid(&vrid)
             .expect("Unknown ExResourceId");
-        self.note_factory.create_note(&uid)
+        self.note_factory.create_note(uid)
     }
 
     fn get_resource_id(&self, note: &Note) -> Option<&T> {
@@ -78,7 +77,7 @@ where
             .uid_map
             .get_rid_from_uid(&note.uid)
             .expect("Should exist");
-        Box::new(self.get_links.get_links_of(&rid).map(move |f| match f {
+        Box::new(self.get_links.get_links_of(rid).map(move |f| match f {
             LinkQueryResult::LinkToNote(rid) => {
                 let link_uid = uid_map_clone.get_uid_from_rid(&rid).expect("Should exist");
                 NoteTypes::Note(factory_clone.create_note(link_uid))
@@ -96,7 +95,7 @@ where
             .expect("Should exist");
         Box::new(
             self.get_backlinks
-                .get_backlinks_of(&rid)
+                .get_backlinks_of(rid)
                 .map(move |f| match f {
                     LinkQueryResult::LinkToNote(rid) => {
                         let link_uid = uid_map_clone.get_uid_from_rid(&rid).expect("Should exist");
