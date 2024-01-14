@@ -1,7 +1,10 @@
-use super::{DocumentMetadata, ExResourceId, FilesystemMetadata};
+use super::{DocumentMetadata, FilesystemMetadata, VaultResourceId};
 
 /// Trait for retrieving metadata associated with a note.
-pub trait NoteMetadataRetriever {
+pub trait NoteMetadataRetriever<T>
+where
+    T: std::fmt::Debug + std::hash::Hash + Eq + Clone,
+{
     /// Retrieves metadata for a given note.
     ///
     /// # Arguments
@@ -12,5 +15,5 @@ pub trait NoteMetadataRetriever {
     ///
     /// A tuple containing the note's title (`String`), `FilesystemMetadata`,
     /// and `DocumentMetadata`.
-    fn retrieve(&self, tgt: &ExResourceId) -> (String, FilesystemMetadata, DocumentMetadata);
+    fn retrieve(&self, tgt: &VaultResourceId<T>) -> (String, FilesystemMetadata, DocumentMetadata);
 }
