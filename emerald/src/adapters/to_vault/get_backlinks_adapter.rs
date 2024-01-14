@@ -25,15 +25,15 @@ impl GetBacklinksAdapter {
         }
     }
 }
-impl<I> vault::GetBacklinks for GetBacklinksAdapter<I>
+impl<I> vault::GetBacklinks<vault::ExResourceId> for GetBacklinksAdapter<I>
 where
     I: LinkQueryResultBuilder,
 {
     fn get_backlinks_of(
         &self,
-        rid: &vault::ExResourceId,
+        rid: &vault::VaultResourceId<vault::ExResourceId>,
     ) -> Box<dyn Iterator<Item = vault::LinkQueryResult>> {
-        let rid: types::ResourceId = rid.clone().into();
+        let rid: types::ResourceId = rid.clone().0.into();
         let Some(out_itr) = self.src_link_retriever.retrieve(&rid) else {
             return Box::new(std::iter::empty());
         };

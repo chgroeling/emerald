@@ -13,7 +13,7 @@ use std::rc::Rc;
 #[derive(Clone)]
 pub struct VaultImpl {
     note_factory: Rc<dyn NoteFactory>,
-    get_backlinks: Rc<dyn GetBacklinks>,
+    get_backlinks: Rc<dyn GetBacklinks<ExResourceId>>,
     get_links: Rc<dyn GetLinks<ExResourceId>>,
     uid_map: Rc<UidMap<ExResourceId>>,
 }
@@ -23,7 +23,7 @@ impl VaultImpl {
         note_rid_iter: impl IntoIterator<Item = ExResourceId>,
         metadata_retriever: Rc<dyn NoteMetadataRetriever>,
         content_retriever: Rc<dyn MdContentRetriever>,
-        get_backlinks: Rc<dyn GetBacklinks>,
+        get_backlinks: Rc<dyn GetBacklinks<ExResourceId>>,
         get_links: Rc<dyn GetLinks<ExResourceId>>,
     ) -> Self {
         let mut uid_map = UidMap::new();
@@ -86,7 +86,7 @@ impl Vault for VaultImpl {
             .expect("Should exist");
         Box::new(
             self.get_backlinks
-                .get_backlinks_of(&rid.0)
+                .get_backlinks_of(&rid)
                 .map(move |f| match f {
                     LinkQueryResult::LinkToNote(rid) => {
                         let link_uid = uid_map_clone.get_uid_from_rid(&rid).expect("Should exist");
