@@ -24,7 +24,7 @@ use std::{path::Path, time::Instant};
 
 #[allow(dead_code)]
 pub struct DefaultEmerald {
-    pub vault: vault::VaultImpl,
+    pub vault: vault::VaultImpl<vault::ExResourceId>,
     pub stats: stats::VaultStats,
     pub nmod: Rc<note::DefaultNoteModel>,
     pub n_updater: note_updater::NoteUpdater,
@@ -206,14 +206,20 @@ pub trait Emerald {
     /// # Arguments
     ///
     /// * `note`: Note.
-    fn get_links_of(&self, note: &vault::Note) -> Box<dyn Iterator<Item = vault::NoteTypes>>;
+    fn get_links_of(
+        &self,
+        note: &vault::Note,
+    ) -> Box<dyn Iterator<Item = vault::NoteTypes<vault::ExResourceId>>>;
 
     /// Returns an iterator over links pointing to the specified Note.
     ///
     /// # Arguments
     ///
     /// * `note`: Note.
-    fn get_backlinks_of(&self, note: &vault::Note) -> Box<dyn Iterator<Item = vault::NoteTypes>>;
+    fn get_backlinks_of(
+        &self,
+        note: &vault::Note,
+    ) -> Box<dyn Iterator<Item = vault::NoteTypes<vault::ExResourceId>>>;
 
     fn update_note(&self, rid: &types::ResourceId, value: &str) -> String;
 
@@ -260,11 +266,17 @@ impl Emerald for DefaultEmerald {
         vcev.into_iter()
     }
 
-    fn get_links_of(&self, note: &vault::Note) -> Box<dyn Iterator<Item = vault::NoteTypes>> {
+    fn get_links_of(
+        &self,
+        note: &vault::Note,
+    ) -> Box<dyn Iterator<Item = vault::NoteTypes<vault::ExResourceId>>> {
         self.vault.get_links_of(note)
     }
 
-    fn get_backlinks_of(&self, note: &vault::Note) -> Box<dyn Iterator<Item = vault::NoteTypes>> {
+    fn get_backlinks_of(
+        &self,
+        note: &vault::Note,
+    ) -> Box<dyn Iterator<Item = vault::NoteTypes<vault::ExResourceId>>> {
         self.vault.get_backlinks_of(note)
     }
 

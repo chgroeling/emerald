@@ -6,35 +6,41 @@ use super::note::Note;
 use super::note_types::NoteTypes;
 use super::uid_map::UidMap;
 use super::vault_trait::Vault;
-use super::{ExResourceId, NoteFactory};
+use super::NoteFactory;
 use super::{MdContentRetriever, NoteFactoryImpl, NoteMetadataRetriever};
 use std::rc::Rc;
 
 #[derive(Clone)]
-pub struct VaultImpl {
+pub struct VaultImpl<T>
+where
+    T: std::fmt::Debug + std::hash::Hash + Eq + Clone,
+{
     note_factory: Rc<dyn NoteFactory>,
-    get_backlinks: Rc<dyn GetBacklinks<ExResourceId>>,
-    get_links: Rc<dyn GetLinks<ExResourceId>>,
-    uid_map: Rc<UidMap<ExResourceId>>,
+    get_backlinks: Rc<dyn GetBacklinks<T>>,
+    get_links: Rc<dyn GetLinks<T>>,
+    uid_map: Rc<UidMap<T>>,
 }
 
-impl VaultImpl {
+impl<T> VaultImpl<T>
+where
+    T: std::fmt::Debug + std::hash::Hash + Eq + Clone + 'static,
+{
     pub fn new(
-        note_rid_iter: impl IntoIterator<Item = ExResourceId>,
-        metadata_retriever: Rc<dyn NoteMetadataRetriever<ExResourceId>>,
-        content_retriever: Rc<dyn MdContentRetriever<ExResourceId>>,
-        get_backlinks: Rc<dyn GetBacklinks<ExResourceId>>,
-        get_links: Rc<dyn GetLinks<ExResourceId>>,
+        note_rid_iter: impl IntoIterator<Item = T>,
+        metadata_retriever: Rc<dyn NoteMetadataRetriever<T>>,
+        content_retriever: Rc<dyn MdContentRetriever<T>>,
+        get_backlinks: Rc<dyn GetBacklinks<T>>,
+        get_links: Rc<dyn GetLinks<T>>,
     ) -> Self {
-        let mut uid_map = UidMap::new();
+        let mut uid_map = UidMap::<T>::new();
 
         for rid in note_rid_iter.into_iter() {
-            let vrid = VaultResourceId(rid);
+            let vrid = VaultResourceId::<T>(rid);
             uid_map.assign_uid(&vrid);
         }
 
         let rc_uid_map = Rc::new(uid_map);
-        let note_factory = Rc::new(NoteFactoryImpl::new(
+        let note_factory = Rc::new(NoteFactoryImpl::<T>::new(
             metadata_retriever,
             content_retriever,
             rc_uid_map.clone(),
@@ -48,9 +54,12 @@ impl VaultImpl {
     }
 }
 
-impl Vault for VaultImpl {
-    fn get_note(&self, rid: &ExResourceId) -> Note {
-        let vrid = VaultResourceId::<ExResourceId>(rid.clone());
+impl<T> Vault<T> for VaultImpl<T>
+where
+    T: std::fmt::Debug + std::hash::Hash + Eq + Clone + 'static,
+{
+    fn get_note(&self, rid: &T) -> Note {
+        let vrid = VaultResourceId::<T>(rid.clone());
         let uid = self
             .uid_map
             .get_uid_from_rid(&vrid)
@@ -58,11 +67,11 @@ impl Vault for VaultImpl {
         self.note_factory.create_note(&uid)
     }
 
-    fn get_resource_id(&self, note: &Note) -> Option<&ExResourceId> {
+    fn get_resource_id(&self, note: &Note) -> Option<&T> {
         self.uid_map.get_rid_from_uid(&note.uid).map(|f| &f.0)
     }
 
-    fn get_links_of(&self, note: &Note) -> Box<dyn Iterator<Item = NoteTypes>> {
+    fn get_links_of(&self, note: &Note) -> Box<dyn Iterator<Item = NoteTypes<T>>> {
         let factory_clone = self.note_factory.clone();
         let uid_map_clone = self.uid_map.clone();
         let rid = self
@@ -78,7 +87,7 @@ impl Vault for VaultImpl {
         }))
     }
 
-    fn get_backlinks_of(&self, note: &Note) -> Box<dyn Iterator<Item = NoteTypes>> {
+    fn get_backlinks_of(&self, note: &Note) -> Box<dyn Iterator<Item = NoteTypes<T>>> {
         let factory_clone = self.note_factory.clone();
         let uid_map_clone = self.uid_map.clone();
         let rid = self

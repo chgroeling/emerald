@@ -1,6 +1,9 @@
-use super::{ExResourceId, Note};
+use super::Note;
 
-pub enum NoteTypes {
+pub enum NoteTypes<T>
+where
+    T: std::fmt::Debug + std::hash::Hash + Eq + Clone,
+{
     Note(Note),
-    ResourceRef(ExResourceId),
+    ResourceRef(T),
 }
