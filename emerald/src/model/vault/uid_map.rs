@@ -48,9 +48,8 @@ where
     /// # Returns
     ///
     /// Option containing the corresponding UID, if it exists.
-    pub fn get_uid_from_rid(&self, rid: &T) -> Option<&Uid> {
-        let vrid = VaultResourceId::<T>(rid.clone());
-        self.rid_to_uid.get(&vrid)
+    pub fn get_uid_from_rid(&self, rid: &VaultResourceId<T>) -> Option<&Uid> {
+        self.rid_to_uid.get(rid)
     }
 
     /// Assigns a new UID to the given resource ID.

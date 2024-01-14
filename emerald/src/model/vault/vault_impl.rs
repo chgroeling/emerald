@@ -50,9 +50,10 @@ impl VaultImpl {
 
 impl Vault for VaultImpl {
     fn get_note(&self, rid: &ExResourceId) -> Note {
+        let vrid = VaultResourceId::<ExResourceId>(rid.clone());
         let uid = self
             .uid_map
-            .get_uid_from_rid(&rid)
+            .get_uid_from_rid(&vrid)
             .expect("Unknown ExResourceId");
         self.note_factory.create_note(&uid)
     }
@@ -70,9 +71,7 @@ impl Vault for VaultImpl {
             .expect("Should exist");
         Box::new(self.get_links.get_links_of(&rid).map(move |f| match f {
             LinkQueryResult::LinkToNote(rid) => {
-                let link_uid = uid_map_clone
-                    .get_uid_from_rid(&rid.0)
-                    .expect("Should exist");
+                let link_uid = uid_map_clone.get_uid_from_rid(&rid).expect("Should exist");
                 NoteTypes::Note(factory_clone.create_note(link_uid))
             }
             LinkQueryResult::LinkToResource(rid) => NoteTypes::ResourceRef(rid.0),
@@ -91,9 +90,7 @@ impl Vault for VaultImpl {
                 .get_backlinks_of(&rid)
                 .map(move |f| match f {
                     LinkQueryResult::LinkToNote(rid) => {
-                        let link_uid = uid_map_clone
-                            .get_uid_from_rid(&rid.0)
-                            .expect("Should exist");
+                        let link_uid = uid_map_clone.get_uid_from_rid(&rid).expect("Should exist");
                         NoteTypes::Note(factory_clone.create_note(link_uid))
                     }
                     LinkQueryResult::LinkToResource(rid) => NoteTypes::ResourceRef(rid.0),
