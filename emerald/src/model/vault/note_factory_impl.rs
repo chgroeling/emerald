@@ -1,6 +1,6 @@
 use super::note_factory::NoteFactory;
 use super::uid_map::UidMap;
-use super::{MdContentRetriever, Note, NoteMetadataRetriever, Uid};
+use super::{ExResourceId, MdContentRetriever, Note, NoteMetadataRetriever, Uid};
 use crate::markdown::{DefaultMarkdownFrontmatterSplitter, MarkdownFrontmatterSplitter};
 use std::rc::Rc;
 
@@ -8,14 +8,14 @@ use std::rc::Rc;
 pub struct NoteFactoryImpl {
     metadata_retriever: Rc<dyn NoteMetadataRetriever>,
     content_retriever: Rc<dyn MdContentRetriever>,
-    uid_map: Rc<UidMap>,
+    uid_map: Rc<UidMap<ExResourceId>>,
 }
 
 impl NoteFactoryImpl {
     pub fn new(
         meta_data_retriever: Rc<dyn NoteMetadataRetriever>,
         content_retriever: Rc<dyn MdContentRetriever>,
-        uid_map: Rc<UidMap>,
+        uid_map: Rc<UidMap<ExResourceId>>,
     ) -> Self {
         Self {
             metadata_retriever: meta_data_retriever,

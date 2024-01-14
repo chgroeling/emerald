@@ -15,7 +15,7 @@ pub struct VaultImpl {
     note_factory: Rc<dyn NoteFactory>,
     get_backlinks: Rc<dyn GetBacklinks>,
     get_links: Rc<dyn GetLinks>,
-    uid_map: Rc<UidMap>,
+    uid_map: Rc<UidMap<ExResourceId>>,
 }
 
 impl VaultImpl {

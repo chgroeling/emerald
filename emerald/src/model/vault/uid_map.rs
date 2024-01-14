@@ -1,18 +1,22 @@
-use std::collections::HashMap;
-
 use super::ex_resource_id::VaultResourceId;
 use super::uid::Uid;
-use super::ExResourceId;
+use std::collections::HashMap;
 
 /// Manages mappings between UIDs (unique identifiers) and resource IDs.
 #[derive(Debug, Clone)]
-pub struct UidMap {
-    uid_to_rid: HashMap<Uid, VaultResourceId<ExResourceId>>,
-    rid_to_uid: HashMap<VaultResourceId<ExResourceId>, Uid>,
+pub struct UidMap<T>
+where
+    T: std::fmt::Debug + std::hash::Hash + Eq + Clone,
+{
+    uid_to_rid: HashMap<Uid, VaultResourceId<T>>,
+    rid_to_uid: HashMap<VaultResourceId<T>, Uid>,
     next_uid: u32,
 }
 
-impl UidMap {
+impl<T> UidMap<T>
+where
+    T: std::fmt::Debug + std::hash::Hash + Eq + Clone,
+{
     /// Constructs a new `UidMap`.
     pub fn new() -> Self {
         Self {
@@ -31,7 +35,7 @@ impl UidMap {
     ///
     /// Option containing the corresponding resource ID, if it exists.
 
-    pub fn get_rid_from_uid(&self, uid: &Uid) -> Option<&ExResourceId> {
+    pub fn get_rid_from_uid(&self, uid: &Uid) -> Option<&T> {
         self.uid_to_rid.get(uid).map(|f| &f.0)
     }
 
@@ -44,8 +48,8 @@ impl UidMap {
     /// # Returns
     ///
     /// Option containing the corresponding UID, if it exists.
-    pub fn get_uid_from_rid(&self, rid: &ExResourceId) -> Option<&Uid> {
-        let vrid = VaultResourceId::<ExResourceId>(rid.clone());
+    pub fn get_uid_from_rid(&self, rid: &T) -> Option<&Uid> {
+        let vrid = VaultResourceId::<T>(rid.clone());
         self.rid_to_uid.get(&vrid)
     }
 
@@ -58,7 +62,7 @@ impl UidMap {
     /// # Returns
     ///
     /// The new UID assigned to the resource ID.
-    pub fn assign_uid(&mut self, rid: &VaultResourceId<ExResourceId>) -> Uid {
+    pub fn assign_uid(&mut self, rid: &VaultResourceId<T>) -> Uid {
         let act_uid = self.next_uid;
         let uid = Uid(act_uid.to_string().into_boxed_str());
         self.rid_to_uid.insert(rid.clone(), uid.clone());
