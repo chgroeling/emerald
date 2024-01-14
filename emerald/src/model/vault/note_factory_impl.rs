@@ -1,21 +1,27 @@
 use super::note_factory::NoteFactory;
 use super::uid_map::UidMap;
-use super::{ExResourceId, MdContentRetriever, Note, NoteMetadataRetriever, Uid};
+use super::{MdContentRetriever, Note, NoteMetadataRetriever, Uid};
 use crate::markdown::{DefaultMarkdownFrontmatterSplitter, MarkdownFrontmatterSplitter};
 use std::rc::Rc;
 
 #[derive(Clone)]
-pub struct NoteFactoryImpl {
-    metadata_retriever: Rc<dyn NoteMetadataRetriever<ExResourceId>>,
-    content_retriever: Rc<dyn MdContentRetriever<ExResourceId>>,
-    uid_map: Rc<UidMap<ExResourceId>>,
+pub struct NoteFactoryImpl<T>
+where
+    T: std::fmt::Debug + std::hash::Hash + Eq + Clone,
+{
+    metadata_retriever: Rc<dyn NoteMetadataRetriever<T>>,
+    content_retriever: Rc<dyn MdContentRetriever<T>>,
+    uid_map: Rc<UidMap<T>>,
 }
 
-impl NoteFactoryImpl {
+impl<T> NoteFactoryImpl<T>
+where
+    T: std::fmt::Debug + std::hash::Hash + Eq + Clone,
+{
     pub fn new(
-        meta_data_retriever: Rc<dyn NoteMetadataRetriever<ExResourceId>>,
-        content_retriever: Rc<dyn MdContentRetriever<ExResourceId>>,
-        uid_map: Rc<UidMap<ExResourceId>>,
+        meta_data_retriever: Rc<dyn NoteMetadataRetriever<T>>,
+        content_retriever: Rc<dyn MdContentRetriever<T>>,
+        uid_map: Rc<UidMap<T>>,
     ) -> Self {
         Self {
             metadata_retriever: meta_data_retriever,
@@ -25,7 +31,10 @@ impl NoteFactoryImpl {
     }
 }
 
-impl NoteFactory for NoteFactoryImpl {
+impl<T> NoteFactory for NoteFactoryImpl<T>
+where
+    T: std::fmt::Debug + std::hash::Hash + Eq + Clone,
+{
     fn create_note(&self, uid: &Uid) -> Note {
         let rid = self.uid_map.get_rid_from_uid(uid).expect("Should exist");
         let (title, filesystem_md, document_md) = self.metadata_retriever.retrieve(&rid);
