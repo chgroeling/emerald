@@ -6,7 +6,6 @@ mod link_query_result_builder;
 mod md_content_retriever_adapter;
 mod note_metadata_retriever;
 mod resource_id_adapters;
-mod resource_id_from;
 
 pub use get_backlinks_adapter::GetBacklinksAdapter;
 pub use get_links_adapter::GetLinksAdapter;

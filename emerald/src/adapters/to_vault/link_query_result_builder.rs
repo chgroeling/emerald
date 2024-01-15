@@ -9,7 +9,7 @@ pub trait LinkQueryResultBuilder {
     fn convert_to_link_query_result(
         res_meta_data_retriever: &dyn ResourceMetadataRetriever,
         rid: types::ResourceId,
-    ) -> vault::LinkQueryResult<vault::ExResourceId> {
+    ) -> vault::LinkQueryResult<types::ResourceId> {
         let rmd = res_meta_data_retriever.retrieve(&rid);
         match rmd.resource_type {
             crate::types::ResourceType::Unknown() => {

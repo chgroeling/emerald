@@ -1,5 +1,6 @@
 use crate::model::content;
 use crate::model::vault;
+use crate::types;
 use std::rc::Rc;
 
 /// Adapts a generic markdown content retriever to the `vault::MdContentRetriever` interface.
@@ -27,8 +28,8 @@ impl MdContentRetrieverAdapter {
     }
 }
 
-impl vault::MdContentRetriever<vault::ExResourceId> for MdContentRetrieverAdapter {
-    fn retrieve(&self, rid: &vault::ExResourceId) -> &str {
+impl vault::MdContentRetriever<types::ResourceId> for MdContentRetrieverAdapter {
+    fn retrieve(&self, rid: &types::ResourceId) -> &str {
         let content = self.content_retriever.retrieve(&rid.0.clone().into());
 
         &content.0

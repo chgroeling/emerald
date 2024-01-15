@@ -8,7 +8,7 @@ where
     ///
     /// # Arguments
     ///
-    /// * `rid`: A reference to a `vault::ExResourceId`.
+    /// * `rid`: A reference to a `types::ResourceId`.
     ///
     /// # Returns
     ///

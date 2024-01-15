@@ -24,7 +24,7 @@ use std::{path::Path, time::Instant};
 
 #[allow(dead_code)]
 pub struct DefaultEmerald {
-    pub vault: vault::VaultImpl<vault::ExResourceId>,
+    pub vault: vault::VaultImpl<types::ResourceId>,
     pub stats: stats::VaultStats,
     pub nmod: Rc<note::DefaultNoteModel>,
     pub n_updater: note_updater::NoteUpdater,
@@ -209,7 +209,7 @@ pub trait Emerald {
     fn get_links_of(
         &self,
         note: &vault::Note,
-    ) -> Box<dyn Iterator<Item = vault::NoteTypes<vault::ExResourceId>>>;
+    ) -> Box<dyn Iterator<Item = vault::NoteTypes<types::ResourceId>>>;
 
     /// Returns an iterator over links pointing to the specified Note.
     ///
@@ -219,7 +219,7 @@ pub trait Emerald {
     fn get_backlinks_of(
         &self,
         note: &vault::Note,
-    ) -> Box<dyn Iterator<Item = vault::NoteTypes<vault::ExResourceId>>>;
+    ) -> Box<dyn Iterator<Item = vault::NoteTypes<types::ResourceId>>>;
 
     fn update_note(&self, rid: &types::ResourceId, value: &str) -> String;
 
@@ -258,7 +258,7 @@ impl Emerald for DefaultEmerald {
             .nmod
             .create_iter()
             .map(|rid| {
-                let ex_rid: vault::ExResourceId = rid.into();
+                let ex_rid: types::ResourceId = rid.into();
                 self.vault.get_note(&ex_rid)
             })
             .collect();
@@ -269,14 +269,14 @@ impl Emerald for DefaultEmerald {
     fn get_links_of(
         &self,
         note: &vault::Note,
-    ) -> Box<dyn Iterator<Item = vault::NoteTypes<vault::ExResourceId>>> {
+    ) -> Box<dyn Iterator<Item = vault::NoteTypes<types::ResourceId>>> {
         self.vault.get_links_of(note)
     }
 
     fn get_backlinks_of(
         &self,
         note: &vault::Note,
-    ) -> Box<dyn Iterator<Item = vault::NoteTypes<vault::ExResourceId>>> {
+    ) -> Box<dyn Iterator<Item = vault::NoteTypes<types::ResourceId>>> {
         self.vault.get_backlinks_of(note)
     }
 
