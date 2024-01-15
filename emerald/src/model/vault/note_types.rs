@@ -1,8 +1,8 @@
-use super::Note;
+use super::{ex_resource_id::VaultResourceIdTrait, Note};
 
 pub enum NoteTypes<T>
 where
-    T: std::fmt::Debug + std::hash::Hash + Eq + Clone,
+    T: VaultResourceIdTrait,
 {
     Note(Note),
     ResourceRef(T),

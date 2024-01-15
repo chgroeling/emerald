@@ -1,8 +1,8 @@
-use super::VaultResourceId;
+use super::{ex_resource_id::VaultResourceIdTrait, VaultResourceId};
 
 pub enum LinkQueryResult<T>
 where
-    T: std::fmt::Debug + std::hash::Hash + Eq + Clone,
+    T: VaultResourceIdTrait,
 {
     LinkToNote(VaultResourceId<T>),
     LinkToResource(VaultResourceId<T>),

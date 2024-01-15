@@ -5,7 +5,12 @@ pub struct ExResourceId(pub Box<str>);
 
 impl Eq for ExResourceId {}
 
-#[derive(Debug, Clone, PartialEq, Hash, Default)]
-pub struct VaultResourceId<T: std::fmt::Debug + std::hash::Hash + Eq>(pub T);
+pub trait VaultResourceIdTrait: std::fmt::Debug + std::hash::Hash + Eq + Clone {}
 
-impl<T: std::fmt::Debug + std::hash::Hash + Eq + Clone> Eq for VaultResourceId<T> {}
+// Blanket impl
+impl<T> VaultResourceIdTrait for T where T: std::fmt::Debug + std::hash::Hash + Eq + Clone {}
+
+#[derive(Debug, PartialEq, Clone, Hash, Default)]
+pub struct VaultResourceId<T: VaultResourceIdTrait>(pub T);
+
+impl<T: VaultResourceIdTrait> Eq for VaultResourceId<T> {}

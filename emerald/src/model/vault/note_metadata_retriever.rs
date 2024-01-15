@@ -1,9 +1,11 @@
-use super::{DocumentMetadata, FilesystemMetadata, VaultResourceId};
+use super::{
+    ex_resource_id::VaultResourceIdTrait, DocumentMetadata, FilesystemMetadata, VaultResourceId,
+};
 
 /// Trait for retrieving metadata associated with a note.
 pub trait NoteMetadataRetriever<T>
 where
-    T: std::fmt::Debug + std::hash::Hash + Eq + Clone,
+    T: VaultResourceIdTrait,
 {
     /// Retrieves metadata for a given note.
     ///

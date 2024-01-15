@@ -1,4 +1,4 @@
-use super::ex_resource_id::VaultResourceId;
+use super::ex_resource_id::{VaultResourceId, VaultResourceIdTrait};
 use super::uid::Uid;
 use std::collections::HashMap;
 
@@ -6,7 +6,7 @@ use std::collections::HashMap;
 #[derive(Debug, Clone)]
 pub struct UidMap<T>
 where
-    T: std::fmt::Debug + std::hash::Hash + Eq + Clone,
+    T: VaultResourceIdTrait,
 {
     uid_to_rid: HashMap<Uid, VaultResourceId<T>>,
     rid_to_uid: HashMap<VaultResourceId<T>, Uid>,
@@ -15,7 +15,7 @@ where
 
 impl<T> UidMap<T>
 where
-    T: std::fmt::Debug + std::hash::Hash + Eq + Clone,
+    T: VaultResourceIdTrait,
 {
     /// Constructs a new `UidMap`.
     pub fn new() -> Self {

@@ -1,4 +1,4 @@
-use super::ex_resource_id::VaultResourceId;
+use super::ex_resource_id::{VaultResourceId, VaultResourceIdTrait};
 use super::get_backlinks::GetBacklinks;
 use super::get_links::GetLinks;
 use super::link_query_result::LinkQueryResult;
@@ -13,7 +13,7 @@ use std::rc::Rc;
 #[derive(Clone)]
 pub struct VaultImpl<T>
 where
-    T: std::fmt::Debug + std::hash::Hash + Eq + Clone,
+    T: VaultResourceIdTrait,
 {
     note_factory: Rc<dyn NoteFactory>,
     get_backlinks: Rc<dyn GetBacklinks<T>>,
@@ -23,7 +23,7 @@ where
 
 impl<T> VaultImpl<T>
 where
-    T: std::fmt::Debug + std::hash::Hash + Eq + Clone + 'static,
+    T: VaultResourceIdTrait + 'static,
 {
     pub fn new(
         note_rid_iter: impl IntoIterator<Item = VaultResourceId<T>>,

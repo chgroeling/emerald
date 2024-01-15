@@ -1,8 +1,8 @@
-use super::VaultResourceId;
+use super::{ex_resource_id::VaultResourceIdTrait, VaultResourceId};
 
 pub trait MdContentRetriever<T>
 where
-    T: std::fmt::Debug + std::hash::Hash + Eq + Clone,
+    T: VaultResourceIdTrait,
 {
     /// Retrieves content for the specified resource identifier.
     ///
