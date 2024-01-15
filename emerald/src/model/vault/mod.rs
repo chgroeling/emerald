@@ -1,4 +1,3 @@
-mod ex_resource_id;
 mod get_backlinks;
 mod get_links;
 mod link_query_result;
@@ -8,6 +7,7 @@ mod note_factory;
 mod note_factory_impl;
 mod note_metadata_retriever;
 mod note_types;
+mod resource_id_trait;
 mod uid;
 mod uid_map;
 mod vault_impl;

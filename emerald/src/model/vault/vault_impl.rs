@@ -1,9 +1,9 @@
-use super::ex_resource_id::VaultResourceIdTrait;
 use super::get_backlinks::GetBacklinks;
 use super::get_links::GetLinks;
 use super::link_query_result::LinkQueryResult;
 use super::note::Note;
 use super::note_types::NoteTypes;
+use super::resource_id_trait::ResourceIdTrait;
 use super::uid_map::UidMap;
 use super::vault_trait::Vault;
 use super::NoteFactory;
@@ -13,7 +13,7 @@ use std::rc::Rc;
 #[derive(Clone)]
 pub struct VaultImpl<T>
 where
-    T: VaultResourceIdTrait,
+    T: ResourceIdTrait,
 {
     note_factory: Rc<dyn NoteFactory>,
     get_backlinks: Rc<dyn GetBacklinks<T>>,
@@ -23,7 +23,7 @@ where
 
 impl<T> VaultImpl<T>
 where
-    T: VaultResourceIdTrait + 'static,
+    T: ResourceIdTrait + 'static,
 {
     pub fn new(
         note_rid_iter: impl IntoIterator<Item = T>,
