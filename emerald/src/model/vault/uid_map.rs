@@ -1,4 +1,4 @@
-use super::ex_resource_id::{VaultResourceId, VaultResourceIdTrait};
+use super::ex_resource_id::VaultResourceIdTrait;
 use super::uid::Uid;
 use std::collections::HashMap;
 
@@ -8,8 +8,8 @@ pub struct UidMap<T>
 where
     T: VaultResourceIdTrait,
 {
-    uid_to_rid: HashMap<Uid, VaultResourceId<T>>,
-    rid_to_uid: HashMap<VaultResourceId<T>, Uid>,
+    uid_to_rid: HashMap<Uid, T>,
+    rid_to_uid: HashMap<T, Uid>,
     next_uid: u32,
 }
 
@@ -35,7 +35,7 @@ where
     ///
     /// Option containing the corresponding resource ID, if it exists.
 
-    pub fn get_rid_from_uid(&self, uid: &Uid) -> Option<&VaultResourceId<T>> {
+    pub fn get_rid_from_uid(&self, uid: &Uid) -> Option<&T> {
         self.uid_to_rid.get(uid)
     }
 
@@ -48,7 +48,7 @@ where
     /// # Returns
     ///
     /// Option containing the corresponding UID, if it exists.
-    pub fn get_uid_from_rid(&self, rid: &VaultResourceId<T>) -> Option<&Uid> {
+    pub fn get_uid_from_rid(&self, rid: &T) -> Option<&Uid> {
         self.rid_to_uid.get(rid)
     }
 
@@ -61,7 +61,7 @@ where
     /// # Returns
     ///
     /// The new UID assigned to the resource ID.
-    pub fn assign_uid(&mut self, rid: &VaultResourceId<T>) -> Uid {
+    pub fn assign_uid(&mut self, rid: &T) -> Uid {
         let act_uid = self.next_uid;
         let uid = Uid(act_uid.to_string().into_boxed_str());
         self.rid_to_uid.insert(rid.clone(), uid.clone());

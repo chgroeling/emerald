@@ -1,4 +1,4 @@
-use super::ex_resource_id::{VaultResourceId, VaultResourceIdTrait};
+use super::ex_resource_id::VaultResourceIdTrait;
 use super::get_backlinks::GetBacklinks;
 use super::get_links::GetLinks;
 use super::link_query_result::LinkQueryResult;
@@ -26,7 +26,7 @@ where
     T: VaultResourceIdTrait + 'static,
 {
     pub fn new(
-        note_rid_iter: impl IntoIterator<Item = VaultResourceId<T>>,
+        note_rid_iter: impl IntoIterator<Item = T>,
         metadata_retriever: Rc<dyn NoteMetadataRetriever<T>>,
         content_retriever: Rc<dyn MdContentRetriever<T>>,
         get_backlinks: Rc<dyn GetBacklinks<T>>,
@@ -58,16 +58,15 @@ where
     T: std::fmt::Debug + std::hash::Hash + Eq + Clone + 'static,
 {
     fn get_note(&self, rid: &T) -> Note {
-        let vrid = VaultResourceId::<T>(rid.clone());
         let uid = self
             .uid_map
-            .get_uid_from_rid(&vrid)
+            .get_uid_from_rid(&rid)
             .expect("Unknown ExResourceId");
         self.note_factory.create_note(uid)
     }
 
     fn get_resource_id(&self, note: &Note) -> Option<&T> {
-        self.uid_map.get_rid_from_uid(&note.uid).map(|f| &f.0)
+        self.uid_map.get_rid_from_uid(&note.uid).map(|f| f)
     }
 
     fn get_links_of(&self, note: &Note) -> Box<dyn Iterator<Item = NoteTypes<T>>> {
@@ -82,7 +81,7 @@ where
                 let link_uid = uid_map_clone.get_uid_from_rid(&rid).expect("Should exist");
                 NoteTypes::Note(factory_clone.create_note(link_uid))
             }
-            LinkQueryResult::LinkToResource(rid) => NoteTypes::ResourceRef(rid.0),
+            LinkQueryResult::LinkToResource(rid) => NoteTypes::ResourceRef(rid),
         }))
     }
 
@@ -101,7 +100,7 @@ where
                         let link_uid = uid_map_clone.get_uid_from_rid(&rid).expect("Should exist");
                         NoteTypes::Note(factory_clone.create_note(link_uid))
                     }
-                    LinkQueryResult::LinkToResource(rid) => NoteTypes::ResourceRef(rid.0),
+                    LinkQueryResult::LinkToResource(rid) => NoteTypes::ResourceRef(rid),
                 }),
         )
     }

@@ -28,7 +28,7 @@ impl MdContentRetrieverAdapter {
 }
 
 impl vault::MdContentRetriever<vault::ExResourceId> for MdContentRetrieverAdapter {
-    fn retrieve(&self, rid: &vault::VaultResourceId<vault::ExResourceId>) -> &str {
+    fn retrieve(&self, rid: &vault::ExResourceId) -> &str {
         let content = self.content_retriever.retrieve(&rid.0.clone().into());
 
         &content.0

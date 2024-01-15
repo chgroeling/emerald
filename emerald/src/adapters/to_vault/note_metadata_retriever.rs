@@ -19,7 +19,7 @@ impl NoteMetadataRetriever {
 impl vault::NoteMetadataRetriever<vault::ExResourceId> for NoteMetadataRetriever {
     fn retrieve(
         &self,
-        tgt: &vault::VaultResourceId<vault::ExResourceId>,
+        tgt: &vault::ExResourceId,
     ) -> (String, vault::FilesystemMetadata, vault::DocumentMetadata) {
         let rid: types::ResourceId = tgt.clone().0.into();
         let note_metadata = self.metadata_retriever.retrieve(&rid);

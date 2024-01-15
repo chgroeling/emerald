@@ -1,4 +1,4 @@
-use super::{ex_resource_id::VaultResourceIdTrait, VaultResourceId};
+use super::ex_resource_id::VaultResourceIdTrait;
 
 pub trait MdContentRetriever<T>
 where
@@ -13,5 +13,5 @@ where
     /// # Returns
     ///
     /// A string slice containing the retrieved content.
-    fn retrieve(&self, rid: &VaultResourceId<T>) -> &str;
+    fn retrieve(&self, rid: &T) -> &str;
 }

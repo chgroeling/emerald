@@ -1,6 +1,4 @@
-use super::{
-    ex_resource_id::VaultResourceIdTrait, link_query_result::LinkQueryResult, VaultResourceId,
-};
+use super::{ex_resource_id::VaultResourceIdTrait, link_query_result::LinkQueryResult};
 
 /// Trait for querying links pointing to a target resource.
 pub trait GetBacklinks<T>
@@ -12,8 +10,5 @@ where
     /// # Arguments
     ///
     /// * `rid`: Resource identifier.
-    fn get_backlinks_of(
-        &self,
-        rid: &VaultResourceId<T>,
-    ) -> Box<dyn Iterator<Item = LinkQueryResult<T>>>;
+    fn get_backlinks_of(&self, rid: &T) -> Box<dyn Iterator<Item = LinkQueryResult<T>>>;
 }
