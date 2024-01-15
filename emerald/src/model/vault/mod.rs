@@ -14,7 +14,6 @@ mod vault_impl;
 mod vault_trait;
 
 pub use ex_resource_id::ExResourceId;
-pub use ex_resource_id::VaultResourceId;
 pub use get_backlinks::GetBacklinks;
 pub use get_links::GetLinks;
 pub use link_query_result::LinkQueryResult;
