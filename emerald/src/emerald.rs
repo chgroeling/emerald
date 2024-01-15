@@ -231,7 +231,7 @@ pub trait Emerald {
 impl Emerald for DefaultEmerald {
     fn get_resource_id(&self, note: &vault::Note) -> Option<types::ResourceId> {
         let vault_resource_id = self.vault.get_resource_id(note)?;
-        let resource_id: types::ResourceId = vault_resource_id.to_owned().into();
+        let resource_id: types::ResourceId = vault_resource_id.to_owned();
         Some(resource_id)
     }
 
@@ -255,10 +255,7 @@ impl Emerald for DefaultEmerald {
         let vcev: Vec<vault::Note> = self
             .nmod
             .create_iter()
-            .map(|rid| {
-                let ex_rid: types::ResourceId = rid.into();
-                self.vault.get_note(&ex_rid)
-            })
+            .map(|rid| self.vault.get_note(&rid))
             .collect();
 
         vcev.into_iter()

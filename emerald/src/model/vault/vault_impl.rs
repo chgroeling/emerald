@@ -60,13 +60,13 @@ where
     fn get_note(&self, rid: &T) -> Note {
         let uid = self
             .uid_map
-            .get_uid_from_rid(&rid)
+            .get_uid_from_rid(rid)
             .expect("Unknown ExResourceId");
         self.note_factory.create_note(uid)
     }
 
     fn get_resource_id(&self, note: &Note) -> Option<&T> {
-        self.uid_map.get_rid_from_uid(&note.uid).map(|f| f)
+        self.uid_map.get_rid_from_uid(&note.uid)
     }
 
     fn get_links_of(&self, note: &Note) -> Box<dyn Iterator<Item = NoteTypes<T>>> {

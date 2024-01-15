@@ -12,15 +12,9 @@ pub trait LinkQueryResultBuilder {
     ) -> vault::LinkQueryResult<types::ResourceId> {
         let rmd = res_meta_data_retriever.retrieve(&rid);
         match rmd.resource_type {
-            crate::types::ResourceType::Unknown() => {
-                vault::LinkQueryResult::LinkToResource(rid.into())
-            }
-            crate::types::ResourceType::Markdown() => {
-                vault::LinkQueryResult::LinkToNote(rid.into())
-            }
-            crate::types::ResourceType::NoType() => {
-                vault::LinkQueryResult::LinkToResource(rid.into())
-            }
+            crate::types::ResourceType::Unknown() => vault::LinkQueryResult::LinkToResource(rid),
+            crate::types::ResourceType::Markdown() => vault::LinkQueryResult::LinkToNote(rid),
+            crate::types::ResourceType::NoType() => vault::LinkQueryResult::LinkToResource(rid),
         }
     }
 }
