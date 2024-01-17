@@ -1,6 +1,6 @@
 use super::note_factory::NoteFactory;
+use super::resource_id_trait::ResourceIdTrait;
 use super::uid_map::UidMap;
-use super::vault_resource_id_trait::VaultResourceIdTrait;
 use super::{MdContentRetriever, Note, NoteMetadataRetriever, Uid};
 use crate::markdown::{DefaultMarkdownFrontmatterSplitter, MarkdownFrontmatterSplitter};
 use std::rc::Rc;
@@ -8,7 +8,7 @@ use std::rc::Rc;
 #[derive(Clone)]
 pub struct NoteFactoryImpl<T>
 where
-    T: VaultResourceIdTrait,
+    T: ResourceIdTrait,
 {
     metadata_retriever: Rc<dyn NoteMetadataRetriever<T>>,
     content_retriever: Rc<dyn MdContentRetriever<T>>,
@@ -17,7 +17,7 @@ where
 
 impl<T> NoteFactoryImpl<T>
 where
-    T: VaultResourceIdTrait,
+    T: ResourceIdTrait,
 {
     pub fn new(
         meta_data_retriever: Rc<dyn NoteMetadataRetriever<T>>,
@@ -34,7 +34,7 @@ where
 
 impl<T> NoteFactory for NoteFactoryImpl<T>
 where
-    T: VaultResourceIdTrait,
+    T: ResourceIdTrait,
 {
     fn create_note(&self, uid: &Uid) -> Note {
         let rid = self.uid_map.get_rid_from_uid(uid).expect("Should exist");

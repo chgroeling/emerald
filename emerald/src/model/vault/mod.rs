@@ -7,10 +7,10 @@ mod note_factory;
 mod note_factory_impl;
 mod note_metadata_retriever;
 mod note_types;
+mod resource_id_trait;
 mod uid;
 mod uid_map;
 mod vault_impl;
-mod vault_resource_id_trait;
 mod vault_trait;
 
 pub use get_backlinks::GetBacklinks;

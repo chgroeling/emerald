@@ -1,9 +1,9 @@
-use super::{vault_resource_id_trait::VaultResourceIdTrait, DocumentMetadata, FilesystemMetadata};
+use super::{resource_id_trait::ResourceIdTrait, DocumentMetadata, FilesystemMetadata};
 
 /// Trait for retrieving metadata associated with a note.
 pub trait NoteMetadataRetriever<T>
 where
-    T: VaultResourceIdTrait,
+    T: ResourceIdTrait,
 {
     /// Retrieves metadata for a given note.
     ///

@@ -1,12 +1,12 @@
+use super::resource_id_trait::ResourceIdTrait;
 use super::uid::Uid;
-use super::vault_resource_id_trait::VaultResourceIdTrait;
 use std::collections::HashMap;
 
 /// Manages mappings between UIDs (unique identifiers) and resource IDs.
 #[derive(Debug, Clone)]
 pub struct UidMap<T>
 where
-    T: VaultResourceIdTrait,
+    T: ResourceIdTrait,
 {
     uid_to_rid: HashMap<Uid, T>,
     rid_to_uid: HashMap<T, Uid>,
@@ -15,7 +15,7 @@ where
 
 impl<T> UidMap<T>
 where
-    T: VaultResourceIdTrait,
+    T: ResourceIdTrait,
 {
     /// Constructs a new `UidMap`.
     pub fn new() -> Self {
