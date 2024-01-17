@@ -1,8 +1,8 @@
-use super::resource_id_trait::ResourceIdTrait;
+use super::vault_resource_id_trait::VaultResourceIdTrait;
 
 pub trait MdContentRetriever<T>
 where
-    T: ResourceIdTrait,
+    T: VaultResourceIdTrait,
 {
     /// Retrieves content for the specified resource identifier.
     ///

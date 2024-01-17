@@ -1,8 +1,8 @@
-use super::resource_id_trait::ResourceIdTrait;
+use super::vault_resource_id_trait::VaultResourceIdTrait;
 
 pub enum LinkQueryResult<T>
 where
-    T: ResourceIdTrait,
+    T: VaultResourceIdTrait,
 {
     LinkToNote(T),
     LinkToResource(T),

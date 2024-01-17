@@ -1,9 +1,9 @@
-use super::{link_query_result::LinkQueryResult, resource_id_trait::ResourceIdTrait};
+use super::{link_query_result::LinkQueryResult, vault_resource_id_trait::VaultResourceIdTrait};
 
 /// Trait for querying links pointing to a target resource.
 pub trait GetBacklinks<T>
 where
-    T: ResourceIdTrait,
+    T: VaultResourceIdTrait,
 {
     /// Returns an iterator over links pointing to the specified resource.
     ///

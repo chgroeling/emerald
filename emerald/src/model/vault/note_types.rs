@@ -1,8 +1,8 @@
-use super::{resource_id_trait::ResourceIdTrait, Note};
+use super::{vault_resource_id_trait::VaultResourceIdTrait, Note};
 
 pub enum NoteTypes<T>
 where
-    T: ResourceIdTrait,
+    T: VaultResourceIdTrait,
 {
     Note(Note),
     ResourceRef(T),

@@ -1,8 +1,8 @@
-use super::{note_types::NoteTypes, resource_id_trait::ResourceIdTrait, Note};
+use super::{note_types::NoteTypes, vault_resource_id_trait::VaultResourceIdTrait, Note};
 
 pub trait Vault<T>
 where
-    T: ResourceIdTrait,
+    T: VaultResourceIdTrait,
 {
     fn get_note(&self, rid: &T) -> Note;
 
