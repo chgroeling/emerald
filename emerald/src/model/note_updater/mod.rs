@@ -1,8 +1,7 @@
-mod ex_resource_id;
 mod md_content_retriever;
 mod note_update_command;
 mod resource_id_trait;
-pub use self::ex_resource_id::ExResourceId;
+
 pub use self::md_content_retriever::MdContentRetriever;
 use self::resource_id_trait::ResourceIdTrait;
 use crate::markdown::{DefaultMarkdownFrontmatterSplitter, MarkdownFrontmatterSplitter};
@@ -127,12 +126,13 @@ impl<T: ResourceIdTrait> NoteUpdater<T> {
 #[cfg(test)]
 mod note_updater_tests {
     use super::*;
+    use crate::types;
     use mockall::{predicate::*, *};
 
     mock! {
         MdContentRetrieverImpl {}
-        impl MdContentRetriever<ExResourceId> for MdContentRetrieverImpl {
-            fn retrieve(&self, rid: &ExResourceId) -> &str;
+        impl MdContentRetriever<types::ResourceId> for MdContentRetrieverImpl {
+            fn retrieve(&self, rid: &types::ResourceId) -> &str;
         }
     }
 
@@ -153,7 +153,7 @@ Text Test"
             .into();
         let mock_cnt_retriever = setup_md_content_retriever_mock(inp_str.clone());
         let sut = NoteUpdater::new(mock_cnt_retriever);
-        let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
+        let rid = types::ResourceId("ex_resource_id_1".to_string().into_boxed_str());
 
         let out = sut.update_note(&rid, DoNothing);
 
@@ -172,7 +172,7 @@ Text Test"
             .into();
         let mock_cnt_retriever = setup_md_content_retriever_mock(inp_str.clone());
         let sut = NoteUpdater::new(mock_cnt_retriever);
-        let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
+        let rid = types::ResourceId("ex_resource_id_1".to_string().into_boxed_str());
         let out = sut.update_note(&rid, DoNothing);
         assert_eq!(out, inp_str)
     }
@@ -189,7 +189,7 @@ Text Test"
             .into();
         let mock_cnt_retriever = setup_md_content_retriever_mock(inp_str.clone());
         let sut = NoteUpdater::new(mock_cnt_retriever);
-        let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
+        let rid = types::ResourceId("ex_resource_id_1".to_string().into_boxed_str());
         let out = sut.update_note(&rid, DoNothing);
         let out_str: String = "\
 ---
@@ -214,7 +214,7 @@ Text Test"
             .into();
         let mock_cnt_retriever = setup_md_content_retriever_mock(inp_str.clone());
         let sut = NoteUpdater::new(mock_cnt_retriever);
-        let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
+        let rid = types::ResourceId("ex_resource_id_1".to_string().into_boxed_str());
 
         let out = sut.update_note(
             &rid,
@@ -247,7 +247,7 @@ Text Test"
             .into();
         let mock_cnt_retriever = setup_md_content_retriever_mock(inp_str.clone());
         let sut = NoteUpdater::new(mock_cnt_retriever);
-        let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
+        let rid = types::ResourceId("ex_resource_id_1".to_string().into_boxed_str());
         let out = sut.update_note(
             &rid,
             UpdateOrInsert {
@@ -279,7 +279,7 @@ Text Test"
             .into();
         let mock_cnt_retriever = setup_md_content_retriever_mock(inp_str.clone());
         let sut = NoteUpdater::new(mock_cnt_retriever);
-        let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
+        let rid = types::ResourceId("ex_resource_id_1".to_string().into_boxed_str());
         let out = sut.update_note(
             &rid,
             UpdateOrInsert {
@@ -307,7 +307,7 @@ Text Test"
             .into();
         let mock_cnt_retriever = setup_md_content_retriever_mock(inp_str.clone());
         let sut = NoteUpdater::new(mock_cnt_retriever);
-        let rid = ExResourceId("ex_resource_id_1".to_string().into_boxed_str());
+        let rid = types::ResourceId("ex_resource_id_1".to_string().into_boxed_str());
         let out = sut.update_note(
             &rid,
             UpdateOrInsert {

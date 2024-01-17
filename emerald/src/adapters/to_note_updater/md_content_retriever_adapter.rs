@@ -1,5 +1,6 @@
 use crate::model::content;
 use crate::model::note_updater;
+use crate::types;
 use std::rc::Rc;
 
 /// Adapts a generic markdown content retriever to the `note_updater::MdContentRetriever` interface.
@@ -27,8 +28,8 @@ impl MdContentRetrieverAdapter {
     }
 }
 
-impl note_updater::MdContentRetriever<note_updater::ExResourceId> for MdContentRetrieverAdapter {
-    fn retrieve(&self, rid: &note_updater::ExResourceId) -> &str {
+impl note_updater::MdContentRetriever<types::ResourceId> for MdContentRetrieverAdapter {
+    fn retrieve(&self, rid: &types::ResourceId) -> &str {
         let content = self.content_retriever.retrieve(&rid.clone().into());
 
         &content.0

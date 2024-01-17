@@ -27,7 +27,7 @@ pub struct DefaultEmerald {
     pub vault: vault::VaultImpl<types::ResourceId>,
     pub stats: stats::VaultStats,
     pub nmod: Rc<note::DefaultNoteModel>,
-    pub n_updater: note_updater::NoteUpdater<note_updater::ExResourceId>,
+    pub n_updater: note_updater::NoteUpdater<types::ResourceId>,
 }
 
 impl DefaultEmerald {
@@ -175,7 +175,8 @@ impl DefaultEmerald {
             adapters::to_note_updater::MdContentRetrieverAdapter::new(cmod.clone()),
         );
 
-        let note_updater = note_updater::NoteUpdater::new(content_retriever_adapter);
+        let note_updater =
+            note_updater::NoteUpdater::<types::ResourceId>::new(content_retriever_adapter);
         let elapsed = start.elapsed();
         debug!("Creation of NoteUpdater: {:?}", elapsed);
         // -----
