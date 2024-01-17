@@ -27,7 +27,7 @@ impl MdContentRetrieverAdapter {
     }
 }
 
-impl note_updater::MdContentRetriever for MdContentRetrieverAdapter {
+impl note_updater::MdContentRetriever<note_updater::ExResourceId> for MdContentRetrieverAdapter {
     fn retrieve(&self, rid: &note_updater::ExResourceId) -> &str {
         let content = self.content_retriever.retrieve(&rid.clone().into());
 

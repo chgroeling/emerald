@@ -1,8 +1,10 @@
 mod ex_resource_id;
 mod md_content_retriever;
 mod note_update_command;
+mod resource_id_trait;
 pub use self::ex_resource_id::ExResourceId;
 pub use self::md_content_retriever::MdContentRetriever;
+use self::resource_id_trait::ResourceIdTrait;
 use crate::markdown::{DefaultMarkdownFrontmatterSplitter, MarkdownFrontmatterSplitter};
 pub use note_update_command::NoteUpdateCommand;
 use serde_yaml::Value;
@@ -67,20 +69,16 @@ impl YamlCommandHandler for DefaultYamlCommandHandler {
         }
     }
 }
-pub struct NoteUpdater {
-    content_retriever: Rc<dyn MdContentRetriever>,
+pub struct NoteUpdater<T: ResourceIdTrait> {
+    content_retriever: Rc<dyn MdContentRetriever<T>>,
 }
 
-impl NoteUpdater {
-    pub fn new(content_retriever: Rc<dyn MdContentRetriever>) -> Self {
+impl<T: ResourceIdTrait> NoteUpdater<T> {
+    pub fn new(content_retriever: Rc<dyn MdContentRetriever<T>>) -> Self {
         Self { content_retriever }
     }
 
-    pub fn update_note(
-        &self,
-        rid: &ExResourceId,
-        cmd: note_update_command::NoteUpdateCommand,
-    ) -> String {
+    pub fn update_note(&self, rid: &T, cmd: note_update_command::NoteUpdateCommand) -> String {
         // read content
         let content = self.content_retriever.retrieve(rid);
         let markdown_splitter = DefaultMarkdownFrontmatterSplitter::new();
@@ -133,7 +131,7 @@ mod note_updater_tests {
 
     mock! {
         MdContentRetrieverImpl {}
-        impl MdContentRetriever for MdContentRetrieverImpl {
+        impl MdContentRetriever<ExResourceId> for MdContentRetrieverImpl {
             fn retrieve(&self, rid: &ExResourceId) -> &str;
         }
     }

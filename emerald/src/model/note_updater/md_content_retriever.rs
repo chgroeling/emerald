@@ -1,6 +1,6 @@
-use super::ExResourceId;
+use super::resource_id_trait::ResourceIdTrait;
 
-pub trait MdContentRetriever {
+pub trait MdContentRetriever<T: ResourceIdTrait> {
     /// Retrieves content for the specified resource identifier.
     ///
     /// # Arguments
@@ -10,5 +10,5 @@ pub trait MdContentRetriever {
     /// # Returns
     ///
     /// A string slice containing the retrieved content.
-    fn retrieve(&self, rid: &ExResourceId) -> &str;
+    fn retrieve(&self, rid: &T) -> &str;
 }

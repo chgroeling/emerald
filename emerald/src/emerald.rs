@@ -27,7 +27,7 @@ pub struct DefaultEmerald {
     pub vault: vault::VaultImpl<types::ResourceId>,
     pub stats: stats::VaultStats,
     pub nmod: Rc<note::DefaultNoteModel>,
-    pub n_updater: note_updater::NoteUpdater,
+    pub n_updater: note_updater::NoteUpdater<note_updater::ExResourceId>,
 }
 
 impl DefaultEmerald {
