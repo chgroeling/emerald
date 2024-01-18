@@ -1,4 +1,4 @@
-pub trait ResourceIdTrait: std::fmt::Debug + std::hash::Hash + Eq + Clone {}
+pub trait ResourceIdTrait: std::fmt::Debug {}
 
 // Blanket impl
-impl<T> ResourceIdTrait for T where T: std::fmt::Debug + std::hash::Hash + Eq + Clone {}
+impl<T> ResourceIdTrait for T where T: std::fmt::Debug {}
