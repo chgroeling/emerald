@@ -1,8 +1,8 @@
 use super::note_factory::NoteFactory;
 use super::resource_id_trait::ResourceIdTrait;
-use super::uid_map::UidMap;
-use super::{MdContentRetriever, Note, NoteMetadataRetriever, Uid};
+use super::{MdContentRetriever, Note, NoteMetadataRetriever};
 use crate::markdown::{DefaultMarkdownFrontmatterSplitter, MarkdownFrontmatterSplitter};
+use crate::model::uid;
 use std::rc::Rc;
 
 #[derive(Clone)]
@@ -12,7 +12,7 @@ where
 {
     metadata_retriever: Rc<dyn NoteMetadataRetriever<T>>,
     content_retriever: Rc<dyn MdContentRetriever<T>>,
-    uid_map: Rc<UidMap<T>>,
+    uid_map: Rc<uid::UidMap<T>>,
 }
 
 impl<T> NoteFactoryImpl<T>
@@ -22,7 +22,7 @@ where
     pub fn new(
         meta_data_retriever: Rc<dyn NoteMetadataRetriever<T>>,
         content_retriever: Rc<dyn MdContentRetriever<T>>,
-        uid_map: Rc<UidMap<T>>,
+        uid_map: Rc<uid::UidMap<T>>,
     ) -> Self {
         Self {
             metadata_retriever: meta_data_retriever,
@@ -36,7 +36,7 @@ impl<T> NoteFactory for NoteFactoryImpl<T>
 where
     T: ResourceIdTrait,
 {
-    fn create_note(&self, uid: &Uid) -> Note {
+    fn create_note(&self, uid: &uid::Uid) -> Note {
         let rid = self.uid_map.get_rid_from_uid(uid).expect("Should exist");
         let (title, filesystem_md, document_md) = self.metadata_retriever.retrieve(rid);
         let content = self.content_retriever.retrieve(rid);

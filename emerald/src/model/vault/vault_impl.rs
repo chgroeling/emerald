@@ -4,10 +4,10 @@ use super::link_query_result::LinkQueryResult;
 use super::note::Note;
 use super::note_types::NoteTypes;
 use super::resource_id_trait::ResourceIdTrait;
-use super::uid_map::UidMap;
 use super::vault_trait::Vault;
 use super::NoteFactory;
 use super::{MdContentRetriever, NoteFactoryImpl, NoteMetadataRetriever};
+use crate::model::uid;
 use std::rc::Rc;
 
 #[derive(Clone)]
@@ -18,7 +18,7 @@ where
     note_factory: Rc<dyn NoteFactory>,
     get_backlinks: Rc<dyn GetBacklinks<T>>,
     get_links: Rc<dyn GetLinks<T>>,
-    uid_map: Rc<UidMap<T>>,
+    uid_map: Rc<uid::UidMap<T>>,
 }
 
 impl<T> VaultImpl<T>
@@ -32,7 +32,7 @@ where
         get_backlinks: Rc<dyn GetBacklinks<T>>,
         get_links: Rc<dyn GetLinks<T>>,
     ) -> Self {
-        let mut uid_map = UidMap::<T>::new();
+        let mut uid_map = uid::UidMap::<T>::new();
 
         for rid in note_rid_iter.into_iter() {
             uid_map.assign_uid(&rid);

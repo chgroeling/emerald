@@ -8,8 +8,6 @@ mod note_factory_impl;
 mod note_metadata_retriever;
 mod note_types;
 mod resource_id_trait;
-mod uid;
-mod uid_map;
 mod vault_impl;
 mod vault_trait;
 
@@ -25,6 +23,5 @@ pub use note_factory::NoteFactory;
 pub use note_factory_impl::NoteFactoryImpl;
 pub use note_metadata_retriever::NoteMetadataRetriever;
 pub use note_types::NoteTypes;
-pub use uid::Uid;
 pub use vault_impl::VaultImpl;
 pub use vault_trait::Vault;
