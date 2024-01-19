@@ -1,4 +1,5 @@
 use crate::model::note::NotesIterSrc;
+use crate::model::unique_id::UniqueId;
 use crate::model::vault::Vault;
 use crate::resources::FsMetadataAccessImpl;
 
@@ -141,6 +142,11 @@ impl DefaultEmerald {
         let nmod = Rc::new(note::DefaultNoteModel::new(md_meta_data));
         let elapsed = start.elapsed();
         debug!("Creation of DefaultNoteModel: {:?}", elapsed);
+
+        let start = Instant::now();
+        let _unique_id = UniqueId::new(nmod.create_iter());
+        let elapsed = start.elapsed();
+        debug!("Creation of UiniqueId: {:?}", elapsed);
 
         let start = Instant::now();
         let md_retriever_adapter =
