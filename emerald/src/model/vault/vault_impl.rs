@@ -15,7 +15,7 @@ pub struct VaultImpl<T>
 where
     T: ResourceIdTrait,
 {
-    note_factory: Rc<dyn NoteFactory>,
+    note_factory: Rc<NoteFactoryImpl<T>>,
     get_backlinks: Rc<dyn GetBacklinks<T>>,
     get_links: Rc<dyn GetLinks<T>>,
     uid_map: Rc<unique_id::UidMap<T>>,
@@ -23,7 +23,7 @@ where
 
 impl<T> VaultImpl<T>
 where
-    T: ResourceIdTrait + 'static,
+    T: ResourceIdTrait,
 {
     pub fn new(
         note_rid_iter: impl IntoIterator<Item = T>,
