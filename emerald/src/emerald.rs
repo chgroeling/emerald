@@ -1,10 +1,3 @@
-use crate::model::note::NotesIterSrc;
-use crate::model::unique_id;
-use crate::model::unique_id::UniqueId;
-use crate::model::vault::Vault;
-use crate::resources::FsMetadataAccessImpl;
-use crate::EmeraldNote;
-
 use super::adapters;
 use super::error::Result;
 use super::markdown;
@@ -18,6 +11,13 @@ use super::model::vault;
 use super::resources;
 use super::stats;
 use super::types;
+use crate::model::note::NotesIterSrc;
+use crate::model::unique_id;
+use crate::model::unique_id::UniqueId;
+use crate::model::vault::Vault;
+use crate::resources::FsMetadataAccessImpl;
+use crate::Note;
+use crate::Uid;
 
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
@@ -260,7 +260,7 @@ impl Emerald for DefaultEmerald {
         self.stats.link_stats.invalid_backlinks
     }
 
-    fn flat_iter(&self) -> std::vec::IntoIter<EmeraldNote> {
+    fn flat_iter(&self) -> std::vec::IntoIter<Note<Uid>> {
         let vcev: Vec<vault::Note<unique_id::Uid>> = self
             .nmod
             .create_iter()
