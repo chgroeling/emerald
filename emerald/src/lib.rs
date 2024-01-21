@@ -14,8 +14,8 @@ pub use crate::emerald::Emerald;
 pub use crate::error::EmeraldError;
 pub use crate::error::Result;
 pub use crate::model::unique_id::Uid;
-pub use crate::model::vault::Note;
+use crate::model::vault::Note;
 pub use crate::model::vault::NoteTypes;
 pub use crate::types::ResourceId;
 
-// pub use Note<uid>
+pub type EmeraldNote = Note<Uid>;

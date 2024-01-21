@@ -1,5 +1,5 @@
 use chrono::prelude::*;
-use emerald::{Emerald, Note, NoteTypes, Uid};
+use emerald::{Emerald, EmeraldNote, NoteTypes};
 use formatify::{Formatify, PlaceholderFormatter};
 use regex::Regex;
 use std::collections::HashMap;
@@ -63,7 +63,7 @@ impl NoteProperty {
 
 fn note_property_to_str(
     element: &NoteProperty,
-    note: &Note<Uid>,
+    note: &EmeraldNote,
     vault: &dyn Emerald,
     depth: u32,
 ) -> String {
@@ -103,7 +103,7 @@ struct NoteLinkTraversal<'a> {
 }
 
 impl<'a> NoteLinkTraversal<'a> {
-    fn print(&self, parent_note: &Note<Uid>, depth: u32) {
+    fn print(&self, parent_note: &EmeraldNote, depth: u32) {
         let mut key_value_store = HashMap::<&str, String>::new();
         let expr_parser = Formatify::new();
         for note_types in self.vault.get_links_of(parent_note) {

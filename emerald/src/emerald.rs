@@ -3,6 +3,7 @@ use crate::model::unique_id;
 use crate::model::unique_id::UniqueId;
 use crate::model::vault::Vault;
 use crate::resources::FsMetadataAccessImpl;
+use crate::EmeraldNote;
 
 use super::adapters;
 use super::error::Result;
@@ -259,7 +260,7 @@ impl Emerald for DefaultEmerald {
         self.stats.link_stats.invalid_backlinks
     }
 
-    fn flat_iter(&self) -> std::vec::IntoIter<vault::Note<unique_id::Uid>> {
+    fn flat_iter(&self) -> std::vec::IntoIter<EmeraldNote> {
         let vcev: Vec<vault::Note<unique_id::Uid>> = self
             .nmod
             .create_iter()
