@@ -48,7 +48,7 @@ where
 
 impl<T> Vault<T> for VaultImpl<T>
 where
-    T: ResourceIdTrait + 'static,
+    T: ResourceIdTrait,
 {
     fn get_note(&self, rid: &T) -> Note {
         let uid = self
