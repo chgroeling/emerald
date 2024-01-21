@@ -69,7 +69,10 @@ where
             .uid_retriever
             .get_rid_from_uid(&note.uid)
             .expect("Should exist");
-        Box::new(self.get_links.get_links_of(rid).map(move |f| match f {
+
+        let link_iter = self.get_links.get_links_of(rid);
+
+        Box::new(link_iter.map(move |f| match f {
             LinkQueryResult::LinkToNote(rid) => {
                 let link_uid = uid_map_clone.get_uid_from_rid(&rid).expect("Should exist");
                 NoteTypes::Note(factory_clone.create_note(link_uid))
@@ -85,16 +88,14 @@ where
             .uid_retriever
             .get_rid_from_uid(&note.uid)
             .expect("Should exist");
-        Box::new(
-            self.get_backlinks
-                .get_backlinks_of(rid)
-                .map(move |f| match f {
-                    LinkQueryResult::LinkToNote(rid) => {
-                        let link_uid = uid_map_clone.get_uid_from_rid(&rid).expect("Should exist");
-                        NoteTypes::Note(factory_clone.create_note(link_uid))
-                    }
-                    LinkQueryResult::LinkToResource(rid) => NoteTypes::ResourceRef(rid),
-                }),
-        )
+        let backlinks_iter = self.get_backlinks.get_backlinks_of(rid);
+
+        Box::new(backlinks_iter.map(move |f| match f {
+            LinkQueryResult::LinkToNote(rid) => {
+                let link_uid = uid_map_clone.get_uid_from_rid(&rid).expect("Should exist");
+                NoteTypes::Note(factory_clone.create_note(link_uid))
+            }
+            LinkQueryResult::LinkToResource(rid) => NoteTypes::ResourceRef(rid),
+        }))
     }
 }
