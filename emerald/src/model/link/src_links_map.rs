@@ -36,7 +36,7 @@ impl SrcIterRetriever for SrcLinksMap {
     fn retrieve(
         &self,
         tgt: &types::ResourceId,
-    ) -> Option<Box<dyn Iterator<Item = types::LinkFrmSrc>>> {
+    ) -> Option<Box<dyn Iterator<Item = types::LinkFrmSrc> + 'static>> {
         if let Some(vec) = self.src_2_tgt_map.get(tgt) {
             Some(Box::new(vec.clone().into_iter()))
         } else {

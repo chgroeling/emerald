@@ -32,7 +32,7 @@ impl TgtIterRetriever for TgtLinksMap {
     fn retrieve(
         &self,
         src: &types::ResourceId,
-    ) -> Option<Box<dyn Iterator<Item = types::Link2Tgt>>> {
+    ) -> Option<Box<dyn Iterator<Item = types::Link2Tgt> + 'static>> {
         if let Some(vec) = self.link_2_tgt_map.get(src) {
             Some(Box::new(vec.clone().into_iter()))
         } else {

@@ -5,5 +5,5 @@ pub trait SrcIterRetriever {
     fn retrieve(
         &self,
         tgt: &types::ResourceId,
-    ) -> Option<Box<dyn Iterator<Item = types::LinkFrmSrc>>>;
+    ) -> Option<Box<dyn Iterator<Item = types::LinkFrmSrc> + 'static>>;
 }

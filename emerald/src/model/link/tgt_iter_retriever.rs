@@ -5,5 +5,5 @@ pub trait TgtIterRetriever {
     fn retrieve(
         &self,
         src: &types::ResourceId,
-    ) -> Option<Box<dyn Iterator<Item = types::Link2Tgt>>>;
+    ) -> Option<Box<dyn Iterator<Item = types::Link2Tgt> + 'static>>;
 }
