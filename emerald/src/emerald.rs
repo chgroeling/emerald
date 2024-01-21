@@ -214,7 +214,7 @@ pub trait Emerald {
     fn get_links_of(
         &self,
         note: &vault::Note,
-    ) -> Box<dyn Iterator<Item = vault::NoteTypes<types::ResourceId>>>;
+    ) -> Box<dyn Iterator<Item = vault::NoteTypes<types::ResourceId>> + 'static>;
 
     /// Returns an iterator over links pointing to the specified Note.
     ///
@@ -224,7 +224,7 @@ pub trait Emerald {
     fn get_backlinks_of(
         &self,
         note: &vault::Note,
-    ) -> Box<dyn Iterator<Item = vault::NoteTypes<types::ResourceId>>>;
+    ) -> Box<dyn Iterator<Item = vault::NoteTypes<types::ResourceId>> + 'static>;
 
     fn update_note(&self, rid: &types::ResourceId, value: &str) -> String;
 
@@ -271,14 +271,14 @@ impl Emerald for DefaultEmerald {
     fn get_links_of(
         &self,
         note: &vault::Note,
-    ) -> Box<dyn Iterator<Item = vault::NoteTypes<types::ResourceId>>> {
+    ) -> Box<dyn Iterator<Item = vault::NoteTypes<types::ResourceId>> + 'static> {
         self.vault.get_links_of(note)
     }
 
     fn get_backlinks_of(
         &self,
         note: &vault::Note,
-    ) -> Box<dyn Iterator<Item = vault::NoteTypes<types::ResourceId>>> {
+    ) -> Box<dyn Iterator<Item = vault::NoteTypes<types::ResourceId>> + 'static> {
         self.vault.get_backlinks_of(note)
     }
 

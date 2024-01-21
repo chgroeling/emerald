@@ -14,12 +14,12 @@ where
     /// # Arguments
     ///
     /// * `note`: Note.
-    fn get_links_of(&self, note: &Note) -> Box<dyn Iterator<Item = NoteTypes<T>>>;
+    fn get_links_of(&self, note: &Note) -> Box<dyn Iterator<Item = NoteTypes<T>> + 'static>;
 
     /// Returns an iterator over links pointing to the specified Note.
     ///
     /// # Arguments
     ///
     /// * `note`: Note.
-    fn get_backlinks_of(&self, note: &Note) -> Box<dyn Iterator<Item = NoteTypes<T>>>;
+    fn get_backlinks_of(&self, note: &Note) -> Box<dyn Iterator<Item = NoteTypes<T>> + 'static>;
 }
