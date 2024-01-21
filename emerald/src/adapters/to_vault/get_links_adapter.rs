@@ -32,7 +32,7 @@ where
     fn get_links_of(
         &self,
         rid: &types::ResourceId,
-    ) -> Box<dyn Iterator<Item = vault::LinkQueryResult<types::ResourceId>>> {
+    ) -> Box<dyn Iterator<Item = vault::LinkQueryResult<types::ResourceId>> + 'static> {
         let rid: types::ResourceId = rid.clone().0.into();
         let Some(out_itr) = self.tgt_link_retriever.retrieve(&rid) else {
             return Box::new(std::iter::empty());

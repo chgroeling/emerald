@@ -10,5 +10,5 @@ where
     /// # Arguments
     ///
     /// * `rid`: Resource identifier.
-    fn get_links_of(&self, rid: &T) -> Box<dyn Iterator<Item = LinkQueryResult<T>>>;
+    fn get_links_of(&self, rid: &T) -> Box<dyn Iterator<Item = LinkQueryResult<T>> + 'static>;
 }

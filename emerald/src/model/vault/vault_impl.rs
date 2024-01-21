@@ -55,7 +55,7 @@ where
 
 impl<T> Vault<T> for VaultImpl<T>
 where
-    T: std::fmt::Debug + std::hash::Hash + Eq + Clone + 'static,
+    T: ResourceIdTrait + 'static,
 {
     fn get_note(&self, rid: &T) -> Note {
         let uid = self
@@ -69,7 +69,7 @@ where
         self.uid_map.get_rid_from_uid(&note.uid)
     }
 
-    fn get_links_of(&self, note: &Note) -> Box<dyn Iterator<Item = NoteTypes<T>>> {
+    fn get_links_of(&self, note: &Note) -> Box<dyn Iterator<Item = NoteTypes<T>> + 'static> {
         let factory_clone = self.note_factory.clone();
         let uid_map_clone = self.uid_map.clone();
         let rid = self
@@ -85,7 +85,7 @@ where
         }))
     }
 
-    fn get_backlinks_of(&self, note: &Note) -> Box<dyn Iterator<Item = NoteTypes<T>>> {
+    fn get_backlinks_of(&self, note: &Note) -> Box<dyn Iterator<Item = NoteTypes<T>> + 'static> {
         let factory_clone = self.note_factory.clone();
         let uid_map_clone = self.uid_map.clone();
         let rid = self
