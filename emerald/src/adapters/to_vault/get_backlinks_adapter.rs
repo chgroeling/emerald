@@ -33,7 +33,6 @@ where
         &self,
         rid: &types::ResourceId,
     ) -> Box<dyn Iterator<Item = vault::LinkQueryResult<types::ResourceId>> + 'static> {
-        let rid: types::ResourceId = rid.clone().0.into();
         let Some(out_itr) = self.src_link_retriever.retrieve(&rid) else {
             return Box::new(std::iter::empty());
         };
