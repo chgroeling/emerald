@@ -27,7 +27,7 @@ use std::{path::Path, time::Instant};
 
 #[allow(dead_code)]
 pub struct DefaultEmerald {
-    pub vault: vault::VaultImpl<types::ResourceId>,
+    pub vault: vault::VaultImpl<types::ResourceId, unique_id::Uid>,
     pub stats: stats::VaultStats,
     pub nmod: Rc<note::DefaultNoteModel>,
     pub n_updater: note_updater::NoteUpdater<types::ResourceId>,
@@ -167,12 +167,14 @@ impl DefaultEmerald {
             rmod.clone(),
         ));
 
+        let unique_id_retriever_adapter =
+            Rc::new(adapters::to_vault::UidRetrieverAdapter::new(unique_id));
         let vault = vault::VaultImpl::new(
             md_retriever_adapter,
             content_retriever_adapter,
             get_backlinks_adapter,
             get_links_adapter,
-            unique_id,
+            unique_id_retriever_adapter,
         );
 
         let elapsed = start.elapsed();
@@ -216,7 +218,7 @@ pub trait Emerald {
     fn get_links_of(
         &self,
         note: &vault::Note<unique_id::Uid>,
-    ) -> Box<dyn Iterator<Item = vault::NoteTypes<types::ResourceId>> + 'static>;
+    ) -> Box<dyn Iterator<Item = vault::NoteTypes<types::ResourceId, unique_id::Uid>> + 'static>;
 
     /// Returns an iterator over links pointing to the specified Note.
     ///
@@ -226,7 +228,7 @@ pub trait Emerald {
     fn get_backlinks_of(
         &self,
         note: &vault::Note<unique_id::Uid>,
-    ) -> Box<dyn Iterator<Item = vault::NoteTypes<types::ResourceId>> + 'static>;
+    ) -> Box<dyn Iterator<Item = vault::NoteTypes<types::ResourceId, unique_id::Uid>> + 'static>;
 
     fn update_note(&self, rid: &types::ResourceId, value: &str) -> String;
 
@@ -273,14 +275,16 @@ impl Emerald for DefaultEmerald {
     fn get_links_of(
         &self,
         note: &vault::Note<unique_id::Uid>,
-    ) -> Box<dyn Iterator<Item = vault::NoteTypes<types::ResourceId>> + 'static> {
+    ) -> Box<dyn Iterator<Item = vault::NoteTypes<types::ResourceId, unique_id::Uid>> + 'static>
+    {
         self.vault.get_links_of(note)
     }
 
     fn get_backlinks_of(
         &self,
         note: &vault::Note<unique_id::Uid>,
-    ) -> Box<dyn Iterator<Item = vault::NoteTypes<types::ResourceId>> + 'static> {
+    ) -> Box<dyn Iterator<Item = vault::NoteTypes<types::ResourceId, unique_id::Uid>> + 'static>
+    {
         self.vault.get_backlinks_of(note)
     }
 

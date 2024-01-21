@@ -1,11 +1,10 @@
-use crate::model::unique_id;
+use super::{resource_id_trait::ResourceIdTrait, uid_trait::UidTrait, Note};
 
-use super::{resource_id_trait::ResourceIdTrait, Note};
-
-pub enum NoteTypes<T>
+pub enum NoteTypes<T, U>
 where
     T: ResourceIdTrait,
+    U: UidTrait,
 {
-    Note(Note<unique_id::Uid>),
+    Note(Note<U>),
     ResourceRef(T),
 }

@@ -4,35 +4,38 @@ use super::link_query_result::LinkQueryResult;
 use super::note::Note;
 use super::note_types::NoteTypes;
 use super::resource_id_trait::ResourceIdTrait;
+use super::uid_retriever::UidRetriever;
+use super::uid_trait::UidTrait;
 use super::vault_trait::Vault;
 use super::NoteFactory;
 use super::{MdContentRetriever, NoteFactoryImpl, NoteMetadataRetriever};
-use crate::model::unique_id::{self, UidRetriever};
 use std::rc::Rc;
 
 #[derive(Clone)]
-pub struct VaultImpl<T>
+pub struct VaultImpl<T, U>
 where
     T: ResourceIdTrait,
+    U: UidTrait,
 {
-    note_factory: Rc<NoteFactoryImpl<T>>,
+    note_factory: Rc<NoteFactoryImpl<T, U>>,
     get_backlinks: Rc<dyn GetBacklinks<T>>,
     get_links: Rc<dyn GetLinks<T>>,
-    uid_retriever: Rc<dyn UidRetriever<T>>,
+    uid_retriever: Rc<dyn UidRetriever<T, U>>,
 }
 
-impl<T> VaultImpl<T>
+impl<T, U> VaultImpl<T, U>
 where
     T: ResourceIdTrait,
+    U: UidTrait,
 {
     pub fn new(
         metadata_retriever: Rc<dyn NoteMetadataRetriever<T>>,
         content_retriever: Rc<dyn MdContentRetriever<T>>,
         get_backlinks: Rc<dyn GetBacklinks<T>>,
         get_links: Rc<dyn GetLinks<T>>,
-        uid_retriever: Rc<dyn UidRetriever<T>>,
+        uid_retriever: Rc<dyn UidRetriever<T, U>>,
     ) -> Self {
-        let note_factory = Rc::new(NoteFactoryImpl::<T>::new(
+        let note_factory = Rc::new(NoteFactoryImpl::<T, U>::new(
             metadata_retriever,
             content_retriever,
             uid_retriever.clone(),
@@ -46,11 +49,12 @@ where
     }
 }
 
-impl<T> Vault<T> for VaultImpl<T>
+impl<T, U> Vault<T, U> for VaultImpl<T, U>
 where
     T: ResourceIdTrait + 'static,
+    U: UidTrait + 'static,
 {
-    fn get_note(&self, rid: &T) -> Note<unique_id::Uid> {
+    fn get_note(&self, rid: &T) -> Note<U> {
         let uid = self
             .uid_retriever
             .get_uid_from_rid(rid)
@@ -58,14 +62,11 @@ where
         self.note_factory.create_note(uid)
     }
 
-    fn get_resource_id(&self, note: &Note<unique_id::Uid>) -> Option<&T> {
+    fn get_resource_id(&self, note: &Note<U>) -> Option<&T> {
         self.uid_retriever.get_rid_from_uid(&note.uid)
     }
 
-    fn get_links_of(
-        &self,
-        note: &Note<unique_id::Uid>,
-    ) -> Box<dyn Iterator<Item = NoteTypes<T>> + 'static> {
+    fn get_links_of(&self, note: &Note<U>) -> Box<dyn Iterator<Item = NoteTypes<T, U>> + 'static> {
         let factory_clone = self.note_factory.clone();
         let uid_map_clone = self.uid_retriever.clone();
         let rid = self
@@ -86,8 +87,8 @@ where
 
     fn get_backlinks_of(
         &self,
-        note: &Note<unique_id::Uid>,
-    ) -> Box<dyn Iterator<Item = NoteTypes<T>> + 'static> {
+        note: &Note<U>,
+    ) -> Box<dyn Iterator<Item = NoteTypes<T, U>> + 'static> {
         let factory_clone = self.note_factory.clone();
         let uid_map_clone = self.uid_retriever.clone();
         let rid = self

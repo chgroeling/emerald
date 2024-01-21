@@ -1,28 +1,32 @@
 use super::note_factory::NoteFactory;
 use super::resource_id_trait::ResourceIdTrait;
+use super::uid_retriever::UidRetriever;
+use super::uid_trait::UidTrait;
 use super::{MdContentRetriever, Note, NoteMetadataRetriever};
 use crate::markdown::{DefaultMarkdownFrontmatterSplitter, MarkdownFrontmatterSplitter};
-use crate::model::unique_id::{self, UidRetriever};
+
 use std::rc::Rc;
 
 #[derive(Clone)]
-pub struct NoteFactoryImpl<T>
+pub struct NoteFactoryImpl<T, U>
 where
     T: ResourceIdTrait,
+    U: UidTrait,
 {
     metadata_retriever: Rc<dyn NoteMetadataRetriever<T>>,
     content_retriever: Rc<dyn MdContentRetriever<T>>,
-    uid_retriever: Rc<dyn UidRetriever<T>>,
+    uid_retriever: Rc<dyn UidRetriever<T, U>>,
 }
 
-impl<T> NoteFactoryImpl<T>
+impl<T, U> NoteFactoryImpl<T, U>
 where
     T: ResourceIdTrait,
+    U: UidTrait,
 {
     pub fn new(
         meta_data_retriever: Rc<dyn NoteMetadataRetriever<T>>,
         content_retriever: Rc<dyn MdContentRetriever<T>>,
-        uid_retriever: Rc<dyn UidRetriever<T>>,
+        uid_retriever: Rc<dyn UidRetriever<T, U>>,
     ) -> Self {
         Self {
             metadata_retriever: meta_data_retriever,
@@ -32,11 +36,12 @@ where
     }
 }
 
-impl<T> NoteFactory for NoteFactoryImpl<T>
+impl<T, U> NoteFactory<U> for NoteFactoryImpl<T, U>
 where
     T: ResourceIdTrait,
+    U: UidTrait,
 {
-    fn create_note(&self, uid: &unique_id::Uid) -> Note<unique_id::Uid> {
+    fn create_note(&self, uid: &U) -> Note<U> {
         let rid = self
             .uid_retriever
             .get_rid_from_uid(uid)

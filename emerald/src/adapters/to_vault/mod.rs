@@ -5,8 +5,10 @@ mod get_links_adapter;
 mod link_query_result_builder;
 mod md_content_retriever_adapter;
 mod note_metadata_retriever;
+mod uid_retriever_adapter;
 
 pub use get_backlinks_adapter::GetBacklinksAdapter;
 pub use get_links_adapter::GetLinksAdapter;
 pub use md_content_retriever_adapter::MdContentRetrieverAdapter;
 pub use note_metadata_retriever::NoteMetadataRetriever;
+pub use uid_retriever_adapter::UidRetrieverAdapter;
