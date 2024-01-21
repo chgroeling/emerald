@@ -7,7 +7,7 @@ use super::resource_id_trait::ResourceIdTrait;
 use super::vault_trait::Vault;
 use super::NoteFactory;
 use super::{MdContentRetriever, NoteFactoryImpl, NoteMetadataRetriever};
-use crate::model::unique_id;
+use crate::model::unique_id::UidRetriever;
 use std::rc::Rc;
 
 #[derive(Clone)]
@@ -18,7 +18,7 @@ where
     note_factory: Rc<NoteFactoryImpl<T>>,
     get_backlinks: Rc<dyn GetBacklinks<T>>,
     get_links: Rc<dyn GetLinks<T>>,
-    uid_map: Rc<unique_id::UidMap<T>>,
+    uid_retriever: Rc<dyn UidRetriever<T>>,
 }
 
 impl<T> VaultImpl<T>
@@ -26,29 +26,22 @@ where
     T: ResourceIdTrait,
 {
     pub fn new(
-        note_rid_iter: impl IntoIterator<Item = T>,
         metadata_retriever: Rc<dyn NoteMetadataRetriever<T>>,
         content_retriever: Rc<dyn MdContentRetriever<T>>,
         get_backlinks: Rc<dyn GetBacklinks<T>>,
         get_links: Rc<dyn GetLinks<T>>,
+        uid_retriever: Rc<dyn UidRetriever<T>>,
     ) -> Self {
-        let mut uid_map = unique_id::UidMap::<T>::new();
-
-        for rid in note_rid_iter.into_iter() {
-            uid_map.assign_uid(&rid);
-        }
-
-        let rc_uid_map = Rc::new(uid_map);
         let note_factory = Rc::new(NoteFactoryImpl::<T>::new(
             metadata_retriever,
             content_retriever,
-            rc_uid_map.clone(),
+            uid_retriever.clone(),
         ));
         Self {
             note_factory,
             get_links,
             get_backlinks,
-            uid_map: rc_uid_map,
+            uid_retriever,
         }
     }
 }
@@ -59,21 +52,21 @@ where
 {
     fn get_note(&self, rid: &T) -> Note {
         let uid = self
-            .uid_map
+            .uid_retriever
             .get_uid_from_rid(rid)
             .expect("Unknown ExResourceId");
         self.note_factory.create_note(uid)
     }
 
     fn get_resource_id(&self, note: &Note) -> Option<&T> {
-        self.uid_map.get_rid_from_uid(&note.uid)
+        self.uid_retriever.get_rid_from_uid(&note.uid)
     }
 
     fn get_links_of(&self, note: &Note) -> Box<dyn Iterator<Item = NoteTypes<T>> + 'static> {
         let factory_clone = self.note_factory.clone();
-        let uid_map_clone = self.uid_map.clone();
+        let uid_map_clone = self.uid_retriever.clone();
         let rid = self
-            .uid_map
+            .uid_retriever
             .get_rid_from_uid(&note.uid)
             .expect("Should exist");
         Box::new(self.get_links.get_links_of(rid).map(move |f| match f {
@@ -87,9 +80,9 @@ where
 
     fn get_backlinks_of(&self, note: &Note) -> Box<dyn Iterator<Item = NoteTypes<T>> + 'static> {
         let factory_clone = self.note_factory.clone();
-        let uid_map_clone = self.uid_map.clone();
+        let uid_map_clone = self.uid_retriever.clone();
         let rid = self
-            .uid_map
+            .uid_retriever
             .get_rid_from_uid(&note.uid)
             .expect("Should exist");
         Box::new(

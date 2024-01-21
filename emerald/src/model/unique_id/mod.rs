@@ -1,11 +1,13 @@
 pub mod resource_id_trait;
 pub mod uid;
 pub mod uid_map;
+pub mod uid_retriever;
 
 use std::rc::Rc;
 
 pub use uid::Uid;
 pub use uid_map::UidMap;
+pub use uid_retriever::UidRetriever;
 
 #[derive(Clone)]
 pub struct UniqueId<T>
@@ -29,5 +31,18 @@ where
         Self {
             uid_map: Rc::new(uid_map),
         }
+    }
+}
+
+impl<T> UidRetriever<T> for UniqueId<T>
+where
+    T: resource_id_trait::ResourceIdTrait,
+{
+    fn get_uid_from_rid(&self, rid: &T) -> Option<&Uid> {
+        self.uid_map.get_uid_from_rid(rid)
+    }
+
+    fn get_rid_from_uid(&self, uid: &Uid) -> Option<&T> {
+        self.uid_map.get_rid_from_uid(uid)
     }
 }

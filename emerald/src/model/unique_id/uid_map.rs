@@ -1,5 +1,6 @@
 use super::resource_id_trait::ResourceIdTrait;
 use super::uid::Uid;
+use super::uid_retriever::UidRetriever;
 use std::collections::HashMap;
 
 /// Manages mappings between UIDs (unique identifiers) and resource IDs.
@@ -25,32 +26,6 @@ where
             next_uid: 0,
         }
     }
-    /// Retrieves the resource ID associated with a given UID.
-    ///
-    /// # Arguments
-    ///
-    /// * `uid`: The UID to look up.
-    ///
-    /// # Returns
-    ///
-    /// Option containing the corresponding resource ID, if it exists.
-
-    pub fn get_rid_from_uid(&self, uid: &Uid) -> Option<&T> {
-        self.uid_to_rid.get(uid)
-    }
-
-    /// Retrieves the UID associated with a given resource ID.
-    ///
-    /// # Arguments
-    ///
-    /// * `rid`: The resource ID to look up.
-    ///
-    /// # Returns
-    ///
-    /// Option containing the corresponding UID, if it exists.
-    pub fn get_uid_from_rid(&self, rid: &T) -> Option<&Uid> {
-        self.rid_to_uid.get(rid)
-    }
 
     /// Assigns a new UID to the given resource ID.
     ///
@@ -68,5 +43,25 @@ where
         self.uid_to_rid.insert(uid.clone(), rid.clone());
         self.next_uid += 1;
         uid
+    }
+    pub fn get_rid_from_uid(&self, uid: &Uid) -> Option<&T> {
+        self.uid_to_rid.get(uid)
+    }
+
+    pub fn get_uid_from_rid(&self, rid: &T) -> Option<&Uid> {
+        self.rid_to_uid.get(rid)
+    }
+}
+
+impl<T> UidRetriever<T> for UidMap<T>
+where
+    T: ResourceIdTrait,
+{
+    fn get_rid_from_uid(&self, uid: &Uid) -> Option<&T> {
+        self.uid_to_rid.get(uid)
+    }
+
+    fn get_uid_from_rid(&self, rid: &T) -> Option<&Uid> {
+        self.rid_to_uid.get(rid)
     }
 }

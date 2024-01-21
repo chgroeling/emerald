@@ -144,7 +144,7 @@ impl DefaultEmerald {
         debug!("Creation of DefaultNoteModel: {:?}", elapsed);
 
         let start = Instant::now();
-        let _unique_id = UniqueId::new(nmod.create_iter());
+        let unique_id = Rc::new(UniqueId::new(nmod.create_iter()));
         let elapsed = start.elapsed();
         debug!("Creation of UiniqueId: {:?}", elapsed);
 
@@ -166,11 +166,11 @@ impl DefaultEmerald {
         ));
 
         let vault = vault::VaultImpl::new(
-            nmod.create_iter(),
             md_retriever_adapter,
             content_retriever_adapter,
             get_backlinks_adapter,
             get_links_adapter,
+            unique_id,
         );
 
         let elapsed = start.elapsed();
