@@ -8,6 +8,7 @@ mod note_factory_impl;
 mod note_metadata_retriever;
 mod note_types;
 mod resource_id_trait;
+mod uid_trait;
 mod vault_impl;
 mod vault_trait;
 

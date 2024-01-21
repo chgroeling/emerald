@@ -7,7 +7,7 @@ use super::resource_id_trait::ResourceIdTrait;
 use super::vault_trait::Vault;
 use super::NoteFactory;
 use super::{MdContentRetriever, NoteFactoryImpl, NoteMetadataRetriever};
-use crate::model::unique_id::UidRetriever;
+use crate::model::unique_id::{self, UidRetriever};
 use std::rc::Rc;
 
 #[derive(Clone)]
@@ -50,7 +50,7 @@ impl<T> Vault<T> for VaultImpl<T>
 where
     T: ResourceIdTrait + 'static,
 {
-    fn get_note(&self, rid: &T) -> Note {
+    fn get_note(&self, rid: &T) -> Note<unique_id::Uid> {
         let uid = self
             .uid_retriever
             .get_uid_from_rid(rid)
@@ -58,11 +58,14 @@ where
         self.note_factory.create_note(uid)
     }
 
-    fn get_resource_id(&self, note: &Note) -> Option<&T> {
+    fn get_resource_id(&self, note: &Note<unique_id::Uid>) -> Option<&T> {
         self.uid_retriever.get_rid_from_uid(&note.uid)
     }
 
-    fn get_links_of(&self, note: &Note) -> Box<dyn Iterator<Item = NoteTypes<T>> + 'static> {
+    fn get_links_of(
+        &self,
+        note: &Note<unique_id::Uid>,
+    ) -> Box<dyn Iterator<Item = NoteTypes<T>> + 'static> {
         let factory_clone = self.note_factory.clone();
         let uid_map_clone = self.uid_retriever.clone();
         let rid = self
@@ -81,7 +84,10 @@ where
         }))
     }
 
-    fn get_backlinks_of(&self, note: &Note) -> Box<dyn Iterator<Item = NoteTypes<T>> + 'static> {
+    fn get_backlinks_of(
+        &self,
+        note: &Note<unique_id::Uid>,
+    ) -> Box<dyn Iterator<Item = NoteTypes<T>> + 'static> {
         let factory_clone = self.note_factory.clone();
         let uid_map_clone = self.uid_retriever.clone();
         let rid = self

@@ -1,4 +1,5 @@
 use crate::model::note::NotesIterSrc;
+use crate::model::unique_id;
 use crate::model::unique_id::UniqueId;
 use crate::model::vault::Vault;
 use crate::resources::FsMetadataAccessImpl;
@@ -204,7 +205,7 @@ impl DefaultEmerald {
 }
 
 pub trait Emerald {
-    fn flat_iter(&self) -> std::vec::IntoIter<vault::Note>;
+    fn flat_iter(&self) -> std::vec::IntoIter<vault::Note<unique_id::Uid>>;
 
     /// Returns an iterator over links contained in the specified Note.
     ///
@@ -213,7 +214,7 @@ pub trait Emerald {
     /// * `note`: Note.
     fn get_links_of(
         &self,
-        note: &vault::Note,
+        note: &vault::Note<unique_id::Uid>,
     ) -> Box<dyn Iterator<Item = vault::NoteTypes<types::ResourceId>> + 'static>;
 
     /// Returns an iterator over links pointing to the specified Note.
@@ -223,12 +224,12 @@ pub trait Emerald {
     /// * `note`: Note.
     fn get_backlinks_of(
         &self,
-        note: &vault::Note,
+        note: &vault::Note<unique_id::Uid>,
     ) -> Box<dyn Iterator<Item = vault::NoteTypes<types::ResourceId>> + 'static>;
 
     fn update_note(&self, rid: &types::ResourceId, value: &str) -> String;
 
-    fn get_resource_id(&self, note: &vault::Note) -> Option<types::ResourceId>;
+    fn get_resource_id(&self, note: &vault::Note<unique_id::Uid>) -> Option<types::ResourceId>;
     fn file_count(&self) -> usize;
     fn md_file_count(&self) -> usize;
     fn valid_backlink_count(&self) -> usize;
@@ -236,7 +237,7 @@ pub trait Emerald {
 }
 
 impl Emerald for DefaultEmerald {
-    fn get_resource_id(&self, note: &vault::Note) -> Option<types::ResourceId> {
+    fn get_resource_id(&self, note: &vault::Note<unique_id::Uid>) -> Option<types::ResourceId> {
         let vault_resource_id = self.vault.get_resource_id(note)?;
         let resource_id: types::ResourceId = vault_resource_id.to_owned();
         Some(resource_id)
@@ -258,8 +259,8 @@ impl Emerald for DefaultEmerald {
         self.stats.link_stats.invalid_backlinks
     }
 
-    fn flat_iter(&self) -> std::vec::IntoIter<vault::Note> {
-        let vcev: Vec<vault::Note> = self
+    fn flat_iter(&self) -> std::vec::IntoIter<vault::Note<unique_id::Uid>> {
+        let vcev: Vec<vault::Note<unique_id::Uid>> = self
             .nmod
             .create_iter()
             .map(|rid| self.vault.get_note(&rid))
@@ -270,14 +271,14 @@ impl Emerald for DefaultEmerald {
 
     fn get_links_of(
         &self,
-        note: &vault::Note,
+        note: &vault::Note<unique_id::Uid>,
     ) -> Box<dyn Iterator<Item = vault::NoteTypes<types::ResourceId>> + 'static> {
         self.vault.get_links_of(note)
     }
 
     fn get_backlinks_of(
         &self,
-        note: &vault::Note,
+        note: &vault::Note<unique_id::Uid>,
     ) -> Box<dyn Iterator<Item = vault::NoteTypes<types::ResourceId>> + 'static> {
         self.vault.get_backlinks_of(note)
     }

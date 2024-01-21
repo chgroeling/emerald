@@ -1,15 +1,19 @@
 mod document_metadata;
 mod filesystem_metadata;
 mod timestamp;
-use crate::model::unique_id;
 
 pub use self::document_metadata::DocumentMetadata;
 pub use self::filesystem_metadata::FilesystemMetadata;
 pub use self::timestamp::Timestamp;
 
+use super::uid_trait::UidTrait;
+
 #[derive(Debug, Clone, PartialEq, Hash, Default)]
-pub struct Note {
-    pub uid: unique_id::Uid,
+pub struct Note<T>
+where
+    T: UidTrait,
+{
+    pub uid: T,
     pub title: String,
     pub yaml: String,
     pub markdown: String,
@@ -17,9 +21,12 @@ pub struct Note {
     pub doc_metadata: DocumentMetadata,
 }
 
-impl Note {
+impl<T> Note<T>
+where
+    T: UidTrait,
+{
     pub fn new(
-        uid: unique_id::Uid,
+        uid: T,
         title: String,
         yaml: String,
         markdown: String,

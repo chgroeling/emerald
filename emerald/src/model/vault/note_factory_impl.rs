@@ -36,7 +36,7 @@ impl<T> NoteFactory for NoteFactoryImpl<T>
 where
     T: ResourceIdTrait,
 {
-    fn create_note(&self, uid: &unique_id::Uid) -> Note {
+    fn create_note(&self, uid: &unique_id::Uid) -> Note<unique_id::Uid> {
         let rid = self
             .uid_retriever
             .get_rid_from_uid(uid)
