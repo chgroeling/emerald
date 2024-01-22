@@ -1,4 +1,5 @@
 use crate::model::note;
+use crate::model::unique_id;
 use crate::model::vault;
 use crate::types;
 use std::rc::Rc;
@@ -6,22 +7,41 @@ use std::rc::Rc;
 #[derive(Clone)]
 pub struct NoteMetadataRetriever {
     metadata_retriever: Rc<dyn note::NoteMetadataRetriever>,
+    uid_retriever: Rc<dyn unique_id::UidRetriever<types::ResourceId>>,
 }
 
 impl NoteMetadataRetriever {
-    pub fn new(meta_data_retriever: Rc<dyn note::NoteMetadataRetriever>) -> Self {
+    /// Creates a new `NoteMetadataRetriever`.
+    ///
+    /// # Arguments
+    ///
+    /// * `metadata_retriever`: An `Rc` pointer to an object implementing `note::NoteMetadataRetriever`.
+    /// * `uid_retriever`: An `Rc` pointer to an object implementing `unique_id::UidRetriever`.
+    ///
+    /// # Returns
+    ///
+    /// A new instance of `NoteMetadataRetriever`.
+    pub fn new(
+        metadata_retriever: Rc<dyn note::NoteMetadataRetriever>,
+        uid_retriever: Rc<dyn unique_id::UidRetriever<types::ResourceId>>,
+    ) -> Self {
         Self {
-            metadata_retriever: meta_data_retriever,
+            metadata_retriever,
+            uid_retriever,
         }
     }
 }
 
-impl vault::NoteMetadataRetriever<types::ResourceId> for NoteMetadataRetriever {
+impl vault::NoteMetadataRetriever<unique_id::Uid> for NoteMetadataRetriever {
     fn retrieve(
         &self,
-        tgt: &types::ResourceId,
+        tgt: &unique_id::Uid,
     ) -> (String, vault::FilesystemMetadata, vault::DocumentMetadata) {
-        let rid: types::ResourceId = tgt.clone().0.into();
+        let rid = self
+            .uid_retriever
+            .get_rid_from_uid(tgt)
+            .expect("Resource Id not found");
+
         let note_metadata = self.metadata_retriever.retrieve(&rid);
         let filesystem_md: vault::FilesystemMetadata = note_metadata.into();
         let document_md: vault::DocumentMetadata = note_metadata.into();

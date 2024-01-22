@@ -1,19 +1,19 @@
-use super::{resource_id_trait::ResourceIdTrait, DocumentMetadata, FilesystemMetadata};
+use super::{uid_trait::UidTrait, DocumentMetadata, FilesystemMetadata};
 
 /// Trait for retrieving metadata associated with a note.
-pub trait NoteMetadataRetriever<T>
+pub trait NoteMetadataRetriever<U>
 where
-    T: ResourceIdTrait,
+    U: UidTrait,
 {
     /// Retrieves metadata for a given note.
     ///
     /// # Arguments
     ///
-    /// * `tgt` - Target note's resource identifier.
+    /// * `tgt` - Target note's unique identifier.
     ///
     /// # Returns
     ///
     /// A tuple containing the note's title (`String`), `FilesystemMetadata`,
     /// and `DocumentMetadata`.
-    fn retrieve(&self, tgt: &T) -> (String, FilesystemMetadata, DocumentMetadata);
+    fn retrieve(&self, tgt: &U) -> (String, FilesystemMetadata, DocumentMetadata);
 }

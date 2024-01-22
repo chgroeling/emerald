@@ -151,10 +151,12 @@ impl DefaultEmerald {
         debug!("Creation of UiniqueId: {:?}", elapsed);
 
         let start = Instant::now();
-        let md_retriever_adapter =
-            Rc::new(adapters::to_vault::NoteMetadataRetriever::new(nmod.clone()));
+        let md_retriever_adapter = Rc::new(adapters::to_vault::NoteMetadataRetriever::new(
+            nmod.clone(),
+            unique_id.clone(),
+        ));
         let content_retriever_adapter = Rc::new(
-            adapters::to_vault::MdContentRetrieverAdapter::new(cmod.clone()),
+            adapters::to_vault::MdContentRetrieverAdapter::new(cmod.clone(), unique_id.clone()),
         );
 
         let get_backlinks_adapter = Rc::new(adapters::to_vault::GetBacklinksAdapter::new(

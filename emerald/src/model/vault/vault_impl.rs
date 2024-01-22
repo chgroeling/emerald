@@ -17,7 +17,7 @@ where
     T: ResourceIdTrait,
     U: UidTrait,
 {
-    note_factory: Rc<NoteFactoryImpl<T, U>>,
+    note_factory: Rc<NoteFactoryImpl<U>>,
     get_backlinks: Rc<dyn GetBacklinks<T>>,
     get_links: Rc<dyn GetLinks<T>>,
     uid_retriever: Rc<dyn UidRetriever<T, U>>,
@@ -29,16 +29,15 @@ where
     U: UidTrait,
 {
     pub fn new(
-        metadata_retriever: Rc<dyn NoteMetadataRetriever<T>>,
-        content_retriever: Rc<dyn MdContentRetriever<T>>,
+        metadata_retriever: Rc<dyn NoteMetadataRetriever<U>>,
+        content_retriever: Rc<dyn MdContentRetriever<U>>,
         get_backlinks: Rc<dyn GetBacklinks<T>>,
         get_links: Rc<dyn GetLinks<T>>,
         uid_retriever: Rc<dyn UidRetriever<T, U>>,
     ) -> Self {
-        let note_factory = Rc::new(NoteFactoryImpl::<T, U>::new(
+        let note_factory = Rc::new(NoteFactoryImpl::<U>::new(
             metadata_retriever,
             content_retriever,
-            uid_retriever.clone(),
         ));
         Self {
             note_factory,

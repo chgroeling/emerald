@@ -1,17 +1,17 @@
-use super::resource_id_trait::ResourceIdTrait;
+use super::uid_trait::UidTrait;
 
-pub trait MdContentRetriever<T>
+pub trait MdContentRetriever<U>
 where
-    T: ResourceIdTrait,
+    U: UidTrait,
 {
     /// Retrieves content for the specified resource identifier.
     ///
     /// # Arguments
     ///
-    /// * `rid`: A reference to a `types::ResourceId`.
+    /// * `uid`: A reference to a valid type which holds an UIDS
     ///
     /// # Returns
     ///
     /// A string slice containing the retrieved content.
-    fn retrieve(&self, rid: &T) -> &str;
+    fn retrieve(&self, uid: &U) -> &str;
 }
