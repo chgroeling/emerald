@@ -30,7 +30,7 @@ impl MdContentRetrieverAdapter {
 
 impl note_updater::MdContentRetriever<types::ResourceId> for MdContentRetrieverAdapter {
     fn retrieve(&self, rid: &types::ResourceId) -> &str {
-        let content = self.content_retriever.retrieve(&rid.clone().into());
+        let content = self.content_retriever.retrieve(rid);
 
         &content.0
     }

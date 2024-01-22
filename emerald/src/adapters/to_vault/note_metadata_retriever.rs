@@ -42,7 +42,7 @@ impl vault::NoteMetadataRetriever<unique_id::Uid> for NoteMetadataRetriever {
             .get_rid_from_uid(tgt)
             .expect("Resource Id not found");
 
-        let note_metadata = self.metadata_retriever.retrieve(&rid);
+        let note_metadata = self.metadata_retriever.retrieve(rid);
         let filesystem_md: vault::FilesystemMetadata = note_metadata.into();
         let document_md: vault::DocumentMetadata = note_metadata.into();
 

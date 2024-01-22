@@ -33,7 +33,7 @@ where
         &self,
         rid: &types::ResourceId,
     ) -> Box<dyn Iterator<Item = vault::LinkQueryResult<types::ResourceId>> + 'static> {
-        let Some(out_itr) = self.tgt_link_retriever.retrieve(&rid) else {
+        let Some(out_itr) = self.tgt_link_retriever.retrieve(rid) else {
             return Box::new(std::iter::empty());
         };
         let res_meta_data_ret = self.res_meta_data_ret.clone();

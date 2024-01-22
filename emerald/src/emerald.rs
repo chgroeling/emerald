@@ -291,9 +291,8 @@ impl Emerald for DefaultEmerald {
     }
 
     fn update_note(&self, rid: &types::ResourceId, value: &str) -> String {
-        let rid_clone = rid.clone();
         self.n_updater.update_note(
-            &rid_clone.into(),
+            rid,
             note_updater::NoteUpdateCommand::UpdateOrInsert {
                 key: "uid".into(),
                 value: value.into(),
