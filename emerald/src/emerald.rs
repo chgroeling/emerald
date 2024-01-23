@@ -13,7 +13,7 @@ use super::stats;
 use super::types;
 use crate::model::note::NotesIterSrc;
 use crate::model::unique_id;
-use crate::model::unique_id::UniqueId;
+use crate::model::unique_id::UidRetriever;
 use crate::model::vault::Vault;
 use crate::resources::FsMetadataAccessImpl;
 use crate::Note;
@@ -31,6 +31,7 @@ pub struct DefaultEmerald {
     pub stats: stats::VaultStats,
     pub nmod: Rc<note::DefaultNoteModel>,
     pub n_updater: note_updater::NoteUpdater<types::ResourceId>,
+    pub uid_mod: Rc<unique_id::UniqueId<types::ResourceId>>,
 }
 
 impl DefaultEmerald {
@@ -146,17 +147,17 @@ impl DefaultEmerald {
         debug!("Creation of DefaultNoteModel: {:?}", elapsed);
 
         let start = Instant::now();
-        let unique_id = Rc::new(UniqueId::new(nmod.create_iter()));
+        let uid_mod = Rc::new(unique_id::UniqueId::new(nmod.create_iter()));
         let elapsed = start.elapsed();
         debug!("Creation of UiniqueId: {:?}", elapsed);
 
         let start = Instant::now();
         let md_retriever_adapter = Rc::new(adapters::to_vault::NoteMetadataRetriever::new(
             nmod.clone(),
-            unique_id.clone(),
+            uid_mod.clone(),
         ));
         let content_retriever_adapter = Rc::new(
-            adapters::to_vault::MdContentRetrieverAdapter::new(cmod.clone(), unique_id.clone()),
+            adapters::to_vault::MdContentRetrieverAdapter::new(cmod.clone(), uid_mod.clone()),
         );
 
         let get_backlinks_adapter = Rc::new(adapters::to_vault::GetBacklinksAdapter::new(
@@ -169,8 +170,9 @@ impl DefaultEmerald {
             rmod.clone(),
         ));
 
-        let unique_id_retriever_adapter =
-            Rc::new(adapters::to_vault::UidRetrieverAdapter::new(unique_id));
+        let unique_id_retriever_adapter = Rc::new(adapters::to_vault::UidRetrieverAdapter::new(
+            uid_mod.clone(),
+        ));
         let vault = vault::VaultImpl::new(
             md_retriever_adapter,
             content_retriever_adapter,
@@ -205,6 +207,7 @@ impl DefaultEmerald {
             stats: vault_stats,
             nmod,
             n_updater: note_updater,
+            uid_mod,
         })
     }
 }
@@ -268,7 +271,8 @@ impl Emerald for DefaultEmerald {
         let vcev: Vec<vault::Note<unique_id::Uid>> = self
             .nmod
             .create_iter()
-            .map(|rid| self.vault.get_note(&rid))
+            .map(|rid| self.uid_mod.get_uid_from_rid(&rid).expect("Unknown Uid"))
+            .map(|uid| self.vault.get_note(&uid))
             .collect();
 
         vcev.into_iter()

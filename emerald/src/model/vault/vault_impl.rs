@@ -53,11 +53,7 @@ where
     T: ResourceIdTrait + 'static,
     U: UidTrait + 'static,
 {
-    fn get_note(&self, rid: &T) -> Note<U> {
-        let uid = self
-            .uid_retriever
-            .get_uid_from_rid(rid)
-            .expect("Unknown ExResourceId");
+    fn get_note(&self, uid: &U) -> Note<U> {
         self.note_factory.create_note(uid)
     }
 
