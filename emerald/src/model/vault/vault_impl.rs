@@ -57,10 +57,6 @@ where
         self.note_factory.create_note(uid)
     }
 
-    fn get_resource_id(&self, note: &Note<U>) -> Option<&T> {
-        self.uid_retriever.get_rid_from_uid(&note.uid)
-    }
-
     fn get_links_of(&self, note: &Note<U>) -> Box<dyn Iterator<Item = NoteTypes<T, U>> + 'static> {
         let factory_clone = self.note_factory.clone();
         let uid_map_clone = self.uid_retriever.clone();

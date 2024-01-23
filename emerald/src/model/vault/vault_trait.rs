@@ -7,9 +7,6 @@ where
 {
     fn get_note(&self, uid: &U) -> Note<U>;
 
-    /// Returns the resource id of the Note note.
-    fn get_resource_id(&self, note: &Note<U>) -> Option<&T>;
-
     /// Returns an iterator over links contained in the specified Note.
     ///
     /// # Arguments

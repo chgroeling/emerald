@@ -246,9 +246,9 @@ pub trait Emerald {
 
 impl Emerald for DefaultEmerald {
     fn get_resource_id(&self, note: &vault::Note<unique_id::Uid>) -> Option<types::ResourceId> {
-        let vault_resource_id = self.vault.get_resource_id(note)?;
-        let resource_id: types::ResourceId = vault_resource_id.to_owned();
-        Some(resource_id)
+        let uid = &note.uid;
+        let rid = self.uid_mod.get_rid_from_uid(uid);
+        rid.cloned()
     }
 
     fn file_count(&self) -> usize {
@@ -272,7 +272,7 @@ impl Emerald for DefaultEmerald {
             .nmod
             .create_iter()
             .map(|rid| self.uid_mod.get_uid_from_rid(&rid).expect("Unknown Uid"))
-            .map(|uid| self.vault.get_note(&uid))
+            .map(|uid| self.vault.get_note(uid))
             .collect();
 
         vcev.into_iter()
