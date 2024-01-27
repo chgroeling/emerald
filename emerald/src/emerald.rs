@@ -7,12 +7,12 @@ use super::model::note;
 use super::model::note_updater;
 use super::model::resource;
 use super::model::resource_id_resolver;
+use super::model::unique_id;
 use super::model::vault;
 use super::resources;
 use super::stats;
 use super::types;
 use crate::model::note::NotesIterSrc;
-use crate::model::unique_id;
 use crate::model::unique_id::UidRetriever;
 use crate::model::vault::Vault;
 use crate::resources::FsMetadataAccessImpl;
@@ -35,7 +35,7 @@ pub struct DefaultEmerald {
     pub n_updater: note_updater::NoteUpdater<types::ResourceId>,
     pub uid_mod: Rc<unique_id::UniqueId<types::ResourceId>>,
     pub get_links: Rc<dyn adapters::to_outside::GetLinks>,
-    pub get_back_links: Rc<dyn adapters::to_outside::GetBacklinks>,
+    pub get_backlinks: Rc<dyn adapters::to_outside::GetBacklinks>,
 }
 
 impl DefaultEmerald {
@@ -205,7 +205,7 @@ impl DefaultEmerald {
             uid_mod,
             lmod,
             get_links: get_links_adapter,
-            get_back_links: get_backlinks_adapter,
+            get_backlinks: get_backlinks_adapter,
         })
     }
 }
@@ -310,7 +310,7 @@ impl Emerald for DefaultEmerald {
             .get_rid_from_uid(&note.uid)
             .expect("Should exist");
 
-        let backlinks_iter = self.get_back_links.get_backlinks_of(src);
+        let backlinks_iter = self.get_backlinks.get_backlinks_of(src);
 
         let uid_mod_clone = self.uid_mod.clone();
         let vault_clone = self.vault.clone();
