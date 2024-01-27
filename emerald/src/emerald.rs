@@ -17,6 +17,7 @@ use crate::model::unique_id::UidRetriever;
 use crate::model::vault::Vault;
 use crate::resources::FsMetadataAccessImpl;
 use crate::Note;
+use crate::NoteTypes;
 use crate::Uid;
 
 #[allow(unused_imports)]
@@ -27,11 +28,14 @@ use std::{path::Path, time::Instant};
 
 #[allow(dead_code)]
 pub struct DefaultEmerald {
-    pub vault: vault::VaultImpl<types::ResourceId, unique_id::Uid>,
+    pub vault: vault::VaultImpl<unique_id::Uid>,
     pub stats: stats::VaultStats,
     pub nmod: Rc<note::DefaultNoteModel>,
+    pub lmod: Rc<link::DefaultLinkModel>,
     pub n_updater: note_updater::NoteUpdater<types::ResourceId>,
     pub uid_mod: Rc<unique_id::UniqueId<types::ResourceId>>,
+    pub get_links: Rc<dyn adapters::to_outside::GetLinks>,
+    pub get_back_links: Rc<dyn adapters::to_outside::GetBacklinks>,
 }
 
 impl DefaultEmerald {
@@ -160,26 +164,17 @@ impl DefaultEmerald {
             adapters::to_vault::MdContentRetrieverAdapter::new(cmod.clone(), uid_mod.clone()),
         );
 
-        let get_backlinks_adapter = Rc::new(adapters::to_vault::GetBacklinksAdapter::new(
+        let get_backlinks_adapter = Rc::new(adapters::to_outside::GetBacklinksAdapter::new(
             lmod.clone(),
             rmod.clone(),
         ));
 
-        let get_links_adapter = Rc::new(adapters::to_vault::GetLinksAdapter::new(
+        let get_links_adapter = Rc::new(adapters::to_outside::GetLinksAdapter::new(
             lmod.clone(),
             rmod.clone(),
         ));
 
-        let unique_id_retriever_adapter = Rc::new(adapters::to_vault::UidRetrieverAdapter::new(
-            uid_mod.clone(),
-        ));
-        let vault = vault::VaultImpl::new(
-            md_retriever_adapter,
-            content_retriever_adapter,
-            get_backlinks_adapter,
-            get_links_adapter,
-            unique_id_retriever_adapter,
-        );
+        let vault = vault::VaultImpl::new(md_retriever_adapter, content_retriever_adapter);
 
         let elapsed = start.elapsed();
         debug!("Creation of Vault: {:?}", elapsed);
@@ -208,6 +203,9 @@ impl DefaultEmerald {
             nmod,
             n_updater: note_updater,
             uid_mod,
+            lmod,
+            get_links: get_links_adapter,
+            get_back_links: get_backlinks_adapter,
         })
     }
 }
@@ -283,7 +281,23 @@ impl Emerald for DefaultEmerald {
         note: &vault::Note<unique_id::Uid>,
     ) -> Box<dyn Iterator<Item = vault::NoteTypes<types::ResourceId, unique_id::Uid>> + 'static>
     {
-        self.vault.get_links_of(note)
+        let tgt = self
+            .uid_mod
+            .get_rid_from_uid(&note.uid)
+            .expect("Should exist");
+
+        let link_iter = self.get_links.get_links_of(tgt);
+        let uid_mod_clone = self.uid_mod.clone();
+        let vault_clone = self.vault.clone();
+        Box::new(link_iter.map(move |f| match f {
+            adapters::to_outside::LinkQueryResult::LinkToNote(rid) => {
+                let link_uid = uid_mod_clone.get_uid_from_rid(&rid).expect("Should exist");
+                NoteTypes::Note(vault_clone.get_note(link_uid))
+            }
+            adapters::to_outside::LinkQueryResult::LinkToResource(rid) => {
+                NoteTypes::ResourceRef(rid)
+            }
+        }))
     }
 
     fn get_backlinks_of(
@@ -291,7 +305,25 @@ impl Emerald for DefaultEmerald {
         note: &vault::Note<unique_id::Uid>,
     ) -> Box<dyn Iterator<Item = vault::NoteTypes<types::ResourceId, unique_id::Uid>> + 'static>
     {
-        self.vault.get_backlinks_of(note)
+        let src = self
+            .uid_mod
+            .get_rid_from_uid(&note.uid)
+            .expect("Should exist");
+
+        let backlinks_iter = self.get_back_links.get_backlinks_of(src);
+
+        let uid_mod_clone = self.uid_mod.clone();
+        let vault_clone = self.vault.clone();
+
+        Box::new(backlinks_iter.map(move |f| match f {
+            adapters::to_outside::LinkQueryResult::LinkToNote(rid) => {
+                let link_uid = uid_mod_clone.get_uid_from_rid(&rid).expect("Should exist");
+                NoteTypes::Note(vault_clone.get_note(link_uid))
+            }
+            adapters::to_outside::LinkQueryResult::LinkToResource(rid) => {
+                NoteTypes::ResourceRef(rid)
+            }
+        }))
     }
 
     fn update_note(&self, rid: &types::ResourceId, value: &str) -> String {

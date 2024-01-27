@@ -1,6 +1,7 @@
 use super::link_query_result_builder::LinkQueryResultBuilder;
 use super::link_query_result_builder::LinkQueryResultBuilderImpl;
-use crate::model::vault;
+use super::GetBacklinks;
+use super::LinkQueryResult;
 use crate::model::{link, resource};
 use crate::types;
 use std::marker::PhantomData;
@@ -25,14 +26,14 @@ impl GetBacklinksAdapter {
         }
     }
 }
-impl<I> vault::GetBacklinks<types::ResourceId> for GetBacklinksAdapter<I>
+impl<I> GetBacklinks for GetBacklinksAdapter<I>
 where
     I: LinkQueryResultBuilder,
 {
     fn get_backlinks_of(
         &self,
         rid: &types::ResourceId,
-    ) -> Box<dyn Iterator<Item = vault::LinkQueryResult<types::ResourceId>> + 'static> {
+    ) -> Box<dyn Iterator<Item = LinkQueryResult> + 'static> {
         let Some(out_itr) = self.src_link_retriever.retrieve(rid) else {
             return Box::new(std::iter::empty());
         };

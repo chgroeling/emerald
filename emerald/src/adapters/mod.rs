@@ -8,6 +8,7 @@ mod adapters_to_rid_and_link_2_tgt;
 mod adapters_to_rid_and_links;
 mod adapters_to_rid_and_yaml;
 pub mod to_note_updater;
+pub mod to_outside;
 pub mod to_resource_id_resolver;
 pub mod to_vault;
 
