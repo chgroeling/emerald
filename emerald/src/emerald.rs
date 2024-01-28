@@ -151,7 +151,14 @@ impl DefaultEmerald {
         debug!("Creation of DefaultNoteModel: {:?}", elapsed);
 
         let start = Instant::now();
-        let uid_mod = Rc::new(unique_id::UniqueId::new(nmod.create_iter()));
+        let uid_metadata_retriever_adapter = Rc::new(
+            adapters::to_unique_id::UidMetadataRetrieverAdapter::new(nmod.clone()),
+        );
+        let uid_mod = Rc::new(unique_id::UniqueId::new(
+            nmod.create_iter(),
+            uid_metadata_retriever_adapter,
+        ));
+
         let elapsed = start.elapsed();
         debug!("Creation of UiniqueId: {:?}", elapsed);
 

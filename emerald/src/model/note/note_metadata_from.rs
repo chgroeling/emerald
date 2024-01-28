@@ -17,6 +17,7 @@ impl From<(types::FilesystemMetadata, types::DocumentMetadata)> for NoteMetadata
         };
 
         let doc_md = DocumentMetadata {
+            uid: value.1.uid,
             aliases: value.1.aliases.unwrap_or_default(),
             keywords: value.1.keywords.unwrap_or_default(),
             modified: value.1.modified,

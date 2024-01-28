@@ -1,12 +1,14 @@
 pub mod resource_id_trait;
 pub mod uid;
 pub mod uid_map;
+pub mod uid_metadata_retriever;
 pub mod uid_retriever;
 
 use std::rc::Rc;
 
 pub use uid::Uid;
 pub use uid_map::UidMap;
+pub use uid_metadata_retriever::UidMetadataRetriever;
 pub use uid_retriever::UidRetriever;
 
 #[derive(Clone)]
@@ -14,6 +16,7 @@ pub struct UniqueId<T>
 where
     T: resource_id_trait::ResourceIdTrait,
 {
+    uid_metadata_retriever: Rc<dyn UidMetadataRetriever<T>>,
     uid_map: Rc<UidMap<T>>,
 }
 
@@ -21,7 +24,10 @@ impl<T> UniqueId<T>
 where
     T: resource_id_trait::ResourceIdTrait,
 {
-    pub fn new(note_rid_iter: impl IntoIterator<Item = T>) -> Self {
+    pub fn new(
+        note_rid_iter: impl IntoIterator<Item = T>,
+        uid_metadata_retriever: Rc<dyn UidMetadataRetriever<T>>,
+    ) -> Self {
         let mut uid_map = UidMap::<T>::new();
 
         for rid in note_rid_iter.into_iter() {
@@ -30,6 +36,7 @@ where
 
         Self {
             uid_map: Rc::new(uid_map),
+            uid_metadata_retriever,
         }
     }
 }

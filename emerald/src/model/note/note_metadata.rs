@@ -8,6 +8,7 @@ pub struct FilesystemMetadata {
 
 #[derive(Debug, Clone, PartialEq, Hash, Default)]
 pub struct DocumentMetadata {
+    pub uid: Option<String>,
     pub tags: Option<String>,
     pub aliases: Vec<String>,
     pub keywords: Vec<String>,

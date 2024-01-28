@@ -1,0 +1,2 @@
+mod uid_metadata_retriever_adapter;
+pub use uid_metadata_retriever_adapter::UidMetadataRetrieverAdapter;

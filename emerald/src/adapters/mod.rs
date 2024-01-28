@@ -10,6 +10,7 @@ mod adapters_to_rid_and_yaml;
 pub mod to_note_updater;
 pub mod to_outside;
 pub mod to_resource_id_resolver;
+pub mod to_unique_id;
 pub mod to_vault;
 
 pub use adapters_to_link_src_2_tgt::adapter_to_link_src_2_tgt;
